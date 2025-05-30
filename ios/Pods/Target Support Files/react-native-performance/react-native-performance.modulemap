@@ -1,0 +1,6 @@
+framework module react_native_performance {
+  umbrella header "react-native-performance-umbrella.h"
+
+  export *
+  module * { export * }
+}

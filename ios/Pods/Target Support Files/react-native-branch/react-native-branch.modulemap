@@ -1,0 +1,6 @@
+framework module RNBranch {
+  umbrella header "react-native-branch-umbrella.h"
+
+  export *
+  module * { export * }
+}

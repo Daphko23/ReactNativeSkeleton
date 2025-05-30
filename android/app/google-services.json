@@ -1,0 +1,50 @@
+{
+  "project_info": {
+    "project_number": "123456789",
+    "project_id": "reactnativeskeleton-dev",
+    "storage_bucket": "reactnativeskeleton-dev.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:123456789:android:abcdef1234567890abcdef",
+        "android_client_info": {
+          "package_name": "de.reactnativeskeleton.dev"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "YOUR_ANDROID_CLIENT_ID.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "de.reactnativeskeleton.dev",
+            "certificate_hash": "abcdef1234567890abcdef1234567890abcdef12"
+          }
+        },
+        {
+          "client_id": "YOUR_WEB_CLIENT_ID.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "YOUR_API_KEY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "YOUR_IOS_CLIENT_ID.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "de.reactnativeskeleton.dev"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+} 

@@ -15,13 +15,13 @@ const optimizations = {
   resolver: {
     // Asset Optimierungen
     assetExts: [
-      ...defaultConfig.resolver.assetExts,
-      'svg', 'webp' // Moderne, komprimierte Formate
+      ...defaultConfig.resolver.assetExts.filter(ext => ext !== 'svg'),
+      'webp' // Moderne, komprimierte Formate (SVG via Transformer)
     ],
     // Source Map Extensions  
     sourceExts: [
       ...defaultConfig.resolver.sourceExts,
-      'jsx', 'js', 'ts', 'tsx', 'json'
+      'jsx', 'js', 'ts', 'tsx', 'json', 'svg'
     ],
     // Module Resolution für Tree Shaking
     alias: {
@@ -29,6 +29,28 @@ const optimizations = {
       '@features': path.resolve(__dirname, 'src/features'),
       '@shared': path.resolve(__dirname, 'src/shared'),
       '@assets': path.resolve(__dirname, 'src/assets')
+    },
+    // Node.js Polyfills für React Native
+    extraNodeModules: {
+      stream: 'stream-browserify',
+      events: 'events',
+      util: 'util',
+      crypto: 'crypto-browserify',
+      url: 'url',
+      buffer: 'buffer',
+      process: 'process',
+      zlib: 'browserify-zlib',
+      assert: 'assert',
+      // Mock Module für Node.js spezifische Module (falls node_modules_mock existiert)
+      ...(require('fs').existsSync(path.resolve(__dirname, 'node_modules_mock')) && {
+        http: path.resolve(__dirname, 'node_modules_mock/http.js'),
+        https: path.resolve(__dirname, 'node_modules_mock/https.js'),
+        net: path.resolve(__dirname, 'node_modules_mock/net.js'),
+        tls: path.resolve(__dirname, 'node_modules_mock/tls.js'),
+        fs: path.resolve(__dirname, 'node_modules_mock/fs.js'),
+        path: path.resolve(__dirname, 'node_modules_mock/path.js'),
+        os: path.resolve(__dirname, 'node_modules_mock/os.js'),
+      })
     }
   },
   

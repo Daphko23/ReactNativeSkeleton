@@ -1,0 +1,6 @@
+framework module react_native_app_auth {
+  umbrella header "react-native-app-auth-umbrella.h"
+
+  export *
+  module * { export * }
+}
