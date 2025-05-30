@@ -1,0 +1,44 @@
+# React Native Development Environment
+FROM node:18-alpine
+
+# Set working directory
+WORKDIR /app
+
+# Install system dependencies
+RUN apk add --no-cache \
+    git \
+    python3 \
+    make \
+    g++ \
+    openjdk11-jre
+
+# Set Java environment
+ENV JAVA_HOME=/usr/lib/jvm/java-11-openjdk
+
+# Install Android SDK (für Android development)
+ENV ANDROID_HOME=/opt/android-sdk
+ENV PATH=${PATH}:${ANDROID_HOME}/tools:${ANDROID_HOME}/platform-tools
+
+# Create app user (security best practice)
+RUN addgroup -g 1001 -S nodejs && \
+    adduser -S reactnative -u 1001
+
+# Copy package files
+COPY package*.json ./
+COPY scripts/ ./scripts/
+
+# Install dependencies
+RUN npm ci --only=production && \
+    npm cache clean --force
+
+# Copy source code
+COPY --chown=reactnative:nodejs . .
+
+# Switch to non-root user
+USER reactnative
+
+# Expose Metro bundler port
+EXPOSE 8081
+
+# Start development server
+CMD ["npm", "start"] 

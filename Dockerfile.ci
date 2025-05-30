@@ -1,0 +1,45 @@
+# React Native CI/CD Pipeline
+FROM cimg/android:2024.01.1-node
+
+# Set working directory
+WORKDIR /app
+
+# Install additional tools for Enterprise CI
+USER root
+RUN apt-get update && apt-get install -y \
+    curl \
+    git \
+    unzip \
+    && rm -rf /var/lib/apt/lists/*
+
+# Switch back to circleci user
+USER circleci
+
+# Set environment variables
+ENV NODE_OPTIONS="--max-old-space-size=4096"
+ENV JAVA_HOME=/usr/lib/jvm/java-11-openjdk-amd64
+
+# Copy package files for dependency caching
+COPY --chown=circleci:circleci package*.json ./
+
+# Install Node.js dependencies
+RUN npm ci --frozen-lockfile
+
+# Copy source code
+COPY --chown=circleci:circleci . .
+
+# Run quality checks and tests
+RUN npm run deps:check && \
+    npm run lint && \
+    npm run type-check && \
+    npm run test:ci
+
+# Android Build (optional)
+RUN if [ "$BUILD_ANDROID" = "true" ]; then \
+        ./android/gradlew assembleRelease -p android; \
+    fi
+
+# Security scan
+RUN npm audit --audit-level=high
+
+CMD ["echo", "CI/CD pipeline completed successfully"] 

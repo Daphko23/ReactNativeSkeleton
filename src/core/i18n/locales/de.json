@@ -1,0 +1,380 @@
+{
+  "common": {
+    "cancel": "Abbrechen",
+    "delete": "Löschen",
+    "alert": {
+      "titles": {
+        "error": "Fehler",
+        "success": "Erfolg",
+        "warning": "Warnung",
+        "info": "Information",
+        "notAvailable": "Nicht verfügbar",
+        "enabled": "Aktiviert",
+        "disabled": "Deaktiviert",
+        "failed": "Fehlgeschlagen",
+        "notEnabled": "Nicht aktiviert",
+        "confirmation": "Bestätigung"
+      }
+    }
+  },
+  "error": {
+    "auth": {
+      "invalidCredentials": "Ungültige Anmeldedaten. Bitte versuchen Sie es erneut.",
+      "userNotFound": "Benutzer wurde nicht gefunden. Bitte überprüfen Sie Ihre Angaben.",
+      "emailAlreadyInUse": "Diese E-Mail-Adresse ist bereits registriert.",
+      "weakPassword": "Ihr Passwort ist zu schwach. Bitte wählen Sie ein stärkeres.",
+      "generic": "Ein unbekannter Fehler bei der Anmeldung ist aufgetreten.",
+      "biometric": {
+        "notAvailable": "Biometrische Authentifizierung ist auf diesem Gerät nicht verfügbar oder nicht eingerichtet.",
+        "failed": "Biometrische Authentifizierung fehlgeschlagen.",
+        "enableFailed": "Biometrische Authentifizierung konnte nicht aktiviert werden. Bitte versuchen Sie es erneut.",
+        "disableFailed": "Deaktivierung fehlgeschlagen.",
+        "testFailed": "Biometrische Authentifizierung fehlgeschlagen.",
+        "userNotAuthenticated": "Sie müssen angemeldet sein, um biometrische Authentifizierung zu aktivieren.",
+        "notEnabled": "Biometrische Authentifizierung ist nicht aktiviert."
+      },
+      "mfa": {
+        "setupFailed": "MFA Setup fehlgeschlagen. Bitte versuchen Sie es erneut.",
+        "verificationFailed": "Verifizierung fehlgeschlagen. Bitte versuchen Sie es erneut.",
+        "codeRequired": "Bitte geben Sie den Verifizierungscode ein.",
+        "invalidMethod": "Ungültige MFA-Methode gewählt."
+      }
+    },
+    "matchday": {
+      "create": "Fehler beim Erstellen des Spieltags",
+      "update": "Fehler beim Aktualisieren des Spieltags",
+      "load": "Fehler beim Laden des Spieltags"
+    }
+  },
+  "auth": {
+    "login": {
+      "title": "Anmelden",
+      "emailLabel": "E-Mail",
+      "passwordLabel": "Passwort",
+      "button": "Login",
+      "success": "Erfolgreich eingeloggt"
+    },
+    "register": {
+      "title": "Registrieren",
+      "emailLabel": "E-Mail",
+      "passwordLabel": "Passwort",
+      "confirmPasswordLabel": "Passwort bestätigen",
+      "button": "Registrieren",
+      "success": "Registrierung erfolgreich!",
+      "emailConfirmationMessage": "Registrierung erfolgreich! Bitte überprüfen Sie Ihre E-Mails, um Ihr Konto zu bestätigen.",
+      "redirectingToLogin": "Weiterleitung zur Anmeldeseite..."
+    },
+    "reset": {
+      "title": "Passwort zurücksetzen",
+      "emailLabel": "E-Mail",
+      "button": "Link senden",
+      "success": "E-Mail zum Zurücksetzen wurde gesendet"
+    },
+    "navigation": {
+      "noAccount": "Noch keinen Account? Jetzt registrieren!",
+      "forgotPassword": "Passwort vergessen?",
+      "alreadyAccount": "Schon einen Account? Jetzt anmelden!",
+      "backToLogin": "Zurück zum Login"
+    },
+    "biometric": {
+      "title": "Biometrische Authentifizierung",
+      "subtitle": {
+        "ios": "Face ID / Touch ID",
+        "android": "Fingerabdruck"
+      },
+      "description": {
+        "enabled": "Sie können sich mit {{biometricType}} anmelden, ohne Ihr Passwort eingeben zu müssen.",
+        "disabled": "Aktivieren Sie {{biometricType}}, um sich schnell und sicher anzumelden."
+      },
+      "icons": {
+        "ios": "🔒",
+        "android": "👆"
+      },
+      "warning": {
+        "notAvailable": "{{biometricType}} ist auf diesem Gerät nicht verfügbar oder nicht eingerichtet. Bitte aktivieren Sie es in den Geräteeinstellungen."
+      },
+      "buttons": {
+        "test": "Biometrie testen",
+        "testing": "Wird getestet..."
+      },
+      "success": {
+        "enabled": "{{biometricType}} wurde erfolgreich aktiviert. Sie können sich jetzt mit Ihrer Biometrie anmelden.",
+        "disabled": "{{biometricType}} wurde deaktiviert.",
+        "testPassed": "Biometrische Authentifizierung erfolgreich!"
+      },
+      "confirm": {
+        "disable": {
+          "title": "Deaktivieren bestätigen",
+          "message": "Möchten Sie {{biometricType}} wirklich deaktivieren?",
+          "confirm": "Deaktivieren",
+          "cancel": "Abbrechen"
+        }
+      },
+      "info": {
+        "title": "Sicherheitshinweise:",
+        "points": {
+          "secure": "Ihre biometrischen Daten werden sicher auf Ihrem Gerät gespeichert",
+          "noAccess": "Wir haben keinen Zugriff auf Ihre biometrischen Daten",
+          "disableAnytime": "Sie können diese Funktion jederzeit deaktivieren",
+          "passwordFallback": "Bei Problemen können Sie sich weiterhin mit Passwort anmelden"
+        }
+      },
+      "unavailable": {
+        "title": "Anmeldung erforderlich",
+        "subtitle": "Melden Sie sich an, um biometrische Authentifizierung zu konfigurieren.",
+        "icon": "🔒"
+      }
+    },
+    "mfa": {
+      "title": "Multi-Faktor-Authentifizierung aktivieren",
+      "subtitle": "Wählen Sie eine Methode für zusätzliche Sicherheit:",
+      "methods": {
+        "totp": {
+          "title": "Authenticator App",
+          "description": "Verwenden Sie eine App wie Google Authenticator oder Authy",
+          "icon": "📱"
+        },
+        "sms": {
+          "title": "SMS",
+          "description": "Erhalten Sie Codes per Textnachricht",
+          "icon": "💬"
+        },
+        "email": {
+          "title": "E-Mail", 
+          "description": "Erhalten Sie Codes per E-Mail",
+          "icon": "📧"
+        }
+      },
+      "setup": {
+        "totp": {
+          "title": "Authenticator App einrichten",
+          "instructions": {
+            "1": "Installieren Sie eine Authenticator App (Google Authenticator, Authy, etc.)",
+            "2": "Scannen Sie den QR-Code oder geben Sie den geheimen Schlüssel manuell ein"
+          },
+          "secretLabel": "Geheimer Schlüssel:"
+        },
+        "sms": {
+          "title": "SMS einrichten",
+          "instruction": "Geben Sie Ihre Telefonnummer ein, um SMS-Codes zu erhalten:",
+          "placeholder": "+49 123 456 7890"
+        },
+        "email": {
+          "title": "E-Mail einrichten",
+          "instruction": "Codes werden an Ihre registrierte E-Mail-Adresse gesendet."
+        }
+      },
+      "verification": {
+        "title": "Verifizierung",
+        "instruction": "Geben Sie den 6-stelligen Code aus Ihrer {{method}} ein:",
+        "placeholder": "123456",
+        "methods": {
+          "totp": "Authenticator App",
+          "sms": "SMS",
+          "email": "E-Mail"
+        }
+      },
+      "buttons": {
+        "back": "Zurück",
+        "continue": "Weiter",
+        "setting": "Wird eingerichtet...",
+        "verify": "Verifizieren",
+        "verifying": "Wird verifiziert..."
+      },
+      "success": {
+        "enabled": "MFA wurde erfolgreich aktiviert!"
+      }
+    },
+    "passwordStrength": {
+      "title": "Passwort-Stärke",
+      "strength": {
+        "very_strong": "Sehr stark",
+        "strong": "Stark",
+        "medium": "Mittel",
+        "weak": "Schwach",
+        "very_weak": "Sehr schwach"
+      },
+      "requirements": {
+        "title": "Passwort-Anforderungen:",
+        "minLength": "Mindestens 8 Zeichen",
+        "uppercase": "Großbuchstaben (A-Z)",
+        "lowercase": "Kleinbuchstaben (a-z)",
+        "numbers": "Zahlen (0-9)",
+        "specialChars": "Sonderzeichen (!@#$%^&*)"
+      },
+      "score": "{{strength}} ({{score}}/100)"
+    }
+  },
+  "matchdayList": {
+    "title": "Spieltage",
+    "teamPlaceholder": "z. B. U8",
+    "details": "Details",
+    "home": "Heim",
+    "away": "Auswärts",
+    "status": {
+      "scheduled": "Geplant",
+      "in_progress": "Läuft",
+      "completed": "Abgeschlossen",
+      "cancelled": "Abgesagt"
+    },
+    "search": {
+      "placeholder": "Suche nach Gegner, Ort..."
+    },
+    "filter": {
+      "title": "Filter",
+      "show": "Filter anzeigen",
+      "hide": "Filter ausblenden",
+      "apply": "Anwenden",
+      "reset": "Zurücksetzen",
+      "home": "Heimspiel",
+      "away": "Auswärtsspiel",
+      "dateFrom": "Von",
+      "dateTo": "Bis",
+      "selectDate": "Datum wählen"
+    },
+    "loading": "Spieltage werden geladen...",
+    "noMatchdays": "Keine Spieltage gefunden",
+    "noFilterResults": "Keine Ergebnisse für deine Filtereinstellungen"
+  },
+  "validation": {
+    "failed": "Die Eingabe ist ungültig. Bitte prüfen Sie Ihre Angaben.",
+    "opponent": {
+      "tooShort": "Gegner muss mindestens 3 Zeichen lang sein",
+      "tooLong": "Gegner darf maximal 50 Zeichen lang sein"
+    },
+    "date": {
+      "invalid": "Ungültiges Datumsformat"
+    },
+    "time": {
+      "invalid": "Ungültiges Zeitformat"
+    },
+    "location": {
+      "tooShort": "Spielort muss mindestens 3 Zeichen lang sein",
+      "tooLong": "Spielort darf maximal 100 Zeichen lang sein"
+    },
+    "matchFormat": {
+      "required": "Spielformat ist erforderlich",
+      "invalid": "Ungültiges Spielformat"
+    },
+    "parallelGames": {
+      "tooFew": "Mindestens 1 paralleles Spiel erforderlich",
+      "tooMany": "Maximal 5 parallele Spiele möglich"
+    },
+    "matchDuration": {
+      "tooShort": "Spieldauer muss mindestens 10 Minuten betragen",
+      "tooLong": "Spieldauer darf maximal 120 Minuten betragen"
+    },
+    "status": {
+      "required": "Status ist erforderlich",
+      "invalid": "Ungültiger Status"
+    }
+  },
+  "matchdayForm": {
+    "title": {
+      "new": "Neuer Spieltag",
+      "edit": "Spieltag bearbeiten"
+    },
+    "section": {
+      "basic": "Basisinformationen",
+      "datetime": "Datum & Zeit",
+      "location": "Spielort",
+      "details": "Spieldetails"
+    },
+    "opponent": "Gegner",
+    "date": "Datum",
+    "time": "Uhrzeit",
+    "isHome": "Heimspiel",
+    "isAway": "Auswärtsspiel",
+    "location": "Spielort",
+    "address": "Adresse (optional)",
+    "matchFormat": "Spielformat",
+    "parallelGames": "Parallele Spiele",
+    "matchDuration": "Spieldauer",
+    "competitionLabel": "Wettbewerb (optional)",
+    "notes": "Notizen",
+    "status": {
+      "title": "Status",
+      "scheduled": "Geplant",
+      "in_progress": "Läuft",
+      "completed": "Abgeschlossen",
+      "cancelled": "Abgesagt"
+    },
+    "dropdown": {
+      "pleaseSelect": "Bitte auswählen..."
+    },
+    "placeholder": {
+      "opponent": "Gegnername eingeben",
+      "location": "Spielort eingeben",
+      "matchDuration": "Dauer in Minuten",
+      "notes": "Zusätzliche Informationen..."
+    },
+    "competition": {
+      "friendly": "Freundschaftsspiel",
+      "championship": "Meisterschaft"
+    },
+    "label": {
+      "opponent": "Gegner",
+      "date": "Datum",
+      "time": "Uhrzeit",
+      "location": "Ort",
+      "address": "Adresse (optional)"
+    },
+    "button": {
+      "create": "Erstellen",
+      "update": "Aktualisieren",
+      "delete": "Löschen"
+    },
+    "delete": {
+      "title": "Spieltag löschen",
+      "message": "Möchtest du diesen Spieltag wirklich löschen? Diese Aktion kann nicht rückgängig gemacht werden."
+    },
+    "create": {
+      "success": "Spieltag erfolgreich erstellt"
+    },
+    "update": {
+      "success": "Spieltag erfolgreich aktualisiert"
+    },
+    "selectFormat": "Format wählen",
+    "selectCompetition": "Spieltyp wählen",
+    "selectDate": "Datum auswählen",
+    "selectTime": "Uhrzeit auswählen"
+  },
+  "teamSetup": {
+    "title": "Team einrichten",
+    "subtitle": "Erstelle dein Team und wähle deinen Verein aus",
+    "teamName": "Team-Name",
+    "teamNamePlaceholder": "z.B. 1. Mannschaft",
+    "selectClub": "Verein auswählen",
+    "selectAgeGroup": "Altersgruppe auswählen",
+    "searchClubs": "Vereine suchen...",
+    "searchingClubs": "Suche Vereine...",
+    "noClubsFound": "Keine Vereine gefunden",
+    "createCustomClub": "Eigenen Verein erstellen",
+    "clubName": "Vereinsname",
+    "clubCity": "Stadt",
+    "clubLeague": "Liga",
+    "ageGroups": {
+      "u8": "Bambini (U8)",
+      "u10": "F-Jugend (U10)",
+      "u12": "E-Jugend (U12)",
+      "u14": "D-Jugend (U14)",
+      "u16": "C-Jugend (U16)",
+      "u18": "B-Jugend (U18)",
+      "senioren": "Senioren"
+    },
+    "success": {
+      "teamCreated": "Team erfolgreich erstellt!",
+      "clubCreated": "Verein '{{clubName}}' erfolgreich erstellt!"
+    },
+    "errors": {
+      "teamNameRequired": "Team-Name ist erforderlich",
+      "clubRequired": "Verein ist erforderlich",
+      "ageGroupRequired": "Altersgruppe ist erforderlich",
+      "createTeam": "Fehler beim Erstellen des Teams",
+      "searchClubs": "Fehler bei der Vereinssuche",
+      "createClub": "Fehler beim Erstellen des Vereins",
+      "clubNameRequired": "Vereinsname ist erforderlich",
+      "clubCityRequired": "Stadt ist erforderlich"
+    }
+  }
+}

@@ -1,0 +1,241 @@
+# 🚀 Fastlane Configuration für iOS
+# Automatisierte Builds und Deployments
+
+default_platform(:ios)
+
+platform :ios do
+  # ==========================================
+  # 🔧 SETUP & CONFIGURATION
+  # ==========================================
+  
+  before_all do
+    setup_circle_ci if ENV['CI']
+    ensure_git_status_clean unless ENV['CI']
+  end
+
+  # ==========================================
+  # 📱 DEVELOPMENT BUILDS
+  # ==========================================
+  
+  desc "🔨 Build Debug Version"
+  lane :debug do
+    build_app(
+      scheme: "ReactNativeSkeleton",
+      configuration: "Debug",
+      export_method: "development",
+      output_directory: "./build",
+      output_name: "ReactNativeSkeleton-Debug.ipa"
+    )
+  end
+
+  # ==========================================
+  # 🧪 BETA DISTRIBUTION
+  # ==========================================
+  
+  desc "🧪 Deploy Beta to TestFlight"
+  lane :beta do
+    # Increment Build Number
+    increment_build_number(xcodeproj: "ReactNativeSkeleton.xcodeproj")
+    
+    # Build Release Version
+    build_app(
+      scheme: "ReactNativeSkeleton",
+      configuration: "Release",
+      export_method: "app-store",
+      output_directory: "./build",
+      output_name: "ReactNativeSkeleton-Beta.ipa"
+    )
+    
+    # Upload to TestFlight
+    upload_to_testflight(
+      skip_waiting_for_build_processing: true,
+      changelog: get_changelog_from_git_commits,
+      groups: ["Internal", "Beta Testers"]
+    )
+    
+    # Notify Team
+    slack(
+      message: "🎉 New iOS Beta build uploaded to TestFlight!",
+      channel: "#mobile-releases",
+      success: true
+    ) if ENV['SLACK_URL']
+  end
+
+  # ==========================================
+  # 🏪 PRODUCTION RELEASE
+  # ==========================================
+  
+  desc "🏪 Deploy to App Store"
+  lane :release do
+    # Ensure we're on main branch
+    ensure_git_branch(branch: 'main')
+    
+    # Increment Version Number
+    increment_version_number(
+      bump_type: "patch"
+    )
+    
+    # Increment Build Number
+    increment_build_number(xcodeproj: "ReactNativeSkeleton.xcodeproj")
+    
+    # Build Release Version
+    build_app(
+      scheme: "ReactNativeSkeleton",
+      configuration: "Release",
+      export_method: "app-store",
+      output_directory: "./build",
+      output_name: "ReactNativeSkeleton-Release.ipa"
+    )
+    
+    # Upload to App Store
+    upload_to_app_store(
+      force: true,
+      reject_if_possible: true,
+      skip_metadata: false,
+      skip_screenshots: false,
+      submit_for_review: false
+    )
+    
+    # Create Git Tag
+    add_git_tag(
+      tag: "ios-v#{get_version_number}-#{get_build_number}"
+    )
+    
+    # Push to Git
+    push_to_git_remote
+    
+    # Notify Team
+    slack(
+      message: "🚀 iOS app successfully uploaded to App Store!",
+      channel: "#mobile-releases",
+      success: true
+    ) if ENV['SLACK_URL']
+  end
+
+  # ==========================================
+  # 🔄 CODE PUSH RELEASES
+  # ==========================================
+  
+  desc "🔄 Deploy CodePush to Staging"
+  lane :codepush_staging do
+    sh("cd .. && npx appcenter codepush release-react -a #{ENV['APPCENTER_APP_NAME_IOS']} -d Staging --description '#{get_changelog_from_git_commits}'")
+    
+    slack(
+      message: "📱 iOS CodePush deployed to Staging",
+      channel: "#mobile-releases"
+    ) if ENV['SLACK_URL']
+  end
+  
+  desc "🔄 Deploy CodePush to Production"
+  lane :codepush_production do
+    ensure_git_branch(branch: 'main')
+    
+    sh("cd .. && npx appcenter codepush release-react -a #{ENV['APPCENTER_APP_NAME_IOS']} -d Production --description '#{get_changelog_from_git_commits}'")
+    
+    slack(
+      message: "🚀 iOS CodePush deployed to Production",
+      channel: "#mobile-releases"
+    ) if ENV['SLACK_URL']
+  end
+
+  # ==========================================
+  # 🧹 MAINTENANCE
+  # ==========================================
+  
+  desc "🧹 Clean Build Artifacts"
+  lane :clean do
+    clear_derived_data
+    sh("cd .. && rm -rf build")
+    sh("cd .. && npx react-native clean")
+  end
+  
+  desc "📊 Run Tests"
+  lane :test do
+    run_tests(
+      scheme: "ReactNativeSkeleton",
+      device: "iPhone 15"
+    )
+  end
+  
+  desc "🔍 Code Analysis"
+  lane :analyze do
+    swiftlint(
+      mode: :lint,
+      reporter: "xcode",
+      config_file: ".swiftlint.yml"
+    )
+  end
+
+  # ==========================================
+  # 📱 DEVICE MANAGEMENT
+  # ==========================================
+  
+  desc "📱 Register New Device"
+  lane :register_device do |options|
+    device_name = options[:name]
+    device_udid = options[:udid]
+    
+    register_devices(
+      devices: {
+        device_name => device_udid
+      }
+    )
+    
+    match(type: "development", force_for_new_devices: true)
+  end
+
+  # ==========================================
+  # 🔐 CERTIFICATE MANAGEMENT
+  # ==========================================
+  
+  desc "🔐 Sync Certificates and Profiles"
+  lane :certificates do
+    match(type: "development")
+    match(type: "appstore")
+  end
+
+  # ==========================================
+  # 📸 SCREENSHOTS
+  # ==========================================
+  
+  desc "📸 Generate Screenshots"
+  lane :screenshots do
+    capture_screenshots(
+      scheme: "ReactNativeSkeletonUITests"
+    )
+    
+    upload_to_app_store(
+      skip_binary_upload: true,
+      skip_metadata: true
+    )
+  end
+
+  # ==========================================
+  # 🚨 ERROR HANDLING
+  # ==========================================
+  
+  error do |lane, exception|
+    slack(
+      message: "❌ iOS build failed in lane: #{lane}",
+      channel: "#mobile-releases",
+      success: false,
+      payload: {
+        "Error" => exception.message
+      }
+    ) if ENV['SLACK_URL']
+  end
+
+  # ==========================================
+  # 🎯 HELPER FUNCTIONS
+  # ==========================================
+  
+  private_lane :get_changelog_from_git_commits do
+    changelog_from_git_commits(
+      between: [ENV['GIT_PREVIOUS_SUCCESSFUL_COMMIT'] || 'HEAD~10', 'HEAD'],
+      pretty: '• %s',
+      date_format: 'short',
+      match_lightweight_tag: false,
+      merge_commit_filtering: 'exclude_merges'
+    )
+  end
+end 

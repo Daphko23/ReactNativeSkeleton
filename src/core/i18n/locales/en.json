@@ -1,0 +1,375 @@
+{
+  "common": {
+    "cancel": "Cancel",
+    "alert": {
+      "titles": {
+        "error": "Error",
+        "success": "Success",
+        "warning": "Warning",
+        "info": "Information",
+        "notAvailable": "Not Available",
+        "enabled": "Enabled",
+        "disabled": "Disabled",
+        "failed": "Failed",
+        "notEnabled": "Not Enabled",
+        "confirmation": "Confirmation"
+      }
+    }
+  },
+  "error": {
+    "auth": {
+      "invalidCredentials": "Invalid credentials. Please try again.",
+      "userNotFound": "User not found. Please check your details.",
+      "emailAlreadyInUse": "This email address is already registered.",
+      "weakPassword": "Your password is too weak. Please choose a stronger one.",
+      "generic": "An unknown authentication error occurred.",
+      "biometric": {
+        "notAvailable": "Biometric authentication is not available or not set up on this device.",
+        "failed": "Biometric authentication failed.",
+        "enableFailed": "Could not enable biometric authentication. Please try again.",
+        "disableFailed": "Failed to disable biometric authentication.",
+        "testFailed": "Biometric authentication test failed.",
+        "userNotAuthenticated": "You must be logged in to enable biometric authentication.",
+        "notEnabled": "Biometric authentication is not enabled."
+      },
+      "mfa": {
+        "setupFailed": "MFA setup failed. Please try again.",
+        "verificationFailed": "Verification failed. Please try again.",
+        "codeRequired": "Please enter the verification code.",
+        "invalidMethod": "Invalid MFA method selected."
+      }
+    },
+    "matchday": {
+      "create": "Error creating matchday",
+      "update": "Error updating matchday",
+      "load": "Error loading matchday"
+    }
+  },
+  "auth": {
+    "login": {
+      "title": "Sign In",
+      "emailLabel": "Email",
+      "passwordLabel": "Password",
+      "button": "Login",
+      "success": "Successfully logged in"
+    },
+    "register": {
+      "title": "Register",
+      "emailLabel": "Email",
+      "passwordLabel": "Password",
+      "confirmPasswordLabel": "Confirm Password",
+      "button": "Register",
+      "success": "Registration successful!",
+      "emailConfirmationMessage": "Registration successful! Please check your email to confirm your account.",
+      "redirectingToLogin": "Redirecting to login page..."
+    },
+    "reset": {
+      "title": "Reset Password",
+      "emailLabel": "Email",
+      "button": "Send Link",
+      "success": "Password reset email sent"
+    },
+    "navigation": {
+      "noAccount": "Don't have an account? Register now!",
+      "forgotPassword": "Forgot your password?",
+      "alreadyAccount": "Already have an account? Sign in!",
+      "backToLogin": "Back to Login"
+    },
+    "biometric": {
+      "title": "Biometric Authentication",
+      "subtitle": {
+        "ios": "Face ID / Touch ID",
+        "android": "Fingerprint"
+      },
+      "description": {
+        "enabled": "You can sign in with {{biometricType}} without entering your password.",
+        "disabled": "Enable {{biometricType}} to sign in quickly and securely."
+      },
+      "icons": {
+        "ios": "🔒",
+        "android": "👆"
+      },
+      "warning": {
+        "notAvailable": "{{biometricType}} is not available or not set up on this device. Please enable it in device settings."
+      },
+      "buttons": {
+        "test": "Test Biometrics",
+        "testing": "Testing..."
+      },
+      "success": {
+        "enabled": "{{biometricType}} has been successfully enabled. You can now sign in with your biometrics.",
+        "disabled": "{{biometricType}} has been disabled.",
+        "testPassed": "Biometric authentication successful!"
+      },
+      "confirm": {
+        "disable": {
+          "title": "Confirm Disable",
+          "message": "Do you really want to disable {{biometricType}}?",
+          "confirm": "Disable",
+          "cancel": "Cancel"
+        }
+      },
+      "info": {
+        "title": "Security Information:",
+        "points": {
+          "secure": "Your biometric data is stored securely on your device",
+          "noAccess": "We have no access to your biometric data",
+          "disableAnytime": "You can disable this feature at any time",
+          "passwordFallback": "You can still sign in with your password if there are issues"
+        }
+      },
+      "unavailable": {
+        "title": "Login Required",
+        "subtitle": "Sign in to configure biometric authentication.",
+        "icon": "🔒"
+      }
+    },
+    "mfa": {
+      "title": "Enable Multi-Factor Authentication",
+      "subtitle": "Choose a method for additional security:",
+      "methods": {
+        "totp": {
+          "title": "Authenticator App",
+          "description": "Use an app like Google Authenticator or Authy",
+          "icon": "📱"
+        },
+        "sms": {
+          "title": "SMS",
+          "description": "Receive codes via text message",
+          "icon": "💬"
+        },
+        "email": {
+          "title": "Email",
+          "description": "Receive codes via email",
+          "icon": "📧"
+        }
+      },
+      "setup": {
+        "totp": {
+          "title": "Set up Authenticator App",
+          "instructions": {
+            "1": "Install an Authenticator app (Google Authenticator, Authy, etc.)",
+            "2": "Scan the QR code or enter the secret key manually"
+          },
+          "secretLabel": "Secret Key:"
+        },
+        "sms": {
+          "title": "Set up SMS",
+          "instruction": "Enter your phone number to receive SMS codes:",
+          "placeholder": "+1 234 567 8900"
+        },
+        "email": {
+          "title": "Set up Email",
+          "instruction": "Codes will be sent to your registered email address."
+        }
+      },
+      "verification": {
+        "title": "Verification",
+        "instruction": "Enter the 6-digit code from your {{method}}:",
+        "placeholder": "123456",
+        "methods": {
+          "totp": "Authenticator App",
+          "sms": "SMS",
+          "email": "Email"
+        }
+      },
+      "buttons": {
+        "back": "Back",
+        "continue": "Continue",
+        "setting": "Setting up...",
+        "verify": "Verify",
+        "verifying": "Verifying..."
+      },
+      "success": {
+        "enabled": "MFA has been successfully enabled!"
+      }
+    },
+    "passwordStrength": {
+      "title": "Password Strength",
+      "strength": {
+        "very_strong": "Very Strong",
+        "strong": "Strong",
+        "medium": "Medium",
+        "weak": "Weak",
+        "very_weak": "Very Weak"
+      },
+      "requirements": {
+        "title": "Password Requirements:",
+        "minLength": "At least 8 characters",
+        "uppercase": "Uppercase letters (A-Z)",
+        "lowercase": "Lowercase letters (a-z)",
+        "numbers": "Numbers (0-9)",
+        "specialChars": "Special characters (!@#$%^&*)"
+      },
+      "score": "{{strength}} ({{score}}/100)"
+    }
+  },
+  "matchdayList": {
+    "title": "Matchdays",
+    "teamPlaceholder": "e.g. U8",
+    "details": "Details",
+    "home": "Home",
+    "away": "Away",
+    "status": {
+      "scheduled": "Scheduled",
+      "in_progress": "Ongoing",
+      "completed": "Finished",
+      "cancelled": "Cancelled"
+    },
+    "search": {
+      "placeholder": "Search for opponent, location..."
+    },
+    "filter": {
+      "title": "Filter",
+      "show": "Show filters",
+      "hide": "Hide filters",
+      "apply": "Apply",
+      "reset": "Reset",
+      "home": "Home game",
+      "away": "Away game",
+      "dateFrom": "From",
+      "dateTo": "To",
+      "selectDate": "Select date"
+    },
+    "loading": "Loading matchdays...",
+    "noMatchdays": "No matchdays found",
+    "noFilterResults": "No results for your filter settings"
+  },
+  "validation": {
+    "failed": "Invalid input. Please check your information.",
+    "opponent": {
+      "tooShort": "Opponent must be at least 3 characters long",
+      "tooLong": "Opponent must be at most 50 characters long"
+    },
+    "date": {
+      "invalid": "Invalid date format"
+    },
+    "time": {
+      "invalid": "Invalid time format"
+    },
+    "location": {
+      "tooShort": "Location must be at least 3 characters long",
+      "tooLong": "Location must be at most 100 characters long"
+    },
+    "matchFormat": {
+      "required": "Match format is required",
+      "invalid": "Invalid match format"
+    },
+    "parallelGames": {
+      "tooFew": "At least 1 parallel game required",
+      "tooMany": "Maximum 5 parallel games allowed"
+    },
+    "matchDuration": {
+      "tooShort": "Match duration must be at least 10 minutes",
+      "tooLong": "Match duration must be at most 120 minutes"
+    },
+    "status": {
+      "required": "Status is required",
+      "invalid": "Invalid status"
+    }
+  },
+  "matchdayForm": {
+    "title": {
+      "new": "New Matchday",
+      "edit": "Edit Matchday"
+    },
+    "section": {
+      "basic": "Basic Information",
+      "datetime": "Date & Time",
+      "location": "Location",
+      "details": "Match Details"
+    },
+    "opponent": "Opponent",
+    "date": "Date",
+    "time": "Time",
+    "isHome": "Home game",
+    "isAway": "Away game",
+    "location": "Location",
+    "address": "Address (optional)",
+    "matchFormat": "Match format",
+    "parallelGames": "Parallel games",
+    "matchDuration": "Match duration",
+    "competitionLabel": "Competition (optional)",
+    "notes": "Notes",
+    "status": {
+      "title": "Status",
+      "scheduled": "Scheduled",
+      "in_progress": "Ongoing",
+      "completed": "Finished",
+      "cancelled": "Cancelled"
+    },
+    "dropdown": {
+      "pleaseSelect": "Please select..."
+    },
+    "placeholder": {
+      "opponent": "Enter opponent name",
+      "location": "Enter location",
+      "matchDuration": "Duration in minutes",
+      "notes": "Additional information..."
+    },
+    "competition": {
+      "friendly": "Friendly match",
+      "championship": "Championship"
+    },
+    "label": {
+      "opponent": "Opponent",
+      "date": "Date",
+      "time": "Time",
+      "location": "Location",
+      "address": "Address (optional)"
+    },
+    "button": {
+      "create": "Create",
+      "update": "Update"
+    },
+    "create": {
+      "success": "Matchday successfully created"
+    },
+    "update": {
+      "success": "Matchday successfully updated"
+    },
+    "selectFormat": "Select format",
+    "selectCompetition": "Select competition type",
+    "selectDate": "Select date",
+    "selectTime": "Select time"
+  },
+  "teamSetup": {
+    "title": "Set up Team",
+    "subtitle": "Create your team and select your club",
+    "teamName": "Team Name",
+    "selectClub": "Select Club",
+    "selectAgeGroup": "Select Age Group",
+    "league": "League (optional)",
+    "createTeam": "Create Team",
+    "searchClubs": "Search clubs...",
+    "searchingClubs": "Searching clubs...",
+    "noClubsFound": "No clubs found",
+    "createCustomClub": "Create Custom Club",
+    "clubName": "Club Name",
+    "clubCity": "City",
+    "clubLeague": "League",
+    "ageGroups": {
+      "u8": "Under 8 (U8)",
+      "u10": "Under 10 (U10)",
+      "u12": "Under 12 (U12)",
+      "u14": "Under 14 (U14)",
+      "u16": "Under 16 (U16)",
+      "u18": "Under 18 (U18)",
+      "senioren": "Seniors"
+    },
+    "success": {
+      "teamCreated": "Team created successfully!",
+      "clubCreated": "Club '{{clubName}}' created successfully!"
+    },
+    "errors": {
+      "teamNameRequired": "Team name is required",
+      "clubRequired": "Club is required",
+      "ageGroupRequired": "Age group is required",
+      "createTeam": "Error creating team",
+      "searchClubs": "Error searching clubs",
+      "createClub": "Error creating club",
+      "clubNameRequired": "Club name is required",
+      "clubCityRequired": "City is required"
+    }
+  }
+}

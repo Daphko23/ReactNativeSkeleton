@@ -1,0 +1,225 @@
+# 🚀 Fastlane Configuration für Android
+# Automatisierte Builds und Deployments
+
+default_platform(:android)
+
+platform :android do
+  # ==========================================
+  # 🔧 SETUP & CONFIGURATION
+  # ==========================================
+  
+  before_all do
+    setup_circle_ci if ENV['CI']
+    ensure_git_status_clean unless ENV['CI']
+  end
+
+  # ==========================================
+  # 📱 DEVELOPMENT BUILDS
+  # ==========================================
+  
+  desc "🔨 Build Debug APK"
+  lane :debug do
+    gradle(
+      task: "assembleDebug",
+      project_dir: "."
+    )
+  end
+
+  # ==========================================
+  # 🧪 BETA DISTRIBUTION
+  # ==========================================
+  
+  desc "🧪 Deploy Beta to Internal Testing"
+  lane :beta do
+    # Increment Version Code
+    increment_version_code(
+      gradle_file_path: "app/build.gradle"
+    )
+    
+    # Build Release APK/AAB
+    gradle(
+      task: "bundleRelease",
+      project_dir: "."
+    )
+    
+    # Upload to Play Console Internal Testing
+    upload_to_play_store(
+      track: 'internal',
+      aab: 'app/build/outputs/bundle/release/app-release.aab',
+      skip_upload_metadata: true,
+      skip_upload_images: true,
+      skip_upload_screenshots: true
+    )
+    
+    # Notify Team
+    slack(
+      message: "🎉 New Android Beta build uploaded to Play Console!",
+      channel: "#mobile-releases",
+      success: true
+    ) if ENV['SLACK_URL']
+  end
+
+  # ==========================================
+  # 🏪 PRODUCTION RELEASE
+  # ==========================================
+  
+  desc "🏪 Deploy to Play Store"
+  lane :release do
+    # Ensure we're on main branch
+    ensure_git_branch(branch: 'main')
+    
+    # Increment Version Name
+    increment_version_name(
+      gradle_file_path: "app/build.gradle",
+      bump_type: "patch"
+    )
+    
+    # Increment Version Code
+    increment_version_code(
+      gradle_file_path: "app/build.gradle"
+    )
+    
+    # Build Release AAB
+    gradle(
+      task: "bundleRelease",
+      project_dir: "."
+    )
+    
+    # Upload to Play Store
+    upload_to_play_store(
+      track: 'production',
+      aab: 'app/build/outputs/bundle/release/app-release.aab',
+      skip_upload_metadata: false,
+      skip_upload_images: false,
+      skip_upload_screenshots: false
+    )
+    
+    # Create Git Tag
+    version_name = get_version_name(gradle_file_path: "app/build.gradle")
+    version_code = get_version_code(gradle_file_path: "app/build.gradle")
+    add_git_tag(
+      tag: "android-v#{version_name}-#{version_code}"
+    )
+    
+    # Push to Git
+    push_to_git_remote
+    
+    # Notify Team
+    slack(
+      message: "🚀 Android app successfully uploaded to Play Store!",
+      channel: "#mobile-releases",
+      success: true
+    ) if ENV['SLACK_URL']
+  end
+
+  # ==========================================
+  # 🔄 CODE PUSH RELEASES
+  # ==========================================
+  
+  desc "🔄 Deploy CodePush to Staging"
+  lane :codepush_staging do
+    sh("cd .. && npx appcenter codepush release-react -a #{ENV['APPCENTER_APP_NAME_ANDROID']} -d Staging --description '#{get_changelog_from_git_commits}'")
+    
+    slack(
+      message: "📱 Android CodePush deployed to Staging",
+      channel: "#mobile-releases"
+    ) if ENV['SLACK_URL']
+  end
+  
+  desc "🔄 Deploy CodePush to Production"
+  lane :codepush_production do
+    ensure_git_branch(branch: 'main')
+    
+    sh("cd .. && npx appcenter codepush release-react -a #{ENV['APPCENTER_APP_NAME_ANDROID']} -d Production --description '#{get_changelog_from_git_commits}'")
+    
+    slack(
+      message: "🚀 Android CodePush deployed to Production",
+      channel: "#mobile-releases"
+    ) if ENV['SLACK_URL']
+  end
+
+  # ==========================================
+  # 🧹 MAINTENANCE
+  # ==========================================
+  
+  desc "🧹 Clean Build Artifacts"
+  lane :clean do
+    gradle(
+      task: "clean",
+      project_dir: "."
+    )
+    sh("cd .. && rm -rf build")
+    sh("cd .. && npx react-native clean")
+  end
+  
+  desc "📊 Run Tests"
+  lane :test do
+    gradle(
+      task: "testDebugUnitTest",
+      project_dir: "."
+    )
+  end
+  
+  desc "🔍 Code Analysis"
+  lane :analyze do
+    gradle(
+      task: "lintDebug",
+      project_dir: "."
+    )
+  end
+
+  # ==========================================
+  # 🔐 KEYSTORE MANAGEMENT
+  # ==========================================
+  
+  desc "🔐 Generate Release Keystore"
+  lane :generate_keystore do
+    sh("keytool -genkey -v -keystore release.keystore -alias release -keyalg RSA -keysize 2048 -validity 10000")
+  end
+
+  # ==========================================
+  # 📸 SCREENSHOTS
+  # ==========================================
+  
+  desc "📸 Generate Screenshots"
+  lane :screenshots do
+    screengrab(
+      locales: ['en-US', 'de-DE'],
+      clear_previous_screenshots: true
+    )
+    
+    upload_to_play_store(
+      skip_upload_aab: true,
+      skip_upload_metadata: true
+    )
+  end
+
+  # ==========================================
+  # 🚨 ERROR HANDLING
+  # ==========================================
+  
+  error do |lane, exception|
+    slack(
+      message: "❌ Android build failed in lane: #{lane}",
+      channel: "#mobile-releases",
+      success: false,
+      payload: {
+        "Error" => exception.message
+      }
+    ) if ENV['SLACK_URL']
+  end
+
+  # ==========================================
+  # 🎯 HELPER FUNCTIONS
+  # ==========================================
+  
+  private_lane :get_changelog_from_git_commits do
+    changelog_from_git_commits(
+      between: [ENV['GIT_PREVIOUS_SUCCESSFUL_COMMIT'] || 'HEAD~10', 'HEAD'],
+      pretty: '• %s',
+      date_format: 'short',
+      match_lightweight_tag: false,
+      merge_commit_filtering: 'exclude_merges'
+    )
+  end
+end 

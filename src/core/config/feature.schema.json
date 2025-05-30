@@ -1,0 +1,116 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Feature Metadata Schema",
+  "type": "object",
+  "required": [
+    "name",
+    "description",
+    "status",
+    "entryPoints",
+    "useCases",
+    "store",
+    "dependencies",
+    "i18n",
+    "tests"
+  ],
+  "properties": {
+    "name": {
+      "type": "string",
+      "description": "The technical name of the feature (e.g., 'auth')"
+    },
+    "description": {
+      "type": "string",
+      "description": "Short summary of what this feature does."
+    },
+    "status": {
+      "type": "string",
+      "enum": ["active", "deprecated", "planned"],
+      "description": "Current development status of the feature."
+    },
+    "entryPoints": {
+      "type": "array",
+      "items": {"type": "string"},
+      "description": "UI entry points such as Screens or Navigators."
+    },
+    "useCases": {
+      "type": "array",
+      "items": {"type": "string"},
+      "description": "UseCase classes or functions exposed by the domain layer."
+    },
+    "store": {
+      "type": "object",
+      "required": ["file", "state", "actions"],
+      "properties": {
+        "file": {"type": "string"},
+        "state": {
+          "type": "array",
+          "items": {"type": "string"}
+        },
+        "actions": {
+          "type": "array",
+          "items": {"type": "string"}
+        }
+      }
+    },
+    "dependencies": {
+      "type": "object",
+      "properties": {
+        "dataSources": {
+          "type": "array",
+          "items": {"type": "string"}
+        },
+        "repository": {"type": "string"},
+        "state": {
+          "type": "array",
+          "items": {"type": "string"}
+        },
+        "routing": {
+          "type": "array",
+          "items": {"type": "string"}
+        },
+        "ui": {
+          "type": "array",
+          "items": {"type": "string"}
+        },
+        "feedback": {
+          "type": "array",
+          "items": {"type": "string"}
+        },
+        "i18n": {
+          "type": "array",
+          "items": {"type": "string"}
+        }
+      }
+    },
+    "i18n": {
+      "type": "object",
+      "required": ["namespace", "keys"],
+      "properties": {
+        "namespace": {"type": "string"},
+        "keys": {
+          "type": "array",
+          "items": {"type": "string"}
+        }
+      }
+    },
+    "tests": {
+      "type": "object",
+      "properties": {
+        "unit": {
+          "type": "array",
+          "items": {"type": "string"}
+        },
+        "integration": {
+          "type": "array",
+          "items": {"type": "string"}
+        }
+      }
+    },
+    "architectureNotes": {
+      "type": "array",
+      "items": {"type": "string"},
+      "description": "Optional architecture notes about design decisions."
+    }
+  },
+  "additionalProperties": false
+}

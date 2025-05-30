@@ -1,0 +1,126 @@
+
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bundle Size Report</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .header { color: #333; border-bottom: 2px solid #007acc; padding-bottom: 10px; }
+        .section { margin: 20px 0; }
+        .bundle-item, .dep-item, .asset-item { 
+            padding: 10px; margin: 5px 0; border-left: 4px solid #007acc; background: #f5f5f5; 
+        }
+        .suggestion { padding: 10px; margin: 5px 0; border-radius: 4px; }
+        .high { border-left: 4px solid #dc3545; background: #f8d7da; }
+        .medium { border-left: 4px solid #ffc107; background: #fff3cd; }
+        .low { border-left: 4px solid #28a745; background: #d4edda; }
+        table { width: 100%; border-collapse: collapse; }
+        th, td { padding: 8px; text-align: left; border-bottom: 1px solid #ddd; }
+        th { background-color: #f2f2f2; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>📱 React Native Bundle Size Report</h1>
+        <p>Generiert am: 30.5.2025, 22:10:52</p>
+    </div>
+    
+    <div class="section">
+        <h2>📦 Bundle Größen</h2>
+        
+            <div class="bundle-item">
+                <strong>ANDROID</strong>: 
+                Fehler: Command failed: npx react-native bundle --platform android --dev false --entry-file index.js --bundle-output /Users/daphko/Development/react-native/ReactNativeSkeleton/bundle-analysis/android.bundle --sourcemap-output /Users/daphko/Development/react-native/ReactNativeSkeleton/bundle-analysis/android.bundle.map --minify true --reset-cache
+            </div>
+        
+            <div class="bundle-item">
+                <strong>IOS</strong>: 
+                Fehler: Command failed: npx react-native bundle --platform ios --dev false --entry-file index.js --bundle-output /Users/daphko/Development/react-native/ReactNativeSkeleton/bundle-analysis/ios.bundle --sourcemap-output /Users/daphko/Development/react-native/ReactNativeSkeleton/bundle-analysis/ios.bundle.map --minify true --reset-cache
+            </div>
+        
+    </div>
+    
+    <div class="section">
+        <h2>📊 Top Dependencies</h2>
+        <table>
+            <tr><th>Name</th><th>Version</th><th>Größe</th></tr>
+            
+                <tr><td>react-native</td><td>0.79.1</td><td>71.23MB</td></tr>
+            
+                <tr><td>typescript</td><td>5.0.4</td><td>37.39MB</td></tr>
+            
+                <tr><td>@sentry/react-native</td><td>6.3.1</td><td>25.16MB</td></tr>
+            
+                <tr><td>date-fns</td><td>~4.1.0</td><td>21.55MB</td></tr>
+            
+                <tr><td>detox</td><td>^20.28.2</td><td>14.60MB</td></tr>
+            
+                <tr><td>react-native-vector-icons</td><td>^10.2.0</td><td>7.82MB</td></tr>
+            
+                <tr><td>prettier</td><td>~3.5.3</td><td>7.51MB</td></tr>
+            
+                <tr><td>typescript-eslint</td><td>^8.33.0</td><td>4.32MB</td></tr>
+            
+                <tr><td>eslint</td><td>8.57.1</td><td>4.19MB</td></tr>
+            
+                <tr><td>react-native-gesture-handler</td><td>^2.25.0</td><td>4.05MB</td></tr>
+            
+                <tr><td>react-native-svg</td><td>^15.12.0</td><td>3.91MB</td></tr>
+            
+                <tr><td>react-native-paper</td><td>^5.14.5</td><td>3.64MB</td></tr>
+            
+                <tr><td>react-native-reanimated</td><td>^3.17.5</td><td>3.29MB</td></tr>
+            
+                <tr><td>react-native-code-push</td><td>^9.0.0</td><td>2.38MB</td></tr>
+            
+                <tr><td>react-native-image-crop-picker</td><td>^0.41.2</td><td>2.06MB</td></tr>
+            
+                <tr><td>axios</td><td>~1.7.9</td><td>2.06MB</td></tr>
+            
+                <tr><td>react-native-screens</td><td>^4.10.0</td><td>1.69MB</td></tr>
+            
+                <tr><td>react-native-maps</td><td>^1.18.0</td><td>1.51MB</td></tr>
+            
+                <tr><td>zod</td><td>^3.24.3</td><td>1.50MB</td></tr>
+            
+                <tr><td>lodash</td><td>~4.17.21</td><td>1.35MB</td></tr>
+            
+        </table>
+    </div>
+    
+    <div class="section">
+        <h2>🖼️ Größte Assets</h2>
+        <table>
+            <tr><th>Name</th><th>Größe</th></tr>
+            
+        </table>
+    </div>
+    
+    <div class="section">
+        <h2>💡 Optimierungsvorschläge</h2>
+        
+            <div class="suggestion medium">
+                Dependency "react-native" ist 71.23MB. Prüfe auf Alternativen.
+            </div>
+        
+            <div class="suggestion medium">
+                Dependency "typescript" ist 37.39MB. Prüfe auf Alternativen.
+            </div>
+        
+            <div class="suggestion medium">
+                Dependency "@sentry/react-native" ist 25.16MB. Prüfe auf Alternativen.
+            </div>
+        
+            <div class="suggestion medium">
+                Dependency "date-fns" ist 21.55MB. Prüfe auf Alternativen.
+            </div>
+        
+            <div class="suggestion medium">
+                Dependency "detox" ist 14.60MB. Prüfe auf Alternativen.
+            </div>
+        
+    </div>
+</body>
+</html>

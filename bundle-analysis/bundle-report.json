@@ -1,0 +1,166 @@
+{
+  "timestamp": "2025-05-30T20:10:52.658Z",
+  "bundles": {
+    "android": {
+      "error": "Command failed: npx react-native bundle --platform android --dev false --entry-file index.js --bundle-output /Users/daphko/Development/react-native/ReactNativeSkeleton/bundle-analysis/android.bundle --sourcemap-output /Users/daphko/Development/react-native/ReactNativeSkeleton/bundle-analysis/android.bundle.map --minify true --reset-cache"
+    },
+    "ios": {
+      "error": "Command failed: npx react-native bundle --platform ios --dev false --entry-file index.js --bundle-output /Users/daphko/Development/react-native/ReactNativeSkeleton/bundle-analysis/ios.bundle --sourcemap-output /Users/daphko/Development/react-native/ReactNativeSkeleton/bundle-analysis/ios.bundle.map --minify true --reset-cache"
+    }
+  },
+  "dependencies": [
+    {
+      "name": "react-native",
+      "version": "0.79.1",
+      "size": 74689681,
+      "sizeMB": "71.23"
+    },
+    {
+      "name": "typescript",
+      "version": "5.0.4",
+      "size": 39203145,
+      "sizeMB": "37.39"
+    },
+    {
+      "name": "@sentry/react-native",
+      "version": "6.3.1",
+      "size": 26384800,
+      "sizeMB": "25.16"
+    },
+    {
+      "name": "date-fns",
+      "version": "~4.1.0",
+      "size": 22601076,
+      "sizeMB": "21.55"
+    },
+    {
+      "name": "detox",
+      "version": "^20.28.2",
+      "size": 15306740,
+      "sizeMB": "14.60"
+    },
+    {
+      "name": "react-native-vector-icons",
+      "version": "^10.2.0",
+      "size": 8200183,
+      "sizeMB": "7.82"
+    },
+    {
+      "name": "prettier",
+      "version": "~3.5.3",
+      "size": 7876465,
+      "sizeMB": "7.51"
+    },
+    {
+      "name": "typescript-eslint",
+      "version": "^8.33.0",
+      "size": 4534934,
+      "sizeMB": "4.32"
+    },
+    {
+      "name": "eslint",
+      "version": "8.57.1",
+      "size": 4392470,
+      "sizeMB": "4.19"
+    },
+    {
+      "name": "react-native-gesture-handler",
+      "version": "^2.25.0",
+      "size": 4248131,
+      "sizeMB": "4.05"
+    },
+    {
+      "name": "react-native-svg",
+      "version": "^15.12.0",
+      "size": 4102263,
+      "sizeMB": "3.91"
+    },
+    {
+      "name": "react-native-paper",
+      "version": "^5.14.5",
+      "size": 3816092,
+      "sizeMB": "3.64"
+    },
+    {
+      "name": "react-native-reanimated",
+      "version": "^3.17.5",
+      "size": 3446677,
+      "sizeMB": "3.29"
+    },
+    {
+      "name": "react-native-code-push",
+      "version": "^9.0.0",
+      "size": 2498912,
+      "sizeMB": "2.38"
+    },
+    {
+      "name": "react-native-image-crop-picker",
+      "version": "^0.41.2",
+      "size": 2165151,
+      "sizeMB": "2.06"
+    },
+    {
+      "name": "axios",
+      "version": "~1.7.9",
+      "size": 2155396,
+      "sizeMB": "2.06"
+    },
+    {
+      "name": "react-native-screens",
+      "version": "^4.10.0",
+      "size": 1768198,
+      "sizeMB": "1.69"
+    },
+    {
+      "name": "react-native-maps",
+      "version": "^1.18.0",
+      "size": 1578643,
+      "sizeMB": "1.51"
+    },
+    {
+      "name": "zod",
+      "version": "^3.24.3",
+      "size": 1573740,
+      "sizeMB": "1.50"
+    },
+    {
+      "name": "lodash",
+      "version": "~4.17.21",
+      "size": 1412415,
+      "sizeMB": "1.35"
+    }
+  ],
+  "assets": [],
+  "suggestions": [
+    {
+      "type": "dependency",
+      "severity": "medium",
+      "message": "Dependency \"react-native\" ist 71.23MB. Prüfe auf Alternativen."
+    },
+    {
+      "type": "dependency",
+      "severity": "medium",
+      "message": "Dependency \"typescript\" ist 37.39MB. Prüfe auf Alternativen."
+    },
+    {
+      "type": "dependency",
+      "severity": "medium",
+      "message": "Dependency \"@sentry/react-native\" ist 25.16MB. Prüfe auf Alternativen."
+    },
+    {
+      "type": "dependency",
+      "severity": "medium",
+      "message": "Dependency \"date-fns\" ist 21.55MB. Prüfe auf Alternativen."
+    },
+    {
+      "type": "dependency",
+      "severity": "medium",
+      "message": "Dependency \"detox\" ist 14.60MB. Prüfe auf Alternativen."
+    }
+  ],
+  "summary": {
+    "totalDependencies": 106,
+    "totalAssets": 0,
+    "totalSuggestions": 5
+  }
+}

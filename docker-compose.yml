@@ -1,0 +1,79 @@
+version: '3.8'
+
+services:
+  # React Native Development Server
+  rn-dev:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    ports:
+      - "8081:8081"  # Metro bundler
+      - "9090:9090"  # Flipper debugger
+    volumes:
+      - .:/app
+      - /app/node_modules
+      - rn-cache:/app/.cache
+    environment:
+      - NODE_ENV=development
+      - WATCHMAN_ENABLE=true
+    networks:
+      - rn-network
+
+  # Testing Environment
+  rn-test:
+    build:
+      context: .
+      dockerfile: Dockerfile.ci
+    volumes:
+      - .:/app
+      - /app/node_modules
+    environment:
+      - NODE_ENV=test
+      - CI=true
+    command: npm run test:coverage
+    networks:
+      - rn-network
+
+  # Android Build Environment (für Linux Teams)
+  android-builder:
+    build:
+      context: .
+      dockerfile: Dockerfile.ci
+    volumes:
+      - .:/app
+      - android-gradle-cache:/root/.gradle
+    environment:
+      - BUILD_ANDROID=true
+      - ANDROID_HOME=/opt/android-sdk
+    command: ./android/gradlew assembleRelease -p android
+    networks:
+      - rn-network
+
+  # Security Scanner
+  security-audit:
+    build:
+      context: .
+      dockerfile: Dockerfile.ci
+    volumes:
+      - .:/app
+    command: npm run deps:validate
+    networks:
+      - rn-network
+
+  # Documentation Server
+  docs:
+    image: nginx:alpine
+    ports:
+      - "3000:80"
+    volumes:
+      - ./docs:/usr/share/nginx/html:ro
+    networks:
+      - rn-network
+
+volumes:
+  rn-cache:
+  android-gradle-cache:
+
+networks:
+  rn-network:
+    driver: bridge 

@@ -1,0 +1,385 @@
+{
+  "name": "auth",
+  "description": "Enterprise-grade authentication system with Clean Architecture, RBAC, MFA, OAuth, Biometric Auth, and GDPR compliance. Implements comprehensive security features with 67 permissions, 4 role levels, and full audit logging.",
+  "status": "active",
+  "version": "2.0.0",
+  "maturityLevel": "enterprise",
+  "securityLevel": "high",
+  "complianceStandards": ["GDPR", "SOC2", "ISO27001", "HIPAA-ready"],
+  "entryPoints": [
+    "LoginScreen",
+    "RegisterScreen",
+    "PasswordResetScreen",
+    "PasswordChangeScreen",
+    "EmailVerificationScreen",
+    "AccountDeletionScreen",
+    "AuthNavigator"
+  ],
+  "useCases": [
+    "LoginWithEmailUseCase",
+    "RegisterWithEmailUseCase",
+    "LogoutUseCase",
+    "ResetPasswordUseCase",
+    "ChangePasswordUseCase",
+    "VerifyEmailUseCase",
+    "DeleteAccountUseCase",
+    "GetCurrentUserUseCase",
+    "IsAuthenticatedUseCase",
+    "RefreshTokenUseCase",
+    "HasPermissionUseCase",
+    "GetUserRoleUseCase",
+    "ValidatePasswordPolicyUseCase",
+    "SetupMFAUseCase",
+    "VerifyMFAUseCase",
+    "BiometricAuthUseCase",
+    "OAuthLoginUseCase",
+    "ExportUserDataUseCase",
+    "AuditSecurityEventUseCase"
+  ],
+  "store": {
+    "file": "authStore.ts",
+    "state": [
+      "user: AuthUser | null",
+      "isAuthenticated: boolean",
+      "isLoading: boolean",
+      "error: string | null",
+      "permissions: Permission[]",
+      "userRole: UserRole | null",
+      "securityEvents: SecurityEvent[]",
+      "mfaEnabled: boolean",
+      "biometricEnabled: boolean",
+      "lastLoginTime: Date | null",
+      "sessionExpiresAt: Date | null",
+      "deviceFingerprint: string | null"
+    ],
+    "actions": [
+      "login(email: string, password: string): Promise<AuthResult>",
+      "loginWithOAuth(provider: OAuthProvider): Promise<AuthResult>",
+      "loginWithBiometric(): Promise<AuthResult>",
+      "register(userData: RegisterRequest): Promise<AuthResult>",
+      "logout(): Promise<void>",
+      "resetPassword(email: string): Promise<void>",
+      "changePassword(oldPassword: string, newPassword: string): Promise<void>",
+      "verifyEmail(token: string): Promise<void>",
+      "deleteAccount(reason: string): Promise<void>",
+      "initializeSession(): Promise<void>",
+      "refreshToken(): Promise<void>",
+      "getCurrentUser(): Promise<AuthUser | null>",
+      "hasPermission(permission: Permission): boolean",
+      "getUserRole(): UserRole | null",
+      "enableMFA(method: MFAMethod): Promise<MFASetupResult>",
+      "verifyMFA(code: string): Promise<boolean>",
+      "enableBiometric(): Promise<boolean>",
+      "exportUserData(): Promise<UserDataExport>",
+      "clearError(): void",
+      "updateSecuritySettings(settings: SecuritySettings): Promise<void>"
+    ]
+  },
+  "enterpriseServices": {
+    "rbac": {
+      "permissions": 67,
+      "roles": ["user", "moderator", "admin", "super_admin"],
+      "hierarchical": true,
+      "dynamicPermissions": true
+    },
+    "mfa": {
+      "methods": ["totp", "sms", "email", "backup_codes"],
+      "enforcement": "configurable",
+      "backupCodes": true
+    },
+    "biometric": {
+      "types": ["fingerprint", "face_id", "touch_id"],
+      "fallback": "pin",
+      "encryption": "hardware_backed"
+    },
+    "oauth": {
+      "providers": ["google", "apple", "microsoft"],
+      "pkce": true,
+      "state_validation": true
+    },
+    "compliance": {
+      "gdpr": {
+        "dataExport": true,
+        "dataPortability": true,
+        "rightToErasure": true,
+        "consentManagement": true
+      },
+      "auditLogging": {
+        "allOperations": true,
+        "retention": "7_years",
+        "immutable": true
+      }
+    },
+    "security": {
+      "deviceFingerprinting": true,
+      "threatAssessment": true,
+      "sessionManagement": true,
+      "passwordPolicy": true,
+      "bruteForceProtection": true,
+      "ipWhitelisting": true
+    }
+  },
+  "dependencies": {
+    "dataSources": [
+      "AuthSupabaseDatasource",
+      "SecurityEventsDatasource",
+      "ComplianceDatasource"
+    ],
+    "repository": "AuthRepositoryImpl",
+    "services": [
+      "AdvancedSecurityService",
+      "MFAServiceImpl",
+      "BiometricAuthServiceImpl",
+      "OAuthServiceImpl",
+      "ComplianceServiceImpl",
+      "PasswordPolicyServiceImpl",
+      "AuthOrchestratorService"
+    ],
+    "factories": [
+      "AuthServiceContainer",
+      "OptimizedSecurityServiceFactory"
+    ],
+    "state": ["zustand"],
+    "routing": ["@react-navigation/native", "@react-navigation/native-stack"],
+    "ui": [
+      "react-native-paper",
+      "react-native-safe-area-context",
+      "react-native-vector-icons"
+    ],
+    "feedback": ["snackbarStore"],
+    "i18n": ["react-i18next"],
+    "security": [
+      "@react-native-google-signin/google-signin",
+      "@invertase/react-native-apple-authentication",
+      "react-native-app-auth",
+      "react-native-biometrics",
+      "react-native-keychain",
+      "@supabase/supabase-js"
+    ],
+    "permissions": [
+      "react-native-permissions"
+    ],
+    "crypto": [
+      "react-native-crypto",
+      "js-sha256"
+    ]
+  },
+  "hooks": {
+    "core": [
+      "useAuth",
+      "usePermission",
+      "useRole"
+    ],
+    "guards": [
+      "useAuthGuard",
+      "useGuestGuard",
+      "useSessionGuard"
+    ],
+    "hoc": [
+      "withRoleGuard",
+      "withPermissionGuard",
+      "withAuthGuard",
+      "withGuestGuard"
+    ]
+  },
+  "i18n": {
+    "namespace": "auth",
+    "languages": ["de", "en"],
+    "keys": [
+      "auth.login.title",
+      "auth.login.subtitle",
+      "auth.login.button",
+      "auth.login.emailLabel",
+      "auth.login.passwordLabel",
+      "auth.login.biometricButton",
+      "auth.login.orText",
+      "auth.login.socialText",
+      "auth.register.title",
+      "auth.register.button",
+      "auth.register.success",
+      "auth.reset.title",
+      "auth.reset.button",
+      "auth.reset.success",
+      "auth.change.title",
+      "auth.change.button",
+      "auth.verification.title",
+      "auth.verification.button",
+      "auth.deletion.title",
+      "auth.deletion.button",
+      "auth.navigation.backToLogin",
+      "auth.navigation.noAccount",
+      "auth.navigation.forgotPassword",
+      "auth.validation.emailRequired",
+      "auth.validation.emailInvalid",
+      "auth.validation.passwordRequired",
+      "auth.validation.passwordTooShort",
+      "auth.validation.passwordMismatch",
+      "auth.biometric.unavailableTitle",
+      "auth.biometric.unavailableMessage",
+      "auth.biometric.errorTitle",
+      "auth.biometric.errorMessage",
+      "auth.oauth.errorTitle",
+      "auth.oauth.googleErrorMessage",
+      "auth.oauth.appleErrorMessage",
+      "auth.mfa.setupTitle",
+      "auth.mfa.verifyTitle",
+      "auth.mfa.backupCodes",
+      "auth.rbac.accessDenied",
+      "auth.rbac.insufficientPermissions",
+      "auth.compliance.dataExportStarted",
+      "auth.compliance.dataExportComplete",
+      "auth.compliance.deletionConfirm",
+      "auth.security.sessionExpired",
+      "auth.security.suspiciousActivity",
+      "auth.errors.networkError",
+      "auth.errors.serverError",
+      "auth.errors.invalidCredentials",
+      "auth.errors.accountLocked",
+      "auth.errors.tooManyAttempts"
+    ]
+  },
+  "permissions": {
+    "categories": [
+      "user_management",
+      "admin_user_management",
+      "role_management",
+      "system_administration",
+      "security_compliance",
+      "content_management",
+      "analytics",
+      "feature_access"
+    ],
+    "total": 67,
+    "roles": {
+      "user": {
+        "level": 1,
+        "permissions": 12
+      },
+      "moderator": {
+        "level": 2,
+        "permissions": 28
+      },
+      "admin": {
+        "level": 3,
+        "permissions": 52
+      },
+      "super_admin": {
+        "level": 4,
+        "permissions": 67
+      }
+    }
+  },
+  "tests": {
+    "unit": [
+      "AuthRepositoryImpl.test.ts",
+      "LoginWithEmailUseCase.test.ts",
+      "RegisterWithEmailUseCase.test.ts",
+      "LogoutUseCase.test.ts",
+      "ResetPasswordUseCase.test.ts",
+      "GetCurrentUserUseCase.test.ts",
+      "IsAuthenticatedUseCase.test.ts",
+      "HasPermissionUseCase.test.ts",
+      "MFAServiceImpl.test.ts",
+      "BiometricAuthServiceImpl.test.ts",
+      "OAuthServiceImpl.test.ts",
+      "ComplianceServiceImpl.test.ts",
+      "PasswordPolicyServiceImpl.test.ts"
+    ],
+    "integration": [
+      "authStore.test.ts",
+      "auth.repository.impl.test.ts",
+      "auth.integration.test.ts",
+      "SecurityServiceFactory.test.ts",
+      "AuthServiceContainer.test.ts"
+    ],
+    "e2e": [
+      "login.e2e.test.ts",
+      "registration.e2e.test.ts",
+      "oauth.e2e.test.ts",
+      "mfa.e2e.test.ts",
+      "biometric.e2e.test.ts"
+    ],
+    "coverage": "95%",
+    "security": [
+      "penetration_tests",
+      "vulnerability_scanning",
+      "dependency_audit"
+    ]
+  },
+  "performance": {
+    "metrics": {
+      "loginTime": "<500ms",
+      "sessionInit": "<200ms",
+      "permissionCheck": "<10ms",
+      "cacheHitRatio": ">90%"
+    },
+    "optimization": {
+      "lazyLoading": true,
+      "serviceContainer": true,
+      "memoryManagement": true,
+      "networkCaching": true
+    }
+  },
+  "security": {
+    "encryption": {
+      "storage": "AES-256",
+      "transport": "TLS 1.3",
+      "keys": "hardware_backed"
+    },
+    "authentication": {
+      "passwordPolicy": "OWASP_compliant",
+      "sessionTimeout": "configurable",
+      "bruteForceProtection": true,
+      "deviceBinding": true
+    },
+    "authorization": {
+      "rbac": "hierarchical",
+      "permissions": "fine_grained",
+      "auditTrail": "complete"
+    }
+  },
+  "monitoring": {
+    "metrics": [
+      "login_attempts",
+      "authentication_failures",
+      "session_duration",
+      "permission_checks",
+      "security_events"
+    ],
+    "alerts": [
+      "multiple_failed_logins",
+      "suspicious_activity",
+      "session_anomalies",
+      "permission_violations"
+    ]
+  },
+  "architectureNotes": [
+    "Implements Clean Architecture with 4-layer separation (Domain/Application/Data/Presentation).",
+    "Uses Zustand for state management with enterprise patterns and optimistic updates.",
+    "Service Container pattern with Factory-based dependency injection for all services.",
+    "RBAC system with 67 permissions across 8 categories and 4 hierarchical role levels.",
+    "Comprehensive MFA support with TOTP, SMS, backup codes and biometric fallback.",
+    "OAuth integration with PKCE, state validation and provider-specific error handling.",
+    "GDPR compliance with data export, portability, deletion and consent management.",
+    "Advanced security with device fingerprinting, threat assessment and audit logging.",
+    "Performance optimized with lazy loading, caching and memory management.",
+    "Enterprise error handling with categorized errors and user-friendly messages.",
+    "Full TypeScript coverage with comprehensive JSDoc documentation.",
+    "Internationalization support with German and English translations.",
+    "Material Design UI with accessibility support and responsive layouts.",
+    "Comprehensive testing with 95% coverage including unit, integration and E2E tests.",
+    "Security testing with penetration tests, vulnerability scanning and dependency audits.",
+    "Real-time monitoring with metrics, alerts and performance tracking.",
+    "Scalable architecture ready for microservices and enterprise deployment."
+  ],
+  "roadmap": {
+    "current": "2.0.0 - Enterprise Feature Complete",
+    "next": "2.1.0 - Advanced Analytics & Reporting",
+    "future": [
+      "SSO/SAML Integration",
+      "Risk-based Authentication",
+      "Behavioral Analytics",
+      "Zero Trust Architecture"
+    ]
+  }
+}
