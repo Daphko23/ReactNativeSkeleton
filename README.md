@@ -1,10 +1,10 @@
-# 🚀 React Native Skeleton Template
+# 🚀 Daphko AI Skeleton
 
 [![React Native](https://img.shields.io/badge/React%20Native-0.79.1-blue.svg)](https://reactnative.dev/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.x-blue.svg)](https://www.typescriptlang.org/)
 [![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 
-Ein **production-ready** React Native Template mit Clean Architecture, vorkonfigurierten Development-Tools und modernem Setup. Perfekt für den schnellen Start neuer Projekte.
+Ein **production-ready** React Native Template mit Clean Architecture, vorkonfigurierten Development-Tools und modernem Setup. Perfekt für den schnellen Start neuer AI-gestützter Projekte.
 
 ## ⚡ Quick Start
 
@@ -13,13 +13,13 @@ Ein **production-ready** React Native Template mit Clean Architecture, vorkonfig
 ```bash
 # Klicke auf "Use this template" oben auf dieser Seite
 # Oder verwende GitHub CLI:
-gh repo create mein-neues-projekt --template username/react-native-skeleton-template
+gh repo create mein-neues-projekt --template daphko/daphko-ai-skeleton
 ```
 
 ### 2. Projekt setup
 
 ```bash
-git clone https://github.com/username/mein-neues-projekt.git
+git clone https://github.com/daphko/mein-neues-projekt.git
 cd mein-neues-projekt
 
 # Dependencies installieren

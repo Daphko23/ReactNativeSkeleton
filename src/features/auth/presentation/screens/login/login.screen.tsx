@@ -30,16 +30,18 @@ import {
   Alert,
 } from 'react-native';
 import { Text, Divider, ActivityIndicator } from 'react-native-paper';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { AuthStackParamList } from '@core/navigation/navigation.types';
 import { PrimaryButton } from '@shared/components/buttons/primary-button.component';
 import { FormTextInput } from '@shared/components/form-text-input/form-text-input.component';
 import { FormErrorText } from '@shared/components/form-text-input/form-text-error.component';
-import { loginScreenStyles } from './login.screen.styles';
+import { createLoginScreenStyles } from './login.screen.styles';
 import { useAuth } from '@features/auth/presentation/hooks/use-auth';
-import { useTranslation } from 'react-i18next';
+import { useAuthTranslations } from '@core/i18n/hooks/useAuthTranslations';
 import { withGuestGuard } from '@shared/hoc/with-guest.guard';
+import { useTheme } from '@core/theme/theme.system';
 
 /**
  * @interface LoginFormData
@@ -60,6 +62,15 @@ interface ValidationErrors {
 }
 
 /**
+ * @interface TouchedFields
+ * @description Tracks which fields have been touched by the user
+ */
+interface TouchedFields {
+  email: boolean;
+  password: boolean;
+}
+
+/**
  * @component LoginScreen
  * @description Optimized Enterprise Login Screen
  * 
@@ -74,8 +85,11 @@ interface ValidationErrors {
  */
 const LoginScreen = () => {
   const { login, isLoading, error, clearError, enterprise } = useAuth();
-  const { t } = useTranslation();
+  const authT = useAuthTranslations();
   const navigation = useNavigation<NativeStackNavigationProp<AuthStackParamList>>();
+  const { theme } = useTheme();
+
+  const styles = createLoginScreenStyles(theme);
 
   // Form State
   const [formData, setFormData] = useState<LoginFormData>({
@@ -83,6 +97,10 @@ const LoginScreen = () => {
     password: '',
   });
   const [validationErrors, setValidationErrors] = useState<ValidationErrors>({});
+  const [touchedFields, setTouchedFields] = useState<TouchedFields>({
+    email: false,
+    password: false,
+  });
   const [isFormValid, setIsFormValid] = useState(false);
 
   // Biometric State
@@ -100,6 +118,10 @@ const LoginScreen = () => {
     useCallback(() => {
       clearError();
       setValidationErrors({});
+      setTouchedFields({
+        email: false,
+        password: false,
+      });
     }, [clearError])
   );
 
@@ -133,16 +155,16 @@ const LoginScreen = () => {
     
     // Email validation
     if (!formData.email) {
-      errors.email = t('auth.validation.emailRequired') || 'Email ist erforderlich';
+      errors.email = authT.validation.emailRequired;
     } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
-      errors.email = t('auth.validation.emailInvalid') || 'Ungültige E-Mail-Adresse';
+      errors.email = authT.validation.emailInvalid;
     }
 
     // Password validation
     if (!formData.password) {
-      errors.password = t('auth.validation.passwordRequired') || 'Passwort ist erforderlich';
+      errors.password = authT.validation.passwordRequired;
     } else if (formData.password.length < 6) {
-      errors.password = t('auth.validation.passwordTooShort') || 'Passwort zu kurz (min. 6 Zeichen)';
+      errors.password = authT.validation.passwordTooShort;
     }
 
     setValidationErrors(errors);
@@ -150,10 +172,11 @@ const LoginScreen = () => {
   };
 
   /**
-   * Update form field value
+   * Update form field value and mark as touched
    */
   const updateFormField = (field: keyof LoginFormData, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }));
+    setTouchedFields(prev => ({ ...prev, [field]: true }));
     clearError();
   };
 
@@ -162,12 +185,16 @@ const LoginScreen = () => {
    */
   const handleEmailLogin = async () => {
     if (!isFormValid) {
+      console.log('[LoginScreen] Form is not valid, aborting login');
       return;
     }
 
+    console.log('[LoginScreen] Starting login process for:', formData.email);
     try {
       await login(formData.email, formData.password);
-    } catch {
+      console.log('[LoginScreen] Login completed successfully');
+    } catch (error) {
+      console.error('[LoginScreen] Login failed:', error);
       // Error handling is done by the auth hook
     }
   };
@@ -182,8 +209,8 @@ const LoginScreen = () => {
       // Success handled by auth state change
     } catch {
       Alert.alert(
-        t('auth.biometric.errorTitle') || 'Fehler',
-        t('auth.biometric.errorMessage') || 'Biometrische Authentifizierung fehlgeschlagen'
+        authT.biometric.errorTitle,
+        authT.biometric.errorMessage
       );
     } finally {
       setIsBiometricLoading(false);
@@ -199,8 +226,8 @@ const LoginScreen = () => {
       await enterprise.oauth.loginWithGoogle();
     } catch {
       Alert.alert(
-        t('auth.oauth.errorTitle') || 'Fehler',
-        t('auth.oauth.googleErrorMessage') || 'Google-Anmeldung fehlgeschlagen'
+        authT.oauth.errorTitle,
+        authT.oauth.googleErrorMessage
       );
     } finally {
       setIsOAuthLoading(prev => ({ ...prev, google: false }));
@@ -216,8 +243,8 @@ const LoginScreen = () => {
       await enterprise.oauth.loginWithApple();
     } catch {
       Alert.alert(
-        t('auth.oauth.errorTitle') || 'Fehler',
-        t('auth.oauth.appleErrorMessage') || 'Apple-Anmeldung fehlgeschlagen'
+        authT.oauth.errorTitle,
+        authT.oauth.appleErrorMessage
       );
     } finally {
       setIsOAuthLoading(prev => ({ ...prev, apple: false }));
@@ -233,152 +260,156 @@ const LoginScreen = () => {
       navigation.navigate('PasswordReset');
     } catch {
       Alert.alert(
-        t('auth.forgotPassword.errorTitle') || 'Fehler',
-        t('auth.forgotPassword.errorMessage') || 'Passwort-Reset konnte nicht gestartet werden'
+        authT.forgotPassword.errorTitle,
+        authT.forgotPassword.errorMessage
       );
     }
   };
 
   return (
-    <KeyboardAvoidingView
-      style={loginScreenStyles.container}
-      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-      keyboardVerticalOffset={Platform.OS === 'ios' ? 64 : 0}
-    >
-      <ScrollView
-        contentContainerStyle={loginScreenStyles.scrollContainer}
-        showsVerticalScrollIndicator={false}
-        keyboardShouldPersistTaps="handled"
+    <SafeAreaView style={styles.container}>
+      <KeyboardAvoidingView
+        style={styles.container}
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        keyboardVerticalOffset={Platform.OS === 'ios' ? 64 : 0}
       >
-        {/* Header */}
-        <View style={loginScreenStyles.header}>
-          <Text style={loginScreenStyles.title}>{t('auth.login.title')}</Text>
-          <Text style={loginScreenStyles.subtitle}>{t('auth.login.subtitle')}</Text>
-        </View>
+        <ScrollView
+          contentContainerStyle={styles.scrollContainer}
+          showsVerticalScrollIndicator={false}
+          keyboardShouldPersistTaps="handled"
+        >
+          {/* Header */}
+          <View style={styles.header}>
+            <Text style={styles.title}>{authT.login.title}</Text>
+            <Text style={styles.subtitle}>{authT.login.subtitle}</Text>
+          </View>
 
-        {/* Email/Password Form */}
-        <View style={loginScreenStyles.formContainer}>
-          <FormTextInput
-            label={t('auth.login.emailLabel')}
-            value={formData.email}
-            onChangeText={(value) => updateFormField('email', value)}
-            keyboardType="email-address"
-            error={!!validationErrors.email || !!error}
-          />
-          {validationErrors.email && (
-            <Text style={loginScreenStyles.validationError}>
-              {validationErrors.email}
-            </Text>
+          {/* Email/Password Form */}
+          <View style={styles.formContainer}>
+            <FormTextInput
+              label={authT.login.emailLabel}
+              value={formData.email}
+              onChangeText={(value) => updateFormField('email', value)}
+              keyboardType="email-address"
+              autoCapitalize="none"
+              autoCorrect={false}
+              error={(touchedFields.email && !!validationErrors.email) || !!error}
+            />
+            {touchedFields.email && validationErrors.email && (
+              <Text style={styles.validationError}>
+                {validationErrors.email}
+              </Text>
+            )}
+
+            <FormTextInput
+              label={authT.login.passwordLabel}
+              value={formData.password}
+              onChangeText={(value) => updateFormField('password', value)}
+              secureTextEntry
+              error={(touchedFields.password && !!validationErrors.password) || !!error}
+            />
+            {touchedFields.password && validationErrors.password && (
+              <Text style={styles.validationError}>
+                {validationErrors.password}
+              </Text>
+            )}
+
+            <FormErrorText errorMessage={error} />
+
+            <PrimaryButton
+              label={authT.login.button}
+              onPress={handleEmailLogin}
+              loading={isLoading}
+              disabled={!isFormValid || isLoading}
+            />
+          </View>
+
+          {/* Biometric Authentication */}
+          {isBiometricAvailable && (
+            <View style={styles.biometricContainer}>
+              <Divider style={styles.divider} />
+              <Text style={styles.orText}>{authT.login.orText}</Text>
+              
+              <TouchableOpacity
+                style={styles.biometricButton}
+                onPress={handleBiometricLogin}
+                disabled={isBiometricLoading}
+              >
+                {isBiometricLoading ? (
+                  <ActivityIndicator size="small" color="#fff" />
+                ) : (
+                  <>
+                    <Text style={styles.biometricIcon}>👆</Text>
+                    <Text style={styles.biometricText}>
+                      {authT.login.biometricButton}
+                    </Text>
+                  </>
+                )}
+              </TouchableOpacity>
+            </View>
           )}
 
-          <FormTextInput
-            label={t('auth.login.passwordLabel')}
-            value={formData.password}
-            onChangeText={(value) => updateFormField('password', value)}
-            secureTextEntry
-            error={!!validationErrors.password || !!error}
-          />
-          {validationErrors.password && (
-            <Text style={loginScreenStyles.validationError}>
-              {validationErrors.password}
-            </Text>
-          )}
-
-          <FormErrorText errorMessage={error} />
-
-          <PrimaryButton
-            label={t('auth.login.button')}
-            onPress={handleEmailLogin}
-            loading={isLoading}
-            disabled={!isFormValid || isLoading}
-          />
-        </View>
-
-        {/* Biometric Authentication */}
-        {isBiometricAvailable && (
-          <View style={loginScreenStyles.biometricContainer}>
-            <Divider style={loginScreenStyles.divider} />
-            <Text style={loginScreenStyles.orText}>{t('auth.login.orText')}</Text>
+          {/* OAuth Social Login */}
+          <View style={styles.oauthContainer}>
+            <Divider style={styles.divider} />
+            <Text style={styles.socialText}>{authT.login.socialText}</Text>
             
+            <View style={styles.socialButtonsContainer}>
+              <TouchableOpacity
+                style={[styles.socialButton, styles.googleButton]}
+                onPress={handleGoogleLogin}
+                disabled={isOAuthLoading.google}
+              >
+                {isOAuthLoading.google ? (
+                  <ActivityIndicator size="small" color="#4285f4" />
+                ) : (
+                  <>
+                    <Text style={styles.socialIcon}>🔍</Text>
+                    <Text style={styles.socialButtonText}>Google</Text>
+                  </>
+                )}
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                style={[styles.socialButton, styles.appleButton]}
+                onPress={handleAppleLogin}
+                disabled={isOAuthLoading.apple}
+              >
+                {isOAuthLoading.apple ? (
+                  <ActivityIndicator size="small" color="#000" />
+                ) : (
+                  <>
+                    <Text style={styles.socialIcon}>🍎</Text>
+                    <Text style={styles.socialButtonText}>Apple</Text>
+                  </>
+                )}
+              </TouchableOpacity>
+            </View>
+          </View>
+
+          {/* Navigation Links */}
+          <View style={styles.navigationContainer}>
             <TouchableOpacity
-              style={loginScreenStyles.biometricButton}
-              onPress={handleBiometricLogin}
-              disabled={isBiometricLoading}
+              onPress={() => navigation.navigate('Register')}
+              style={styles.linkContainer}
             >
-              {isBiometricLoading ? (
-                <ActivityIndicator size="small" color="#fff" />
-              ) : (
-                <>
-                  <Text style={loginScreenStyles.biometricIcon}>👆</Text>
-                  <Text style={loginScreenStyles.biometricText}>
-                    {t('auth.login.biometricButton')}
-                  </Text>
-                </>
-              )}
+              <Text style={styles.linkText}>
+                {authT.navigation.noAccount}
+              </Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              onPress={handleForgotPassword}
+              style={styles.linkContainer}
+            >
+              <Text style={styles.linkText}>
+                {authT.navigation.forgotPassword}
+              </Text>
             </TouchableOpacity>
           </View>
-        )}
-
-        {/* OAuth Social Login */}
-        <View style={loginScreenStyles.oauthContainer}>
-          <Divider style={loginScreenStyles.divider} />
-          <Text style={loginScreenStyles.socialText}>{t('auth.login.socialText')}</Text>
-          
-          <View style={loginScreenStyles.socialButtonsContainer}>
-            <TouchableOpacity
-              style={[loginScreenStyles.socialButton, loginScreenStyles.googleButton]}
-              onPress={handleGoogleLogin}
-              disabled={isOAuthLoading.google}
-            >
-              {isOAuthLoading.google ? (
-                <ActivityIndicator size="small" color="#4285f4" />
-              ) : (
-                <>
-                  <Text style={loginScreenStyles.socialIcon}>🔍</Text>
-                  <Text style={loginScreenStyles.socialButtonText}>Google</Text>
-                </>
-              )}
-            </TouchableOpacity>
-
-            <TouchableOpacity
-              style={[loginScreenStyles.socialButton, loginScreenStyles.appleButton]}
-              onPress={handleAppleLogin}
-              disabled={isOAuthLoading.apple}
-            >
-              {isOAuthLoading.apple ? (
-                <ActivityIndicator size="small" color="#000" />
-              ) : (
-                <>
-                  <Text style={loginScreenStyles.socialIcon}>🍎</Text>
-                  <Text style={loginScreenStyles.socialButtonText}>Apple</Text>
-                </>
-              )}
-            </TouchableOpacity>
-          </View>
-        </View>
-
-        {/* Navigation Links */}
-        <View style={loginScreenStyles.navigationContainer}>
-          <TouchableOpacity
-            onPress={() => navigation.navigate('Register')}
-            style={loginScreenStyles.linkContainer}
-          >
-            <Text style={loginScreenStyles.linkText}>
-              {t('auth.navigation.noAccount')}
-            </Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            onPress={handleForgotPassword}
-            style={loginScreenStyles.linkContainer}
-          >
-            <Text style={loginScreenStyles.linkText}>
-              {t('auth.navigation.forgotPassword')}
-            </Text>
-          </TouchableOpacity>
-        </View>
-      </ScrollView>
-    </KeyboardAvoidingView>
+        </ScrollView>
+      </KeyboardAvoidingView>
+    </SafeAreaView>
   );
 };
 

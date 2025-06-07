@@ -23,30 +23,30 @@
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">100% </span>
+                <span class="strong">0% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>9/9</span>
+                <span class='fraction'>0/9</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">100% </span>
+                <span class="strong">0% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>8/8</span>
+                <span class='fraction'>0/8</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">100% </span>
+                <span class="strong">0% </span>
                 <span class="quiet">Functions</span>
-                <span class='fraction'>2/2</span>
+                <span class='fraction'>0/2</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">100% </span>
+                <span class="strong">0% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>9/9</span>
+                <span class='fraction'>0/9</span>
             </div>
         
             
@@ -61,7 +61,7 @@
             </div>
         </template>
     </div>
-    <div class='status-line high'></div>
+    <div class='status-line low'></div>
     <pre><table class="coverage">
 <tr><td class="line-count quiet"><a name='L1'></a><a href='#L1'>1</a>
 <a name='L2'></a><a href='#L2'>2</a>
@@ -282,8 +282,8 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">38x</span>
-<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -397,19 +397,19 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">46x</span>
-<span class="cline-any cline-yes">5x</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">41x</span>
-<span class="cline-any cline-yes">41x</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">9x</span>
-<span class="cline-any cline-yes">7x</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">9x</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -456,9 +456,9 @@ export class LoginWithEmailUseCase {
    * 
    * @since 1.0.0
    */
-  constructor(private readonly authRepository: AuthRepository) {
-    if (!authRepository) {
-      throw new Error('AuthRepository is required for LoginWithEmailUseCase');
+<span class="fstat-no" title="function not covered" >  co</span>nstructor(private readonly authRepository: AuthRepository) {
+<span class="cstat-no" title="statement not covered" >    if (!authRepository) {</span>
+<span class="cstat-no" title="statement not covered" >      throw new Error('AuthRepository is required for LoginWithEmailUseCase');</span>
     }
   }
 &nbsp;
@@ -570,21 +570,21 @@ export class LoginWithEmailUseCase {
    * @todo Add support for passwordless authentication
    * @todo Implement adaptive authentication
    */
-  async execute(email: string, password: string): Promise&lt;AuthUser&gt; {
+<span class="fstat-no" title="function not covered" >  as</span>ync execute(email: string, password: string): Promise&lt;AuthUser&gt; {
     // Input validation
-    if (!email || !password) {
-      throw new Error('Email and password are required');
+<span class="cstat-no" title="statement not covered" >    if (!email || !password) {</span>
+<span class="cstat-no" title="statement not covered" >      throw new Error('Email and password are required');</span>
     }
 &nbsp;
     // Delegate to repository with proper error handling
-    try {
-      return await this.authRepository.login(email, password);
+<span class="cstat-no" title="statement not covered" >    try {</span>
+<span class="cstat-no" title="statement not covered" >      return await this.authRepository.login(email, password);</span>
     } catch (error) {
       // Re-throw with proper error context
-      if (error instanceof Error) {
-        error.message = `Login failed: ${error.message}`;
+<span class="cstat-no" title="statement not covered" >      if (error instanceof Error) {</span>
+<span class="cstat-no" title="statement not covered" >        error.message = `Login failed: ${error.message}`;</span>
       }
-      throw error;
+<span class="cstat-no" title="statement not covered" >      throw error;</span>
     }
   }
 }
@@ -595,7 +595,7 @@ export class LoginWithEmailUseCase {
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2025-05-30T19:50:06.682Z
+                at 2025-06-01T18:02:20.399Z
             </div>
         <script src="../../../../../prettify.js"></script>
         <script>

@@ -21,12 +21,12 @@ describe('InvalidCredentialsError - DOMAIN ERROR VALIDATION', () => {
     });
 
     it('should create error with cause', () => {
-      const cause = new Error('Database connection failed');
-      const error = new InvalidCredentialsError(cause);
+      const _rootCause = new InvalidCredentialsError('Database connection failed');
+      const error = new InvalidCredentialsError(_rootCause);
 
       expect(error.message).toBe('Invalid credentials provided');
       expect(error.name).toBe('InvalidCredentialsError');
-      expect(error.cause).toBe(cause);
+      expect(error.cause).toBe(_rootCause);
     });
 
     it('should maintain proper error inheritance chain', () => {
@@ -199,8 +199,8 @@ describe('InvalidCredentialsError - DOMAIN ERROR VALIDATION', () => {
     });
 
     it('should serialize cause information in toJSON()', () => {
-      const cause = new Error('Database connection failed');
-      const error = new InvalidCredentialsError(cause);
+      const rootCause = new Error('Database connection failed');
+      const error = new InvalidCredentialsError(rootCause);
       const json = error.toJSON();
 
       expect(json.cause).toBeDefined();
@@ -477,7 +477,7 @@ describe('InvalidCredentialsError - DOMAIN ERROR VALIDATION', () => {
     });
 
     it('should handle cause chain properly', () => {
-      const rootCause = new Error('Connection timeout');
+      const _rootCause = new InvalidCredentialsError('Connection timeout');
       const intermediateCause = new Error('Database query failed');
       const error = new InvalidCredentialsError(intermediateCause);
 
@@ -581,8 +581,8 @@ describe('InvalidCredentialsError - DOMAIN ERROR VALIDATION', () => {
     });
 
     it('should handle deep cause chains', () => {
-      const deepCause = new Error('Level 3');
-      const middleCause = new Error('Level 2');
+      const _deepCause = new Error('Level 3');
+      const _middleCause = new Error('Level 2');
       const topCause = new Error('Level 1');
       
       const error = new InvalidCredentialsError(topCause);

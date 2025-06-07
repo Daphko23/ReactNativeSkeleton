@@ -9,164 +9,155 @@
  * @module LoginScreenStyles
  */
 
-import {StyleSheet} from 'react-native';
-import {spacing, colors} from '@core/theme';
+import { StyleSheet } from 'react-native';
 
 /**
- * Stylesheet for the optimized LoginScreen component
+ * Creates styles for the LoginScreen component using theme tokens
  */
-export const loginScreenStyles = StyleSheet.create({
+export const createLoginScreenStyles = (theme: any) => StyleSheet.create({
   // Container Styles
   container: {
     flex: 1,
-    backgroundColor: colors.background || '#f8f9fa',
+    backgroundColor: theme.colors.background,
   },
   scrollContainer: {
     flexGrow: 1,
     justifyContent: 'center',
-    padding: spacing.lg,
-    paddingTop: spacing.xl,
-    paddingBottom: spacing.xl,
+    padding: theme.spacing[5],
+    paddingTop: theme.spacing[6],
+    paddingBottom: theme.spacing[6],
   },
 
   // Header Styles
   header: {
     alignItems: 'center',
-    marginBottom: spacing.xl,
+    marginBottom: theme.spacing[6],
   },
   title: {
-    fontSize: 32,
-    fontWeight: 'bold',
-    marginBottom: spacing.sm,
+    fontSize: theme.typography.fontSizes['2xl'],
+    fontWeight: theme.typography.fontWeights.bold,
+    marginBottom: theme.spacing[3],
     textAlign: 'center',
-    color: colors.text || '#212529',
+    color: theme.colors.text,
   },
   subtitle: {
-    fontSize: 16,
-    color: colors.textSecondary || '#6c757d',
+    fontSize: theme.typography.fontSizes.base,
+    color: theme.colors.textSecondary,
     textAlign: 'center',
     lineHeight: 22,
   },
 
   // Form Container Styles
   formContainer: {
-    marginBottom: spacing.lg,
+    marginBottom: theme.spacing[5],
   },
   input: {
-    marginBottom: spacing.md,
+    marginBottom: theme.spacing[4],
   },
   validationError: {
-    color: colors.error || '#dc3545',
-    fontSize: 12,
-    marginTop: -spacing.sm,
-    marginBottom: spacing.sm,
-    marginLeft: spacing.sm,
+    color: theme.colors.error,
+    fontSize: theme.typography.fontSizes.xs,
+    marginTop: -theme.spacing[3],
+    marginBottom: theme.spacing[3],
+    marginLeft: theme.spacing[3],
   },
   loginButton: {
-    marginTop: spacing.md,
+    marginTop: theme.spacing[4],
   },
 
   // Biometric Authentication Styles
   biometricContainer: {
-    marginVertical: spacing.lg,
+    marginVertical: theme.spacing[5],
     alignItems: 'center',
   },
   divider: {
     width: '100%',
-    marginVertical: spacing.md,
+    marginVertical: theme.spacing[4],
   },
   orText: {
-    fontSize: 14,
-    color: colors.textSecondary || '#6c757d',
-    marginBottom: spacing.md,
+    fontSize: theme.typography.fontSizes.sm,
+    color: theme.colors.textSecondary,
+    marginBottom: theme.spacing[4],
     textAlign: 'center',
   },
   biometricButton: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: colors.primary || '#007bff',
-    paddingVertical: spacing.md,
-    paddingHorizontal: spacing.lg,
-    borderRadius: 12,
+    backgroundColor: theme.colors.primary,
+    paddingVertical: theme.spacing[4],
+    paddingHorizontal: theme.spacing[5],
+    borderRadius: theme.borderRadius.md,
     minWidth: 200,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
+    ...theme.shadows.md,
   },
   biometricIcon: {
-    fontSize: 20,
-    marginRight: spacing.sm,
+    fontSize: theme.typography.fontSizes.lg,
+    marginRight: theme.spacing[3],
   },
   biometricText: {
-    color: '#fff',
-    fontSize: 16,
-    fontWeight: '600',
+    color: theme.colors.onPrimary,
+    fontSize: theme.typography.fontSizes.base,
+    fontWeight: theme.typography.fontWeights.semibold,
   },
 
   // OAuth Social Login Styles
   oauthContainer: {
-    marginVertical: spacing.lg,
+    marginVertical: theme.spacing[5],
   },
   socialText: {
-    fontSize: 14,
-    color: colors.textSecondary || '#6c757d',
-    marginBottom: spacing.md,
+    fontSize: theme.typography.fontSizes.sm,
+    color: theme.colors.textSecondary,
+    marginBottom: theme.spacing[4],
     textAlign: 'center',
   },
   socialButtonsContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    gap: spacing.md,
+    gap: theme.spacing[4],
   },
   socialButton: {
     flex: 1,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    paddingVertical: spacing.md,
-    paddingHorizontal: spacing.md,
-    borderRadius: 8,
+    paddingVertical: theme.spacing[4],
+    paddingHorizontal: theme.spacing[4],
+    borderRadius: theme.borderRadius.md,
     borderWidth: 1,
-    borderColor: colors.border || '#dee2e6',
-    backgroundColor: '#fff',
+    borderColor: theme.colors.outline,
+    backgroundColor: theme.colors.surface,
     minHeight: 48,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.05,
-    shadowRadius: 2,
-    elevation: 1,
+    ...theme.shadows.sm,
   },
   googleButton: {
     borderColor: '#4285f4',
   },
   appleButton: {
-    borderColor: '#000',
+    borderColor: theme.colors.onSurface,
   },
   socialIcon: {
-    fontSize: 16,
-    marginRight: spacing.xs,
+    fontSize: theme.typography.fontSizes.base,
+    marginRight: theme.spacing[2],
   },
   socialButtonText: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: colors.text || '#212529',
+    fontSize: theme.typography.fontSizes.sm,
+    fontWeight: theme.typography.fontWeights.semibold,
+    color: theme.colors.text,
   },
 
   // Navigation Links Styles
   navigationContainer: {
-    marginTop: spacing.lg,
+    marginTop: theme.spacing[5],
     alignItems: 'center',
   },
   linkContainer: {
-    marginTop: spacing.md,
-    paddingVertical: spacing.sm,
+    marginTop: theme.spacing[4],
+    paddingVertical: theme.spacing[3],
   },
   linkText: {
-    color: colors.primary || '#007bff',
-    fontSize: 14,
+    color: theme.colors.primary,
+    fontSize: theme.typography.fontSizes.sm,
     textAlign: 'center',
     textDecorationLine: 'underline',
   },

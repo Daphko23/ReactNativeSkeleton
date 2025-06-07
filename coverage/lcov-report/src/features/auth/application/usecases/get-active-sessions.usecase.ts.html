@@ -23,30 +23,30 @@
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">100% </span>
+                <span class="strong">0% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>11/11</span>
+                <span class='fraction'>0/11</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">100% </span>
+                <span class="strong">0% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>6/6</span>
+                <span class='fraction'>0/6</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">100% </span>
+                <span class="strong">0% </span>
                 <span class="quiet">Functions</span>
-                <span class='fraction'>2/2</span>
+                <span class='fraction'>0/2</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">100% </span>
+                <span class="strong">0% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>11/11</span>
+                <span class='fraction'>0/11</span>
             </div>
         
             
@@ -61,7 +61,7 @@
             </div>
         </template>
     </div>
-    <div class='status-line high'></div>
+    <div class='status-line low'></div>
     <pre><table class="coverage">
 <tr><td class="line-count quiet"><a name='L1'></a><a href='#L1'>1</a>
 <a name='L2'></a><a href='#L2'>2</a>
@@ -558,8 +558,8 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">2x</span>
-<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -777,17 +777,17 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">16x</span>
-<span class="cline-any cline-yes">16x</span>
-<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">15x</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">15x</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">11x</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -802,13 +802,13 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">11x</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">4x</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -823,7 +823,7 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">4x</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -939,9 +939,9 @@ export class GetActiveSessionsUseCase {
    * 
    * @since 1.0.0
    */
-  constructor(private readonly authRepository: AuthRepository) {
-    if (!authRepository) {
-      throw new Error('AuthRepository is required for GetActiveSessionsUseCase');
+<span class="fstat-no" title="function not covered" >  co</span>nstructor(private readonly authRepository: AuthRepository) {
+<span class="cstat-no" title="statement not covered" >    if (!authRepository) {</span>
+<span class="cstat-no" title="statement not covered" >      throw new Error('AuthRepository is required for GetActiveSessionsUseCase');</span>
     }
   }
 &nbsp;
@@ -1157,19 +1157,19 @@ export class GetActiveSessionsUseCase {
    * @todo Add session risk scoring based on multiple factors
    * @todo Implement real-time session updates via WebSocket
    */
-  async execute(): Promise&lt;GetActiveSessionsResponse&gt; {
+<span class="fstat-no" title="function not covered" >  as</span>ync execute(): Promise&lt;GetActiveSessionsResponse&gt; {
     // Verify user is authenticated
-    const currentUser = await this.authRepository.getCurrentUser();
-    if (!currentUser) {
-      throw new UserNotAuthenticatedError();
+    const currentUser = <span class="cstat-no" title="statement not covered" >await this.authRepository.getCurrentUser();</span>
+<span class="cstat-no" title="statement not covered" >    if (!currentUser) {</span>
+<span class="cstat-no" title="statement not covered" >      throw new UserNotAuthenticatedError();</span>
     }
 &nbsp;
-    try {
+<span class="cstat-no" title="statement not covered" >    try {</span>
       // Get active sessions
-      const sessions = await this.authRepository.getActiveSessions();
+      const sessions = <span class="cstat-no" title="statement not covered" >await this.authRepository.getActiveSessions();</span>
 &nbsp;
       // Log security event
-      await this.authRepository.logSecurityEvent({
+<span class="cstat-no" title="statement not covered" >      await this.authRepository.logSecurityEvent({</span>
         id: `sessions-viewed-${Date.now()}`,
         type: SecurityEventType.LOGIN,
         userId: currentUser.id,
@@ -1184,13 +1184,13 @@ export class GetActiveSessionsUseCase {
         userAgent: 'React Native App',
       });
 &nbsp;
-      return {
+<span class="cstat-no" title="statement not covered" >      return {</span>
         sessions,
         totalSessions: sessions.length,
       };
     } catch (error) {
       // Log failed attempt
-      await this.authRepository.logSecurityEvent({
+<span class="cstat-no" title="statement not covered" >      await this.authRepository.logSecurityEvent({</span>
         id: `sessions-view-failed-${Date.now()}`,
         type: SecurityEventType.SUSPICIOUS_ACTIVITY,
         userId: currentUser.id,
@@ -1205,7 +1205,7 @@ export class GetActiveSessionsUseCase {
         userAgent: 'React Native App',
       });
 &nbsp;
-      throw error;
+<span class="cstat-no" title="statement not covered" >      throw error;</span>
     }
   }
 }
@@ -1216,7 +1216,7 @@ export class GetActiveSessionsUseCase {
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2025-05-30T19:50:06.682Z
+                at 2025-06-01T18:02:20.399Z
             </div>
         <script src="../../../../../prettify.js"></script>
         <script>

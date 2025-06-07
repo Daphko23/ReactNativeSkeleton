@@ -1,6 +1,7 @@
 import React from 'react';
 import {Button} from 'react-native-paper';
 import {StyleSheet} from 'react-native';
+import { useTheme } from '../../../core/theme/theme.system';
 
 interface PrimaryButtonProps {
   label: string;
@@ -8,6 +9,20 @@ interface PrimaryButtonProps {
   loading?: boolean;
   disabled?: boolean;
 }
+
+const createStyles = (theme: any) => StyleSheet.create({
+  button: {
+    borderRadius: theme.borderRadius.md,
+    marginVertical: theme.spacing[2],
+  },
+  content: {
+    height: 48,
+  },
+  label: {
+    fontSize: theme.typography.fontSizes.base,
+    fontWeight: theme.typography.fontWeights.bold,
+  },
+});
 
 /**
  * PrimaryButton component styled according to the App Theme.
@@ -18,6 +33,9 @@ export const PrimaryButton = ({
   loading = false,
   disabled = false,
 }: PrimaryButtonProps) => {
+  const { theme } = useTheme();
+  const styles = createStyles(theme);
+  
   return (
     <Button
       mode="contained"
@@ -31,17 +49,3 @@ export const PrimaryButton = ({
     </Button>
   );
 };
-
-const styles = StyleSheet.create({
-  button: {
-    borderRadius: 8,
-    marginVertical: 8,
-  },
-  content: {
-    height: 48,
-  },
-  label: {
-    fontSize: 16,
-    fontWeight: 'bold',
-  },
-});

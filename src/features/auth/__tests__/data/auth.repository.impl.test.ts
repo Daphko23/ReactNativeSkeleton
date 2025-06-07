@@ -114,6 +114,9 @@ describe('AuthRepositoryImpl via AuthServiceContainer - Factory Pattern', () => 
       const mockSupabaseUserDto: AuthUserDto = {
         id: 'user123',
         email: 'test@example.com',
+        emailVerified: true,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
         displayName: 'Test User',
         photoURL: 'http://photo.url',
       };
@@ -149,6 +152,9 @@ describe('AuthRepositoryImpl via AuthServiceContainer - Factory Pattern', () => 
       const mockSupabaseUserDto: AuthUserDto = {
         id: 'user123',
         email: 'newuser@example.com',
+        emailVerified: true,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
         displayName: null,
         photoURL: null,
       };

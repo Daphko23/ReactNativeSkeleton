@@ -25,9 +25,23 @@ export type MatchdayStackParamList = {
   };
 };
 
+// Credits-Flow (als Tab)
+export type CreditStackParamList = {
+  CreditDashboard: undefined;
+  CreditShop: undefined;
+  CreditTransactions: undefined;
+  CreditTransactionDetails: {
+    transactionId: string;
+  };
+};
+
 // Tab-Navigator
 export type MainTabParamList = {
   HomeTab: undefined;
+  ProfileTab: undefined;
+  NotificationsTab: undefined;
+  SettingsTab: undefined;
+  // ThemeTab: undefined; // Entfernt - jetzt über HomeScreen zugänglich  
   // MatchdayTab: NavigatorScreenParams<MatchdayStackParamList>; // TODO: Implement when needed
 };
 

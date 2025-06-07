@@ -37,7 +37,7 @@ import { AuthStackParamList } from '@core/navigation/navigation.types';
 import { PrimaryButton } from '@shared/components/buttons/primary-button.component';
 import { FormTextInput } from '@shared/components/form-text-input/form-text-input.component';
 import { FormErrorText } from '@shared/components/form-text-input/form-text-error.component';
-import { emailVerificationScreenStyles } from './email-verification.screen.styles';
+import { useTheme, createThemedStyles } from '@core/theme/theme.system';
 import { useAuth } from '@features/auth/presentation/hooks/use-auth';
 import { useTranslation } from 'react-i18next';
 import { withGuestGuard } from '@shared/hoc/with-guest.guard';
@@ -84,10 +84,170 @@ interface EmailVerificationScreenProps {
  * - Supabase email verification API
  * - GDPR compliant email handling
  */
+
+const useStyles = createThemedStyles((theme) => ({
+  // Container Styles
+  container: {
+    flex: 1,
+    backgroundColor: theme.colors.background,
+  },
+  scrollContainer: {
+    flexGrow: 1,
+    paddingHorizontal: theme.spacing[6],
+    paddingTop: theme.spacing[8],
+    paddingBottom: theme.spacing[10],
+  },
+
+  // Loading Styles
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center' as const,
+    alignItems: 'center' as const,
+    backgroundColor: theme.colors.background,
+    paddingHorizontal: theme.spacing[6],
+  },
+  loadingText: {
+    fontSize: theme.typography.fontSizes.base,
+    color: theme.colors.textSecondary,
+    marginTop: theme.spacing[4],
+    textAlign: 'center' as const,
+  },
+
+  // Success Styles
+  successContainer: {
+    flex: 1,
+    justifyContent: 'center' as const,
+    alignItems: 'center' as const,
+    backgroundColor: theme.colors.background,
+    paddingHorizontal: theme.spacing[6],
+  },
+  successIcon: {
+    fontSize: theme.typography.fontSizes['4xl'],
+    marginBottom: theme.spacing[6],
+  },
+  successTitle: {
+    fontSize: theme.typography.fontSizes.xl,
+    fontWeight: theme.typography.fontWeights.bold,
+    color: theme.colors.success,
+    textAlign: 'center' as const,
+    marginBottom: theme.spacing[3],
+  },
+  successMessage: {
+    fontSize: theme.typography.fontSizes.base,
+    color: theme.colors.textSecondary,
+    textAlign: 'center' as const,
+    lineHeight: theme.typography.lineHeights.relaxed * theme.typography.fontSizes.base,
+  },
+
+  // Header Styles
+  header: {
+    marginBottom: theme.spacing[8],
+    alignItems: 'center' as const,
+  },
+  headerIcon: {
+    fontSize: theme.typography.fontSizes['4xl'],
+    marginBottom: theme.spacing[4],
+  },
+  title: {
+    fontSize: theme.typography.fontSizes['2xl'],
+    fontWeight: theme.typography.fontWeights.bold,
+    color: theme.colors.text,
+    textAlign: 'center' as const,
+    marginBottom: theme.spacing[2],
+    letterSpacing: -0.5,
+  },
+  subtitle: {
+    fontSize: theme.typography.fontSizes.base,
+    color: theme.colors.textSecondary,
+    textAlign: 'center' as const,
+    lineHeight: theme.typography.lineHeights.relaxed * theme.typography.fontSizes.base,
+    paddingHorizontal: theme.spacing[4],
+  },
+
+  // Form Styles
+  formContainer: {
+    gap: theme.spacing[5],
+  },
+  validationError: {
+    fontSize: theme.typography.fontSizes.sm,
+    color: theme.colors.error,
+    marginTop: -theme.spacing[4],
+    marginBottom: theme.spacing[1],
+    paddingHorizontal: theme.spacing[1],
+  },
+  attemptsText: {
+    fontSize: theme.typography.fontSizes.sm,
+    color: theme.colors.warning,
+    textAlign: 'center' as const,
+    marginTop: -theme.spacing[2],
+    fontWeight: theme.typography.fontWeights.medium,
+  },
+
+  // Info Box Styles
+  infoBox: {
+    flexDirection: 'row' as const,
+    alignItems: 'flex-start' as const,
+    backgroundColor: theme.colors.info + '20',
+    borderRadius: theme.borderRadius.lg,
+    padding: theme.spacing[4],
+    marginTop: theme.spacing[2],
+    borderWidth: 1,
+    borderColor: theme.colors.info + '40',
+  },
+  infoIcon: {
+    fontSize: theme.typography.fontSizes.lg,
+    marginRight: theme.spacing[3],
+    marginTop: theme.spacing[1],
+  },
+  infoText: {
+    fontSize: theme.typography.fontSizes.sm,
+    color: theme.colors.info,
+    lineHeight: theme.typography.lineHeights.relaxed * theme.typography.fontSizes.sm,
+    flex: 1,
+  },
+
+  // Back Button Styles
+  backButton: {
+    marginTop: theme.spacing[6],
+    alignItems: 'center' as const,
+    paddingVertical: theme.spacing[3],
+  },
+  backButtonText: {
+    fontSize: theme.typography.fontSizes.base,
+    color: theme.colors.primary,
+    fontWeight: theme.typography.fontWeights.medium,
+  },
+
+  // Resend Button Styles
+  resendContainer: {
+    marginTop: theme.spacing[4],
+    alignItems: 'center' as const,
+  },
+  resendText: {
+    fontSize: theme.typography.fontSizes.sm,
+    color: theme.colors.textSecondary,
+    marginBottom: theme.spacing[2],
+  },
+  resendButton: {
+    paddingVertical: theme.spacing[2],
+    paddingHorizontal: theme.spacing[4],
+  },
+  resendButtonText: {
+    fontSize: theme.typography.fontSizes.sm,
+    color: theme.colors.primary,
+    fontWeight: theme.typography.fontWeights.medium,
+  },
+  resendDisabledText: {
+    color: theme.colors.textTertiary,
+  },
+}));
+
 const EmailVerificationScreen = () => {
   const { user: _user, error, clearError, logout: _logout } = useAuth();
   const _isLoading = useAuth().isLoading;
   const { t } = useTranslation();
+  const { theme } = useTheme();
+  const styles = useStyles(theme);
   const navigation = useNavigation<NativeStackNavigationProp<AuthStackParamList>>();
   const route = useRoute();
   const routeParams = route.params as EmailVerificationScreenProps;
@@ -359,9 +519,9 @@ const EmailVerificationScreen = () => {
   // Show auto-verification loading
   if (isAutoVerifying) {
     return (
-      <View style={emailVerificationScreenStyles.loadingContainer}>
+      <View style={styles.loadingContainer}>
         <ActivityIndicator size="large" color="#3b82f6" />
-        <Text style={emailVerificationScreenStyles.loadingText}>
+        <Text style={styles.loadingText}>
           {t('auth.emailVerification.verifyingMessage') || 'Email wird bestätigt...'}
         </Text>
       </View>
@@ -371,12 +531,12 @@ const EmailVerificationScreen = () => {
   // Show success state
   if (verificationSuccess) {
     return (
-      <View style={emailVerificationScreenStyles.successContainer}>
-        <Text style={emailVerificationScreenStyles.successIcon}>✅</Text>
-        <Text style={emailVerificationScreenStyles.successTitle}>
+      <View style={styles.successContainer}>
+        <Text style={styles.successIcon}>✅</Text>
+        <Text style={styles.successTitle}>
           {t('auth.emailVerification.successTitle') || 'Email bestätigt!'}
         </Text>
-        <Text style={emailVerificationScreenStyles.successMessage}>
+        <Text style={styles.successMessage}>
           {t('auth.emailVerification.successMessage') || 'Ihre Email wurde erfolgreich bestätigt.'}
         </Text>
       </View>
@@ -385,28 +545,28 @@ const EmailVerificationScreen = () => {
 
   return (
     <KeyboardAvoidingView
-      style={emailVerificationScreenStyles.container}
+      style={styles.container}
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
       keyboardVerticalOffset={Platform.OS === 'ios' ? 64 : 0}
     >
       <ScrollView
-        contentContainerStyle={emailVerificationScreenStyles.scrollContainer}
+        contentContainerStyle={styles.scrollContainer}
         showsVerticalScrollIndicator={false}
         keyboardShouldPersistTaps="handled"
       >
         {/* Header */}
-        <View style={emailVerificationScreenStyles.header}>
-          <Text style={emailVerificationScreenStyles.headerIcon}>📧</Text>
-          <Text style={emailVerificationScreenStyles.title}>
+        <View style={styles.header}>
+          <Text style={styles.headerIcon}>📧</Text>
+          <Text style={styles.title}>
             {t('auth.emailVerification.title') || 'Email bestätigen'}
           </Text>
-          <Text style={emailVerificationScreenStyles.subtitle}>
+          <Text style={styles.subtitle}>
             {t('auth.emailVerification.subtitle') || 'Bestätigen Sie Ihre Email-Adresse, um Ihr Konto zu aktivieren'}
           </Text>
         </View>
 
         {/* Form */}
-        <View style={emailVerificationScreenStyles.formContainer}>
+        <View style={styles.formContainer}>
           {/* Email Field */}
           <FormTextInput
             label={t('auth.emailVerification.emailLabel') || 'Email-Adresse'}
@@ -416,7 +576,7 @@ const EmailVerificationScreen = () => {
             error={!!validationErrors.email}
           />
           {validationErrors.email && (
-            <Text style={emailVerificationScreenStyles.validationError}>
+            <Text style={styles.validationError}>
               {validationErrors.email}
             </Text>
           )}
@@ -432,13 +592,13 @@ const EmailVerificationScreen = () => {
                 error={!!validationErrors.verificationCode}
               />
               {validationErrors.verificationCode && (
-                <Text style={emailVerificationScreenStyles.validationError}>
+                <Text style={styles.validationError}>
                   {validationErrors.verificationCode}
                 </Text>
               )}
 
               {/* Attempts Counter */}
-              <Text style={emailVerificationScreenStyles.attemptsText}>
+              <Text style={styles.attemptsText}>
                 {t('auth.emailVerification.attemptsRemaining', { count: attemptsRemaining }) || `${attemptsRemaining} Versuche übrig`}
               </Text>
             </>
@@ -469,19 +629,19 @@ const EmailVerificationScreen = () => {
           />
 
           {/* Info Box */}
-          <View style={emailVerificationScreenStyles.infoBox}>
-            <Text style={emailVerificationScreenStyles.infoIcon}>💡</Text>
-            <Text style={emailVerificationScreenStyles.infoText}>
+          <View style={styles.infoBox}>
+            <Text style={styles.infoIcon}>💡</Text>
+            <Text style={styles.infoText}>
               {t('auth.emailVerification.infoMessage') || 'Prüfen Sie auch Ihren Spam-Ordner, falls Sie keine Email erhalten haben.'}
             </Text>
           </View>
 
           {/* Back to Login */}
           <TouchableOpacity
-            style={emailVerificationScreenStyles.backButton}
+            style={styles.backButton}
             onPress={() => navigation.navigate('Login')}
           >
-            <Text style={emailVerificationScreenStyles.backButtonText}>
+            <Text style={styles.backButtonText}>
               {t('auth.emailVerification.backToLogin') || 'Zurück zur Anmeldung'}
             </Text>
           </TouchableOpacity>

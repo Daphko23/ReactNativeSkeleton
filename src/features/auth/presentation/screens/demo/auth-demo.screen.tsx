@@ -29,12 +29,231 @@ import {
 } from 'react-native';
 import { useAuth } from '../../hooks/use-auth';
 import { AuthServiceContainer } from '../../../data/factories/auth-service.container';
-import { styles } from './auth-demo.screen.styles';
+import { useTheme, createThemedStyles } from '@core/theme/theme.system';
+
+const useStyles = createThemedStyles((theme) => ({
+  // Container Styles
+  container: {
+    flex: 1,
+    backgroundColor: theme.colors.background,
+  },
+
+  // Section Styles
+  section: {
+    margin: theme.spacing[4],
+    padding: theme.spacing[6],
+    backgroundColor: theme.colors.surface,
+    borderRadius: theme.borderRadius.lg,
+    ...theme.shadows.md,
+  },
+  sectionTitle: {
+    fontSize: theme.typography.fontSizes.xl,
+    fontWeight: theme.typography.fontWeights.bold,
+    color: theme.colors.text,
+    marginBottom: theme.spacing[4],
+    textAlign: 'center' as const,
+  },
+
+  // User Info Styles
+  userInfo: {
+    alignItems: 'center' as const,
+    padding: theme.spacing[4],
+    backgroundColor: theme.colors.success + '20',
+    borderRadius: theme.borderRadius.md,
+    borderWidth: 1,
+    borderColor: theme.colors.success + '40',
+  },
+  userEmail: {
+    fontSize: theme.typography.fontSizes.lg,
+    fontWeight: theme.typography.fontWeights.semibold,
+    color: theme.colors.success,
+    marginBottom: theme.spacing[2],
+    textAlign: 'center' as const,
+  },
+  userDetails: {
+    fontSize: theme.typography.fontSizes.sm,
+    color: theme.colors.text,
+    marginBottom: theme.spacing[1],
+    textAlign: 'center' as const,
+  },
+  notLoggedIn: {
+    fontSize: theme.typography.fontSizes.lg,
+    fontWeight: theme.typography.fontWeights.semibold,
+    color: theme.colors.error,
+    textAlign: 'center' as const,
+    padding: theme.spacing[4],
+    backgroundColor: theme.colors.error + '20',
+    borderRadius: theme.borderRadius.md,
+    borderWidth: 1,
+    borderColor: theme.colors.error + '40',
+  },
+
+  // Feature Grid Styles
+  featureGrid: {
+    flexDirection: 'row' as const,
+    flexWrap: 'wrap' as const,
+    gap: theme.spacing[3],
+    justifyContent: 'space-between' as const,
+  },
+  featureCard: {
+    flex: 1,
+    minWidth: 150,
+    padding: theme.spacing[4],
+    borderRadius: theme.borderRadius.md,
+    alignItems: 'center' as const,
+    borderWidth: 2,
+    marginBottom: theme.spacing[3],
+  },
+  implemented: {
+    backgroundColor: theme.colors.success + '20',
+    borderColor: theme.colors.success,
+  },
+  pending: {
+    backgroundColor: theme.colors.warning + '20',
+    borderColor: theme.colors.warning,
+  },
+  featureIcon: {
+    fontSize: theme.typography.fontSizes['2xl'],
+    marginBottom: theme.spacing[2],
+  },
+  featureTitle: {
+    fontSize: theme.typography.fontSizes.base,
+    fontWeight: theme.typography.fontWeights.semibold,
+    color: theme.colors.text,
+    textAlign: 'center' as const,
+    marginBottom: theme.spacing[2],
+  },
+  featureStatus: {
+    fontSize: theme.typography.fontSizes.sm,
+    fontWeight: theme.typography.fontWeights.medium,
+    textAlign: 'center' as const,
+  },
+
+  // Button Styles
+  button: {
+    backgroundColor: theme.colors.primary,
+    paddingVertical: theme.spacing[3],
+    paddingHorizontal: theme.spacing[6],
+    borderRadius: theme.borderRadius.md,
+    marginVertical: theme.spacing[2],
+    alignItems: 'center' as const,
+    ...theme.shadows.sm,
+  },
+  buttonText: {
+    color: theme.colors.surface,
+    fontSize: theme.typography.fontSizes.base,
+    fontWeight: theme.typography.fontWeights.semibold,
+  },
+  primaryButton: {
+    backgroundColor: theme.colors.primary,
+    paddingVertical: theme.spacing[3],
+    paddingHorizontal: theme.spacing[6],
+    borderRadius: theme.borderRadius.md,
+    marginVertical: theme.spacing[2],
+    alignItems: 'center' as const,
+    ...theme.shadows.sm,
+  },
+  secondaryButton: {
+    backgroundColor: theme.colors.backgroundSecondary,
+    borderWidth: 1,
+    borderColor: theme.colors.border,
+    paddingVertical: theme.spacing[3],
+    paddingHorizontal: theme.spacing[6],
+    borderRadius: theme.borderRadius.md,
+    marginVertical: theme.spacing[2],
+    alignItems: 'center' as const,
+  },
+  dangerButton: {
+    backgroundColor: theme.colors.error,
+  },
+
+  // Status Styles
+  statusContainer: {
+    padding: theme.spacing[3],
+    borderRadius: theme.borderRadius.md,
+    marginVertical: theme.spacing[2],
+  },
+  statusSuccess: {
+    backgroundColor: theme.colors.success + '20',
+    borderColor: theme.colors.success,
+    borderWidth: 1,
+  },
+  statusError: {
+    backgroundColor: theme.colors.error + '20',
+    borderColor: theme.colors.error,
+    borderWidth: 1,
+  },
+  statusText: {
+    fontSize: theme.typography.fontSizes.sm,
+    textAlign: 'center' as const,
+    fontWeight: theme.typography.fontWeights.medium,
+  },
+
+  // Rating Styles
+  ratingContainer: {
+    alignItems: 'center' as const,
+    padding: theme.spacing[4],
+    backgroundColor: theme.colors.backgroundSecondary,
+    borderRadius: theme.borderRadius.md,
+    marginVertical: theme.spacing[2],
+  },
+  ratingText: {
+    fontSize: theme.typography.fontSizes.lg,
+    fontWeight: theme.typography.fontWeights.bold,
+    color: theme.colors.text,
+    marginBottom: theme.spacing[2],
+  },
+  ratingSubtext: {
+    fontSize: theme.typography.fontSizes.sm,
+    color: theme.colors.textSecondary,
+    textAlign: 'center' as const,
+    lineHeight: theme.typography.lineHeights.relaxed * theme.typography.fontSizes.sm,
+  },
+
+  // Achievement Styles
+  achievementContainer: {
+    flexDirection: 'row' as const,
+    alignItems: 'center' as const,
+    padding: theme.spacing[3],
+    backgroundColor: theme.colors.primary + '20',
+    borderRadius: theme.borderRadius.md,
+    marginVertical: theme.spacing[2],
+    borderWidth: 1,
+    borderColor: theme.colors.primary + '40',
+  },
+  achievementIcon: {
+    fontSize: theme.typography.fontSizes.xl,
+    marginRight: theme.spacing[3],
+  },
+  achievementTitle: {
+    fontSize: theme.typography.fontSizes.base,
+    fontWeight: theme.typography.fontWeights.semibold,
+    color: theme.colors.primary,
+    flex: 1,
+  },
+  achievementDescription: {
+    fontSize: theme.typography.fontSizes.sm,
+    color: theme.colors.textSecondary,
+    marginTop: theme.spacing[2],
+    textAlign: 'center' as const,
+  },
+  achievementStats: {
+    marginTop: theme.spacing[3],
+    alignItems: 'flex-start' as const,
+  },
+  achievementStat: {
+    fontSize: theme.typography.fontSizes.sm,
+    color: theme.colors.text,
+    marginBottom: theme.spacing[1],
+  },
+}));
 
 const AuthDemoScreen: React.FC = () => {
   const [refreshing, setRefreshing] = useState(false);
   const { isAuthenticated, user } = useAuth();
   const [container] = useState(() => AuthServiceContainer.getInstance());
+  const { theme } = useTheme();
+  const styles = useStyles(theme);
 
   const [backendFeatures, setBackendFeatures] = useState({
     mfaIntegration: false,

@@ -43,7 +43,7 @@ import {
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { AuthStackParamList } from '@core/navigation/navigation.types';
-import { securitySettingsScreenStyles } from './security-settings.screen.styles';
+import { useTheme, createThemedStyles } from '@core/theme/theme.system';
 import { useAuth } from '@features/auth/presentation/hooks/use-auth';
 import { useTranslation } from 'react-i18next';
 import { withAuthGuard } from '@shared/hoc/with-auth.guard';
@@ -103,9 +103,327 @@ interface SecurityEvent {
  * - Data export and privacy controls
  * - Emergency security actions
  */
+
+const useStyles = createThemedStyles((theme) => ({
+  // Container Styles
+  container: {
+    flex: 1,
+    backgroundColor: theme.colors.background,
+  },
+  notLoggedInContainer: {
+    flex: 1,
+    justifyContent: 'center' as const,
+    alignItems: 'center' as const,
+    padding: theme.spacing[8],
+  },
+  notLoggedInIcon: {
+    fontSize: theme.typography.fontSizes['4xl'],
+    marginBottom: theme.spacing[4],
+  },
+  notLoggedInTitle: {
+    fontSize: theme.typography.fontSizes.xl,
+    fontWeight: theme.typography.fontWeights.bold,
+    color: theme.colors.text,
+    marginBottom: theme.spacing[3],
+    textAlign: 'center' as const,
+  },
+  notLoggedInText: {
+    fontSize: theme.typography.fontSizes.base,
+    color: theme.colors.textSecondary,
+    textAlign: 'center' as const,
+    lineHeight: theme.typography.lineHeights.relaxed * theme.typography.fontSizes.base,
+  },
+
+  // Header Styles
+  header: {
+    padding: theme.spacing[6],
+    backgroundColor: theme.colors.surface,
+    borderBottomWidth: 1,
+    borderBottomColor: theme.colors.border,
+    marginBottom: theme.spacing[4],
+  },
+  title: {
+    fontSize: theme.typography.fontSizes['2xl'],
+    fontWeight: theme.typography.fontWeights.bold,
+    color: theme.colors.text,
+    marginBottom: theme.spacing[3],
+    letterSpacing: -0.5,
+  },
+  subtitle: {
+    fontSize: theme.typography.fontSizes.base,
+    color: theme.colors.textSecondary,
+    lineHeight: theme.typography.lineHeights.relaxed * theme.typography.fontSizes.base,
+  },
+
+  // Section Styles
+  section: {
+    backgroundColor: theme.colors.surface,
+    marginVertical: theme.spacing[3],
+    marginHorizontal: theme.spacing[4],
+    borderRadius: theme.borderRadius.lg,
+    ...theme.shadows.md,
+  },
+  sectionHeader: {
+    flexDirection: 'row' as const,
+    alignItems: 'center' as const,
+    marginBottom: theme.spacing[6],
+  },
+  sectionIcon: {
+    fontSize: theme.typography.fontSizes.xl,
+    marginRight: theme.spacing[4],
+  },
+  sectionTitleContainer: {
+    flex: 1,
+  },
+  sectionTitle: {
+    fontSize: theme.typography.fontSizes.lg,
+    fontWeight: theme.typography.fontWeights.semibold,
+    color: theme.colors.text,
+    marginBottom: theme.spacing[1],
+  },
+  sectionDescription: {
+    fontSize: theme.typography.fontSizes.sm,
+    color: theme.colors.textSecondary,
+    lineHeight: theme.typography.lineHeights.relaxed * theme.typography.fontSizes.sm,
+  },
+
+  // Setting Item Styles
+  settingItem: {
+    flexDirection: 'row' as const,
+    alignItems: 'center' as const,
+    paddingVertical: theme.spacing[4],
+    minHeight: 64,
+  },
+  settingContent: {
+    flex: 1,
+    marginRight: theme.spacing[4],
+  },
+  settingTitle: {
+    fontSize: theme.typography.fontSizes.base,
+    fontWeight: theme.typography.fontWeights.medium,
+    color: theme.colors.text,
+    marginBottom: theme.spacing[1],
+  },
+  settingDescription: {
+    fontSize: theme.typography.fontSizes.sm,
+    color: theme.colors.textSecondary,
+    lineHeight: theme.typography.lineHeights.relaxed * theme.typography.fontSizes.sm,
+  },
+  loadingIndicator: {
+    marginLeft: theme.spacing[3],
+  },
+
+  // MFA Factors Styles
+  factorsList: {
+    flexDirection: 'row' as const,
+    flexWrap: 'wrap' as const,
+    marginTop: theme.spacing[3],
+  },
+  factorBadge: {
+    backgroundColor: theme.colors.primary,
+    borderRadius: theme.borderRadius.sm,
+    marginRight: theme.spacing[3],
+    marginBottom: theme.spacing[1],
+  },
+
+  // Divider Styles
+  divider: {
+    marginVertical: theme.spacing[4],
+    backgroundColor: theme.colors.border,
+  },
+
+  // Action Button Styles
+  actionButton: {
+    flexDirection: 'row' as const,
+    justifyContent: 'space-between' as const,
+    alignItems: 'center' as const,
+    padding: theme.spacing[4],
+    backgroundColor: theme.colors.backgroundSecondary,
+    borderRadius: theme.borderRadius.md,
+    marginBottom: theme.spacing[4],
+    borderWidth: 1,
+    borderColor: theme.colors.border,
+  },
+  actionButtonText: {
+    fontSize: theme.typography.fontSizes.base,
+    color: theme.colors.text,
+    fontWeight: theme.typography.fontWeights.medium,
+  },
+  actionButtonArrow: {
+    fontSize: theme.typography.fontSizes.lg,
+    color: theme.colors.textSecondary,
+  },
+
+  // Info Box Styles
+  infoBox: {
+    backgroundColor: theme.colors.info + '20',
+    padding: theme.spacing[4],
+    borderRadius: theme.borderRadius.md,
+    borderLeftWidth: 4,
+    borderLeftColor: theme.colors.primary,
+    marginTop: theme.spacing[4],
+  },
+  infoTitle: {
+    fontSize: theme.typography.fontSizes.sm,
+    fontWeight: theme.typography.fontWeights.semibold,
+    color: theme.colors.primary,
+    marginBottom: theme.spacing[3],
+  },
+  infoText: {
+    fontSize: theme.typography.fontSizes.sm,
+    color: theme.colors.text,
+    lineHeight: theme.typography.lineHeights.relaxed * theme.typography.fontSizes.sm,
+    marginBottom: theme.spacing[1],
+  },
+
+  // Session Styles
+  centerLoader: {
+    paddingVertical: theme.spacing[8],
+  },
+  sessionItem: {
+    padding: theme.spacing[4],
+    backgroundColor: theme.colors.backgroundSecondary,
+    borderRadius: theme.borderRadius.md,
+    marginBottom: theme.spacing[3],
+  },
+  sessionHeader: {
+    flexDirection: 'row' as const,
+    justifyContent: 'space-between' as const,
+    alignItems: 'center' as const,
+    marginBottom: theme.spacing[2],
+  },
+  sessionDevice: {
+    fontSize: theme.typography.fontSizes.base,
+    fontWeight: theme.typography.fontWeights.medium,
+    color: theme.colors.text,
+  },
+  currentBadge: {
+    backgroundColor: theme.colors.success,
+  },
+  sessionInfo: {
+    fontSize: theme.typography.fontSizes.sm,
+    color: theme.colors.textSecondary,
+    marginBottom: theme.spacing[1],
+  },
+  sessionIp: {
+    fontSize: theme.typography.fontSizes.xs,
+    color: theme.colors.textTertiary,
+    fontFamily: 'monospace',
+    marginBottom: theme.spacing[2],
+  },
+  terminateButton: {
+    backgroundColor: theme.colors.error,
+    paddingHorizontal: theme.spacing[3],
+    paddingVertical: theme.spacing[2],
+    borderRadius: theme.borderRadius.sm,
+    alignSelf: 'flex-start' as const,
+  },
+  terminateButtonText: {
+    color: theme.colors.surface,
+    fontSize: theme.typography.fontSizes.sm,
+    fontWeight: theme.typography.fontWeights.medium,
+  },
+
+  // Events Styles
+  eventItem: {
+    padding: theme.spacing[4],
+    backgroundColor: theme.colors.backgroundSecondary,
+    borderRadius: theme.borderRadius.md,
+    marginBottom: theme.spacing[3],
+    borderLeftWidth: 3,
+  },
+  eventHeader: {
+    flexDirection: 'row' as const,
+    justifyContent: 'space-between' as const,
+    alignItems: 'center' as const,
+    marginBottom: theme.spacing[2],
+  },
+  eventType: {
+    fontSize: theme.typography.fontSizes.base,
+    fontWeight: theme.typography.fontWeights.medium,
+    color: theme.colors.text,
+  },
+  eventBadge: {
+    borderRadius: theme.borderRadius.sm,
+  },
+  eventDescription: {
+    fontSize: theme.typography.fontSizes.sm,
+    color: theme.colors.textSecondary,
+    marginBottom: theme.spacing[1],
+  },
+  eventMeta: {
+    fontSize: theme.typography.fontSizes.xs,
+    color: theme.colors.textTertiary,
+  },
+  eventInfo: {
+    fontSize: theme.typography.fontSizes.sm,
+    color: theme.colors.textSecondary,
+    marginBottom: theme.spacing[1],
+  },
+  riskBadge: {
+    paddingHorizontal: theme.spacing[2],
+    paddingVertical: theme.spacing[1],
+    borderRadius: theme.borderRadius.sm,
+  },
+  riskBadgeText: {
+    fontSize: theme.typography.fontSizes.xs,
+    fontWeight: theme.typography.fontWeights.bold,
+    color: theme.colors.surface,
+  },
+
+  // Danger Zone Styles
+  dangerZone: {
+    backgroundColor: theme.colors.error + '10',
+    borderColor: theme.colors.error,
+    borderWidth: 1,
+  },
+  dangerTitle: {
+    color: theme.colors.error,
+  },
+  dangerDescription: {
+    color: theme.colors.error + 'CC',
+  },
+  dangerButton: {
+    backgroundColor: theme.colors.error,
+    borderColor: theme.colors.error,
+  },
+  dangerButtonText: {
+    color: theme.colors.surface,
+  },
+
+  // Emergency Styles
+  emergencyButton: {
+    backgroundColor: theme.colors.warning,
+    padding: theme.spacing[4],
+    borderRadius: theme.borderRadius.md,
+    marginBottom: theme.spacing[3],
+    alignItems: 'center' as const,
+  },
+  emergencyButtonText: {
+    color: theme.colors.surface,
+    fontSize: theme.typography.fontSizes.base,
+    fontWeight: theme.typography.fontWeights.semibold,
+  },
+  deleteButton: {
+    backgroundColor: theme.colors.error,
+  },
+  deleteButtonText: {
+    color: theme.colors.surface,
+  },
+
+  // Notifications Styles
+  notificationItem: {
+    flexDirection: 'row' as const,
+    alignItems: 'center' as const,
+    paddingVertical: theme.spacing[4],
+  },
+}));
+
 const SecuritySettingsScreen = () => {
   const { user, enterprise, clearError } = useAuth();
   const { t } = useTranslation();
+  const { theme } = useTheme();
+  const styles = useStyles(theme);
   const navigation = useNavigation<NativeStackNavigationProp<AuthStackParamList>>();
 
   // State Management
@@ -540,13 +858,13 @@ const SecuritySettingsScreen = () => {
 
   if (!user) {
     return (
-      <View style={securitySettingsScreenStyles.container}>
-        <View style={securitySettingsScreenStyles.notLoggedInContainer}>
-          <Text style={securitySettingsScreenStyles.notLoggedInIcon}>🔒</Text>
-          <Text style={securitySettingsScreenStyles.notLoggedInTitle}>
+      <View style={styles.container}>
+        <View style={styles.notLoggedInContainer}>
+          <Text style={styles.notLoggedInIcon}>🔒</Text>
+          <Text style={styles.notLoggedInTitle}>
             {t('security.notLoggedIn.title') || 'Anmeldung erforderlich'}
           </Text>
-          <Text style={securitySettingsScreenStyles.notLoggedInText}>
+          <Text style={styles.notLoggedInText}>
             {t('security.notLoggedIn.message') || 'Melden Sie sich an, um Ihre Sicherheitseinstellungen zu verwalten.'}
           </Text>
         </View>
@@ -556,49 +874,49 @@ const SecuritySettingsScreen = () => {
 
   return (
     <ScrollView
-      style={securitySettingsScreenStyles.container}
+      style={styles.container}
       refreshControl={
         <RefreshControl refreshing={refreshing} onRefresh={handleRefresh} />
       }
     >
       {/* Header */}
-      <View style={securitySettingsScreenStyles.header}>
-        <Text style={securitySettingsScreenStyles.title}>
+      <View style={styles.header}>
+        <Text style={styles.title}>
           {t('security.title') || 'Sicherheitseinstellungen'}
         </Text>
-        <Text style={securitySettingsScreenStyles.subtitle}>
+        <Text style={styles.subtitle}>
           {t('security.subtitle') || 'Verwalten Sie Ihre Kontosicherheit und Authentifizierungsmethoden'}
         </Text>
       </View>
 
       {/* Authentication Section */}
-      <Card style={securitySettingsScreenStyles.section}>
+      <Card style={styles.section}>
         <Card.Content>
-          <View style={securitySettingsScreenStyles.sectionHeader}>
-            <Text style={securitySettingsScreenStyles.sectionIcon}>🔐</Text>
-            <View style={securitySettingsScreenStyles.sectionTitleContainer}>
-              <Text style={securitySettingsScreenStyles.sectionTitle}>
+          <View style={styles.sectionHeader}>
+            <Text style={styles.sectionIcon}>🔐</Text>
+            <View style={styles.sectionTitleContainer}>
+              <Text style={styles.sectionTitle}>
                 {t('security.authentication.title') || 'Authentifizierung'}
               </Text>
-              <Text style={securitySettingsScreenStyles.sectionDescription}>
+              <Text style={styles.sectionDescription}>
                 {t('security.authentication.description') || 'Konfigurieren Sie Ihre Anmeldemethoden'}
               </Text>
             </View>
           </View>
 
           {/* MFA Settings */}
-          <View style={securitySettingsScreenStyles.settingItem}>
-            <View style={securitySettingsScreenStyles.settingContent}>
-              <Text style={securitySettingsScreenStyles.settingTitle}>
+          <View style={styles.settingItem}>
+            <View style={styles.settingContent}>
+              <Text style={styles.settingTitle}>
                 {t('security.mfa.title') || 'Zwei-Faktor-Authentifizierung'}
               </Text>
-              <Text style={securitySettingsScreenStyles.settingDescription}>
+              <Text style={styles.settingDescription}>
                 {t('security.mfa.description') || 'Zusätzliche Sicherheitsebene für Ihr Konto'}
               </Text>
               {settings.mfaEnabled && mfaFactors.length > 0 && (
-                <View style={securitySettingsScreenStyles.factorsList}>
+                <View style={styles.factorsList}>
                   {mfaFactors.map((factor, index) => (
-                    <Badge key={index} style={securitySettingsScreenStyles.factorBadge}>
+                    <Badge key={index} style={styles.factorBadge}>
                       {factor.type.toUpperCase()}
                     </Badge>
                   ))}
@@ -611,19 +929,19 @@ const SecuritySettingsScreen = () => {
               disabled={loadingStates.mfa}
             />
             {loadingStates.mfa && (
-              <ActivityIndicator size="small" style={securitySettingsScreenStyles.loadingIndicator} />
+              <ActivityIndicator size="small" style={styles.loadingIndicator} />
             )}
           </View>
 
-          <Divider style={securitySettingsScreenStyles.divider} />
+          <Divider style={styles.divider} />
 
           {/* Biometric Settings */}
-          <View style={securitySettingsScreenStyles.settingItem}>
-            <View style={securitySettingsScreenStyles.settingContent}>
-              <Text style={securitySettingsScreenStyles.settingTitle}>
+          <View style={styles.settingItem}>
+            <View style={styles.settingContent}>
+              <Text style={styles.settingTitle}>
                 {t('security.biometric.title') || 'Biometrische Authentifizierung'}
               </Text>
-              <Text style={securitySettingsScreenStyles.settingDescription}>
+              <Text style={styles.settingDescription}>
                 {biometricAvailable 
                   ? (t('security.biometric.availableDescription') || 'Touch ID / Face ID / Fingerabdruck')
                   : (t('security.biometric.unavailableDescription') || 'Nicht verfügbar auf diesem Gerät')
@@ -636,51 +954,51 @@ const SecuritySettingsScreen = () => {
               disabled={!biometricAvailable || loadingStates.biometric}
             />
             {loadingStates.biometric && (
-              <ActivityIndicator size="small" style={securitySettingsScreenStyles.loadingIndicator} />
+              <ActivityIndicator size="small" style={styles.loadingIndicator} />
             )}
           </View>
         </Card.Content>
       </Card>
 
       {/* Password Management Section */}
-      <Card style={securitySettingsScreenStyles.section}>
+      <Card style={styles.section}>
         <Card.Content>
-          <View style={securitySettingsScreenStyles.sectionHeader}>
-            <Text style={securitySettingsScreenStyles.sectionIcon}>🔑</Text>
-            <View style={securitySettingsScreenStyles.sectionTitleContainer}>
-              <Text style={securitySettingsScreenStyles.sectionTitle}>
+          <View style={styles.sectionHeader}>
+            <Text style={styles.sectionIcon}>🔑</Text>
+            <View style={styles.sectionTitleContainer}>
+              <Text style={styles.sectionTitle}>
                 {t('security.password.title') || 'Passwort-Verwaltung'}
               </Text>
-              <Text style={securitySettingsScreenStyles.sectionDescription}>
+              <Text style={styles.sectionDescription}>
                 {t('security.password.description') || 'Passwort ändern und Sicherheitsrichtlinien'}
               </Text>
             </View>
           </View>
 
           <TouchableOpacity
-            style={securitySettingsScreenStyles.actionButton}
+            style={styles.actionButton}
             onPress={() => navigation.navigate('PasswordReset')}
           >
-            <Text style={securitySettingsScreenStyles.actionButtonText}>
+            <Text style={styles.actionButtonText}>
               {t('security.password.changeButton') || 'Passwort ändern'}
             </Text>
-            <Text style={securitySettingsScreenStyles.actionButtonArrow}>›</Text>
+            <Text style={styles.actionButtonArrow}>›</Text>
           </TouchableOpacity>
 
-          <View style={securitySettingsScreenStyles.infoBox}>
-            <Text style={securitySettingsScreenStyles.infoTitle}>
+          <View style={styles.infoBox}>
+            <Text style={styles.infoTitle}>
               {t('security.password.policyTitle') || 'Passwort-Richtlinien:'}
             </Text>
-            <Text style={securitySettingsScreenStyles.infoText}>
+            <Text style={styles.infoText}>
               • {t('security.password.rule1') || 'Mindestens 8 Zeichen'}
             </Text>
-            <Text style={securitySettingsScreenStyles.infoText}>
+            <Text style={styles.infoText}>
               • {t('security.password.rule2') || 'Groß- und Kleinbuchstaben'}
             </Text>
-            <Text style={securitySettingsScreenStyles.infoText}>
+            <Text style={styles.infoText}>
               • {t('security.password.rule3') || 'Zahlen und Sonderzeichen'}
             </Text>
-            <Text style={securitySettingsScreenStyles.infoText}>
+            <Text style={styles.infoText}>
               • {t('security.password.rule4') || 'Keine häufig verwendeten Passwörter'}
             </Text>
           </View>
@@ -688,48 +1006,48 @@ const SecuritySettingsScreen = () => {
       </Card>
 
       {/* Active Sessions Section */}
-      <Card style={securitySettingsScreenStyles.section}>
+      <Card style={styles.section}>
         <Card.Content>
-          <View style={securitySettingsScreenStyles.sectionHeader}>
-            <Text style={securitySettingsScreenStyles.sectionIcon}>📱</Text>
-            <View style={securitySettingsScreenStyles.sectionTitleContainer}>
-              <Text style={securitySettingsScreenStyles.sectionTitle}>
+          <View style={styles.sectionHeader}>
+            <Text style={styles.sectionIcon}>📱</Text>
+            <View style={styles.sectionTitleContainer}>
+              <Text style={styles.sectionTitle}>
                 {t('security.sessions.title') || 'Aktive Sitzungen'}
               </Text>
-              <Text style={securitySettingsScreenStyles.sectionDescription}>
+              <Text style={styles.sectionDescription}>
                 {t('security.sessions.description') || 'Verwalten Sie Ihre Anmeldungen auf verschiedenen Geräten'}
               </Text>
             </View>
           </View>
 
           {loadingStates.sessions ? (
-            <ActivityIndicator size="large" style={securitySettingsScreenStyles.centerLoader} />
+            <ActivityIndicator size="large" style={styles.centerLoader} />
           ) : (
             <>
               {activeSessions.map((session) => (
-                <View key={session.id} style={securitySettingsScreenStyles.sessionItem}>
-                  <View style={securitySettingsScreenStyles.sessionHeader}>
-                    <Text style={securitySettingsScreenStyles.sessionDevice}>
+                <View key={session.id} style={styles.sessionItem}>
+                  <View style={styles.sessionHeader}>
+                    <Text style={styles.sessionDevice}>
                       {getDeviceIcon(session.deviceType)} {session.deviceName}
                     </Text>
                     {session.isCurrent && (
-                      <Badge style={securitySettingsScreenStyles.currentBadge}>
+                      <Badge style={styles.currentBadge}>
                         {t('security.sessions.current') || 'Aktuell'}
                       </Badge>
                     )}
                   </View>
-                  <Text style={securitySettingsScreenStyles.sessionInfo}>
+                  <Text style={styles.sessionInfo}>
                     {session.location} • {session.lastActive.toLocaleDateString()}
                   </Text>
-                  <Text style={securitySettingsScreenStyles.sessionIp}>
+                  <Text style={styles.sessionIp}>
                     IP: {session.ipAddress}
                   </Text>
                   {!session.isCurrent && (
                     <TouchableOpacity
-                      style={securitySettingsScreenStyles.terminateButton}
+                      style={styles.terminateButton}
                       onPress={() => handleTerminateSession(session.id)}
                     >
-                      <Text style={securitySettingsScreenStyles.terminateButtonText}>
+                      <Text style={styles.terminateButtonText}>
                         {t('security.sessions.terminate') || 'Beenden'}
                       </Text>
                     </TouchableOpacity>
@@ -738,10 +1056,10 @@ const SecuritySettingsScreen = () => {
               ))}
 
               <TouchableOpacity
-                style={securitySettingsScreenStyles.dangerButton}
+                style={styles.dangerButton}
                 onPress={handleTerminateAllSessions}
               >
-                <Text style={securitySettingsScreenStyles.dangerButtonText}>
+                <Text style={styles.dangerButtonText}>
                   {t('security.sessions.terminateAll') || 'Alle anderen Sitzungen beenden'}
                 </Text>
               </TouchableOpacity>
@@ -751,49 +1069,49 @@ const SecuritySettingsScreen = () => {
       </Card>
 
       {/* Security Events Section */}
-      <Card style={securitySettingsScreenStyles.section}>
+      <Card style={styles.section}>
         <Card.Content>
-          <View style={securitySettingsScreenStyles.sectionHeader}>
-            <Text style={securitySettingsScreenStyles.sectionIcon}>📊</Text>
-            <View style={securitySettingsScreenStyles.sectionTitleContainer}>
-              <Text style={securitySettingsScreenStyles.sectionTitle}>
+          <View style={styles.sectionHeader}>
+            <Text style={styles.sectionIcon}>📊</Text>
+            <View style={styles.sectionTitleContainer}>
+              <Text style={styles.sectionTitle}>
                 {t('security.events.title') || 'Sicherheitsereignisse'}
               </Text>
-              <Text style={securitySettingsScreenStyles.sectionDescription}>
+              <Text style={styles.sectionDescription}>
                 {t('security.events.description') || 'Überwachen Sie verdächtige Aktivitäten'}
               </Text>
             </View>
           </View>
 
           {loadingStates.events ? (
-            <ActivityIndicator size="large" style={securitySettingsScreenStyles.centerLoader} />
+            <ActivityIndicator size="large" style={styles.centerLoader} />
           ) : (
             <>
               {recentEvents.slice(0, 3).map((event) => (
-                <View key={event.id} style={securitySettingsScreenStyles.eventItem}>
-                  <View style={securitySettingsScreenStyles.eventHeader}>
-                    <Text style={securitySettingsScreenStyles.eventDescription}>
+                <View key={event.id} style={styles.eventItem}>
+                  <View style={styles.eventHeader}>
+                    <Text style={styles.eventDescription}>
                       {event.description}
                     </Text>
                     <View 
                       style={[
-                        securitySettingsScreenStyles.riskBadge,
+                        styles.riskBadge,
                         { backgroundColor: getRiskLevelColor(event.riskLevel) }
                       ]}
                     >
-                      <Text style={securitySettingsScreenStyles.riskBadgeText}>
+                      <Text style={styles.riskBadgeText}>
                         {event.riskLevel.toUpperCase()}
                       </Text>
                     </View>
                   </View>
-                  <Text style={securitySettingsScreenStyles.eventInfo}>
+                  <Text style={styles.eventInfo}>
                     {event.location} • {event.timestamp.toLocaleDateString()}
                   </Text>
                 </View>
               ))}
 
               <TouchableOpacity
-                style={securitySettingsScreenStyles.actionButton}
+                style={styles.actionButton}
                 onPress={() => {
                   // Navigate to full security events screen
                   Alert.alert(
@@ -802,10 +1120,10 @@ const SecuritySettingsScreen = () => {
                   );
                 }}
               >
-                <Text style={securitySettingsScreenStyles.actionButtonText}>
+                <Text style={styles.actionButtonText}>
                   {t('security.events.viewAll') || 'Alle Ereignisse anzeigen'}
                 </Text>
-                <Text style={securitySettingsScreenStyles.actionButtonArrow}>›</Text>
+                <Text style={styles.actionButtonArrow}>›</Text>
               </TouchableOpacity>
             </>
           )}
@@ -813,26 +1131,26 @@ const SecuritySettingsScreen = () => {
       </Card>
 
       {/* Notifications Section */}
-      <Card style={securitySettingsScreenStyles.section}>
+      <Card style={styles.section}>
         <Card.Content>
-          <View style={securitySettingsScreenStyles.sectionHeader}>
-            <Text style={securitySettingsScreenStyles.sectionIcon}>🔔</Text>
-            <View style={securitySettingsScreenStyles.sectionTitleContainer}>
-              <Text style={securitySettingsScreenStyles.sectionTitle}>
+          <View style={styles.sectionHeader}>
+            <Text style={styles.sectionIcon}>🔔</Text>
+            <View style={styles.sectionTitleContainer}>
+              <Text style={styles.sectionTitle}>
                 {t('security.notifications.title') || 'Benachrichtigungen'}
               </Text>
-              <Text style={securitySettingsScreenStyles.sectionDescription}>
+              <Text style={styles.sectionDescription}>
                 {t('security.notifications.description') || 'Konfigurieren Sie Sicherheitsbenachrichtigungen'}
               </Text>
             </View>
           </View>
 
-          <View style={securitySettingsScreenStyles.settingItem}>
-            <View style={securitySettingsScreenStyles.settingContent}>
-              <Text style={securitySettingsScreenStyles.settingTitle}>
+          <View style={styles.settingItem}>
+            <View style={styles.settingContent}>
+              <Text style={styles.settingTitle}>
                 {t('security.notifications.login') || 'Anmelde-Benachrichtigungen'}
               </Text>
-              <Text style={securitySettingsScreenStyles.settingDescription}>
+              <Text style={styles.settingDescription}>
                 {t('security.notifications.loginDescription') || 'Benachrichtigung bei neuen Anmeldungen'}
               </Text>
             </View>
@@ -842,14 +1160,14 @@ const SecuritySettingsScreen = () => {
             />
           </View>
 
-          <Divider style={securitySettingsScreenStyles.divider} />
+          <Divider style={styles.divider} />
 
-          <View style={securitySettingsScreenStyles.settingItem}>
-            <View style={securitySettingsScreenStyles.settingContent}>
-              <Text style={securitySettingsScreenStyles.settingTitle}>
+          <View style={styles.settingItem}>
+            <View style={styles.settingContent}>
+              <Text style={styles.settingTitle}>
                 {t('security.notifications.alerts') || 'Sicherheitswarnungen'}
               </Text>
-              <Text style={securitySettingsScreenStyles.settingDescription}>
+              <Text style={styles.settingDescription}>
                 {t('security.notifications.alertsDescription') || 'Benachrichtigung bei verdächtigen Aktivitäten'}
               </Text>
             </View>
@@ -862,37 +1180,37 @@ const SecuritySettingsScreen = () => {
       </Card>
 
       {/* Data & Privacy Section */}
-      <Card style={securitySettingsScreenStyles.section}>
+      <Card style={styles.section}>
         <Card.Content>
-          <View style={securitySettingsScreenStyles.sectionHeader}>
-            <Text style={securitySettingsScreenStyles.sectionIcon}>🗃️</Text>
-            <View style={securitySettingsScreenStyles.sectionTitleContainer}>
-              <Text style={securitySettingsScreenStyles.sectionTitle}>
+          <View style={styles.sectionHeader}>
+            <Text style={styles.sectionIcon}>🗃️</Text>
+            <View style={styles.sectionTitleContainer}>
+              <Text style={styles.sectionTitle}>
                 {t('security.data.title') || 'Daten & Datenschutz'}
               </Text>
-              <Text style={securitySettingsScreenStyles.sectionDescription}>
+              <Text style={styles.sectionDescription}>
                 {t('security.data.description') || 'Verwalten Sie Ihre persönlichen Daten'}
               </Text>
             </View>
           </View>
 
           <TouchableOpacity
-            style={securitySettingsScreenStyles.actionButton}
+            style={styles.actionButton}
             onPress={handleDataExport}
             disabled={loadingStates.export}
           >
-            <Text style={securitySettingsScreenStyles.actionButtonText}>
+            <Text style={styles.actionButtonText}>
               {t('security.data.export') || 'Daten exportieren'}
             </Text>
             {loadingStates.export ? (
               <ActivityIndicator size="small" />
             ) : (
-              <Text style={securitySettingsScreenStyles.actionButtonArrow}>›</Text>
+              <Text style={styles.actionButtonArrow}>›</Text>
             )}
           </TouchableOpacity>
 
           <TouchableOpacity
-            style={securitySettingsScreenStyles.actionButton}
+            style={styles.actionButton}
             onPress={() => {
               // Navigate to privacy settings
               Alert.alert(
@@ -901,31 +1219,31 @@ const SecuritySettingsScreen = () => {
               );
             }}
           >
-            <Text style={securitySettingsScreenStyles.actionButtonText}>
+            <Text style={styles.actionButtonText}>
               {t('security.data.privacy') || 'Datenschutzeinstellungen'}
             </Text>
-            <Text style={securitySettingsScreenStyles.actionButtonArrow}>›</Text>
+            <Text style={styles.actionButtonArrow}>›</Text>
           </TouchableOpacity>
         </Card.Content>
       </Card>
 
       {/* Emergency Actions Section */}
-      <Card style={securitySettingsScreenStyles.section}>
+      <Card style={styles.section}>
         <Card.Content>
-          <View style={securitySettingsScreenStyles.sectionHeader}>
-            <Text style={securitySettingsScreenStyles.sectionIcon}>🚨</Text>
-            <View style={securitySettingsScreenStyles.sectionTitleContainer}>
-              <Text style={securitySettingsScreenStyles.sectionTitle}>
+          <View style={styles.sectionHeader}>
+            <Text style={styles.sectionIcon}>🚨</Text>
+            <View style={styles.sectionTitleContainer}>
+              <Text style={styles.sectionTitle}>
                 {t('security.emergency.title') || 'Notfall-Aktionen'}
               </Text>
-              <Text style={securitySettingsScreenStyles.sectionDescription}>
+              <Text style={styles.sectionDescription}>
                 {t('security.emergency.description') || 'Sofortige Sicherheitsmaßnahmen'}
               </Text>
             </View>
           </View>
 
           <TouchableOpacity
-            style={securitySettingsScreenStyles.emergencyButton}
+            style={styles.emergencyButton}
             onPress={() => {
               Alert.alert(
                 t('security.emergency.lockTitle') || 'Konto sperren',
@@ -947,16 +1265,16 @@ const SecuritySettingsScreen = () => {
               );
             }}
           >
-            <Text style={securitySettingsScreenStyles.emergencyButtonText}>
+            <Text style={styles.emergencyButtonText}>
               {t('security.emergency.lockAccount') || 'Konto vorübergehend sperren'}
             </Text>
           </TouchableOpacity>
 
           <TouchableOpacity
-            style={[securitySettingsScreenStyles.emergencyButton, securitySettingsScreenStyles.deleteButton]}
+            style={[styles.emergencyButton, styles.deleteButton]}
             onPress={handleAccountDeletion}
           >
-            <Text style={[securitySettingsScreenStyles.emergencyButtonText, securitySettingsScreenStyles.deleteButtonText]}>
+            <Text style={[styles.emergencyButtonText, styles.deleteButtonText]}>
               {t('security.emergency.deleteAccount') || 'Konto dauerhaft löschen'}
             </Text>
           </TouchableOpacity>

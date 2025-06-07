@@ -1,51 +1,71 @@
 import React from 'react';
-import {View, Text, StyleSheet} from 'react-native';
-import {NavigationContainer} from '@react-navigation/native';
-import {PaperProvider} from 'react-native-paper';
-import {SafeAreaProvider} from 'react-native-safe-area-context';
-import {GestureHandlerRootView} from 'react-native-gesture-handler';
+import { PaperProvider } from 'react-native-paper';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { ThemeProvider } from './core/theme/theme.system';
+import AppNavigator from './core/navigation/app-navigator';
+import { ErrorBoundary } from '@shared/errors/error-boundary';
+import { AppInitializer } from '@core/app/app-initializer.component';
 
-import {AppTheme, colors} from '@core/theme';
+// Import i18n configuration
+import './core/i18n/i18n';
 
-const App: React.FC = () => {
-  return (
-    <GestureHandlerRootView style={styles.container}>
-      <SafeAreaProvider>
-        <PaperProvider theme={AppTheme}>
-          <NavigationContainer>
-            <View style={styles.content}>
-              <Text style={styles.title}>React Native Skeleton</Text>
-              <Text style={styles.subtitle}>
-                Bereit für dein nächstes Projekt!
-              </Text>
-            </View>
-          </NavigationContainer>
-        </PaperProvider>
-      </SafeAreaProvider>
-    </GestureHandlerRootView>
-  );
-};
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-  content: {
-    alignItems: 'center',
-    backgroundColor: colors.background,
-    flex: 1,
-    justifyContent: 'center',
-  },
-  subtitle: {
-    color: colors.placeholder,
-    fontSize: 16,
-  },
-  title: {
-    color: colors.primary,
-    fontSize: 24,
-    fontWeight: 'bold',
-    marginBottom: 8,
+// Create QueryClient instance
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      retry: 3,
+      staleTime: 5 * 60 * 1000, // 5 minutes
+    },
   },
 });
+
+// Deep Link Configuration
+const linking = {
+  prefixes: ['de.daphko.skeleton://'],
+  config: {
+    screens: {
+      Auth: {
+        screens: {
+          Login: 'auth/login',
+          Register: 'auth/register',
+          Callback: 'auth/callback',
+          Success: 'auth/success',
+          Error: 'auth/error',
+        },
+      },
+      Main: {
+        screens: {
+          HomeTab: 'home',
+          ProfileTab: 'profile',
+          NotificationsTab: 'notifications',
+          ThemeTab: 'theme',
+          CreditsTab: 'credits',
+        },
+      },
+    },
+  },
+};
+
+/**
+ * Main App Component with proper error handling, theming, and query client setup
+ */
+function App(): React.JSX.Element {
+  return (
+    <ErrorBoundary>
+      <SafeAreaProvider>
+        <QueryClientProvider client={queryClient}>
+          <ThemeProvider>
+            <PaperProvider>
+              <AppInitializer>
+                <AppNavigator linking={linking} />
+              </AppInitializer>
+            </PaperProvider>
+          </ThemeProvider>
+        </QueryClientProvider>
+      </SafeAreaProvider>
+    </ErrorBoundary>
+  );
+}
 
 export default App;

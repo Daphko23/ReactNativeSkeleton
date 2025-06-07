@@ -19,6 +19,16 @@
 			<key>isShown</key>
 			<false/>
 		</dict>
+		<key>BoringSSL-GRPC-openssl_grpc.xcscheme</key>
+		<dict>
+			<key>isShown</key>
+			<false/>
+		</dict>
+		<key>BoringSSL-GRPC.xcscheme</key>
+		<dict>
+			<key>isShown</key>
+			<false/>
+		</dict>
 		<key>BranchSDK-BranchSDK.xcscheme</key>
 		<dict>
 			<key>isShown</key>
@@ -64,6 +74,26 @@
 			<key>isShown</key>
 			<false/>
 		</dict>
+		<key>FirebaseAppCheckInterop.xcscheme</key>
+		<dict>
+			<key>isShown</key>
+			<false/>
+		</dict>
+		<key>FirebaseAuth-FirebaseAuth_Privacy.xcscheme</key>
+		<dict>
+			<key>isShown</key>
+			<false/>
+		</dict>
+		<key>FirebaseAuth.xcscheme</key>
+		<dict>
+			<key>isShown</key>
+			<false/>
+		</dict>
+		<key>FirebaseAuthInterop.xcscheme</key>
+		<dict>
+			<key>isShown</key>
+			<false/>
+		</dict>
 		<key>FirebaseCore-FirebaseCore_Privacy.xcscheme</key>
 		<dict>
 			<key>isShown</key>
@@ -100,6 +130,26 @@
 			<false/>
 		</dict>
 		<key>FirebaseCrashlytics.xcscheme</key>
+		<dict>
+			<key>isShown</key>
+			<false/>
+		</dict>
+		<key>FirebaseFirestore-FirebaseFirestore_Privacy.xcscheme</key>
+		<dict>
+			<key>isShown</key>
+			<false/>
+		</dict>
+		<key>FirebaseFirestore.xcscheme</key>
+		<dict>
+			<key>isShown</key>
+			<false/>
+		</dict>
+		<key>FirebaseFirestoreInternal-FirebaseFirestoreInternal_Privacy.xcscheme</key>
+		<dict>
+			<key>isShown</key>
+			<false/>
+		</dict>
+		<key>FirebaseFirestoreInternal.xcscheme</key>
 		<dict>
 			<key>isShown</key>
 			<false/>
@@ -214,12 +264,7 @@
 			<key>isShown</key>
 			<false/>
 		</dict>
-		<key>OneSignalXCFramework.xcscheme</key>
-		<dict>
-			<key>isShown</key>
-			<false/>
-		</dict>
-		<key>Pods-ReactNativeSkeleton.xcscheme</key>
+		<key>Pods-DaphkoAiSkeleton.xcscheme</key>
 		<dict>
 			<key>isShown</key>
 			<false/>
@@ -319,7 +364,17 @@
 			<key>isShown</key>
 			<false/>
 		</dict>
+		<key>RNFBAuth.xcscheme</key>
+		<dict>
+			<key>isShown</key>
+			<false/>
+		</dict>
 		<key>RNFBCrashlytics.xcscheme</key>
+		<dict>
+			<key>isShown</key>
+			<false/>
+		</dict>
+		<key>RNFBFirestore.xcscheme</key>
 		<dict>
 			<key>isShown</key>
 			<false/>
@@ -330,11 +385,6 @@
 			<false/>
 		</dict>
 		<key>RNFBPerf.xcscheme</key>
-		<dict>
-			<key>isShown</key>
-			<false/>
-		</dict>
-		<key>RNFBRemoteConfig.xcscheme</key>
 		<dict>
 			<key>isShown</key>
 			<false/>
@@ -724,6 +774,11 @@
 			<key>isShown</key>
 			<false/>
 		</dict>
+		<key>RecaptchaInterop.xcscheme</key>
+		<dict>
+			<key>isShown</key>
+			<false/>
+		</dict>
 		<key>SSZipArchive-SSZipArchive.xcscheme</key>
 		<dict>
 			<key>isShown</key>
@@ -764,6 +819,16 @@
 			<key>isShown</key>
 			<false/>
 		</dict>
+		<key>abseil-xcprivacy.xcscheme</key>
+		<dict>
+			<key>isShown</key>
+			<false/>
+		</dict>
+		<key>abseil.xcscheme</key>
+		<dict>
+			<key>isShown</key>
+			<false/>
+		</dict>
 		<key>boost-boost_privacy.xcscheme</key>
 		<dict>
 			<key>isShown</key>
@@ -784,6 +849,31 @@
 			<key>isShown</key>
 			<false/>
 		</dict>
+		<key>gRPC-C++-gRPCCertificates-Cpp.xcscheme</key>
+		<dict>
+			<key>isShown</key>
+			<false/>
+		</dict>
+		<key>gRPC-C++-grpcpp.xcscheme</key>
+		<dict>
+			<key>isShown</key>
+			<false/>
+		</dict>
+		<key>gRPC-C++.xcscheme</key>
+		<dict>
+			<key>isShown</key>
+			<false/>
+		</dict>
+		<key>gRPC-Core-grpc.xcscheme</key>
+		<dict>
+			<key>isShown</key>
+			<false/>
+		</dict>
+		<key>gRPC-Core.xcscheme</key>
+		<dict>
+			<key>isShown</key>
+			<false/>
+		</dict>
 		<key>glog-glog_privacy.xcscheme</key>
 		<dict>
 			<key>isShown</key>
@@ -795,6 +885,16 @@
 			<false/>
 		</dict>
 		<key>hermes-engine.xcscheme</key>
+		<dict>
+			<key>isShown</key>
+			<false/>
+		</dict>
+		<key>leveldb-library-leveldb_Privacy.xcscheme</key>
+		<dict>
+			<key>isShown</key>
+			<false/>
+		</dict>
+		<key>leveldb-library.xcscheme</key>
 		<dict>
 			<key>isShown</key>
 			<false/>
@@ -819,6 +919,16 @@
 			<key>isShown</key>
 			<false/>
 		</dict>
+		<key>react-native-blob-util-ReactNativeBlobUtilPrivacyInfo.xcscheme</key>
+		<dict>
+			<key>isShown</key>
+			<false/>
+		</dict>
+		<key>react-native-blob-util.xcscheme</key>
+		<dict>
+			<key>isShown</key>
+			<false/>
+		</dict>
 		<key>react-native-branch.xcscheme</key>
 		<dict>
 			<key>isShown</key>
@@ -834,7 +944,27 @@
 			<key>isShown</key>
 			<false/>
 		</dict>
+		<key>react-native-encrypted-storage.xcscheme</key>
+		<dict>
+			<key>isShown</key>
+			<false/>
+		</dict>
 		<key>react-native-geolocation-service.xcscheme</key>
+		<dict>
+			<key>isShown</key>
+			<false/>
+		</dict>
+		<key>react-native-get-random-values.xcscheme</key>
+		<dict>
+			<key>isShown</key>
+			<false/>
+		</dict>
+		<key>react-native-image-picker-RNImagePickerPrivacyInfo.xcscheme</key>
+		<dict>
+			<key>isShown</key>
+			<false/>
+		</dict>
+		<key>react-native-image-picker.xcscheme</key>
 		<dict>
 			<key>isShown</key>
 			<false/>
@@ -845,6 +975,11 @@
 			<false/>
 		</dict>
 		<key>react-native-keep-awake.xcscheme</key>
+		<dict>
+			<key>isShown</key>
+			<false/>
+		</dict>
+		<key>react-native-maps-ReactNativeMapsPrivacy.xcscheme</key>
 		<dict>
 			<key>isShown</key>
 			<false/>
@@ -864,12 +999,12 @@
 			<key>isShown</key>
 			<false/>
 		</dict>
-		<key>react-native-onesignal.xcscheme</key>
+		<key>react-native-orientation-locker.xcscheme</key>
 		<dict>
 			<key>isShown</key>
 			<false/>
 		</dict>
-		<key>react-native-orientation-locker.xcscheme</key>
+		<key>react-native-pager-view.xcscheme</key>
 		<dict>
 			<key>isShown</key>
 			<false/>

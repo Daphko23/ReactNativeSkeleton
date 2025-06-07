@@ -1,0 +1,1 @@
+export { DailyBonusCard } from './daily-bonus-card.component'; 

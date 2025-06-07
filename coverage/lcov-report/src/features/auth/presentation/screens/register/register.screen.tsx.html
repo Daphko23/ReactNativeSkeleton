@@ -25,7 +25,7 @@
             <div class='fl pad1y space-right2'>
                 <span class="strong">0% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>0/144</span>
+                <span class='fraction'>0/146</span>
             </div>
         
             
@@ -46,7 +46,7 @@
             <div class='fl pad1y space-right2'>
                 <span class="strong">0% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>0/129</span>
+                <span class='fraction'>0/131</span>
             </div>
         
             
@@ -750,7 +750,12 @@
 <a name='L685'></a><a href='#L685'>685</a>
 <a name='L686'></a><a href='#L686'>686</a>
 <a name='L687'></a><a href='#L687'>687</a>
-<a name='L688'></a><a href='#L688'>688</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L688'></a><a href='#L688'>688</a>
+<a name='L689'></a><a href='#L689'>689</a>
+<a name='L690'></a><a href='#L690'>690</a>
+<a name='L691'></a><a href='#L691'>691</a>
+<a name='L692'></a><a href='#L692'>692</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -859,6 +864,9 @@
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -1478,10 +1486,11 @@ import { AuthStackParamList } from '@core/navigation/navigation.types';
 import { PrimaryButton } from '@shared/components/buttons/primary-button.component';
 import { FormTextInput } from '@shared/components/form-text-input/form-text-input.component';
 import { FormErrorText } from '@shared/components/form-text-input/form-text-error.component';
-import { registerScreenStyles } from './register.screen.styles';
+import { createRegisterScreenStyles } from './register.screen.styles';
 import { useAuth } from '@features/auth/presentation/hooks/use-auth';
 import { useTranslation } from 'react-i18next';
 import { withGuestGuard } from '@shared/hoc/with-guest.guard';
+import { useTheme } from '@core/theme/theme.system';
 &nbsp;
 /**
  * @enum RegisterStep
@@ -1547,6 +1556,9 @@ const RegisterScreen = <span class="cstat-no" title="statement not covered" ><sp
   const { register, isLoading, error, clearError, enterprise } = <span class="cstat-no" title="statement not covered" >useAuth();</span>
   const { t } = <span class="cstat-no" title="statement not covered" >useTranslation();</span>
   const navigation = <span class="cstat-no" title="statement not covered" >useNavigation&lt;NativeStackNavigationProp&lt;AuthStackParamList&gt;&gt;();</span>
+  const { theme } = <span class="cstat-no" title="statement not covered" >useTheme();</span>
+&nbsp;
+  const styles = <span class="cstat-no" title="statement not covered" >createRegisterScreenStyles(theme);</span>
 &nbsp;
   // State Management
   const [currentStep, setCurrentStep] = <span class="cstat-no" title="statement not covered" >useState&lt;RegisterStep&gt;(RegisterStep.FORM_INPUT);</span>
@@ -1830,20 +1842,20 @@ const RegisterScreen = <span class="cstat-no" title="statement not covered" ><sp
   const renderFormInputStep = <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >()</span> =&gt; (</span>
 <span class="cstat-no" title="statement not covered" >    &lt;&gt;</span>
       {/* Header */}
-      &lt;View style={registerScreenStyles.header}&gt;
-        &lt;Text style={registerScreenStyles.title}&gt;
+      &lt;View style={styles.header}&gt;
+        &lt;Text style={styles.title}&gt;
           {t('auth.register.title') || 'Konto erstellen'}
         &lt;/Text&gt;
-        &lt;Text style={registerScreenStyles.subtitle}&gt;
+        &lt;Text style={styles.subtitle}&gt;
           {t('auth.register.subtitle') || 'Erstellen Sie Ihr Konto und beginnen Sie'}
         &lt;/Text&gt;
       &lt;/View&gt;
 &nbsp;
       {/* Form */}
-      &lt;View style={registerScreenStyles.formContainer}&gt;
+      &lt;View style={styles.formContainer}&gt;
         {/* Name Fields */}
-        &lt;View style={registerScreenStyles.nameContainer}&gt;
-          &lt;View style={registerScreenStyles.nameField}&gt;
+        &lt;View style={styles.nameContainer}&gt;
+          &lt;View style={styles.nameField}&gt;
             &lt;FormTextInput
               label={t('auth.register.firstNameLabel') || 'Vorname'}
               value={formData.firstName}
@@ -1851,13 +1863,13 @@ const RegisterScreen = <span class="cstat-no" title="statement not covered" ><sp
               error={!!validationErrors.firstName || !!error}
             /&gt;
             {validationErrors.firstName &amp;&amp; (
-              &lt;Text style={registerScreenStyles.validationError}&gt;
+              &lt;Text style={styles.validationError}&gt;
                 {validationErrors.firstName}
               &lt;/Text&gt;
             )}
           &lt;/View&gt;
           
-          &lt;View style={registerScreenStyles.nameField}&gt;
+          &lt;View style={styles.nameField}&gt;
             &lt;FormTextInput
               label={t('auth.register.lastNameLabel') || 'Nachname'}
               value={formData.lastName}
@@ -1865,7 +1877,7 @@ const RegisterScreen = <span class="cstat-no" title="statement not covered" ><sp
               error={!!validationErrors.lastName || !!error}
             /&gt;
             {validationErrors.lastName &amp;&amp; (
-              &lt;Text style={registerScreenStyles.validationError}&gt;
+              &lt;Text style={styles.validationError}&gt;
                 {validationErrors.lastName}
               &lt;/Text&gt;
             )}
@@ -1881,7 +1893,7 @@ const RegisterScreen = <span class="cstat-no" title="statement not covered" ><sp
           error={!!validationErrors.email || !!error}
         /&gt;
         {validationErrors.email &amp;&amp; (
-          &lt;Text style={registerScreenStyles.validationError}&gt;
+          &lt;Text style={styles.validationError}&gt;
             {validationErrors.email}
           &lt;/Text&gt;
         )}
@@ -1897,12 +1909,12 @@ const RegisterScreen = <span class="cstat-no" title="statement not covered" ><sp
         
         {/* Password Strength Indicator */}
         {formData.password &amp;&amp; (
-          &lt;View style={registerScreenStyles.passwordStrengthContainer}&gt;
-            &lt;View style={registerScreenStyles.strengthBarContainer}&gt;
-              &lt;View style={registerScreenStyles.strengthBar}&gt;
+          &lt;View style={styles.passwordStrengthContainer}&gt;
+            &lt;View style={styles.strengthBarContainer}&gt;
+              &lt;View style={styles.strengthBar}&gt;
                 &lt;View 
                   style={[
-                    registerScreenStyles.strengthFill,
+                    styles.strengthFill,
                     { 
                       width: `${(passwordStrength.score / 4) * 100}%`,
                       backgroundColor: getPasswordStrengthColor(passwordStrength.score)
@@ -1911,7 +1923,7 @@ const RegisterScreen = <span class="cstat-no" title="statement not covered" ><sp
                 /&gt;
               &lt;/View&gt;
               &lt;Text style={[
-                registerScreenStyles.strengthText,
+                styles.strengthText,
                 { color: getPasswordStrengthColor(passwordStrength.score) }
               ]}&gt;
                 {getPasswordStrengthText(passwordStrength.score)}
@@ -1919,9 +1931,9 @@ const RegisterScreen = <span class="cstat-no" title="statement not covered" ><sp
             &lt;/View&gt;
             
             {passwordStrength.feedback.length &gt; 0 &amp;&amp; (
-              &lt;View style={registerScreenStyles.feedbackContainer}&gt;
+              &lt;View style={styles.feedbackContainer}&gt;
                 {passwordStrength.feedback.map(<span class="fstat-no" title="function not covered" >(f</span>eedback, index) =&gt; (
-<span class="cstat-no" title="statement not covered" >                  &lt;Text key={index} style={registerScreenStyles.feedbackText}&gt;</span>
+<span class="cstat-no" title="statement not covered" >                  &lt;Text key={index} style={styles.feedbackText}&gt;</span>
                     • {feedback}
                   &lt;/Text&gt;
                 ))}
@@ -1931,7 +1943,7 @@ const RegisterScreen = <span class="cstat-no" title="statement not covered" ><sp
         )}
 &nbsp;
         {validationErrors.password &amp;&amp; (
-          &lt;Text style={registerScreenStyles.validationError}&gt;
+          &lt;Text style={styles.validationError}&gt;
             {validationErrors.password}
           &lt;/Text&gt;
         )}
@@ -1945,7 +1957,7 @@ const RegisterScreen = <span class="cstat-no" title="statement not covered" ><sp
           error={!!validationErrors.confirmPassword || !!error}
         /&gt;
         {validationErrors.confirmPassword &amp;&amp; (
-          &lt;Text style={registerScreenStyles.validationError}&gt;
+          &lt;Text style={styles.validationError}&gt;
             {validationErrors.confirmPassword}
           &lt;/Text&gt;
         )}
@@ -1953,20 +1965,20 @@ const RegisterScreen = <span class="cstat-no" title="statement not covered" ><sp
         &lt;FormErrorText errorMessage={error} /&gt;
 &nbsp;
         {/* Terms and Privacy */}
-        &lt;View style={registerScreenStyles.agreementContainer}&gt;
-          &lt;View style={registerScreenStyles.checkboxContainer}&gt;
+        &lt;View style={styles.agreementContainer}&gt;
+          &lt;View style={styles.checkboxContainer}&gt;
             &lt;Checkbox
               status={acceptedTerms ? 'checked' : 'unchecked'}
               onPress={<span class="fstat-no" title="function not covered" >()</span> =&gt; <span class="cstat-no" title="statement not covered" >setAcceptedTerms(!acceptedTerms)}</span>
             /&gt;
             &lt;TouchableOpacity
-              style={registerScreenStyles.agreementTextContainer}
+              style={styles.agreementTextContainer}
               onPress={<span class="fstat-no" title="function not covered" >()</span> =&gt; <span class="cstat-no" title="statement not covered" >setAcceptedTerms(!acceptedTerms)}</span>
             &gt;
-              &lt;Text style={registerScreenStyles.agreementText}&gt;
+              &lt;Text style={styles.agreementText}&gt;
                 {t('auth.register.acceptTerms') || 'Ich akzeptiere die '}
                 &lt;Text 
-                  style={registerScreenStyles.linkText}
+                  style={styles.linkText}
                   onPress={openTermsOfService}
                 &gt;
                   {t('auth.register.termsOfService') || 'Nutzungsbedingungen'}
@@ -1975,19 +1987,19 @@ const RegisterScreen = <span class="cstat-no" title="statement not covered" ><sp
             &lt;/TouchableOpacity&gt;
           &lt;/View&gt;
 &nbsp;
-          &lt;View style={registerScreenStyles.checkboxContainer}&gt;
+          &lt;View style={styles.checkboxContainer}&gt;
             &lt;Checkbox
               status={acceptedPrivacy ? 'checked' : 'unchecked'}
               onPress={<span class="fstat-no" title="function not covered" >()</span> =&gt; <span class="cstat-no" title="statement not covered" >setAcceptedPrivacy(!acceptedPrivacy)}</span>
             /&gt;
             &lt;TouchableOpacity
-              style={registerScreenStyles.agreementTextContainer}
+              style={styles.agreementTextContainer}
               onPress={<span class="fstat-no" title="function not covered" >()</span> =&gt; <span class="cstat-no" title="statement not covered" >setAcceptedPrivacy(!acceptedPrivacy)}</span>
             &gt;
-              &lt;Text style={registerScreenStyles.agreementText}&gt;
+              &lt;Text style={styles.agreementText}&gt;
                 {t('auth.register.acceptPrivacy') || 'Ich akzeptiere die '}
                 &lt;Text 
-                  style={registerScreenStyles.linkText}
+                  style={styles.linkText}
                   onPress={openPrivacyPolicy}
                 &gt;
                   {t('auth.register.privacyPolicy') || 'Datenschutzerklärung'}
@@ -1997,7 +2009,7 @@ const RegisterScreen = <span class="cstat-no" title="statement not covered" ><sp
           &lt;/View&gt;
 &nbsp;
           {validationErrors.terms &amp;&amp; (
-            &lt;Text style={registerScreenStyles.validationError}&gt;
+            &lt;Text style={styles.validationError}&gt;
               {validationErrors.terms}
             &lt;/Text&gt;
           )}
@@ -2012,15 +2024,15 @@ const RegisterScreen = <span class="cstat-no" title="statement not covered" ><sp
       &lt;/View&gt;
 &nbsp;
       {/* OAuth Social Registration */}
-      &lt;View style={registerScreenStyles.oauthContainer}&gt;
-        &lt;Divider style={registerScreenStyles.divider} /&gt;
-        &lt;Text style={registerScreenStyles.socialText}&gt;
+      &lt;View style={styles.oauthContainer}&gt;
+        &lt;Divider style={styles.divider} /&gt;
+        &lt;Text style={styles.socialText}&gt;
           {t('auth.register.socialText') || 'Oder registrieren Sie sich mit'}
         &lt;/Text&gt;
         
-        &lt;View style={registerScreenStyles.socialButtonsContainer}&gt;
+        &lt;View style={styles.socialButtonsContainer}&gt;
           &lt;TouchableOpacity
-            style={[registerScreenStyles.socialButton, registerScreenStyles.googleButton]}
+            style={[styles.socialButton, styles.googleButton]}
             onPress={handleGoogleRegister}
             disabled={isOAuthLoading.google}
           &gt;
@@ -2028,14 +2040,14 @@ const RegisterScreen = <span class="cstat-no" title="statement not covered" ><sp
               &lt;ActivityIndicator size="small" color="#4285f4" /&gt;
             ) : (
               &lt;&gt;
-                &lt;Text style={registerScreenStyles.socialIcon}&gt;🔍&lt;/Text&gt;
-                &lt;Text style={registerScreenStyles.socialButtonText}&gt;Google&lt;/Text&gt;
+                &lt;Text style={styles.socialIcon}&gt;🔍&lt;/Text&gt;
+                &lt;Text style={styles.socialButtonText}&gt;Google&lt;/Text&gt;
               &lt;/&gt;
             )}
           &lt;/TouchableOpacity&gt;
 &nbsp;
           &lt;TouchableOpacity
-            style={[registerScreenStyles.socialButton, registerScreenStyles.appleButton]}
+            style={[styles.socialButton, styles.appleButton]}
             onPress={handleAppleRegister}
             disabled={isOAuthLoading.apple}
           &gt;
@@ -2043,8 +2055,8 @@ const RegisterScreen = <span class="cstat-no" title="statement not covered" ><sp
               &lt;ActivityIndicator size="small" color="#000" /&gt;
             ) : (
               &lt;&gt;
-                &lt;Text style={registerScreenStyles.socialIcon}&gt;🍎&lt;/Text&gt;
-                &lt;Text style={registerScreenStyles.socialButtonText}&gt;Apple&lt;/Text&gt;
+                &lt;Text style={styles.socialIcon}&gt;🍎&lt;/Text&gt;
+                &lt;Text style={styles.socialButtonText}&gt;Apple&lt;/Text&gt;
               &lt;/&gt;
             )}
           &lt;/TouchableOpacity&gt;
@@ -2059,28 +2071,28 @@ const RegisterScreen = <span class="cstat-no" title="statement not covered" ><sp
   const renderEmailVerificationStep = <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >()</span> =&gt; (</span>
 <span class="cstat-no" title="statement not covered" >    &lt;&gt;</span>
       {/* Success Header */}
-      &lt;View style={registerScreenStyles.successHeader}&gt;
-        &lt;Text style={registerScreenStyles.successIcon}&gt;📧&lt;/Text&gt;
-        &lt;Text style={registerScreenStyles.successTitle}&gt;
+      &lt;View style={styles.successHeader}&gt;
+        &lt;Text style={styles.successIcon}&gt;📧&lt;/Text&gt;
+        &lt;Text style={styles.successTitle}&gt;
           {t('auth.register.emailSentTitle') || 'Bestätigungs-E-Mail gesendet!'}
         &lt;/Text&gt;
-        &lt;Text style={registerScreenStyles.successSubtitle}&gt;
+        &lt;Text style={styles.successSubtitle}&gt;
           {t('auth.register.emailSentMessage') || `Wir haben eine Bestätigungs-E-Mail an ${formData.email} gesendet.`}
         &lt;/Text&gt;
       &lt;/View&gt;
 &nbsp;
       {/* Instructions */}
-      &lt;View style={registerScreenStyles.instructionsContainer}&gt;
-        &lt;Text style={registerScreenStyles.instructionsTitle}&gt;
+      &lt;View style={styles.instructionsContainer}&gt;
+        &lt;Text style={styles.instructionsTitle}&gt;
           {t('auth.register.nextStepsTitle') || 'Nächste Schritte:'}
         &lt;/Text&gt;
-        &lt;Text style={registerScreenStyles.instructionStep}&gt;
+        &lt;Text style={styles.instructionStep}&gt;
           1. {t('auth.register.step1') || 'Prüfen Sie Ihr E-Mail-Postfach'}
         &lt;/Text&gt;
-        &lt;Text style={registerScreenStyles.instructionStep}&gt;
+        &lt;Text style={styles.instructionStep}&gt;
           2. {t('auth.register.step2') || 'Klicken Sie auf den Bestätigungslink'}
         &lt;/Text&gt;
-        &lt;Text style={registerScreenStyles.instructionStep}&gt;
+        &lt;Text style={styles.instructionStep}&gt;
           3. {t('auth.register.step3') || 'Melden Sie sich mit Ihrem neuen Konto an'}
         &lt;/Text&gt;
       &lt;/View&gt;
@@ -2094,12 +2106,12 @@ const RegisterScreen = <span class="cstat-no" title="statement not covered" ><sp
 &nbsp;
 <span class="cstat-no" title="statement not covered" >  return (</span>
     &lt;KeyboardAvoidingView
-      style={registerScreenStyles.container}
+      style={styles.container}
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
       keyboardVerticalOffset={Platform.OS === 'ios' ? 64 : 0}
     &gt;
       &lt;ScrollView
-        contentContainerStyle={registerScreenStyles.scrollContainer}
+        contentContainerStyle={styles.scrollContainer}
         showsVerticalScrollIndicator={false}
         keyboardShouldPersistTaps="handled"
       &gt;
@@ -2108,12 +2120,12 @@ const RegisterScreen = <span class="cstat-no" title="statement not covered" ><sp
         {currentStep === RegisterStep.EMAIL_VERIFICATION &amp;&amp; renderEmailVerificationStep()}
 &nbsp;
         {/* Navigation */}
-        &lt;View style={registerScreenStyles.navigationContainer}&gt;
+        &lt;View style={styles.navigationContainer}&gt;
           &lt;TouchableOpacity
             onPress={navigateToLogin}
-            style={registerScreenStyles.linkContainer}
+            style={styles.linkContainer}
           &gt;
-            &lt;Text style={registerScreenStyles.navigationLinkText}&gt;
+            &lt;Text style={styles.navigationLinkText}&gt;
               {t('auth.navigation.alreadyAccount') || 'Bereits ein Konto? Anmelden'}
             &lt;/Text&gt;
           &lt;/TouchableOpacity&gt;
@@ -2131,7 +2143,7 @@ export default withGuestGuard(RegisterScreen);
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2025-05-30T19:50:06.682Z
+                at 2025-06-01T18:02:20.399Z
             </div>
         <script src="../../../../../../prettify.js"></script>
         <script>

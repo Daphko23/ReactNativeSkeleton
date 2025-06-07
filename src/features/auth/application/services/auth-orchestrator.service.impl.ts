@@ -30,7 +30,7 @@ import {
 } from '../dtos';
 
 // Import Interface
-import {IAuthService} from '../interfaces/auth-service.interface';
+import {IAuthService} from '../../domain/interfaces/auth-service.interface';
 
 // Import Use Cases from Application Layer
 import {LoginWithEmailUseCase} from '../usecases/login-with-email.usecase';
@@ -535,6 +535,9 @@ export class AuthOrchestratorService implements IAuthService {
           ? {
               id: response.user.id,
               email: response.user.email,
+              emailVerified: true, // OAuth users are typically verified
+              createdAt: new Date().toISOString(),
+              updatedAt: new Date().toISOString(),
               firstName: response.user.email.split('@')[0], // Fallback for firstName
               lastName: '', // Fallback for lastName
               provider: 'google',
@@ -613,6 +616,7 @@ export class AuthOrchestratorService implements IAuthService {
             details: event.details || {},
           })) || [],
         recommendations: response.recommendations || [],
+        timestamp: new Date().toISOString(),
       };
     } catch (error) {
       if (error instanceof UserNotAuthenticatedError) {
@@ -721,20 +725,18 @@ export class AuthOrchestratorService implements IAuthService {
     try {
       const response = await this.getActiveSessionsUseCase.execute();
       return {
+        totalCount: response.sessions.length,
         sessions: response.sessions.map(session => ({
-          id: session.id,
-          userId: session.userId,
+          sessionId: session.id,
           deviceInfo: {
-            platform: session.deviceId || 'unknown', // Map deviceId to platform
+            platform: session.deviceId || 'unknown',
             browser: 'unknown',
-            location: 'unknown',
+            os: 'unknown',
           },
-          createdAt: session.createdAt,
-          lastActivity: session.lastActiveAt || session.createdAt, // Map lastActiveAt
-          isActive: session.isActive,
+          lastActivity: (session.lastActiveAt || session.createdAt).toISOString(),
+          location: 'unknown',
+          isCurrentSession: session.isActive,
         })),
-        currentSessionId: response.currentSessionId || '',
-        totalCount: response.sessions.length, // Calculate totalCount
       };
     } catch (error) {
       if (error instanceof UserNotAuthenticatedError) {

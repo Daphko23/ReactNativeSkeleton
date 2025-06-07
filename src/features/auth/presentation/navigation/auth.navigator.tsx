@@ -80,7 +80,7 @@ export const AuthNavigator = () => {
         name="Login" 
         component={LoginScreen}
         options={{
-          title: t('auth.navigation.titles.login') || 'Anmelden',
+          title: t('auth.navigation.login') || 'Anmelden',
           headerShown: false
         }}
       />
@@ -89,7 +89,7 @@ export const AuthNavigator = () => {
         name="Register" 
         component={RegisterScreen}
         options={{
-          title: t('auth.navigation.titles.register') || 'Registrieren',
+          title: t('auth.navigation.register') || 'Registrieren',
           headerShown: false
         }}
       />
@@ -98,7 +98,7 @@ export const AuthNavigator = () => {
         name="PasswordReset" 
         component={PasswordResetScreen}
         options={{
-          title: t('auth.navigation.titles.passwordReset') || 'Passwort zurücksetzen',
+          title: t('auth.navigation.passwordReset') || 'Passwort zurücksetzen',
           headerShown: false
         }}
       />
@@ -107,7 +107,7 @@ export const AuthNavigator = () => {
         name="PasswordChange" 
         component={PasswordChangeScreen}
         options={{
-          title: t('auth.navigation.titles.passwordChange') || 'Passwort ändern',
+          title: t('auth.navigation.passwordChange') || 'Passwort ändern',
           headerShown: true,
           presentation: 'modal'
         }}
@@ -137,7 +137,7 @@ export const AuthNavigator = () => {
         name="SecuritySettings" 
         component={SecuritySettingsScreen}
         options={{
-          title: t('auth.navigation.titles.securitySettings') || 'Sicherheitseinstellungen',
+          title: t('auth.navigation.securitySettings') || 'Sicherheitseinstellungen',
           headerShown: true,
           presentation: 'modal'
         }}
@@ -148,7 +148,7 @@ export const AuthNavigator = () => {
         name="AuthDemo" 
         component={AuthDemoScreen}
         options={{
-          title: t('auth.navigation.titles.authDemo') || 'Auth Demo',
+          title: t('auth.navigation.authDemo') || 'Auth Demo',
           headerShown: true,
           presentation: 'modal'
         }}

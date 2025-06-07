@@ -37,7 +37,7 @@ import { AuthStackParamList } from '@core/navigation/navigation.types';
 import { PrimaryButton } from '@shared/components/buttons/primary-button.component';
 import { FormTextInput } from '@shared/components/form-text-input/form-text-input.component';
 import { FormErrorText } from '@shared/components/form-text-input/form-text-error.component';
-import { accountDeletionScreenStyles } from './account-deletion.screen.styles';
+import { useTheme, createThemedStyles } from '@core/theme/theme.system';
 import { useAuth } from '@features/auth/presentation/hooks/use-auth';
 import { useTranslation } from 'react-i18next';
 import { withAuthGuard } from '@shared/hoc/with-auth.guard';
@@ -88,12 +88,230 @@ interface ValidationErrors {
  * - Deletion reason tracking
  * - Anonymized analytics option
  */
+
+const useStyles = createThemedStyles((theme) => ({
+  // Container Styles
+  container: {
+    flex: 1,
+    backgroundColor: theme.colors.background,
+  },
+  scrollContainer: {
+    flexGrow: 1,
+    paddingHorizontal: theme.spacing[6],
+    paddingTop: theme.spacing[8],
+    paddingBottom: theme.spacing[10],
+  },
+
+  // Warning Step Styles
+  warningContainer: {
+    alignItems: 'center' as const,
+    marginBottom: theme.spacing[8],
+  },
+  warningIcon: {
+    fontSize: theme.typography.fontSizes['4xl'],
+    marginBottom: theme.spacing[4],
+  },
+  warningTitle: {
+    fontSize: theme.typography.fontSizes['2xl'],
+    fontWeight: theme.typography.fontWeights.bold,
+    color: theme.colors.error,
+    textAlign: 'center' as const,
+    marginBottom: theme.spacing[3],
+    letterSpacing: -0.5,
+  },
+  warningSubtitle: {
+    fontSize: theme.typography.fontSizes.base,
+    color: theme.colors.textSecondary,
+    textAlign: 'center' as const,
+    lineHeight: theme.typography.lineHeights.relaxed * theme.typography.fontSizes.base,
+    paddingHorizontal: theme.spacing[4],
+    marginBottom: theme.spacing[6],
+  },
+
+  // Consequences Styles
+  consequencesContainer: {
+    backgroundColor: theme.colors.error + '10',
+    borderRadius: theme.borderRadius.lg,
+    padding: theme.spacing[6],
+    marginBottom: theme.spacing[6],
+    borderWidth: 1,
+    borderColor: theme.colors.error + '40',
+  },
+  consequencesTitle: {
+    fontSize: theme.typography.fontSizes.lg,
+    fontWeight: theme.typography.fontWeights.semibold,
+    color: theme.colors.error,
+    marginBottom: theme.spacing[4],
+    textAlign: 'center' as const,
+  },
+  consequenceItem: {
+    flexDirection: 'row' as const,
+    alignItems: 'flex-start' as const,
+    marginBottom: theme.spacing[3],
+  },
+  consequenceIcon: {
+    fontSize: theme.typography.fontSizes.base,
+    marginRight: theme.spacing[3],
+    marginTop: theme.spacing[1],
+    color: theme.colors.error,
+  },
+  consequenceText: {
+    fontSize: theme.typography.fontSizes.sm,
+    color: theme.colors.error,
+    flex: 1,
+    lineHeight: theme.typography.lineHeights.relaxed * theme.typography.fontSizes.sm,
+  },
+
+  // Options Styles
+  optionsContainer: {
+    backgroundColor: theme.colors.backgroundSecondary,
+    borderRadius: theme.borderRadius.lg,
+    padding: theme.spacing[6],
+    marginBottom: theme.spacing[6],
+  },
+  optionsTitle: {
+    fontSize: theme.typography.fontSizes.lg,
+    fontWeight: theme.typography.fontWeights.semibold,
+    color: theme.colors.text,
+    marginBottom: theme.spacing[4],
+  },
+  optionItem: {
+    flexDirection: 'row' as const,
+    alignItems: 'flex-start' as const,
+    marginBottom: theme.spacing[4],
+  },
+  optionContent: {
+    flex: 1,
+    marginLeft: theme.spacing[3],
+  },
+  optionTitle: {
+    fontSize: theme.typography.fontSizes.base,
+    fontWeight: theme.typography.fontWeights.medium,
+    color: theme.colors.text,
+    marginBottom: theme.spacing[1],
+  },
+  optionDescription: {
+    fontSize: theme.typography.fontSizes.sm,
+    color: theme.colors.textSecondary,
+    lineHeight: theme.typography.lineHeights.relaxed * theme.typography.fontSizes.sm,
+  },
+
+  // Confirmation Styles
+  confirmationContainer: {
+    marginBottom: theme.spacing[6],
+  },
+  confirmationTitle: {
+    fontSize: theme.typography.fontSizes.xl,
+    fontWeight: theme.typography.fontWeights.bold,
+    color: theme.colors.text,
+    textAlign: 'center' as const,
+    marginBottom: theme.spacing[3],
+  },
+  confirmationSubtitle: {
+    fontSize: theme.typography.fontSizes.base,
+    color: theme.colors.textSecondary,
+    textAlign: 'center' as const,
+    marginBottom: theme.spacing[6],
+    lineHeight: theme.typography.lineHeights.relaxed * theme.typography.fontSizes.base,
+  },
+
+  // Form Styles
+  formContainer: {
+    gap: theme.spacing[5],
+  },
+  validationError: {
+    fontSize: theme.typography.fontSizes.sm,
+    color: theme.colors.error,
+    marginTop: -theme.spacing[4],
+    marginBottom: theme.spacing[1],
+    paddingHorizontal: theme.spacing[1],
+  },
+
+  // Info Box Styles
+  infoBox: {
+    flexDirection: 'row' as const,
+    alignItems: 'flex-start' as const,
+    backgroundColor: theme.colors.warning + '20',
+    borderRadius: theme.borderRadius.lg,
+    padding: theme.spacing[4],
+    marginBottom: theme.spacing[4],
+    borderWidth: 1,
+    borderColor: theme.colors.warning + '40',
+  },
+  infoIcon: {
+    fontSize: theme.typography.fontSizes.lg,
+    marginRight: theme.spacing[3],
+    marginTop: theme.spacing[1],
+    color: theme.colors.warning,
+  },
+  infoText: {
+    fontSize: theme.typography.fontSizes.sm,
+    color: theme.colors.warning,
+    lineHeight: theme.typography.lineHeights.relaxed * theme.typography.fontSizes.sm,
+    flex: 1,
+  },
+
+  // Progress Styles
+  processingContainer: {
+    alignItems: 'center' as const,
+    paddingVertical: theme.spacing[8],
+  },
+  processingIcon: {
+    fontSize: theme.typography.fontSizes['4xl'],
+    marginBottom: theme.spacing[4],
+  },
+  processingTitle: {
+    fontSize: theme.typography.fontSizes.xl,
+    fontWeight: theme.typography.fontWeights.bold,
+    color: theme.colors.text,
+    textAlign: 'center' as const,
+    marginBottom: theme.spacing[3],
+  },
+  processingText: {
+    fontSize: theme.typography.fontSizes.base,
+    color: theme.colors.textSecondary,
+    textAlign: 'center' as const,
+    marginBottom: theme.spacing[6],
+  },
+  progressContainer: {
+    width: '100%' as const,
+    marginBottom: theme.spacing[4],
+  },
+  progressText: {
+    fontSize: theme.typography.fontSizes.sm,
+    color: theme.colors.textSecondary,
+    textAlign: 'center' as const,
+    marginTop: theme.spacing[2],
+  },
+
+  // Button Styles
+  buttonContainer: {
+    marginTop: theme.spacing[6],
+  },
+  dangerButton: {
+    backgroundColor: theme.colors.error,
+    marginTop: theme.spacing[4],
+  },
+  cancelButton: {
+    marginTop: theme.spacing[4],
+    alignItems: 'center' as const,
+    paddingVertical: theme.spacing[3],
+  },
+  cancelButtonText: {
+    fontSize: theme.typography.fontSizes.base,
+    color: theme.colors.primary,
+    fontWeight: theme.typography.fontWeights.medium,
+  },
+}));
+
 const AccountDeletionScreen = () => {
   const { clearError, logout } = useAuth();
   const _user = useAuth().user;
   const _enterprise = useAuth().enterprise;
   const error = useAuth().error;
   const { t } = useTranslation();
+  const { theme } = useTheme();
+  const styles = useStyles(theme);
   const navigation = useNavigation<NativeStackNavigationProp<AuthStackParamList>>();
 
   // Form State
@@ -358,18 +576,18 @@ const AccountDeletionScreen = () => {
   // Render processing step
   if (currentStep === 'processing') {
     return (
-      <View style={accountDeletionScreenStyles.processingContainer}>
+      <View style={styles.processingContainer}>
         <ActivityIndicator size="large" color="#ef4444" />
-        <Text style={accountDeletionScreenStyles.processingTitle}>
+        <Text style={styles.processingTitle}>
           {t('auth.accountDeletion.processingTitle') || 'Konto wird gelöscht...'}
         </Text>
-        <Text style={accountDeletionScreenStyles.processingMessage}>
-          {t('auth.accountDeletion.processingMessage') || 'Bitte warten Sie, während Ihr Konto und alle Daten gelöscht werden.'}
+        <Text style={styles.processingText}>
+          {t('auth.accountDeletion.processingText') || 'Bitte warten Sie, während Ihr Konto und alle Daten gelöscht werden.'}
         </Text>
         
         {isExporting && (
-          <View style={accountDeletionScreenStyles.exportProgress}>
-            <Text style={accountDeletionScreenStyles.exportProgressText}>
+          <View style={styles.progressContainer}>
+            <Text style={styles.progressText}>
               {t('auth.accountDeletion.exportingData') || 'Daten werden exportiert...'} {exportProgress}%
             </Text>
           </View>
@@ -380,22 +598,22 @@ const AccountDeletionScreen = () => {
 
   return (
     <KeyboardAvoidingView
-      style={accountDeletionScreenStyles.container}
+      style={styles.container}
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
       keyboardVerticalOffset={Platform.OS === 'ios' ? 64 : 0}
     >
       <ScrollView
-        contentContainerStyle={accountDeletionScreenStyles.scrollContainer}
+        contentContainerStyle={styles.scrollContainer}
         showsVerticalScrollIndicator={false}
         keyboardShouldPersistTaps="handled"
       >
         {/* Header */}
-        <View style={accountDeletionScreenStyles.header}>
-          <Text style={accountDeletionScreenStyles.headerIcon}>🗑️</Text>
-          <Text style={accountDeletionScreenStyles.title}>
-            {t('auth.accountDeletion.title') || 'Konto löschen'}
+        <View style={styles.warningContainer}>
+          <Text style={styles.warningIcon}>🗑️</Text>
+          <Text style={styles.warningTitle}>
+            {t('auth.accountDeletion.warningTitle') || '⚠️ Wichtige Information'}
           </Text>
-          <Text style={accountDeletionScreenStyles.subtitle}>
+          <Text style={styles.warningSubtitle}>
             {currentStep === 'warning' 
               ? t('auth.accountDeletion.warningSubtitle') || 'Diese Aktion kann nicht rückgängig gemacht werden'
               : t('auth.accountDeletion.confirmationSubtitle') || 'Bestätigen Sie die Löschung Ihres Kontos'
@@ -405,61 +623,77 @@ const AccountDeletionScreen = () => {
 
         {/* Warning Step */}
         {currentStep === 'warning' && (
-          <View style={accountDeletionScreenStyles.formContainer}>
+          <View style={styles.consequencesContainer}>
             {/* Warning Info */}
-            <View style={accountDeletionScreenStyles.warningBox}>
-              <Text style={accountDeletionScreenStyles.warningTitle}>
-                {t('auth.accountDeletion.warningTitle') || '⚠️ Wichtige Information'}
+            <View style={styles.consequencesContainer}>
+              <Text style={styles.consequencesTitle}>
+                {t('auth.accountDeletion.consequencesTitle') || '⚠️ Wichtige Information'}
               </Text>
-              <Text style={accountDeletionScreenStyles.warningText}>
-                {t('auth.accountDeletion.warningMessage') || 'Die Löschung Ihres Kontos führt zum permanenten Verlust aller Ihrer Daten, einschließlich:\n\n• Persönliche Informationen\n• Benutzereinstellungen\n• Gespeicherte Inhalte\n• Transaktionshistorie\n\nDiese Aktion kann NICHT rückgängig gemacht werden.'}
+              <Text style={styles.consequenceItem}>
+                <Text style={styles.consequenceIcon}>•</Text>
+                <Text style={styles.consequenceText}>
+                  {t('auth.accountDeletion.consequencesMessage') || 'Die Löschung Ihres Kontos führt zum permanenten Verlust aller Ihrer Daten, einschließlich:\n\n• Persönliche Informationen\n• Benutzereinstellungen\n• Gespeicherte Inhalte\n• Transaktionshistorie\n\nDiese Aktion kann NICHT rückgängig gemacht werden.'}
+                </Text>
               </Text>
             </View>
 
             {/* GDPR Info */}
-            <View style={accountDeletionScreenStyles.gdprBox}>
-              <Text style={accountDeletionScreenStyles.gdprTitle}>
+            <View style={styles.consequencesContainer}>
+              <Text style={styles.consequencesTitle}>
                 {t('auth.accountDeletion.gdprTitle') || 'GDPR Rechte'}
               </Text>
-              <Text style={accountDeletionScreenStyles.gdprText}>
-                {t('auth.accountDeletion.gdprMessage') || 'Sie haben das Recht auf Löschung Ihrer personenbezogenen Daten gemäß Art. 17 DSGVO. Vor der Löschung können Sie Ihre Daten exportieren.'}
+              <Text style={styles.consequenceItem}>
+                <Text style={styles.consequenceIcon}>•</Text>
+                <Text style={styles.consequenceText}>
+                  {t('auth.accountDeletion.gdprMessage') || 'Sie haben das Recht auf Löschung Ihrer personenbezogenen Daten gemäß Art. 17 DSGVO. Vor der Löschung können Sie Ihre Daten exportieren.'}
+                </Text>
               </Text>
             </View>
 
             {/* Data Export Option */}
-            <View style={accountDeletionScreenStyles.optionContainer}>
+            <View style={styles.optionsContainer}>
               <TouchableOpacity
-                style={accountDeletionScreenStyles.checkboxContainer}
+                style={styles.optionItem}
                 onPress={() => updateDeletionOption('exportData', !deletionOptions.exportData)}
               >
                 <Checkbox
                   status={deletionOptions.exportData ? 'checked' : 'unchecked'}
                   onPress={() => updateDeletionOption('exportData', !deletionOptions.exportData)}
                 />
-                <Text style={accountDeletionScreenStyles.checkboxText}>
-                  {t('auth.accountDeletion.exportDataOption') || 'Meine Daten vor der Löschung exportieren'}
+                <Text style={styles.optionContent}>
+                  <Text style={styles.optionTitle}>
+                    {t('auth.accountDeletion.exportDataOption') || 'Meine Daten vor der Löschung exportieren'}
+                  </Text>
+                  <Text style={styles.optionDescription}>
+                    {t('auth.accountDeletion.exportDataDescription') || 'Diese Option ermöglicht es Ihnen, Ihre Daten vor der Löschung zu exportieren.'}
+                  </Text>
                 </Text>
               </TouchableOpacity>
             </View>
 
             {/* Understanding Confirmation */}
-            <View style={accountDeletionScreenStyles.optionContainer}>
+            <View style={styles.optionsContainer}>
               <TouchableOpacity
-                style={accountDeletionScreenStyles.checkboxContainer}
+                style={styles.optionItem}
                 onPress={() => updateDeletionOption('confirmUnderstanding', !deletionOptions.confirmUnderstanding)}
               >
                 <Checkbox
                   status={deletionOptions.confirmUnderstanding ? 'checked' : 'unchecked'}
                   onPress={() => updateDeletionOption('confirmUnderstanding', !deletionOptions.confirmUnderstanding)}
                 />
-                <Text style={accountDeletionScreenStyles.checkboxText}>
-                  {t('auth.accountDeletion.confirmUnderstanding') || 'Ich verstehe, dass diese Aktion unwiderruflich ist'}
+                <Text style={styles.optionContent}>
+                  <Text style={styles.optionTitle}>
+                    {t('auth.accountDeletion.confirmUnderstanding') || 'Ich verstehe, dass diese Aktion unwiderruflich ist'}
+                  </Text>
+                  <Text style={styles.optionDescription}>
+                    {t('auth.accountDeletion.confirmUnderstandingDescription') || 'Diese Bestätigung ist erforderlich, um die Löschung zu bestätigen.'}
+                  </Text>
                 </Text>
               </TouchableOpacity>
             </View>
 
             {validationErrors.options && (
-              <Text style={accountDeletionScreenStyles.validationError}>
+              <Text style={styles.validationError}>
                 {validationErrors.options}
               </Text>
             )}
@@ -468,7 +702,7 @@ const AccountDeletionScreen = () => {
 
         {/* Confirmation Step */}
         {currentStep === 'confirmation' && (
-          <View style={accountDeletionScreenStyles.formContainer}>
+          <View style={styles.formContainer}>
             {/* Current Password */}
             <FormTextInput
               label={t('auth.accountDeletion.currentPasswordLabel') || 'Aktuelles Passwort zur Bestätigung'}
@@ -478,7 +712,7 @@ const AccountDeletionScreen = () => {
               error={!!validationErrors.currentPassword}
             />
             {validationErrors.currentPassword && (
-              <Text style={accountDeletionScreenStyles.validationError}>
+              <Text style={styles.validationError}>
                 {validationErrors.currentPassword}
               </Text>
             )}
@@ -491,7 +725,7 @@ const AccountDeletionScreen = () => {
               error={!!validationErrors.confirmationText}
             />
             {validationErrors.confirmationText && (
-              <Text style={accountDeletionScreenStyles.validationError}>
+              <Text style={styles.validationError}>
                 {validationErrors.confirmationText}
               </Text>
             )}
@@ -504,23 +738,28 @@ const AccountDeletionScreen = () => {
               error={!!validationErrors.deletionReason}
             />
             {validationErrors.deletionReason && (
-              <Text style={accountDeletionScreenStyles.validationError}>
+              <Text style={styles.validationError}>
                 {validationErrors.deletionReason}
               </Text>
             )}
 
             {/* Additional Options */}
-            <View style={accountDeletionScreenStyles.optionContainer}>
+            <View style={styles.optionsContainer}>
               <TouchableOpacity
-                style={accountDeletionScreenStyles.checkboxContainer}
+                style={styles.optionItem}
                 onPress={() => updateDeletionOption('deleteImmediately', !deletionOptions.deleteImmediately)}
               >
                 <Checkbox
                   status={deletionOptions.deleteImmediately ? 'checked' : 'unchecked'}
                   onPress={() => updateDeletionOption('deleteImmediately', !deletionOptions.deleteImmediately)}
                 />
-                <Text style={accountDeletionScreenStyles.checkboxText}>
-                  {t('auth.accountDeletion.deleteImmediatelyOption') || 'Sofort löschen (keine 30-Tage Wartezeit)'}
+                <Text style={styles.optionContent}>
+                  <Text style={styles.optionTitle}>
+                    {t('auth.accountDeletion.deleteImmediatelyOption') || 'Sofort löschen (keine 30-Tage Wartezeit)'}
+                  </Text>
+                  <Text style={styles.optionDescription}>
+                    {t('auth.accountDeletion.deleteImmediatelyDescription') || 'Diese Option ermöglicht es Ihnen, Ihr Konto sofort zu löschen, ohne eine Wartezeit zu warten.'}
+                  </Text>
                 </Text>
               </TouchableOpacity>
             </View>
@@ -530,7 +769,7 @@ const AccountDeletionScreen = () => {
         )}
 
         {/* Action Buttons */}
-        <View style={accountDeletionScreenStyles.buttonContainer}>
+        <View style={styles.buttonContainer}>
           {currentStep === 'warning' && (
             <>
               <PrimaryButton
@@ -540,10 +779,10 @@ const AccountDeletionScreen = () => {
               />
               
               <TouchableOpacity
-                style={accountDeletionScreenStyles.cancelButton}
+                style={styles.cancelButton}
                 onPress={() => navigation.goBack()}
               >
-                <Text style={accountDeletionScreenStyles.cancelButtonText}>
+                <Text style={styles.cancelButtonText}>
                   {t('common.cancel') || 'Abbrechen'}
                 </Text>
               </TouchableOpacity>
@@ -560,11 +799,11 @@ const AccountDeletionScreen = () => {
               />
               
               <TouchableOpacity
-                style={accountDeletionScreenStyles.backButton}
+                style={styles.cancelButton}
                 onPress={() => setCurrentStep('warning')}
                 disabled={isDeleting}
               >
-                <Text style={accountDeletionScreenStyles.backButtonText}>
+                <Text style={styles.cancelButtonText}>
                   {t('common.back') || 'Zurück'}
                 </Text>
               </TouchableOpacity>

@@ -26,10 +26,10 @@ export const EmptyList = memo<EmptyListProps>(
 
     // Nachricht basierend auf Zustand berechnen
     const message = useMemo(() => {
-      if (loading) return t('matchdayList.loading');
+      if (loading) return t('common.loading');
       if (hasSearchTerm || hasActiveFilters)
-        return t('matchdayList.noFilterResults');
-      return t('matchdayList.noMatchdays');
+        return t('shared.emptyList.noFilterResults');
+      return t('shared.emptyList.noItems');
     }, [loading, hasActiveFilters, hasSearchTerm, t]);
 
     return (

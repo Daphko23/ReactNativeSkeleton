@@ -27,6 +27,11 @@ export const SearchBar: React.FC<SearchBarProps> = ({
 }) => {
   const [value, setValue] = useState<string>(initialValue);
 
+  // Sync internal state with initialValue prop changes
+  useEffect(() => {
+    setValue(initialValue);
+  }, [initialValue]);
+
   useEffect(() => {
     const handler = setTimeout(() => onSearch(value), debounceTime);
     return () => clearTimeout(handler);

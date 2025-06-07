@@ -14,6 +14,7 @@
  */
 
 import { createClient } from '@supabase/supabase-js';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import type { Database } from './types/database.types';
 
 /**
@@ -33,10 +34,11 @@ export interface SupabaseConfig {
  * @description Environment-based Supabase configuration
  */
 const supabaseConfig: SupabaseConfig = {
-  url: process.env.EXPO_PUBLIC_SUPABASE_URL || 'https://your-project.supabase.co',
-  anonKey: process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY || 'your-anon-key',
+  // Temporär hardcoded für Test - korrigiere für Produktion!
+  url: 'https://ubolrasyvzrurjsafzay.supabase.co',
+  anonKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVib2xyYXN5dnpydXJqc2FmemF5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDg3MDAwMjksImV4cCI6MjA2NDI3NjAyOX0.iVJZtL5R1fQCrTdbPki-wo7vYMFqjeY13fVx4yM8BQY',
   serviceRoleKey: process.env.SUPABASE_SERVICE_ROLE_KEY,
-  projectRef: process.env.EXPO_PUBLIC_SUPABASE_PROJECT_REF,
+  projectRef: 'ubolrasyvzrurjsafzay',
   region: process.env.EXPO_PUBLIC_SUPABASE_REGION || 'us-east-1',
 };
 
@@ -80,19 +82,19 @@ export const supabase = createClient<Database>(
       persistSession: true,
       
       // Detect session in URL for web/expo
-      detectSessionInUrl: true,
+      detectSessionInUrl: false,
       
-      // Flow type for auth
-      flowType: 'pkce',
+      // Flow type for auth - temporär deaktiviert bis Crypto Module fix
+      flowType: 'implicit',
       
       // Storage configuration for React Native
-      storage: undefined, // Will use default AsyncStorage
+      storage: AsyncStorage,
     },
     
     // Global configuration
     global: {
       headers: {
-        'X-Client-Info': 'ReactNativeSkeleton@1.0.0',
+        'X-Client-Info': 'DaphkoAISkeleton@1.0.0',
       },
     },
     
@@ -144,7 +146,7 @@ export const getSupabaseAdmin = () => {
       },
       global: {
         headers: {
-          'X-Client-Info': 'ReactNativeSkeleton-Admin@1.0.0',
+          'X-Client-Info': 'DaphkoAISkeleton-Admin@1.0.0',
         },
       },
     }

@@ -1,6 +1,6 @@
 {
   "name": "react-native-branch",
-  "version": "6.7.0",
+  "version": "6.7.1",
   "summary": "Branch Metrics React Native SDK",
   "requires_arc": true,
   "authors": {
@@ -19,7 +19,7 @@
     "ios/*.h",
     "ios/*.m"
   ],
-  "compiler_flags": "-DRNBRANCH_VERSION=@\\\"6.7.0\\\"",
+  "compiler_flags": "-DRNBRANCH_VERSION=@\\\"6.7.1\\\"",
   "header_dir": "RNBranch",
   "dependencies": {
     "BranchSDK": [

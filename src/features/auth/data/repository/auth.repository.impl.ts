@@ -257,6 +257,22 @@ export class AuthRepositoryImpl implements AuthRepository {
 
       await this.authDataSource.createUserWithEmailAndPassword(email, password);
 
+      // Get the newly created user session
+      const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+      
+      // Profile creation is now handled automatically by database trigger
+      // The trigger creates the profile immediately when a new user is inserted into auth.users
+      if (session?.user && !sessionError) {
+        this.logger.info('User created successfully, profile creation handled by database trigger', LogCategory.SECURITY, {
+          service: 'AuthRepository',
+          metadata: { 
+            email, 
+            userId: session.user.id,
+            profileCreationMethod: 'database_trigger'
+          }
+        });
+      }
+
       // After registration, try to get the current user
       // Note: In Supabase, if email confirmation is required,
       // the user might not be immediately available
@@ -773,7 +789,7 @@ export class AuthRepositoryImpl implements AuthRepository {
         microsoft: {
           clientId:
             process.env.MICROSOFT_CLIENT_ID || 'your-microsoft-client-id',
-          redirectUrl: 'com.fussballfeldapp://oauth/microsoft',
+          redirectUrl: 'com.daphko.skeleton://oauth/microsoft',
           scopes: [OAuthScope.OPENID, OAuthScope.PROFILE, OAuthScope.EMAIL],
         },
       };

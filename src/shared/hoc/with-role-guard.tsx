@@ -312,7 +312,7 @@ const DefaultLoadingComponent: React.FC = () => {
         color: '#666',
         textAlign: 'center',
       }}>
-        {t('auth.rbac.loadingAccess', 'Zugriff wird überprüft...')}
+        {t('auth.rbacScreen.loadingAccess', 'Zugriff wird überprüft...')}
       </Text>
     </View>
   );
@@ -356,7 +356,7 @@ const DefaultAccessDeniedComponent: React.FC<{
         textAlign: 'center',
         marginBottom: 12,
       }}>
-        {t('auth.rbac.accessDeniedTitle', 'Zugriff verweigert')}
+        {t('auth.rbacScreen.accessDeniedTitle', 'Zugriff verweigert')}
       </Text>
       
       {/* Message */}
@@ -367,7 +367,7 @@ const DefaultAccessDeniedComponent: React.FC<{
         lineHeight: 24,
         marginBottom: 32,
       }}>
-        {t('auth.rbac.accessDeniedMessage', 
+        {t('auth.rbacScreen.accessDeniedMessage', 
           'Sie haben nicht die erforderlichen Berechtigungen, um auf diese Seite zuzugreifen. Wenden Sie sich an Ihren Administrator, wenn Sie glauben, dass dies ein Fehler ist.'
         )}
       </Text>
@@ -375,12 +375,12 @@ const DefaultAccessDeniedComponent: React.FC<{
       {/* Action Buttons */}
       <View style={{ width: '100%', gap: 12 }}>
         <PrimaryButton
-          label={t('auth.rbac.retryAccess', 'Erneut versuchen')}
+          label={t('auth.rbacScreen.retryAccess', 'Erneut versuchen')}
           onPress={onRetry}
         />
         
         <PrimaryButton
-          label={t('auth.rbac.goBack', 'Zurück')}
+          label={t('auth.rbacScreen.goBack', 'Zurück')}
           onPress={onGoBack}
         />
       </View>
@@ -392,7 +392,7 @@ const DefaultAccessDeniedComponent: React.FC<{
         textAlign: 'center',
         marginTop: 24,
       }}>
-        {t('auth.rbac.helpText', 'Benötigen Sie Hilfe? Kontaktieren Sie den Support.')}
+        {t('auth.rbacScreen.helpText', 'Benötigen Sie Hilfe? Kontaktieren Sie den Support.')}
       </Text>
     </View>
   );

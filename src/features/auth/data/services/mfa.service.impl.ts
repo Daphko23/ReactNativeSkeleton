@@ -272,7 +272,7 @@ export class MFAServiceImpl implements IMFAService {
       const secret = this.generateTOTPSecret();
       
       // Generate QR code URL for authenticator apps
-      const qrCode = this.generateQRCodeURL(userId, 'ReactNativeSkeleton', secret);
+      const qrCode = this.generateQRCodeURL(userId, 'Daphko AI Skeleton', secret);
       
       // Generate backup codes for account recovery
       const backupCodes = await this.generateBackupCodes(userId);

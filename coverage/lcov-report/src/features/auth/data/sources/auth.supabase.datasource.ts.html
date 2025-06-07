@@ -23,30 +23,30 @@
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">45.16% </span>
+                <span class="strong">0% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>14/31</span>
+                <span class='fraction'>0/31</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">45.71% </span>
+                <span class="strong">0% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>16/35</span>
+                <span class='fraction'>0/35</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">33.33% </span>
+                <span class="strong">0% </span>
                 <span class="quiet">Functions</span>
-                <span class='fraction'>3/9</span>
+                <span class='fraction'>0/9</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">45.16% </span>
+                <span class="strong">0% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>14/31</span>
+                <span class='fraction'>0/31</span>
             </div>
         
             
@@ -456,13 +456,13 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">3x</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">3x</span>
-<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -492,14 +492,14 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -520,14 +520,14 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">2x</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -552,10 +552,10 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">2x</span>
-<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -761,17 +761,17 @@ export class AuthSupabaseDatasource implements AuthDatasource {
    * }
    * ```
    */
-  async signInWithEmailAndPassword(
+<span class="fstat-no" title="function not covered" >  as</span>ync signInWithEmailAndPassword(
     email: string,
     password: string
   ): Promise&lt;void&gt; {
-    const {error} = await supabase.auth.signInWithPassword({
+    const {error} = <span class="cstat-no" title="statement not covered" >await supabase.auth.signInWithPassword({</span>
       email,
       password,
     });
 &nbsp;
-    if (error) {
-      throw SupabaseAuthErrorMapper.map(error);
+<span class="cstat-no" title="statement not covered" >    if (error) {</span>
+<span class="cstat-no" title="statement not covered" >      throw SupabaseAuthErrorMapper.map(error);</span>
     }
   }
 &nbsp;
@@ -797,18 +797,18 @@ export class AuthSupabaseDatasource implements AuthDatasource {
    * }
    * ```
    */
-  async createUserWithEmailAndPassword(
+<span class="fstat-no" title="function not covered" >  as</span>ync createUserWithEmailAndPassword(
     email: string,
     password: string
   ): Promise&lt;void&gt; {
-    console.log('[AuthSupabaseDatasource] Attempting to register user:', email);
+<span class="cstat-no" title="statement not covered" >    console.log('[AuthSupabaseDatasource] Attempting to register user:', email);</span>
 &nbsp;
-    const {data, error} = await supabase.auth.signUp({
+    const {data, error} = <span class="cstat-no" title="statement not covered" >await supabase.auth.signUp({</span>
       email,
       password,
     });
 &nbsp;
-    console.log('[AuthSupabaseDatasource] Registration response:', {
+<span class="cstat-no" title="statement not covered" >    console.log('[AuthSupabaseDatasource] Registration response:', {</span>
       data: data
         ? {
             user: data.user
@@ -817,8 +817,8 @@ export class AuthSupabaseDatasource implements AuthDatasource {
                   email: data.user.email,
                   email_confirmed_at: data.user.email_confirmed_at,
                 }
-              : <span class="branch-1 cbranch-no" title="branch not covered" >null,</span>
-            session: data.session ? <span class="branch-0 cbranch-no" title="branch not covered" >'session exists' </span>: 'no session',
+              : null,
+            session: data.session ? 'session exists' : 'no session',
           }
         : null,
       error: error
@@ -829,14 +829,14 @@ export class AuthSupabaseDatasource implements AuthDatasource {
         : null,
     });
 &nbsp;
-    if (error) {
-      console.error('[AuthSupabaseDatasource] Registration failed:', error);
-      throw SupabaseAuthErrorMapper.map(error);
+<span class="cstat-no" title="statement not covered" >    if (error) {</span>
+<span class="cstat-no" title="statement not covered" >      console.error('[AuthSupabaseDatasource] Registration failed:', error);</span>
+<span class="cstat-no" title="statement not covered" >      throw SupabaseAuthErrorMapper.map(error);</span>
     }
 &nbsp;
     // Check if email confirmation is required
-    <span class="missing-if-branch" title="else path not taken" >E</span>if (data.user &amp;&amp; !data.user.email_confirmed_at &amp;&amp; !data.session) {
-      console.log(
+<span class="cstat-no" title="statement not covered" >    if (data.user &amp;&amp; !data.user.email_confirmed_at &amp;&amp; !data.session) {</span>
+<span class="cstat-no" title="statement not covered" >      console.log(</span>
         '[AuthSupabaseDatasource] Email confirmation required for:',
         email
       );
@@ -860,11 +860,11 @@ export class AuthSupabaseDatasource implements AuthDatasource {
    * }
    * ```
    */
-  async signOut(): Promise&lt;void&gt; {
-    const {error} = await supabase.auth.signOut();
+<span class="fstat-no" title="function not covered" >  as</span>ync signOut(): Promise&lt;void&gt; {
+    const {error} = <span class="cstat-no" title="statement not covered" >await supabase.auth.signOut();</span>
 &nbsp;
-    if (error) {
-      throw SupabaseAuthErrorMapper.map(error);
+<span class="cstat-no" title="statement not covered" >    if (error) {</span>
+<span class="cstat-no" title="statement not covered" >      throw SupabaseAuthErrorMapper.map(error);</span>
     }
   }
 &nbsp;
@@ -997,7 +997,7 @@ export class AuthSupabaseDatasource implements AuthDatasource {
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2025-05-30T19:50:06.682Z
+                at 2025-06-01T18:02:20.399Z
             </div>
         <script src="../../../../../prettify.js"></script>
         <script>

@@ -1,0 +1,233 @@
+/**
+ * useProfile Hook Tests
+ * Testing the core profile management functionality
+ */
+
+import { renderHook, act, waitFor } from '@testing-library/react-native';
+import { useProfile } from '../use-profile.hook';
+
+// Mock the profile container
+const mockProfileService = {
+  getProfile: jest.fn(),
+  updateProfile: jest.fn(),
+  syncProfile: jest.fn(),
+  uploadAvatar: jest.fn(),
+  deleteAvatar: jest.fn(),
+  updatePrivacySettings: jest.fn(),
+  calculateCompleteness: jest.fn(),
+};
+
+jest.mock('../../../application/di/profile.container', () => ({
+  profileContainer: {
+    profileService: mockProfileService,
+  },
+}));
+
+// Mock auth hook
+jest.mock('@features/auth/presentation/hooks', () => ({
+  useAuth: jest.fn(() => ({
+    user: {
+      id: 'test-user-id',
+      email: 'test@example.com',
+    },
+  })),
+}));
+
+// Mock error handler - simplified version that works with the hook
+jest.mock('@shared/hooks/use-error-handler', () => ({
+  useErrorHandler: jest.fn(() => ({
+    showError: jest.fn(),
+    handleAsyncError: jest.fn().mockImplementation(async (asyncFn) => {
+      try {
+        return await asyncFn();
+      } catch (error) {
+        return null;
+      }
+    }),
+  })),
+}));
+
+// Mock loading state - simplified version
+jest.mock('@shared/hooks/use-loading-state', () => ({
+  useLoadingState: jest.fn(() => ({
+    isLoading: jest.fn().mockReturnValue(false),
+    withLoading: jest.fn().mockImplementation(async (key, asyncFn) => {
+      return await asyncFn();
+    }),
+  })),
+}));
+
+describe('useProfile Hook', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('should load profile on mount', async () => {
+    const mockProfile = {
+      userId: 'test-user-id',
+      firstName: 'Test',
+      lastName: 'User',
+      email: 'test@example.com',
+    };
+
+    mockProfileService.getProfile.mockResolvedValue(mockProfile);
+
+    const { result } = renderHook(() => useProfile());
+
+    await waitFor(() => {
+      expect(result.current.profile).toEqual(mockProfile);
+    }, { timeout: 3000 });
+
+    expect(mockProfileService.getProfile).toHaveBeenCalledWith('test-user-id');
+  });
+
+  it('should update profile successfully', async () => {
+    const initialProfile = {
+      userId: 'test-user-id',
+      firstName: 'Test',
+      lastName: 'User',
+    };
+
+    const updatedProfile = {
+      userId: 'test-user-id',
+      firstName: 'Updated',
+      lastName: 'User',
+    };
+
+    // Setup initial profile load
+    mockProfileService.getProfile.mockResolvedValue(initialProfile);
+    mockProfileService.updateProfile.mockResolvedValue(updatedProfile);
+
+    const { result } = renderHook(() => useProfile());
+
+    // Wait for initial load
+    await waitFor(() => {
+      expect(result.current.profile).toEqual(initialProfile);
+    });
+
+    // Test update
+    await act(async () => {
+      const success = await result.current.updateProfile({ firstName: 'Updated' });
+      expect(success).toBe(true);
+    });
+
+    expect(mockProfileService.updateProfile).toHaveBeenCalledWith('test-user-id', { firstName: 'Updated' });
+  });
+
+  it('should handle profile update error', async () => {
+    const initialProfile = {
+      userId: 'test-user-id',
+      firstName: 'Test',
+      lastName: 'User',
+    };
+
+    // Setup initial profile load
+    mockProfileService.getProfile.mockResolvedValue(initialProfile);
+    
+    // Mock update to fail
+    mockProfileService.updateProfile.mockRejectedValue(new Error('Update failed'));
+
+    const { result } = renderHook(() => useProfile());
+
+    // Wait for initial load
+    await waitFor(() => {
+      expect(result.current.profile).toEqual(initialProfile);
+    });
+
+    // Test failed update
+    await act(async () => {
+      const success = await result.current.updateProfile({ firstName: 'Test' });
+      expect(success).toBe(false);
+    });
+  });
+
+  it('should calculate completeness correctly', async () => {
+    const mockProfile = {
+      userId: 'test-user-id',
+      firstName: 'Test',
+      lastName: 'User',
+    };
+    
+    // Setup profile load
+    mockProfileService.getProfile.mockResolvedValue(mockProfile);
+    mockProfileService.calculateCompleteness.mockReturnValue(80);
+
+    const { result } = renderHook(() => useProfile());
+
+    // Wait for profile to load
+    await waitFor(() => {
+      expect(result.current.profile).toEqual(mockProfile);
+    });
+
+    // Test calculateCompleteness
+    act(() => {
+      const completeness = result.current.calculateCompleteness();
+      expect(completeness).toBe(80);
+    });
+
+    expect(mockProfileService.calculateCompleteness).toHaveBeenCalledWith(mockProfile);
+  });
+
+  it('should upload avatar successfully', async () => {
+    const initialProfile = { userId: 'test-user-id', firstName: 'Test' };
+    const updatedProfile = { userId: 'test-user-id', firstName: 'Test', avatarUrl: 'new-url' };
+    
+    // Setup mocks
+    mockProfileService.getProfile.mockResolvedValue(initialProfile);
+    mockProfileService.uploadAvatar.mockResolvedValue('new-avatar-url');
+    mockProfileService.syncProfile.mockResolvedValue(updatedProfile);
+
+    const { result } = renderHook(() => useProfile());
+
+    // Wait for initial load
+    await waitFor(() => {
+      expect(result.current.profile).toEqual(initialProfile);
+    });
+
+    // Test avatar upload
+    await act(async () => {
+      const success = await result.current.uploadAvatar('test-image-uri');
+      expect(success).toBe(true);
+    });
+
+    expect(mockProfileService.uploadAvatar).toHaveBeenCalledWith('test-user-id', 'test-image-uri');
+    expect(mockProfileService.syncProfile).toHaveBeenCalledWith('test-user-id');
+  });
+
+  it('should refresh profile', async () => {
+    const initialProfile = {
+      userId: 'test-user-id',
+      firstName: 'Test',
+      lastName: 'User',
+    };
+
+    const refreshedProfile = {
+      userId: 'test-user-id',
+      firstName: 'Refreshed',
+      lastName: 'User',
+    };
+
+    // Setup mocks
+    mockProfileService.getProfile.mockResolvedValue(initialProfile);
+    mockProfileService.syncProfile.mockResolvedValue(refreshedProfile);
+
+    const { result } = renderHook(() => useProfile());
+
+    // Wait for initial load
+    await waitFor(() => {
+      expect(result.current.profile).toEqual(initialProfile);
+    });
+
+    // Test refresh
+    await act(async () => {
+      await result.current.refreshProfile();
+    });
+
+    expect(mockProfileService.syncProfile).toHaveBeenCalledWith('test-user-id');
+    
+    // Check that profile was updated
+    await waitFor(() => {
+      expect(result.current.profile).toEqual(refreshedProfile);
+    });
+  });
+}); 

@@ -23,30 +23,30 @@
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">100% </span>
+                <span class="strong">0% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>14/14</span>
+                <span class='fraction'>0/14</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">100% </span>
+                <span class="strong">0% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>8/8</span>
+                <span class='fraction'>0/8</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">100% </span>
+                <span class="strong">0% </span>
                 <span class="quiet">Functions</span>
-                <span class='fraction'>2/2</span>
+                <span class='fraction'>0/2</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">100% </span>
+                <span class="strong">0% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>14/14</span>
+                <span class='fraction'>0/14</span>
             </div>
         
             
@@ -61,7 +61,7 @@
             </div>
         </template>
     </div>
-    <div class='status-line high'></div>
+    <div class='status-line low'></div>
     <pre><table class="coverage">
 <tr><td class="line-count quiet"><a name='L1'></a><a href='#L1'>1</a>
 <a name='L2'></a><a href='#L2'>2</a>
@@ -448,8 +448,8 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">2x</span>
-<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -609,25 +609,25 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">38x</span>
-<span class="cline-any cline-yes">38x</span>
-<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">36x</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">36x</span>
-<span class="cline-any cline-yes">35x</span>
-<span class="cline-any cline-yes">3x</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">32x</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">23x</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -642,13 +642,13 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">23x</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">13x</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -663,7 +663,7 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">13x</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -749,9 +749,9 @@ export class EnableBiometricUseCase {
    * 
    * @since 1.0.0
    */
-  constructor(private readonly authRepository: AuthRepository) {
-    if (!authRepository) {
-      throw new Error('AuthRepository is required for EnableBiometricUseCase');
+<span class="fstat-no" title="function not covered" >  co</span>nstructor(private readonly authRepository: AuthRepository) {
+<span class="cstat-no" title="statement not covered" >    if (!authRepository) {</span>
+<span class="cstat-no" title="statement not covered" >      throw new Error('AuthRepository is required for EnableBiometricUseCase');</span>
     }
   }
 &nbsp;
@@ -909,27 +909,27 @@ export class EnableBiometricUseCase {
    * @todo Add support for multiple biometric factors on same device
    * @todo Implement biometric quality assessment and guidance
    */
-  async execute(): Promise&lt;EnableBiometricResponse&gt; {
+<span class="fstat-no" title="function not covered" >  as</span>ync execute(): Promise&lt;EnableBiometricResponse&gt; {
     // Verify user is authenticated
-    const currentUser = await this.authRepository.getCurrentUser();
-    if (!currentUser) {
-      throw new UserNotAuthenticatedError();
+    const currentUser = <span class="cstat-no" title="statement not covered" >await this.authRepository.getCurrentUser();</span>
+<span class="cstat-no" title="statement not covered" >    if (!currentUser) {</span>
+<span class="cstat-no" title="statement not covered" >      throw new UserNotAuthenticatedError();</span>
     }
 &nbsp;
-    try {
+<span class="cstat-no" title="statement not covered" >    try {</span>
       // Check if biometric is available
-      const isAvailable = await this.authRepository.isBiometricAvailable();
-      if (!isAvailable) {
-        throw new BiometricNotAvailableError(
+      const isAvailable = <span class="cstat-no" title="statement not covered" >await this.authRepository.isBiometricAvailable();</span>
+<span class="cstat-no" title="statement not covered" >      if (!isAvailable) {</span>
+<span class="cstat-no" title="statement not covered" >        throw new BiometricNotAvailableError(</span>
           'Biometric authentication is not available on this device'
         );
       }
 &nbsp;
       // Enable biometric authentication
-      await this.authRepository.enableBiometric();
+<span class="cstat-no" title="statement not covered" >      await this.authRepository.enableBiometric();</span>
 &nbsp;
       // Log security event
-      await this.authRepository.logSecurityEvent({
+<span class="cstat-no" title="statement not covered" >      await this.authRepository.logSecurityEvent({</span>
         id: `biometric-enabled-${Date.now()}`,
         type: SecurityEventType.MFA_ENABLED,
         userId: currentUser.id,
@@ -944,13 +944,13 @@ export class EnableBiometricUseCase {
         userAgent: 'React Native App',
       });
 &nbsp;
-      return {
+<span class="cstat-no" title="statement not covered" >      return {</span>
         success: true,
         message: 'Biometric authentication enabled successfully',
       };
     } catch (error) {
       // Log failed attempt
-      await this.authRepository.logSecurityEvent({
+<span class="cstat-no" title="statement not covered" >      await this.authRepository.logSecurityEvent({</span>
         id: `biometric-enable-failed-${Date.now()}`,
         type: SecurityEventType.SUSPICIOUS_ACTIVITY,
         userId: currentUser.id,
@@ -965,7 +965,7 @@ export class EnableBiometricUseCase {
         userAgent: 'React Native App',
       });
 &nbsp;
-      throw error;
+<span class="cstat-no" title="statement not covered" >      throw error;</span>
     }
   }
 }
@@ -976,7 +976,7 @@ export class EnableBiometricUseCase {
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2025-05-30T19:50:06.682Z
+                at 2025-06-01T18:02:20.399Z
             </div>
         <script src="../../../../../prettify.js"></script>
         <script>

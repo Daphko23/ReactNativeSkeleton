@@ -25,7 +25,7 @@
             <div class='fl pad1y space-right2'>
                 <span class="strong">0% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>0/73</span>
+                <span class='fraction'>0/75</span>
             </div>
         
             
@@ -46,7 +46,7 @@
             <div class='fl pad1y space-right2'>
                 <span class="strong">0% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>0/68</span>
+                <span class='fraction'>0/70</span>
             </div>
         
             
@@ -448,7 +448,12 @@
 <a name='L383'></a><a href='#L383'>383</a>
 <a name='L384'></a><a href='#L384'>384</a>
 <a name='L385'></a><a href='#L385'>385</a>
-<a name='L386'></a><a href='#L386'>386</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L386'></a><a href='#L386'>386</a>
+<a name='L387'></a><a href='#L387'>387</a>
+<a name='L388'></a><a href='#L388'>388</a>
+<a name='L389'></a><a href='#L389'>389</a>
+<a name='L390'></a><a href='#L390'>390</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -525,6 +530,9 @@
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -871,10 +879,11 @@ import { AuthStackParamList } from '@core/navigation/navigation.types';
 import { PrimaryButton } from '@shared/components/buttons/primary-button.component';
 import { FormTextInput } from '@shared/components/form-text-input/form-text-input.component';
 import { FormErrorText } from '@shared/components/form-text-input/form-text-error.component';
-import { loginScreenStyles } from './login.screen.styles';
+import { createLoginScreenStyles } from './login.screen.styles';
 import { useAuth } from '@features/auth/presentation/hooks/use-auth';
 import { useTranslation } from 'react-i18next';
 import { withGuestGuard } from '@shared/hoc/with-guest.guard';
+import { useTheme } from '@core/theme/theme.system';
 &nbsp;
 /**
  * @interface LoginFormData
@@ -911,6 +920,9 @@ const LoginScreen = <span class="cstat-no" title="statement not covered" ><span 
   const { login, isLoading, error, clearError, enterprise } = <span class="cstat-no" title="statement not covered" >useAuth();</span>
   const { t } = <span class="cstat-no" title="statement not covered" >useTranslation();</span>
   const navigation = <span class="cstat-no" title="statement not covered" >useNavigation&lt;NativeStackNavigationProp&lt;AuthStackParamList&gt;&gt;();</span>
+  const { theme } = <span class="cstat-no" title="statement not covered" >useTheme();</span>
+&nbsp;
+  const styles = <span class="cstat-no" title="statement not covered" >createLoginScreenStyles(theme);</span>
 &nbsp;
   // Form State
   const [formData, setFormData] = <span class="cstat-no" title="statement not covered" >useState&lt;LoginFormData&gt;({</span>
@@ -1076,23 +1088,23 @@ const LoginScreen = <span class="cstat-no" title="statement not covered" ><span 
 &nbsp;
 <span class="cstat-no" title="statement not covered" >  return (</span>
     &lt;KeyboardAvoidingView
-      style={loginScreenStyles.container}
+      style={styles.container}
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
       keyboardVerticalOffset={Platform.OS === 'ios' ? 64 : 0}
     &gt;
       &lt;ScrollView
-        contentContainerStyle={loginScreenStyles.scrollContainer}
+        contentContainerStyle={styles.scrollContainer}
         showsVerticalScrollIndicator={false}
         keyboardShouldPersistTaps="handled"
       &gt;
         {/* Header */}
-        &lt;View style={loginScreenStyles.header}&gt;
-          &lt;Text style={loginScreenStyles.title}&gt;{t('auth.login.title')}&lt;/Text&gt;
-          &lt;Text style={loginScreenStyles.subtitle}&gt;{t('auth.login.subtitle')}&lt;/Text&gt;
+        &lt;View style={styles.header}&gt;
+          &lt;Text style={styles.title}&gt;{t('auth.login.title')}&lt;/Text&gt;
+          &lt;Text style={styles.subtitle}&gt;{t('auth.login.subtitle')}&lt;/Text&gt;
         &lt;/View&gt;
 &nbsp;
         {/* Email/Password Form */}
-        &lt;View style={loginScreenStyles.formContainer}&gt;
+        &lt;View style={styles.formContainer}&gt;
           &lt;FormTextInput
             label={t('auth.login.emailLabel')}
             value={formData.email}
@@ -1101,7 +1113,7 @@ const LoginScreen = <span class="cstat-no" title="statement not covered" ><span 
             error={!!validationErrors.email || !!error}
           /&gt;
           {validationErrors.email &amp;&amp; (
-            &lt;Text style={loginScreenStyles.validationError}&gt;
+            &lt;Text style={styles.validationError}&gt;
               {validationErrors.email}
             &lt;/Text&gt;
           )}
@@ -1114,7 +1126,7 @@ const LoginScreen = <span class="cstat-no" title="statement not covered" ><span 
             error={!!validationErrors.password || !!error}
           /&gt;
           {validationErrors.password &amp;&amp; (
-            &lt;Text style={loginScreenStyles.validationError}&gt;
+            &lt;Text style={styles.validationError}&gt;
               {validationErrors.password}
             &lt;/Text&gt;
           )}
@@ -1131,12 +1143,12 @@ const LoginScreen = <span class="cstat-no" title="statement not covered" ><span 
 &nbsp;
         {/* Biometric Authentication */}
         {isBiometricAvailable &amp;&amp; (
-          &lt;View style={loginScreenStyles.biometricContainer}&gt;
-            &lt;Divider style={loginScreenStyles.divider} /&gt;
-            &lt;Text style={loginScreenStyles.orText}&gt;{t('auth.login.orText')}&lt;/Text&gt;
+          &lt;View style={styles.biometricContainer}&gt;
+            &lt;Divider style={styles.divider} /&gt;
+            &lt;Text style={styles.orText}&gt;{t('auth.login.orText')}&lt;/Text&gt;
             
             &lt;TouchableOpacity
-              style={loginScreenStyles.biometricButton}
+              style={styles.biometricButton}
               onPress={handleBiometricLogin}
               disabled={isBiometricLoading}
             &gt;
@@ -1144,8 +1156,8 @@ const LoginScreen = <span class="cstat-no" title="statement not covered" ><span 
                 &lt;ActivityIndicator size="small" color="#fff" /&gt;
               ) : (
                 &lt;&gt;
-                  &lt;Text style={loginScreenStyles.biometricIcon}&gt;👆&lt;/Text&gt;
-                  &lt;Text style={loginScreenStyles.biometricText}&gt;
+                  &lt;Text style={styles.biometricIcon}&gt;👆&lt;/Text&gt;
+                  &lt;Text style={styles.biometricText}&gt;
                     {t('auth.login.biometricButton')}
                   &lt;/Text&gt;
                 &lt;/&gt;
@@ -1155,13 +1167,13 @@ const LoginScreen = <span class="cstat-no" title="statement not covered" ><span 
         )}
 &nbsp;
         {/* OAuth Social Login */}
-        &lt;View style={loginScreenStyles.oauthContainer}&gt;
-          &lt;Divider style={loginScreenStyles.divider} /&gt;
-          &lt;Text style={loginScreenStyles.socialText}&gt;{t('auth.login.socialText')}&lt;/Text&gt;
+        &lt;View style={styles.oauthContainer}&gt;
+          &lt;Divider style={styles.divider} /&gt;
+          &lt;Text style={styles.socialText}&gt;{t('auth.login.socialText')}&lt;/Text&gt;
           
-          &lt;View style={loginScreenStyles.socialButtonsContainer}&gt;
+          &lt;View style={styles.socialButtonsContainer}&gt;
             &lt;TouchableOpacity
-              style={[loginScreenStyles.socialButton, loginScreenStyles.googleButton]}
+              style={[styles.socialButton, styles.googleButton]}
               onPress={handleGoogleLogin}
               disabled={isOAuthLoading.google}
             &gt;
@@ -1169,14 +1181,14 @@ const LoginScreen = <span class="cstat-no" title="statement not covered" ><span 
                 &lt;ActivityIndicator size="small" color="#4285f4" /&gt;
               ) : (
                 &lt;&gt;
-                  &lt;Text style={loginScreenStyles.socialIcon}&gt;🔍&lt;/Text&gt;
-                  &lt;Text style={loginScreenStyles.socialButtonText}&gt;Google&lt;/Text&gt;
+                  &lt;Text style={styles.socialIcon}&gt;🔍&lt;/Text&gt;
+                  &lt;Text style={styles.socialButtonText}&gt;Google&lt;/Text&gt;
                 &lt;/&gt;
               )}
             &lt;/TouchableOpacity&gt;
 &nbsp;
             &lt;TouchableOpacity
-              style={[loginScreenStyles.socialButton, loginScreenStyles.appleButton]}
+              style={[styles.socialButton, styles.appleButton]}
               onPress={handleAppleLogin}
               disabled={isOAuthLoading.apple}
             &gt;
@@ -1184,8 +1196,8 @@ const LoginScreen = <span class="cstat-no" title="statement not covered" ><span 
                 &lt;ActivityIndicator size="small" color="#000" /&gt;
               ) : (
                 &lt;&gt;
-                  &lt;Text style={loginScreenStyles.socialIcon}&gt;🍎&lt;/Text&gt;
-                  &lt;Text style={loginScreenStyles.socialButtonText}&gt;Apple&lt;/Text&gt;
+                  &lt;Text style={styles.socialIcon}&gt;🍎&lt;/Text&gt;
+                  &lt;Text style={styles.socialButtonText}&gt;Apple&lt;/Text&gt;
                 &lt;/&gt;
               )}
             &lt;/TouchableOpacity&gt;
@@ -1193,21 +1205,21 @@ const LoginScreen = <span class="cstat-no" title="statement not covered" ><span 
         &lt;/View&gt;
 &nbsp;
         {/* Navigation Links */}
-        &lt;View style={loginScreenStyles.navigationContainer}&gt;
+        &lt;View style={styles.navigationContainer}&gt;
           &lt;TouchableOpacity
             onPress={<span class="fstat-no" title="function not covered" >()</span> =&gt; <span class="cstat-no" title="statement not covered" >navigation.navigate('Register')}</span>
-            style={loginScreenStyles.linkContainer}
+            style={styles.linkContainer}
           &gt;
-            &lt;Text style={loginScreenStyles.linkText}&gt;
+            &lt;Text style={styles.linkText}&gt;
               {t('auth.navigation.noAccount')}
             &lt;/Text&gt;
           &lt;/TouchableOpacity&gt;
 &nbsp;
           &lt;TouchableOpacity
             onPress={handleForgotPassword}
-            style={loginScreenStyles.linkContainer}
+            style={styles.linkContainer}
           &gt;
-            &lt;Text style={loginScreenStyles.linkText}&gt;
+            &lt;Text style={styles.linkText}&gt;
               {t('auth.navigation.forgotPassword')}
             &lt;/Text&gt;
           &lt;/TouchableOpacity&gt;
@@ -1225,7 +1237,7 @@ export default withGuestGuard(LoginScreen);
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2025-05-30T19:50:06.682Z
+                at 2025-06-01T18:02:20.399Z
             </div>
         <script src="../../../../../../prettify.js"></script>
         <script>

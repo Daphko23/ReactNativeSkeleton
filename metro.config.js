@@ -1,154 +1,72 @@
-const { getDefaultConfig, mergeConfig } = require('@react-native/metro-config');
+const { getDefaultConfig } = require('@react-native/metro-config');
 const path = require('path');
 
 /**
- * Enterprise Metro Configuration
- * Optimiert für Bundle Size, Performance und Development Experience
+ * Metro configuration für Supabase React Native App
+ * https://facebook.github.io/metro/docs/configuration
+ *
+ * @type {import('metro-config').MetroConfig}
  */
+const config = getDefaultConfig(__dirname);
 
-const defaultConfig = getDefaultConfig(__dirname);
+// SVG Support
+config.resolver.assetExts.push('svg');
 
-/**
- * Bundle Size Optimizations
- */
-const optimizations = {
-  resolver: {
-    // Asset Optimierungen
-    assetExts: [
-      ...defaultConfig.resolver.assetExts.filter(ext => ext !== 'svg'),
-      'webp' // Moderne, komprimierte Formate (SVG via Transformer)
-    ],
-    // Source Map Extensions  
-    sourceExts: [
-      ...defaultConfig.resolver.sourceExts,
-      'jsx', 'js', 'ts', 'tsx', 'json', 'svg'
-    ],
-    // Module Resolution für Tree Shaking
-    alias: {
-      '@': path.resolve(__dirname, 'src'),
-      '@features': path.resolve(__dirname, 'src/features'),
-      '@shared': path.resolve(__dirname, 'src/shared'),
-      '@assets': path.resolve(__dirname, 'src/assets')
-    },
-    // Node.js Polyfills für React Native
-    extraNodeModules: {
-      stream: 'stream-browserify',
-      events: 'events',
-      util: 'util',
-      crypto: 'crypto-browserify',
-      url: 'url',
-      buffer: 'buffer',
-      process: 'process',
-      zlib: 'browserify-zlib',
-      assert: 'assert',
-      // Mock Module für Node.js spezifische Module (falls node_modules_mock existiert)
-      ...(require('fs').existsSync(path.resolve(__dirname, 'node_modules_mock')) && {
-        http: path.resolve(__dirname, 'node_modules_mock/http.js'),
-        https: path.resolve(__dirname, 'node_modules_mock/https.js'),
-        net: path.resolve(__dirname, 'node_modules_mock/net.js'),
-        tls: path.resolve(__dirname, 'node_modules_mock/tls.js'),
-        fs: path.resolve(__dirname, 'node_modules_mock/fs.js'),
-        path: path.resolve(__dirname, 'node_modules_mock/path.js'),
-        os: path.resolve(__dirname, 'node_modules_mock/os.js'),
-      })
-    }
-  },
-  
-  transformer: {
-    // SVG Transformation für kleinere Bundle Size
-    babelTransformerPath: require.resolve('react-native-svg-transformer'),
-    getTransformOptions: async () => ({
-      transform: {
-        experimentalImportSupport: false,
-        inlineRequires: true, // Bundle Size Optimization
-      },
-    }),
-    // Asset Size Limits
-    publicPath: '/assets/',
-    assetRegistryPath: 'react-native/Libraries/Image/AssetRegistry',
-  },
-
-  serializer: {
-    // Bundle Splitting für große Apps
-    createModuleIdFactory: function() {
-      const fileToIdMap = new Map();
-      let nextId = 0;
-      return (path) => {
-        if (!fileToIdMap.has(path)) {
-          fileToIdMap.set(path, nextId++);
-        }
-        return fileToIdMap.get(path);
-      };
-    },
-    // Production optimizations
-    ...(process.env.NODE_ENV === 'production' && {
-      processModuleFilter: (modules) => {
-        // Entferne Development-only Module
-        return modules.filter(module => 
-          !module.path.includes('__DEV__') &&
-          !module.path.includes('__tests__') &&
-          !module.path.includes('.test.') &&
-          !module.path.includes('.spec.')
-        );
-      }
-    })
-  },
-
-  // Cache Optimierungen
-  cacheStores: [
-    {
-      name: 'filesystem',
-      path: path.join(__dirname, '.metro-cache')
-    }
-  ]
+// Polyfills für Supabase und Node.js Module
+config.resolver.alias = {
+  ...config.resolver.alias,
+  stream: 'stream-browserify',
+  events: 'events',
+  util: 'util',
+  crypto: 'crypto-browserify', 
+  url: 'url',
+  buffer: 'buffer',
+  process: 'process/browser',
+  zlib: 'browserify-zlib',
+  assert: 'assert',
+  http: 'stream-http',
+  https: 'https-browserify',
+  os: 'os-browserify/browser',
+  path: 'path-browserify',
+  vm: 'vm-browserify',
+  querystring: 'querystring-es3',
 };
 
-/**
- * Development vs Production Configurations
- */
-const config = process.env.NODE_ENV === 'production' 
-  ? {
-      // Production: Maximale Optimierung
-      ...optimizations,
-      minifierConfig: {
-        // Terser optimizations für kleinere Bundles
-        mangle: {
-          keep_fnames: true,
-        },
-        compress: {
-          drop_console: true, // Console.log entfernen
-          drop_debugger: true,
-          dead_code: true,
-          unused: true
-        },
-        output: {
-          comments: false,
-        }
-      }
-    }
-  : {
-      // Development: Fast Reload
-      ...optimizations,
-      server: {
-        port: 8081,
-        // Development Server Optimierungen
-        enhanceMiddleware: (middleware) => {
-          return (req, res, next) => {
-            // Bundle Size Monitoring
-            if (req.url.includes('.bundle')) {
-              const startTime = Date.now();
-              const originalSend = res.send;
-              res.send = function(data) {
-                const bundleSize = Buffer.byteLength(data, 'utf8');
-                const loadTime = Date.now() - startTime;
-                console.log(`📦 Bundle Size: ${(bundleSize / 1024 / 1024).toFixed(2)}MB | Load Time: ${loadTime}ms`);
-                originalSend.call(this, data);
-              };
-            }
-            next();
-          };
-        }
-      }
-    };
+// Extra Node Modules Resolution für Supabase
+config.resolver.extraNodeModules = {
+  stream: require.resolve('stream-browserify'),
+  events: require.resolve('events'),
+  util: require.resolve('util'), 
+  crypto: require.resolve('crypto-browserify'),
+  url: require.resolve('url'),
+  buffer: require.resolve('buffer'),
+  process: require.resolve('process/browser'),
+  zlib: require.resolve('browserify-zlib'),
+  assert: require.resolve('assert'),
+  http: require.resolve('stream-http'),
+  https: require.resolve('https-browserify'),
+  os: require.resolve('os-browserify/browser'),
+  path: require.resolve('path-browserify'),
+  // Leere Module für Node.js-spezifische APIs
+  fs: require.resolve('empty-module'),
+  net: require.resolve('empty-module'),
+  tls: require.resolve('empty-module'),
+  child_process: require.resolve('empty-module'),
+  dns: require.resolve('empty-module'),
+  cluster: require.resolve('empty-module'),
+  readline: require.resolve('empty-module'),
+  repl: require.resolve('empty-module'),
+  vm: require.resolve('vm-browserify'),
+  querystring: require.resolve('querystring-es3'),
+};
 
-module.exports = mergeConfig(defaultConfig, config); 
+// Resolver Platform Priorität
+config.resolver.platforms = ['ios', 'android', 'native', 'web'];
+
+// Source Extensions 
+config.resolver.sourceExts = [
+  ...config.resolver.sourceExts,
+  'jsx', 'js', 'ts', 'tsx', 'json', 'svg'
+];
+
+module.exports = config; 

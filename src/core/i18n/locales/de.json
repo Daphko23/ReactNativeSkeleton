@@ -1,179 +1,106 @@
 {
-  "common": {
-    "cancel": "Abbrechen",
-    "delete": "Löschen",
-    "alert": {
-      "titles": {
-        "error": "Fehler",
-        "success": "Erfolg",
-        "warning": "Warnung",
-        "info": "Information",
-        "notAvailable": "Nicht verfügbar",
-        "enabled": "Aktiviert",
-        "disabled": "Deaktiviert",
-        "failed": "Fehlgeschlagen",
-        "notEnabled": "Nicht aktiviert",
-        "confirmation": "Bestätigung"
-      }
-    }
-  },
-  "error": {
-    "auth": {
-      "invalidCredentials": "Ungültige Anmeldedaten. Bitte versuchen Sie es erneut.",
-      "userNotFound": "Benutzer wurde nicht gefunden. Bitte überprüfen Sie Ihre Angaben.",
-      "emailAlreadyInUse": "Diese E-Mail-Adresse ist bereits registriert.",
-      "weakPassword": "Ihr Passwort ist zu schwach. Bitte wählen Sie ein stärkeres.",
-      "generic": "Ein unbekannter Fehler bei der Anmeldung ist aufgetreten.",
-      "biometric": {
-        "notAvailable": "Biometrische Authentifizierung ist auf diesem Gerät nicht verfügbar oder nicht eingerichtet.",
-        "failed": "Biometrische Authentifizierung fehlgeschlagen.",
-        "enableFailed": "Biometrische Authentifizierung konnte nicht aktiviert werden. Bitte versuchen Sie es erneut.",
-        "disableFailed": "Deaktivierung fehlgeschlagen.",
-        "testFailed": "Biometrische Authentifizierung fehlgeschlagen.",
-        "userNotAuthenticated": "Sie müssen angemeldet sein, um biometrische Authentifizierung zu aktivieren.",
-        "notEnabled": "Biometrische Authentifizierung ist nicht aktiviert."
-      },
-      "mfa": {
-        "setupFailed": "MFA Setup fehlgeschlagen. Bitte versuchen Sie es erneut.",
-        "verificationFailed": "Verifizierung fehlgeschlagen. Bitte versuchen Sie es erneut.",
-        "codeRequired": "Bitte geben Sie den Verifizierungscode ein.",
-        "invalidMethod": "Ungültige MFA-Methode gewählt."
-      }
-    },
-    "matchday": {
-      "create": "Fehler beim Erstellen des Spieltags",
-      "update": "Fehler beim Aktualisieren des Spieltags",
-      "load": "Fehler beim Laden des Spieltags"
-    }
-  },
   "auth": {
-    "login": {
-      "title": "Anmelden",
-      "emailLabel": "E-Mail",
-      "passwordLabel": "Passwort",
-      "button": "Login",
-      "success": "Erfolgreich eingeloggt"
+    "adminScreen": {
+      "title": "Administration",
+      "userManagement": "Benutzerverwaltung",
+      "viewDetails": "Details anzeigen"
     },
-    "register": {
-      "title": "Registrieren",
-      "emailLabel": "E-Mail",
-      "passwordLabel": "Passwort",
-      "confirmPasswordLabel": "Passwort bestätigen",
-      "button": "Registrieren",
-      "success": "Registrierung erfolgreich!",
-      "emailConfirmationMessage": "Registrierung erfolgreich! Bitte überprüfen Sie Ihre E-Mails, um Ihr Konto zu bestätigen.",
-      "redirectingToLogin": "Weiterleitung zur Anmeldeseite..."
-    },
-    "reset": {
-      "title": "Passwort zurücksetzen",
-      "emailLabel": "E-Mail",
-      "button": "Link senden",
-      "success": "E-Mail zum Zurücksetzen wurde gesendet"
-    },
-    "navigation": {
-      "noAccount": "Noch keinen Account? Jetzt registrieren!",
-      "forgotPassword": "Passwort vergessen?",
+    "authNavigation": {
       "alreadyAccount": "Schon einen Account? Jetzt anmelden!",
-      "backToLogin": "Zurück zum Login"
+      "backToLogin": "Zurück zum Login",
+      "forgotPassword": "Passwort vergessen?",
+      "noAccount": "Noch keinen Account? Jetzt registrieren!"
     },
-    "biometric": {
-      "title": "Biometrische Authentifizierung",
-      "subtitle": {
-        "ios": "Face ID / Touch ID",
-        "android": "Fingerabdruck"
-      },
-      "description": {
-        "enabled": "Sie können sich mit {{biometricType}} anmelden, ohne Ihr Passwort eingeben zu müssen.",
-        "disabled": "Aktivieren Sie {{biometricType}}, um sich schnell und sicher anzumelden."
-      },
-      "icons": {
-        "ios": "🔒",
-        "android": "👆"
-      },
-      "warning": {
-        "notAvailable": "{{biometricType}} ist auf diesem Gerät nicht verfügbar oder nicht eingerichtet. Bitte aktivieren Sie es in den Geräteeinstellungen."
-      },
+    "biometricScreen": {
       "buttons": {
         "test": "Biometrie testen",
         "testing": "Wird getestet..."
       },
-      "success": {
-        "enabled": "{{biometricType}} wurde erfolgreich aktiviert. Sie können sich jetzt mit Ihrer Biometrie anmelden.",
-        "disabled": "{{biometricType}} wurde deaktiviert.",
-        "testPassed": "Biometrische Authentifizierung erfolgreich!"
-      },
       "confirm": {
         "disable": {
-          "title": "Deaktivieren bestätigen",
-          "message": "Möchten Sie {{biometricType}} wirklich deaktivieren?",
+          "cancel": "Abbrechen",
           "confirm": "Deaktivieren",
-          "cancel": "Abbrechen"
+          "message": "Möchten Sie {{biometricType}} wirklich deaktivieren?",
+          "title": "Deaktivieren bestätigen"
         }
+      },
+      "description": {
+        "disabled": "Aktivieren Sie {{biometricType}}, um sich schnell und sicher anzumelden.",
+        "enabled": "Sie können sich mit {{biometricType}} anmelden, ohne Ihr Passwort eingeben zu müssen."
+      },
+      "errors": {
+        "disableFailed": "Deaktivierung fehlgeschlagen.",
+        "enableFailed": "Biometrische Authentifizierung konnte nicht aktiviert werden. Bitte versuchen Sie es erneut.",
+        "failed": "Biometrische Authentifizierung fehlgeschlagen.",
+        "notAvailable": "Biometrische Authentifizierung ist auf diesem Gerät nicht verfügbar oder nicht eingerichtet.",
+        "notEnabled": "Biometrische Authentifizierung ist nicht aktiviert.",
+        "testFailed": "Biometrische Authentifizierung fehlgeschlagen.",
+        "userNotAuthenticated": "Sie müssen angemeldet sein, um biometrische Authentifizierung zu aktivieren."
+      },
+      "icons": {
+        "android": "👆",
+        "ios": "🔒"
       },
       "info": {
-        "title": "Sicherheitshinweise:",
         "points": {
-          "secure": "Ihre biometrischen Daten werden sicher auf Ihrem Gerät gespeichert",
-          "noAccess": "Wir haben keinen Zugriff auf Ihre biometrischen Daten",
           "disableAnytime": "Sie können diese Funktion jederzeit deaktivieren",
-          "passwordFallback": "Bei Problemen können Sie sich weiterhin mit Passwort anmelden"
-        }
+          "noAccess": "Wir haben keinen Zugriff auf Ihre biometrischen Daten",
+          "passwordFallback": "Bei Problemen können Sie sich weiterhin mit Passwort anmelden",
+          "secure": "Ihre biometrischen Daten werden sicher auf Ihrem Gerät gespeichert"
+        },
+        "title": "Sicherheitshinweise:"
       },
+      "subtitle": {
+        "android": "Fingerabdruck",
+        "ios": "Face ID / Touch ID"
+      },
+      "success": {
+        "disabled": "{{biometricType}} wurde deaktiviert.",
+        "enabled": "{{biometricType}} wurde erfolgreich aktiviert. Sie können sich jetzt mit Ihrer Biometrie anmelden.",
+        "testPassed": "Biometrische Authentifizierung erfolgreich!"
+      },
+      "title": "Biometrische Authentifizierung",
       "unavailable": {
-        "title": "Anmeldung erforderlich",
+        "icon": "🔒",
         "subtitle": "Melden Sie sich an, um biometrische Authentifizierung zu konfigurieren.",
-        "icon": "🔒"
+        "title": "Anmeldung erforderlich"
+      },
+      "warning": {
+        "notAvailable": "{{biometricType}} ist auf diesem Gerät nicht verfügbar oder nicht eingerichtet. Bitte aktivieren Sie es in den Geräteeinstellungen."
       }
     },
-    "mfa": {
-      "title": "Multi-Faktor-Authentifizierung aktivieren",
-      "subtitle": "Wählen Sie eine Methode für zusätzliche Sicherheit:",
-      "methods": {
-        "totp": {
-          "title": "Authenticator App",
-          "description": "Verwenden Sie eine App wie Google Authenticator oder Authy",
-          "icon": "📱"
-        },
-        "sms": {
-          "title": "SMS",
-          "description": "Erhalten Sie Codes per Textnachricht",
-          "icon": "💬"
-        },
-        "email": {
-          "title": "E-Mail", 
-          "description": "Erhalten Sie Codes per E-Mail",
-          "icon": "📧"
-        }
+    "emailVerificationScreen": {
+      "changeEmail": "E-Mail-Adresse ändern",
+      "checkingEmail": "E-Mail wird überprüft...",
+      "description": "Bitte überprüfen Sie Ihr E-Mail-Postfach und klicken Sie auf den Bestätigungslink, um Ihr Konto zu aktivieren.",
+      "emailSent": "Bestätigungs-E-Mail wurde erneut gesendet",
+      "emailSentError": "Fehler beim Senden der E-Mail. Bitte versuchen Sie es erneut.",
+      "errors": {},
+      "loginButton": "Zur Anmeldung",
+      "resendButton": "E-Mail erneut senden",
+      "subtitle": "Wir haben Ihnen eine Bestätigungs-E-Mail gesendet",
+      "title": "E-Mail bestätigen"
+    },
+    "loginScreen": {
+      "biometricButton": "Mit Biometrie anmelden",
+      "button": "Anmelden",
+      "emailLabel": "E-Mail",
+      "errors": {
+        "generic": "Ein unbekannter Fehler bei der Anmeldung ist aufgetreten.",
+        "invalidCredentials": "Ungültige Anmeldedaten. Bitte versuchen Sie es erneut.",
+        "userNotFound": "Benutzer wurde nicht gefunden. Bitte überprüfen Sie Ihre Angaben."
       },
-      "setup": {
-        "totp": {
-          "title": "Authenticator App einrichten",
-          "instructions": {
-            "1": "Installieren Sie eine Authenticator App (Google Authenticator, Authy, etc.)",
-            "2": "Scannen Sie den QR-Code oder geben Sie den geheimen Schlüssel manuell ein"
-          },
-          "secretLabel": "Geheimer Schlüssel:"
-        },
-        "sms": {
-          "title": "SMS einrichten",
-          "instruction": "Geben Sie Ihre Telefonnummer ein, um SMS-Codes zu erhalten:",
-          "placeholder": "+49 123 456 7890"
-        },
-        "email": {
-          "title": "E-Mail einrichten",
-          "instruction": "Codes werden an Ihre registrierte E-Mail-Adresse gesendet."
-        }
-      },
-      "verification": {
-        "title": "Verifizierung",
-        "instruction": "Geben Sie den 6-stelligen Code aus Ihrer {{method}} ein:",
-        "placeholder": "123456",
-        "methods": {
-          "totp": "Authenticator App",
-          "sms": "SMS",
-          "email": "E-Mail"
-        }
-      },
+      "orText": "oder",
+      "passwordLabel": "Passwort",
+      "socialText": "Mit sozialen Netzwerken anmelden",
+      "subtitle": "Willkommen zurück! Melden Sie sich mit Ihrem Konto an.",
+      "success": "Erfolgreich eingeloggt",
+      "title": "Anmelden"
+    },
+    "mainScreen": {
+      "lastActivity": "Letzte Aktivität"
+    },
+    "mfaScreen": {
       "buttons": {
         "back": "Zurück",
         "continue": "Weiter",
@@ -181,200 +108,1136 @@
         "verify": "Verifizieren",
         "verifying": "Wird verifiziert..."
       },
+      "errors": {
+        "codeRequired": "Bitte geben Sie den Verifizierungscode ein.",
+        "invalidMethod": "Ungültige MFA-Methode gewählt.",
+        "setupFailed": "MFA Setup fehlgeschlagen. Bitte versuchen Sie es erneut.",
+        "verificationFailed": "Verifizierung fehlgeschlagen. Bitte versuchen Sie es erneut."
+      },
+      "methods": {
+        "email": {
+          "description": "Erhalten Sie Codes per E-Mail",
+          "icon": "📧",
+          "title": "E-Mail"
+        },
+        "sms": {
+          "description": "Erhalten Sie Codes per Textnachricht",
+          "icon": "💬",
+          "title": "SMS"
+        },
+        "totp": {
+          "description": "Verwenden Sie eine App wie Google Authenticator oder Authy",
+          "icon": "📱",
+          "title": "Authenticator App"
+        }
+      },
+      "setup": {
+        "email": {
+          "instruction": "Codes werden an Ihre registrierte E-Mail-Adresse gesendet.",
+          "title": "E-Mail einrichten"
+        },
+        "sms": {
+          "instruction": "Geben Sie Ihre Telefonnummer ein, um SMS-Codes zu erhalten:",
+          "placeholder": "+49 123 456 7890",
+          "title": "SMS einrichten"
+        },
+        "totp": {
+          "instructions": {
+            "1": "Installieren Sie eine Authenticator App (Google Authenticator, Authy, etc.)",
+            "2": "Scannen Sie den QR-Code oder geben Sie den geheimen Schlüssel manuell ein"
+          },
+          "secretLabel": "Geheimer Schlüssel:",
+          "title": "Authenticator App einrichten"
+        }
+      },
+      "subtitle": "Wählen Sie eine Methode für zusätzliche Sicherheit:",
       "success": {
         "enabled": "MFA wurde erfolgreich aktiviert!"
+      },
+      "title": "Multi-Faktor-Authentifizierung aktivieren",
+      "verification": {
+        "instruction": "Geben Sie den 6-stelligen Code aus Ihrer {{method}} ein:",
+        "methods": {
+          "email": "E-Mail",
+          "sms": "SMS",
+          "totp": "Authenticator App"
+        },
+        "placeholder": "123456",
+        "title": "Verifizierung"
       }
     },
-    "passwordStrength": {
-      "title": "Passwort-Stärke",
+    "oauthScreen": {
+      "appleErrorMessage": "Apple-Anmeldung fehlgeschlagen. Bitte versuchen Sie es erneut.",
+      "errorTitle": "OAuth Fehler",
+      "errors": {},
+      "googleErrorMessage": "Google-Anmeldung fehlgeschlagen. Bitte versuchen Sie es erneut.",
+      "microsoftErrorMessage": "Microsoft-Anmeldung fehlgeschlagen. Bitte versuchen Sie es erneut."
+    },
+    "passwordStrengthScreen": {
+      "errors": {},
+      "requirements": {
+        "lowercase": "Kleinbuchstaben (a-z)",
+        "minLength": "Mindestens 8 Zeichen",
+        "numbers": "Zahlen (0-9)",
+        "specialChars": "Sonderzeichen (!@#$%^&*)",
+        "title": "Passwort-Anforderungen:",
+        "uppercase": "Großbuchstaben (A-Z)"
+      },
+      "score": "{{strength}} ({{score}}/100)",
       "strength": {
-        "very_strong": "Sehr stark",
-        "strong": "Stark",
         "medium": "Mittel",
-        "weak": "Schwach",
-        "very_weak": "Sehr schwach"
+        "strong": "Stark",
+        "very_strong": "Sehr stark",
+        "very_weak": "Sehr schwach",
+        "weak": "Schwach"
+      },
+      "title": "Passwort-Stärke"
+    },
+    "passwordStrength": {
+      "check": {
+        "title": "Passwort-Stärke prüfen",
+        "subtitle": "Bewertung der Passwortsicherheit",
+        "enterPassword": "Passwort eingeben",
+        "checkStrength": "Stärke prüfen"
       },
       "requirements": {
-        "title": "Passwort-Anforderungen:",
+        "title": "Anforderungen",
         "minLength": "Mindestens 8 Zeichen",
-        "uppercase": "Großbuchstaben (A-Z)",
-        "lowercase": "Kleinbuchstaben (a-z)",
-        "numbers": "Zahlen (0-9)",
-        "specialChars": "Sonderzeichen (!@#$%^&*)"
+        "uppercase": "Mindestens ein Großbuchstabe",
+        "lowercase": "Mindestens ein Kleinbuchstabe", 
+        "numbers": "Mindestens eine Zahl",
+        "specialChars": "Mindestens ein Sonderzeichen",
+        "noCommonWords": "Keine häufig verwendeten Wörter",
+        "noPersonalInfo": "Keine persönlichen Informationen"
       },
-      "score": "{{strength}} ({{score}}/100)"
+      "score": {
+        "title": "Bewertung",
+        "current": "Aktuelle Stärke: {{score}}/100",
+        "recommendation": "Empfehlung: {{level}}"
+      },
+      "levels": {
+        "veryWeak": "Sehr schwach",
+        "weak": "Schwach", 
+        "fair": "Ausreichend",
+        "good": "Gut",
+        "strong": "Stark",
+        "veryStrong": "Sehr stark"
+      },
+      "feedback": {
+        "tooShort": "Passwort ist zu kurz",
+        "tooCommon": "Passwort ist zu häufig verwendet",
+        "needsVariety": "Mehr Zeichenvielfalt erforderlich",
+        "excellent": "Ausgezeichnetes Passwort!"
+      },
+      "tips": {
+        "title": "Tipps für starke Passwörter",
+        "useLongPasswords": "Verwenden Sie längere Passwörter",
+        "mixCharacters": "Mischen Sie verschiedene Zeichentypen",
+        "avoidPersonalInfo": "Vermeiden Sie persönliche Informationen",
+        "useUniquePasswords": "Verwenden Sie eindeutige Passwörter",
+        "considerPassManager": "Erwägen Sie einen Passwort-Manager"
+      }
+    },
+    "forgotPassword": {
+      "screen": {
+        "title": "Passwort zurücksetzen",
+        "subtitle": "Geben Sie Ihre E-Mail-Adresse ein",
+        "description": "Wir senden Ihnen einen Link zum Zurücksetzen",
+        "emailLabel": "E-Mail-Adresse",
+        "sendButton": "Link senden",
+        "backToLogin": "Zurück zur Anmeldung"
+      },
+      "success": {
+        "title": "E-Mail gesendet",
+        "message": "Wir haben Ihnen einen Link zum Zurücksetzen gesendet",
+        "checkEmail": "Bitte prüfen Sie Ihr E-Mail-Postfach",
+        "noEmail": "Keine E-Mail erhalten?",
+        "resend": "Erneut senden"
+      },
+      "errors": {
+        "emailRequired": "E-Mail-Adresse ist erforderlich",
+        "emailInvalid": "Ungültige E-Mail-Adresse",
+        "userNotFound": "Benutzer nicht gefunden",
+        "sendFailed": "Fehler beim Senden der E-Mail",
+        "rateLimited": "Zu viele Versuche, bitte warten Sie"
+      }
+    },
+    "terms": {
+      "title": "Nutzungsbedingungen",
+      "lastUpdated": "Zuletzt aktualisiert: {{date}}",
+      "sections": {
+        "acceptance": "Annahme der Bedingungen",
+        "services": "Unsere Dienste", 
+        "userAccount": "Ihr Benutzerkonto",
+        "privacy": "Datenschutz",
+        "liability": "Haftung",
+        "termination": "Kündigung"
+      },
+      "actions": {
+        "accept": "Bedingungen akzeptieren",
+        "decline": "Ablehnen",
+        "viewFull": "Vollständige Bedingungen anzeigen",
+        "download": "Als PDF herunterladen"
+      }
+    },
+    "registerScreen": {
+      "button": "Registrieren",
+      "confirmPasswordLabel": "Passwort bestätigen",
+      "continueToLogin": "Zur Anmeldung",
+      "emailConfirmationMessage": "Registrierung erfolgreich! Bitte überprüfen Sie Ihre E-Mails, um Ihr Konto zu bestätigen.",
+      "emailLabel": "E-Mail",
+      "emailSentMessage": "Wir haben eine Bestätigungs-E-Mail gesendet.",
+      "emailSentTitle": "Bestätigungs-E-Mail gesendet!",
+      "errorMessage": "Ein Fehler ist aufgetreten. Bitte versuchen Sie es erneut.",
+      "errorTitle": "Registrierung fehlgeschlagen",
+      "errors": {
+        "confirmPasswordRequired": "Passwort bestätigen erforderlich",
+        "emailAlreadyInUse": "Diese E-Mail-Adresse ist bereits registriert.",
+        "emailInvalid": "Ungültige E-Mail-Adresse",
+        "emailRequired": "E-Mail ist erforderlich",
+        "firstNameRequired": "Vorname ist erforderlich",
+        "firstNameTooShort": "Vorname zu kurz (min. 2 Zeichen)",
+        "lastNameRequired": "Nachname ist erforderlich",
+        "lastNameTooShort": "Nachname zu kurz (min. 2 Zeichen)",
+        "passwordMismatch": "Passwörter stimmen nicht überein",
+        "passwordRequired": "Passwort ist erforderlich",
+        "passwordTooShort": "Passwort muss mindestens 8 Zeichen lang sein",
+        "passwordWeak": "Passwort entspricht nicht den Richtlinien",
+        "passwordsMismatch": "Passwörter stimmen nicht überein",
+        "privacyRequired": "Sie müssen der Datenschutzerklärung zustimmen",
+        "termsRequired": "Sie müssen den Nutzungsbedingungen zustimmen",
+        "weakPassword": "Ihr Passwort ist zu schwach. Bitte wählen Sie ein stärkeres."
+      },
+      "firstNameLabel": "Vorname",
+      "lastNameLabel": "Nachname",
+      "nextStepsTitle": "Nächste Schritte:",
+      "passwordLabel": "Passwort",
+      "redirectingToLogin": "Weiterleitung zur Anmeldeseite...",
+      "socialText": "Mit sozialen Netzwerken registrieren",
+      "step1": "Prüfen Sie Ihr E-Mail-Postfach",
+      "step2": "Klicken Sie auf den Bestätigungslink",
+      "step3": "Melden Sie sich mit Ihrem neuen Konto an",
+      "subtitle": "Erstellen Sie Ihr neues Konto",
+      "success": "Registrierung erfolgreich!",
+      "successTitle": "Registrierung erfolgreich!",
+      "title": "Registrieren",
+      "verificationMessage": "Prüfen Sie Ihr E-Mail-Postfach zur Verifizierung."
+    },
+    "resetScreen": {
+      "button": "Link senden",
+      "emailLabel": "E-Mail",
+      "emailSentMessage": "Wir haben eine E-Mail an Ihre Adresse gesendet. Folgen Sie den Anweisungen in der E-Mail, um Ihr Passwort zurückzusetzen.",
+      "emailSentTitle": "E-Mail gesendet!",
+      "errors": {
+        "errorMessage": "Passwort-Reset konnte nicht gestartet werden. Bitte versuchen Sie es erneut.",
+        "errorTitle": "Fehler"
+      },
+      "nextStepsTitle": "Nächste Schritte:",
+      "noEmailReceived": "Keine E-Mail erhalten?",
+      "rateLimitMessage": "Bitte warten Sie 15 Minuten bevor Sie es erneut versuchen.",
+      "rateLimitTitle": "Zu viele Versuche",
+      "resendButton": "E-Mail erneut senden",
+      "resendCooldown": "Erneut senden in {{seconds}}s",
+      "resendSuccessMessage": "Eine neue E-Mail wurde an Ihre Adresse gesendet.",
+      "resendSuccessTitle": "E-Mail erneut gesendet",
+      "securityNotice": "Aus Sicherheitsgründen erhalten Sie nur dann eine E-Mail, wenn Ihr Konto existiert.",
+      "step1": "Prüfen Sie Ihr E-Mail-Postfach",
+      "step2": "Klicken Sie auf den Link in der E-Mail",
+      "step3": "Erstellen Sie ein neues Passwort",
+      "subtitle": "Geben Sie Ihre E-Mail-Adresse ein, um einen Zurücksetzungslink zu erhalten.",
+      "success": "E-Mail zum Zurücksetzen wurde gesendet",
+      "successMessage": "Prüfen Sie Ihr E-Mail-Postfach für weitere Anweisungen.",
+      "successTitle": "E-Mail gesendet",
+      "title": "Passwort zurücksetzen",
+      "tryDifferentEmail": "Andere E-Mail-Adresse verwenden"
+    },
+    "roles": {
+      "admin": "Administrator",
+      "moderator": "Moderator",
+      "premium_user": "Premium Benutzer",
+      "super_admin": "Super Admin",
+      "user": "Benutzer",
+      "verified_user": "Verifizierter Benutzer"
+    },
+    "securityScreen": {
+      "navigationMessage": "Navigiere zu den Sicherheitseinstellungen",
+      "title": "Sicherheitseinstellungen"
+    },
+    "terms": {
+      "acceptPrivacy": "Ich akzeptiere die Datenschutzerklärung",
+      "acceptTerms": "Ich akzeptiere die Nutzungsbedingungen",
+      "privacyPolicy": "Datenschutzerklärung",
+      "termsOfService": "Nutzungsbedingungen"
     }
   },
-  "matchdayList": {
-    "title": "Spieltage",
-    "teamPlaceholder": "z. B. U8",
-    "details": "Details",
-    "home": "Heim",
-    "away": "Auswärts",
-    "status": {
-      "scheduled": "Geplant",
-      "in_progress": "Läuft",
-      "completed": "Abgeschlossen",
-      "cancelled": "Abgesagt"
+  "avatar": {
+    "actions": {
+      "title": "Avatar-Aktionen"
     },
-    "search": {
-      "placeholder": "Suche nach Gegner, Ort..."
+    "cancel": {
+      "accessibilityHint": "Bricht den Avatar-Upload ab und kehrt zum vorherigen Bildschirm zurück",
+      "accessibilityLabel": "Vorgang abbrechen",
+      "description": "Bricht den Upload-Vorgang ab und kehrt zurück"
     },
-    "filter": {
-      "title": "Filter",
-      "show": "Filter anzeigen",
-      "hide": "Filter ausblenden",
-      "apply": "Anwenden",
-      "reset": "Zurücksetzen",
-      "home": "Heimspiel",
-      "away": "Auswärtsspiel",
-      "dateFrom": "Von",
-      "dateTo": "Bis",
-      "selectDate": "Datum wählen"
+    "change": "Bild ändern",
+    "current": {
+      "description": "Wählen Sie ein Foto für Ihr Profilbild",
+      "selected": "Neues Bild ausgewählt",
+      "title": "Aktuelles Profilbild"
     },
-    "loading": "Spieltage werden geladen...",
-    "noMatchdays": "Keine Spieltage gefunden",
-    "noFilterResults": "Keine Ergebnisse für deine Filtereinstellungen"
+    "error": {
+      "camera": {
+        "message": "Kamera konnte nicht geöffnet werden. Bitte versuchen Sie es erneut.",
+        "title": "Kamera-Fehler"
+      },
+      "gallery": {
+        "message": "Galerie konnte nicht geöffnet werden. Bitte versuchen Sie es erneut.",
+        "title": "Galerie-Fehler"
+      },
+      "remove": {
+        "message": "Avatar konnte nicht entfernt werden. Bitte versuchen Sie es erneut."
+      },
+      "title": "Avatar-Fehler"
+    },
+    "progress": {
+      "uploading": "Avatar wird hochgeladen..."
+    },
+    "remove": {
+      "accessibilityHint": "Entfernt Ihr aktuelles Profilbild dauerhaft",
+      "accessibilityLabel": "Avatar entfernen",
+      "action": "Avatar entfernen",
+      "confirm": "Entfernen",
+      "description": "Entfernt Ihr aktuelles Profilbild dauerhaft",
+      "message": "Möchten Sie Ihr Profilbild wirklich entfernen?",
+      "title": "Avatar entfernen"
+    },
+    "select": {
+      "accessibilityHint": "Öffnet die Fotoauswahl um ein neues Profilbild zu setzen",
+      "accessibilityLabel": "Profilbild auswählen",
+      "action": "Foto auswählen",
+      "camera": "Kamera",
+      "description": "Wählen Sie ein neues Profilbild aus der Galerie oder nehmen Sie ein Foto auf",
+      "gallery": "Galerie",
+      "message": "Wählen Sie eine Option:",
+      "title": "Foto auswählen"
+    },
+    "selecting": "Foto wird ausgewählt...",
+    "tips": {
+      "lighting": "• Natürliches Licht sorgt für die beste Bildqualität",
+      "quality": "• Wählen Sie ein gut beleuchtetes, scharfes Foto",
+      "size": "• Empfohlene Mindestgröße: 400x400 Pixel",
+      "square": "• Verwenden Sie ein quadratisches Bild für beste Ergebnisse",
+      "title": "Tipps für das perfekte Profilbild"
+    },
+    "upload": {
+      "accessibilityHint": "Lädt das ausgewählte Bild als Ihr neues Profilbild hoch",
+      "accessibilityLabel": "Avatar hochladen",
+      "action": "Hochladen",
+      "description": "Lädt das ausgewählte Bild als neues Profilbild hoch",
+      "error": {
+        "message": "Avatar konnte nicht hochgeladen werden. Bitte versuchen Sie es erneut.",
+        "title": "Fehler"
+      },
+      "success": {
+        "message": "Avatar wurde erfolgreich hochgeladen!",
+        "title": "Erfolg"
+      }
+    },
+    "uploading": "Wird hochgeladen..."
+  },
+  "common": {
+    "alert": {
+      "titles": {
+        "confirmation": "Bestätigung",
+        "disabled": "Deaktiviert",
+        "enabled": "Aktiviert",
+        "error": "Fehler",
+        "failed": "Fehlgeschlagen",
+        "info": "Information",
+        "notAvailable": "Nicht verfügbar",
+        "notEnabled": "Nicht aktiviert",
+        "success": "Erfolg",
+        "warning": "Warnung"
+      }
+    },
+    "cancel": "Abbrechen",
+    "continue": "Fortfahren",
+    "delete": "Löschen",
+    "discard": "Verwerfen",
+    "download": "Herunterladen",
+    "error": "Fehler",
+    "loading": "Lädt...",
+    "loadingError": "Fehler beim Laden der Daten",
+    "ok": "OK",
+    "reset": "Zurücksetzen",
+    "retry": "Erneut versuchen",
+    "save": "Speichern",
+    "success": "Erfolg",
+    "time": {
+      "daysAgo": "vor {{days}} Tagen",
+      "daysAgo_plural": "vor {{days}} Tagen",
+      "hoursAgo": "vor {{hours}} Stunden",
+      "hoursAgo_plural": "vor {{hours}} Stunden",
+      "now": "Jetzt"
+    },
+    "unexpectedError": "Ein unerwarteter Fehler ist aufgetreten"
+  },
+  "credits": {
+    "dashboardScreen": {
+      "buyCredits": "Credits kaufen",
+      "claimBonus": "Bonus holen!",
+      "dailyBonus": "Täglicher Bonus",
+      "errors": {},
+      "loadingTransactions": "Lade Transaktionen...",
+      "noTransactions": "Keine Transaktionen",
+      "noTransactionsMessage": "Deine Credit-Transaktionen werden hier angezeigt",
+      "quickActions": "Schnellaktionen",
+      "recentTransactions": "Letzte Transaktionen",
+      "seeAll": "Alle anzeigen",
+      "title": "Credit-Dashboard"
+    },
+    "mainScreen": {
+      "balance": "Guthaben",
+      "bonusText": "Bonus",
+      "creditsLow": "Credits sind niedrig. Lade neue auf!",
+      "dailyBonusMessage": "Komm täglich zurück für Bonus-Credits!",
+      "errors": {},
+      "title": "Credits",
+      "totalText": "gesamt",
+      "yourCredits": "Deine Credits"
+    },
+    "shopScreen": {
+      "benefits": {
+        "exclusiveContent": "• Exklusive Inhalte",
+        "noAds": "• Werbefreies Erlebnis",
+        "premiumFeatures": "• Premium-Funktionen freischalten",
+        "unlimitedAccess": "• Unbegrenzten Zugang zu allen Geschichten"
+      },
+      "bestValue": "💎 Bester Wert",
+      "bonusCredits": "🎁 Bonus-Credits!",
+      "bonusCreditsDescription": "Größere Pakete enthalten Bonus-Credits! Je mehr du kaufst, desto mehr sparst du.",
+      "errors": {},
+      "loadingProducts": "Lade Produkte...",
+      "noProducts": "Keine Produkte verfügbar",
+      "noProductsMessage": "Momentan sind keine Credit-Pakete verfügbar. Versuche es später noch einmal.",
+      "packages": "Credit-Pakete",
+      "popular": "🔥 Beliebt",
+      "purchaseFailed": "Kauf fehlgeschlagen",
+      "purchaseFailedMessage": "Der Kauf konnte nicht abgeschlossen werden",
+      "purchaseSuccess": "🎉 Kauf erfolgreich!",
+      "purchaseSuccessButton": "Super!",
+      "purchaseSuccessMessage": "Du hast {{amount}} Credits erhalten!",
+      "subtitle": "Wähle das perfekte Credit-Paket für dich aus",
+      "title": "Credit-Shop",
+      "whyBuyCredits": "💡 Warum Credits kaufen?"
+    },
+    "transactionsScreen": {
+      "errors": {},
+      "loadingMore": "Lade weitere Transaktionen...",
+      "noTransactions": "Keine Transaktionen",
+      "noTransactionsMessage": "Deine Credit-Transaktionen werden hier angezeigt, sobald du welche hast.",
+      "stats": {
+        "earned": "Erhalten",
+        "spent": "Ausgegeben",
+        "tapForDetails": "Tippen für Details ›",
+        "total": "Gesamt"
+      },
+      "title": "Transaktionen",
+      "today": "Heute",
+      "yesterday": "Gestern"
+    }
+  },
+  "dialogs": {
+    "deleteDialog": {
+      "content": "Sind Sie sicher, dass Sie dieses Element permanent löschen möchten? Diese Aktion kann nicht rückgängig gemacht werden.",
+      "contentWithItem": "Sind Sie sicher, dass Sie \"{{item}}\" permanent löschen möchten? Diese Aktion kann nicht rückgängig gemacht werden.",
+      "errors": {},
+      "title": "Löschen bestätigen",
+      "titleWithItem": "{{item}} löschen"
+    },
+    "saveDialog": {
+      "content": "Sie haben nicht gespeicherte Änderungen. Möchten Sie diese speichern?",
+      "errors": {},
+      "title": "Änderungen speichern?"
+    },
+    "warningDialog": {
+      "errors": {},
+      "title": "Warnung"
+    }
+  },
+  "error": {
+    "boundaryScreen": {
+      "errors": {},
+      "reload": "Neu laden",
+      "title": "Etwas ist schiefgelaufen."
+    }
+  },
+  "navigation": {
+    "tabBar": {
+      "credits": "Credits",
+      "errors": {},
+      "home": "Home",
+      "notifications": "Mitteilungen",
+      "profile": "Profil",
+      "settings": "Einstellungen",
+      "theme": "Theme",
+      "themeDemo": "Theme Demo"
+    }
+  },
+  "onboarding": {
+    "notificationsScreen": {
+      "description": "Erhalte wichtige Updates und behalte die Kontrolle über deine Benachrichtigungen.",
+      "errors": {},
+      "feature1": "Real-time Updates",
+      "feature2": "Kategorisierte Nachrichten",
+      "feature3": "Granulare Kontrolle",
+      "title": "Smart Notifications"
+    },
+    "profileScreen": {
+      "description": "Erstelle und verwalte dein persönliches Profil mit erweiterten Funktionen.",
+      "errors": {},
+      "feature1": "Avatar Upload & Bearbeitung",
+      "feature2": "Privacy Settings",
+      "feature3": "Vollständigkeit Tracking",
+      "title": "Dein Profil verwalten"
+    },
+    "readyScreen": {
+      "description": "Du bist bereit, alle Features der App zu entdecken. Viel Spaß!",
+      "errors": {},
+      "feature1": "Alle Features verfügbar",
+      "feature2": "Demo-Daten zum Testen",
+      "feature3": "Vollständige Clean Architecture",
+      "title": "Bereit zum Start!"
+    },
+    "securityScreen": {
+      "description": "Deine Daten sind sicher mit modernsten Sicherheitsstandards.",
+      "errors": {},
+      "feature1": "XSS & Injection Schutz",
+      "feature2": "Encrypted Storage",
+      "feature3": "Biometric Auth",
+      "title": "Enterprise Security"
+    },
+    "welcomeScreen": {
+      "back": "Zurück",
+      "description": "Die moderne Enterprise-App mit Clean Architecture und TypeScript.",
+      "errors": {},
+      "feature1": "Clean Architecture Design",
+      "feature2": "Enterprise-grade Security",
+      "feature3": "Performance Optimized",
+      "getStarted": "Los geht's!",
+      "next": "Weiter",
+      "skip": "Überspringen",
+      "title": "Willkommen bei ReactNative Skeleton!"
+    }
+  },
+  "profile": {
+    "accountScreen": {
+      "actions": {
+        "editProfile": "Profil bearbeiten",
+        "editProfileDesc": "Bearbeiten Sie Ihre persönlichen Informationen",
+        "privacy": "Datenschutz-Einstellungen",
+        "privacyDesc": "Datenschutz verwalten",
+        "profile": "Profil bearbeiten",
+        "profileDesc": "Bearbeiten Sie Ihr Profil",
+        "title": "Aktionen"
+      },
+      "danger": {
+        "clearAction": "Cache leeren",
+        "clearTitle": "Cache leeren",
+        "clearWarning": "Der lokale Cache wird geleert.",
+        "customAction": "Ausführen",
+        "customTitle": "Aktion ausführen",
+        "customWarning": "Diese Aktion wird ausgeführt.",
+        "deleteAccount": "Konto löschen",
+        "deleteAccountDesc": "Konto und alle Daten permanent löschen",
+        "deleteAction": "Konto endgültig löschen",
+        "deleteTitle": "Konto löschen",
+        "deleteWarning": "Diese Aktion löscht Ihr Konto und alle zugehörigen Daten dauerhaft. Diese Aktion kann nicht rückgängig gemacht werden.",
+        "disableAction": "Konto deaktivieren",
+        "disableTitle": "Konto deaktivieren",
+        "disableWarning": "Ihr Konto wird temporär deaktiviert.",
+        "resetAction": "Alle Daten zurücksetzen",
+        "resetTitle": "Daten zurücksetzen",
+        "resetWarning": "Alle Ihre Daten werden auf die Standardwerte zurückgesetzt.",
+        "revokeAction": "Zugriff widerrufen",
+        "revokeTitle": "Zugriff widerrufen",
+        "revokeWarning": "Alle aktiven Sitzungen werden beendet.",
+        "title": "Gefahrenbereich"
+      },
+      "data": {
+        "deviceCount": "{{count}} Gerät",
+        "deviceCount_plural": "{{count}} Geräte",
+        "devices": "Aktive Geräte",
+        "exportData": "Daten exportieren",
+        "lastBackup": "Letztes Backup",
+        "title": "Daten & Speicher",
+        "usage": "Datenverbrauch"
+      },
+      "errors": {},
+      "memberSince": "Mitglied seit {{date}}",
+      "overview": {
+        "completeness": "Profil-Vollständigkeit",
+        "title": "Kontoübersicht"
+      },
+      "profileCompleteness": "Profil-Vollständigkeit",
+      "security": {
+        "activeDevices": "Aktive Geräte",
+        "activeSessions": "Aktive Sitzungen",
+        "disabled": "Deaktiviert",
+        "enabled": "Aktiviert",
+        "lastLogin": "Letzter Login",
+        "loginAttempts": "Anmeldeversuche",
+        "manageDevices": "Geräte verwalten",
+        "mfa": "Zwei-Faktor-Authentifizierung",
+        "neverLoggedIn": "Nie angemeldet",
+        "title": "Sicherheit",
+        "twoFactor": "Zwei-Faktor-Authentifizierung",
+        "twoFactorDesc": "Zusätzliche Sicherheitsebene hinzufügen"
+      },
+      "support": {
+        "community": "Community",
+        "communityDesc": "Mit anderen Benutzern interagieren",
+        "contact": "Support kontaktieren",
+        "contactDesc": "Technische Unterstützung erhalten",
+        "documentation": "Dokumentation",
+        "documentationDesc": "Vollständige Dokumentation durchsuchen",
+        "help": "Hilfe & FAQ",
+        "helpDesc": "Antworten auf häufige Fragen finden",
+        "title": "Support"
+      },
+      "title": "Kontoeinstellungen"
+    },
+    "avatarDemoScreen": {
+      "actions": "Aktionen",
+      "avatarManagement": "Avatar-Verwaltung",
+      "deleteAvatar": "Avatar löschen",
+      "featureInfo": "Feature-Informationen",
+      "goBack": "Zurück",
+      "refreshAvatar": "Avatar aktualisieren",
+      "title": "Avatar Demo",
+      "uploading": "Avatar wird hochgeladen...",
+      "userInfo": "Benutzerinformationen"
+    },
+    "avatarUploader": {
+      "error": {
+        "camera": {
+          "message": "Fehler beim Zugriff auf die Kamera"
+        },
+        "gallery": {
+          "message": "Fehler beim Zugriff auf die Galerie"
+        }
+      },
+      "remove": {
+        "action": "Entfernen",
+        "confirm": "Entfernen",
+        "message": "Möchten Sie Ihr Profilbild wirklich entfernen?",
+        "title": "Profilbild entfernen"
+      },
+      "select": {
+        "camera": "Foto aufnehmen",
+        "gallery": "Aus Galerie wählen",
+        "title": "Profilbild auswählen"
+      },
+      "upload": {
+        "error": {
+          "message": "Upload fehlgeschlagen"
+        }
+      }
+    },
+    "completionCard": {
+      "congratulations": {
+        "description": "Ihr Profil ist fast vollständig",
+        "title": "Herzlichen Glückwunsch!"
+      },
+      "excellent": "Ausgezeichnet",
+      "fair": "Ausreichend",
+      "good": "Gut",
+      "needsWork": "Verbesserungsbedarf",
+      "priority": {
+        "high": "Hoch",
+        "low": "Niedrig",
+        "medium": "Mittel"
+      },
+      "progress": "{{percentage}}% vollständig",
+      "suggestions": {
+        "addAvatar": {
+          "description": "Fügen Sie ein Profilbild hinzu, um Ihr Profil zu personalisieren",
+          "title": "Profilbild hinzufügen"
+        },
+        "addLocation": {
+          "description": "Geben Sie Ihren Standort an",
+          "title": "Standort hinzufügen"
+        },
+        "addProfessional": {
+          "description": "Fügen Sie Ihr Unternehmen und Ihre Berufsbezeichnung hinzu",
+          "title": "Berufliche Informationen hinzufügen"
+        },
+        "addSkills": {
+          "description": "Fügen Sie mindestens 3 Fähigkeiten hinzu",
+          "title": "Fähigkeiten hinzufügen"
+        },
+        "addSocial": {
+          "description": "Verknüpfen Sie Ihre LinkedIn- oder GitHub-Profile",
+          "title": "Soziale Netzwerke verknüpfen"
+        },
+        "improveBio": {
+          "description": "Schreiben Sie eine aussagekräftige Biografie (mindestens 50 Zeichen)",
+          "title": "Biografie verbessern"
+        },
+        "title": "Verbesserungsvorschläge"
+      },
+      "title": "Profilvollständigkeit",
+      "viewAll": "Alle {{count}} anzeigen"
+    },
+    "customFieldsScreen": {
+      "current": {
+        "empty": "Noch keine benutzerdefinierten Felder hinzugefügt",
+        "title": "Meine Felder"
+      },
+      "errors": {
+        "invalidEmail": "Ungültige E-Mail-Adresse",
+        "invalidPhone": "Ungültige Telefonnummer",
+        "invalidUrl": "Ungültige URL",
+        "required": "Dieses Feld ist erforderlich",
+        "tooLong": "Eingabe zu lang",
+        "tooShort": "Eingabe zu kurz"
+      },
+      "subtitle": "Personalisieren Sie Ihr Profil mit zusätzlichen Informationen",
+      "templates": {
+        "showAll": "Alle anzeigen",
+        "showLess": "Weniger anzeigen",
+        "title": "Feld-Vorlagen"
+      },
+      "title": "Benutzerdefinierte Felder"
+    },
+    "editScreen": {
+      "accessDenied": "Zugriff verweigert",
+      "addSkill": "Fähigkeit hinzufügen",
+      "basicInfo": "Grundinformationen",
+      "bio": "Bio",
+      "cancel": "Abbrechen",
+      "characters": "Zeichen",
+      "company": "Unternehmen",
+      "contactInfo": "Kontaktinformationen",
+      "customFields": "Benutzerdefinierte Felder",
+      "customFieldsNote": "Hier können weitere benutzerdefinierte Felder hinzugefügt werden.",
+      "discardChanges": "Änderungen verwerfen",
+      "displayName": "Anzeigename",
+      "error": "Fehler",
+      "errors": {},
+      "firstName": "Vorname",
+      "industry": "Branche",
+      "jobTitle": "Jobtitel",
+      "lastName": "Nachname",
+      "location": "Standort",
+      "noPermission": "Sie haben keine Berechtigung, Profile zu bearbeiten.",
+      "notes": "Notizen",
+      "notesPlaceholder": "Zusätzliche Informationen...",
+      "phone": "Telefon",
+      "professionalInfo": "Berufliche Informationen",
+      "profileUpdated": "Profil erfolgreich aktualisiert",
+      "saveChanges": "Änderungen speichern",
+      "skills": "Fähigkeiten",
+      "socialLinks": "Soziale Links",
+      "success": "Erfolg",
+      "title": "Profil bearbeiten",
+      "unexpectedError": "Ein unerwarteter Fehler ist aufgetreten",
+      "unsavedChanges": "Ungespeicherte Änderungen",
+      "updateFailed": "Aktualisierung fehlgeschlagen",
+      "website": "Website",
+      "workLocation": {
+        "hybrid": "Hybrid",
+        "onsite": "Vor Ort",
+        "remote": "Remote"
+      },
+      "workLocationPreference": "Arbeitsplatz-Präferenz"
+    },
+    "mainScreen": {
+      "accountSection": "Konto",
+      "accountSettings": "Kontoeinstellungen",
+      "accountSettingsHint": "Verwalten Sie Ihre Kontoeinstellungen",
+      "accountSettingsLabel": "Kontoeinstellungen",
+      "actionsAccessibilityLabel": "Profil-Aktionen",
+      "advancedSection": "Erweitert",
+      "avatarAccessibilityLabel": "Profilbild von {{name}}",
+      "avatarDemo": "Avatar Demo",
+      "avatarDemoHint": "Zeigt Avatar-Funktionen",
+      "avatarDemoLabel": "Avatar Demo",
+      "bio": "Bio",
+      "bioAccessibilityLabel": "Biografie",
+      "completeness": "Vollständigkeit",
+      "completenessAccessibilityLabel": "Profilvollständigkeit: {{percent}} Prozent",
+      "createProfile": "Profil erstellen",
+      "createProfileAccessibilityHint": "Erstellt ein neues Profil",
+      "createProfileAccessibilityLabel": "Profil erstellen",
+      "customFields": "Benutzerdefinierte Felder",
+      "customFieldsHint": "Bearbeiten Sie benutzerdefinierte Profilfelder",
+      "customFieldsLabel": "Benutzerdefinierte Felder",
+      "displayNameAccessibilityLabel": "Anzeigename",
+      "editProfileAccessibilityHint": "Öffnet den Profil-Editor",
+      "editProfileAccessibilityLabel": "Profil bearbeiten",
+      "editProfileData": "Profildaten bearbeiten",
+      "email": "E-Mail",
+      "emptyStateAccessibilityLabel": "Leerer Zustand - Kein Profil vorhanden",
+      "error": "Fehler",
+      "errorDisplayAccessibilityLabel": "Fehleranzeige",
+      "errorMessageAccessibilityLabel": "Fehlermeldung: {{error}}",
+      "errors": {
+        "loadProfile": "Profil konnte nicht geladen werden",
+        "title": "Fehler"
+      },
+      "headerAccessibilityLabel": "Profil-Header",
+      "infoItemAccessibilityLabel": "{{label}}: {{value}}",
+      "informationAccessibilityLabel": "Profilinformationen",
+      "lastActivity": "Letzte Aktivität",
+      "loading": "Lädt...",
+      "loadingProfile": "Profil wird geladen...",
+      "location": "Standort",
+      "na": "N/A",
+      "navigationTitle": "Navigation",
+      "noBioAvailable": "Keine Bio verfügbar",
+      "noProfileFound": "Kein Profil gefunden",
+      "noProfileFoundAccessibilityLabel": "Kein Profil gefunden",
+      "notSet": "Nicht festgelegt",
+      "privacySettings": "Datenschutzeinstellungen",
+      "privacySettingsHint": "Verwalten Sie Ihre Datenschutzeinstellungen",
+      "privacySettingsLabel": "Datenschutzeinstellungen",
+      "profileComplete": "Profil {{percent}}% vollständig",
+      "profileContentAccessibilityLabel": "Profilinhalt",
+      "profileInformation": "Profilinformationen",
+      "profileSection": "Profil",
+      "quickActions": "Schnellaktionen",
+      "refreshProfileAccessibilityLabel": "Profil aktualisieren",
+      "retry": "Wiederholen",
+      "retryAccessibilityHint": "Versucht die Aktion erneut",
+      "retryAccessibilityLabel": "Wiederholen",
+      "skillsManagement": "Skills-Verwaltung",
+      "skillsManagementHint": "Verwalten Sie Ihre Fähigkeiten",
+      "skillsManagementLabel": "Skills-Verwaltung",
+      "socialLinks": "Soziale Links",
+      "socialLinksHint": "Verwalten Sie Ihre sozialen Medien-Links",
+      "socialLinksLabel": "Soziale Links",
+      "title": "Profil",
+      "unnamedUser": "Unbenannter Benutzer",
+      "uploadAvatar": "Avatar hochladen",
+      "uploadAvatarAccessibilityHint": "Öffnet die Avatar-Upload-Funktion",
+      "uploadAvatarAccessibilityLabel": "Avatar hochladen"
+    },
+    "navigation": {
+      "avatarUpload": "Avatar hochladen"
+    },
+    "privacyScreen": {
+      "description": "Verwalten Sie, wer Ihre Informationen sehen kann",
+      "errors": {},
+      "fieldPrivacy": {
+        "description": "Kontrollieren Sie die Sichtbarkeit einzelner Profilfelder",
+        "title": "Feld-spezifische Privatsphäre"
+      },
+      "profileVisibility": {
+        "description": "Bestimmen Sie, wer Ihr komplettes Profil sehen kann",
+        "title": "Profil-Sichtbarkeit"
+      },
+      "title": "Datenschutz-Einstellungen"
+    },
+    "professionalCard": {
+      "availableForWork": "Verfügbar für Arbeit",
+      "customFields": "Benutzerdefinierte Felder",
+      "empty": {
+        "action": "Hinzufügen",
+        "message": "Keine beruflichen Informationen vorhanden"
+      },
+      "experience": "Erfahrung",
+      "experienceLevel": {
+        "entry": "Einsteiger",
+        "executive": "Geschäftsführung",
+        "junior": "Junior",
+        "lead": "Führungskraft",
+        "mid": "Mittlere Erfahrung",
+        "senior": "Senior"
+      },
+      "notAvailableForWork": "Nicht verfügbar für Arbeit",
+      "skills": "Fähigkeiten",
+      "title": "Berufliche Informationen",
+      "workLocation": {
+        "hybrid": "Hybrid",
+        "onsite": "Vor Ort",
+        "remote": "Remote"
+      }
+    },
+    "skillsManagementScreen": {
+      "addCustom": "\"{{skill}}\" hinzufügen",
+      "categories": {
+        "all": "Alle",
+        "design": "Design",
+        "management": "Management",
+        "marketing": "Marketing",
+        "soft": "Soft Skills",
+        "technical": "Technisch",
+        "title": "Kategorien"
+      },
+      "current": {
+        "empty": "Noch keine Fähigkeiten hinzugefügt. Verwenden Sie die Suche oben oder wählen Sie aus den Kategorien unten.",
+        "title": "Meine Fähigkeiten"
+      },
+      "errors": {
+        "invalid": "Ungültiger Fähigkeitsname",
+        "maxSkills": "Sie können maximal {{max}} Fähigkeiten hinzufügen",
+        "tooLong": "Fähigkeitsname darf maximal 50 Zeichen lang sein",
+        "tooShort": "Fähigkeitsname muss mindestens 2 Zeichen lang sein"
+      },
+      "search": {
+        "placeholder": "Skills suchen..."
+      },
+      "title": "Skills Management"
+    },
+    "skillsScreen": {
+      "addCustom": "\"{{skill}}\" hinzufügen",
+      "categories": {
+        "languages": "Sprachen",
+        "soft": "Soft Skills",
+        "technical": "Technisch",
+        "title": "Kategorien"
+      },
+      "current": {
+        "title": "Aktuelle Fähigkeiten"
+      },
+      "search": {
+        "placeholder": "Fähigkeiten suchen..."
+      },
+      "stats": {
+        "soft": "Soft Skills",
+        "technical": "Technisch",
+        "total": "Gesamt"
+      },
+      "suggestions": {
+        "category": "{{category}} Fähigkeiten",
+        "title": "Vorgeschlagene Fähigkeiten"
+      },
+      "tips": {
+        "categories": "Nutzen Sie Kategorien zur besseren Organisation",
+        "current": "Halten Sie Ihre Fähigkeitenliste aktuell",
+        "relevant": "Fügen Sie relevante Fähigkeiten hinzu, die Ihre Expertise widerspiegeln",
+        "specific": "Seien Sie spezifisch bei der Auswahl Ihrer Fähigkeiten",
+        "title": "Tipps"
+      },
+      "title": "Fähigkeiten verwalten"
+    },
+    "logout": {
+      "button": "Ausloggen",
+      "buttonAccessibilityLabel": "Ausloggen Button",
+      "buttonAccessibilityHint": "Meldet Sie von Ihrem Konto ab",
+      "loggingOut": "Wird ausgeloggt...",
+      "confirmTitle": "Ausloggen bestätigen",
+      "confirmMessage": "Möchten Sie sich wirklich ausloggen?",
+      "confirm": "Ausloggen",
+      "cancel": "Abbrechen",
+      "errorTitle": "Logout-Fehler",
+      "errorMessage": "Beim Ausloggen ist ein Fehler aufgetreten. Bitte versuchen Sie es erneut."
+    },
+    "socialLinksScreen": {
+      "actions": {
+        "reset": "Änderungen zurücksetzen"
+      },
+      "empty": {
+        "action": "Fügen Sie Ihre ersten Links hinzu",
+        "subtitle": "Noch keine Social Links hinzugefügt"
+      },
+      "placeholders": {
+        "behance": "Behance Benutzername",
+        "dribbble": "Dribbble Benutzername",
+        "github": "GitHub Benutzername",
+        "instagram": "Instagram Benutzername",
+        "linkedin": "LinkedIn Benutzername",
+        "medium": "Medium Benutzername",
+        "portfolio": "Portfolio URL",
+        "twitter": "Twitter Benutzername",
+        "website": "Website URL",
+        "youtube": "YouTube Kanal"
+      },
+      "platforms": {
+        "title": "Verfügbare Plattformen"
+      },
+      "progress": {
+        "title": "Social Links Übersicht"
+      },
+      "stats": {
+        "creative": "Kreativ",
+        "professional": "Beruflich",
+        "social": "Social",
+        "total": "Gesamt"
+      },
+      "summary": {
+        "title": "Verknüpfte Accounts"
+      },
+      "tips": {
+        "behance": "Ihr Behance-Benutzername - z.B. 'maxmustermann'",
+        "dribbble": "Ihr Dribbble-Benutzername - z.B. 'maxmustermann'",
+        "general": {
+          "active": "Verlinken Sie nur aktive Profile, die Sie regelmäßig nutzen",
+          "complete": "Stellen Sie sicher, dass Ihre Profile vollständig ausgefüllt sind",
+          "privacy": "Überprüfen Sie Ihre Datenschutzeinstellungen auf den Plattformen",
+          "professional": "Fügen Sie zuerst berufliche Profile wie LinkedIn hinzu",
+          "username": "Verwenden Sie nur Ihren Benutzernamen, nicht die vollständige URL",
+          "verify": "Verifizieren Sie Ihre Profile für mehr Glaubwürdigkeit"
+        },
+        "github": "Geben Sie nur Ihren GitHub-Benutzernamen ein - z.B. 'maxmustermann'",
+        "instagram": "Nur der Instagram-Benutzername - z.B. 'max.mustermann'",
+        "linkedin": "Verwenden Sie Ihren LinkedIn-Benutzernamen ohne '/in/' - z.B. 'max-mustermann'",
+        "medium": "Ihr Medium-Benutzername ohne '@' - z.B. 'maxmustermann'",
+        "portfolio": "Vollständige URL Ihres Portfolios - z.B. 'https://portfolio.maxmustermann.de'",
+        "title": "Tipps",
+        "twitter": "Verwenden Sie Ihren Twitter-Handle ohne '@' - z.B. 'maxmustermann'",
+        "website": "Vollständige URL Ihrer Website - z.B. 'https://maxmustermann.de'",
+        "youtube": "Ihr YouTube-Kanal-Name mit '@' - z.B. 'maxmustermann'"
+      },
+      "title": "Social Links bearbeiten",
+      "urlPreview": {
+        "title": "URL Vorschau:",
+        "valid": "Gültige URL"
+      }
+    }
+  },
+  "settings": {
+    "dangerScreen": {
+      "account": "Ihr Konto",
+      "confirm": "Konto löschen",
+      "deleteAccountDesc": "Konto und alle Daten permanent löschen. Diese Aktion kann nicht rückgängig gemacht werden.",
+      "deleteAction": "Konto endgültig löschen",
+      "deleteTitle": "Konto löschen",
+      "deleteWarning": "Diese Aktion löscht Ihr Konto und alle zugehörigen Daten dauerhaft. Diese Aktion kann nicht rückgängig gemacht werden.",
+      "errors": {},
+      "title": "Gefahrenbereich",
+      "warning": "Diese Aktion kann nicht rückgängig gemacht werden."
+    },
+    "mainScreen": {
+      "errors": {},
+      "title": "Einstellungen"
+    },
+    "securityScreen": {
+      "activeDevices": "Aktive Geräte",
+      "activeSessions": "Aktive Sitzungen",
+      "disabled": "Deaktiviert",
+      "enabled": "Aktiviert",
+      "errors": {},
+      "lastLogin": "Letzter Login",
+      "loginAttempts": "Anmeldeversuche",
+      "manageDevices": "Geräte verwalten",
+      "mfa": "Zwei-Faktor-Authentifizierung",
+      "neverLoggedIn": "Nie angemeldet",
+      "title": "Sicherheit",
+      "twoFactor": "Zwei-Faktor-Authentifizierung",
+      "twoFactorDesc": "Zusätzliche Sicherheitsebene hinzufügen"
+    },
+    "supportScreen": {
+      "community": "Community",
+      "communityDesc": "Mit anderen Benutzern interagieren",
+      "contact": "Support kontaktieren",
+      "contactDesc": "Technische Unterstützung erhalten",
+      "documentation": "Dokumentation",
+      "documentationDesc": "Vollständige Dokumentation durchsuchen",
+      "errors": {},
+      "help": "Hilfe & FAQ",
+      "helpDesc": "Antworten auf häufige Fragen finden"
+    }
   },
   "validation": {
-    "failed": "Die Eingabe ist ungültig. Bitte prüfen Sie Ihre Angaben.",
-    "opponent": {
-      "tooShort": "Gegner muss mindestens 3 Zeichen lang sein",
-      "tooLong": "Gegner darf maximal 50 Zeichen lang sein"
-    },
-    "date": {
-      "invalid": "Ungültiges Datumsformat"
-    },
-    "time": {
-      "invalid": "Ungültiges Zeitformat"
-    },
-    "location": {
-      "tooShort": "Spielort muss mindestens 3 Zeichen lang sein",
-      "tooLong": "Spielort darf maximal 100 Zeichen lang sein"
-    },
-    "matchFormat": {
-      "required": "Spielformat ist erforderlich",
-      "invalid": "Ungültiges Spielformat"
-    },
-    "parallelGames": {
-      "tooFew": "Mindestens 1 paralleles Spiel erforderlich",
-      "tooMany": "Maximal 5 parallele Spiele möglich"
-    },
-    "matchDuration": {
-      "tooShort": "Spieldauer muss mindestens 10 Minuten betragen",
-      "tooLong": "Spieldauer darf maximal 120 Minuten betragen"
-    },
-    "status": {
-      "required": "Status ist erforderlich",
-      "invalid": "Ungültiger Status"
+    "common": {
+      "errors": {},
+      "failed": "Die Eingabe ist ungültig. Bitte prüfen Sie Ihre Angaben."
     }
   },
-  "matchdayForm": {
-    "title": {
-      "new": "Neuer Spieltag",
-      "edit": "Spieltag bearbeiten"
+  "mfa": {
+    "setup": {
+      "title": "Multi-Faktor-Authentifizierung einrichten",
+      "subtitle": "Erhöhen Sie die Sicherheit Ihres Kontos",
+      "description": "Wählen Sie eine zusätzliche Sicherheitsmethode",
+      "selectMethod": "Methode auswählen",
+      "continue": "Weiter",
+      "skip": "Überspringen",
+      "later": "Später einrichten"
     },
-    "section": {
-      "basic": "Basisinformationen",
-      "datetime": "Datum & Zeit",
-      "location": "Spielort",
-      "details": "Spieldetails"
+    "verify": {
+      "title": "Code eingeben",
+      "subtitle": "Geben Sie den 6-stelligen Code ein",
+      "description": "Wir haben einen Code an Ihre {{method}} gesendet",
+      "inputPlaceholder": "123456",
+      "submit": "Bestätigen",
+      "resend": "Code erneut senden",
+      "changeMethod": "Methode ändern"
     },
-    "opponent": "Gegner",
-    "date": "Datum",
-    "time": "Uhrzeit",
-    "isHome": "Heimspiel",
-    "isAway": "Auswärtsspiel",
-    "location": "Spielort",
-    "address": "Adresse (optional)",
-    "matchFormat": "Spielformat",
-    "parallelGames": "Parallele Spiele",
-    "matchDuration": "Spieldauer",
-    "competitionLabel": "Wettbewerb (optional)",
-    "notes": "Notizen",
+    "methods": {
+      "totp": {
+        "name": "Authenticator App",
+        "description": "Verwenden Sie eine App wie Google Authenticator",
+        "icon": "📱",
+        "setup": {
+          "title": "Authenticator App einrichten",
+          "scanQR": "QR-Code scannen",
+          "manualEntry": "Manuell eingeben",
+          "secretKey": "Geheimer Schlüssel",
+          "appInstructions": "1. Öffnen Sie Ihre Authenticator App\n2. Scannen Sie den QR-Code\n3. Geben Sie den 6-stelligen Code ein"
+        }
+      },
+      "sms": {
+        "name": "SMS",
+        "description": "Erhalten Sie Codes per Textnachricht",
+        "icon": "💬",
+        "setup": {
+          "title": "Telefonnummer bestätigen",
+          "enterPhone": "Telefonnummer eingeben",
+          "phonePlaceholder": "+49 123 456 7890",
+          "sendCode": "Code senden"
+        }
+      },
+      "email": {
+        "name": "E-Mail",
+        "description": "Erhalten Sie Codes per E-Mail",
+        "icon": "📧",
+        "setup": {
+          "title": "E-Mail bestätigen",
+          "currentEmail": "Aktuelle E-Mail-Adresse",
+          "sendCode": "Code senden"
+        }
+      },
+      "backup": {
+        "name": "Backup-Codes",
+        "description": "Einmalige Codes für den Notfall",
+        "icon": "🔐",
+        "setup": {
+          "title": "Backup-Codes generieren",
+          "description": "Speichern Sie diese Codes sicher für den Notfall",
+          "generate": "Codes generieren",
+          "download": "Codes herunterladen",
+          "print": "Codes drucken"
+        }
+      }
+    },
     "status": {
-      "title": "Status",
-      "scheduled": "Geplant",
-      "in_progress": "Läuft",
-      "completed": "Abgeschlossen",
-      "cancelled": "Abgesagt"
+      "enabled": "Aktiviert",
+      "disabled": "Deaktiviert",
+      "pending": "Einrichtung erforderlich"
     },
-    "dropdown": {
-      "pleaseSelect": "Bitte auswählen..."
-    },
-    "placeholder": {
-      "opponent": "Gegnername eingeben",
-      "location": "Spielort eingeben",
-      "matchDuration": "Dauer in Minuten",
-      "notes": "Zusätzliche Informationen..."
-    },
-    "competition": {
-      "friendly": "Freundschaftsspiel",
-      "championship": "Meisterschaft"
-    },
-    "label": {
-      "opponent": "Gegner",
-      "date": "Datum",
-      "time": "Uhrzeit",
-      "location": "Ort",
-      "address": "Adresse (optional)"
-    },
-    "button": {
-      "create": "Erstellen",
-      "update": "Aktualisieren",
-      "delete": "Löschen"
-    },
-    "delete": {
-      "title": "Spieltag löschen",
-      "message": "Möchtest du diesen Spieltag wirklich löschen? Diese Aktion kann nicht rückgängig gemacht werden."
-    },
-    "create": {
-      "success": "Spieltag erfolgreich erstellt"
-    },
-    "update": {
-      "success": "Spieltag erfolgreich aktualisiert"
-    },
-    "selectFormat": "Format wählen",
-    "selectCompetition": "Spieltyp wählen",
-    "selectDate": "Datum auswählen",
-    "selectTime": "Uhrzeit auswählen"
-  },
-  "teamSetup": {
-    "title": "Team einrichten",
-    "subtitle": "Erstelle dein Team und wähle deinen Verein aus",
-    "teamName": "Team-Name",
-    "teamNamePlaceholder": "z.B. 1. Mannschaft",
-    "selectClub": "Verein auswählen",
-    "selectAgeGroup": "Altersgruppe auswählen",
-    "searchClubs": "Vereine suchen...",
-    "searchingClubs": "Suche Vereine...",
-    "noClubsFound": "Keine Vereine gefunden",
-    "createCustomClub": "Eigenen Verein erstellen",
-    "clubName": "Vereinsname",
-    "clubCity": "Stadt",
-    "clubLeague": "Liga",
-    "ageGroups": {
-      "u8": "Bambini (U8)",
-      "u10": "F-Jugend (U10)",
-      "u12": "E-Jugend (U12)",
-      "u14": "D-Jugend (U14)",
-      "u16": "C-Jugend (U16)",
-      "u18": "B-Jugend (U18)",
-      "senioren": "Senioren"
-    },
-    "success": {
-      "teamCreated": "Team erfolgreich erstellt!",
-      "clubCreated": "Verein '{{clubName}}' erfolgreich erstellt!"
+    "manage": {
+      "title": "MFA verwalten",
+      "current": "Aktuelle Methoden",
+      "add": "Neue Methode hinzufügen",
+      "remove": "Entfernen",
+      "edit": "Bearbeiten",
+      "disable": "MFA deaktivieren"
     },
     "errors": {
-      "teamNameRequired": "Team-Name ist erforderlich",
-      "clubRequired": "Verein ist erforderlich",
-      "ageGroupRequired": "Altersgruppe ist erforderlich",
-      "createTeam": "Fehler beim Erstellen des Teams",
-      "searchClubs": "Fehler bei der Vereinssuche",
-      "createClub": "Fehler beim Erstellen des Vereins",
-      "clubNameRequired": "Vereinsname ist erforderlich",
-      "clubCityRequired": "Stadt ist erforderlich"
+      "invalidCode": "Ungültiger Code",
+      "codeExpired": "Code abgelaufen",
+      "tooManyAttempts": "Zu viele Versuche",
+      "setupFailed": "Einrichtung fehlgeschlagen",
+      "verificationFailed": "Verifizierung fehlgeschlagen",
+      "methodNotSupported": "Methode nicht unterstützt"
+    },
+    "success": {
+      "setupComplete": "MFA erfolgreich eingerichtet",
+      "verified": "Erfolgreich verifiziert",
+      "methodAdded": "Neue Methode hinzugefügt",
+      "methodRemoved": "Methode entfernt"
     }
   }
 }

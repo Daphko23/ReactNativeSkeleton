@@ -23,30 +23,30 @@
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">100% </span>
+                <span class="strong">0% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>7/7</span>
+                <span class='fraction'>0/7</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">100% </span>
+                <span class="strong">0% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>6/6</span>
+                <span class='fraction'>0/6</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">100% </span>
+                <span class="strong">0% </span>
                 <span class="quiet">Functions</span>
-                <span class='fraction'>2/2</span>
+                <span class='fraction'>0/2</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">100% </span>
+                <span class="strong">0% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>7/7</span>
+                <span class='fraction'>0/7</span>
             </div>
         
             
@@ -61,7 +61,7 @@
             </div>
         </template>
     </div>
-    <div class='status-line high'></div>
+    <div class='status-line low'></div>
     <pre><table class="coverage">
 <tr><td class="line-count quiet"><a name='L1'></a><a href='#L1'>1</a>
 <a name='L2'></a><a href='#L2'>2</a>
@@ -277,8 +277,8 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">3x</span>
-<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -403,15 +403,15 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">51x</span>
-<span class="cline-any cline-yes">51x</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">25x</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">25x</span>
-<span class="cline-any cline-yes">3x</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -454,9 +454,9 @@ export class LogoutUseCase {
    * 
    * @since 1.0.0
    */
-  constructor(private readonly authRepository: AuthRepository) {
-    if (!authRepository) {
-      throw new Error('AuthRepository is required for LogoutUseCase');
+<span class="fstat-no" title="function not covered" >  co</span>nstructor(private readonly authRepository: AuthRepository) {
+<span class="cstat-no" title="statement not covered" >    if (!authRepository) {</span>
+<span class="cstat-no" title="statement not covered" >      throw new Error('AuthRepository is required for LogoutUseCase');</span>
     }
   }
 &nbsp;
@@ -580,16 +580,16 @@ export class LogoutUseCase {
    * @todo Add logout reason tracking for analytics
    * @todo Implement graceful logout with pending operations handling
    */
-  async execute(): Promise&lt;void&gt; {
-    try {
-      await this.authRepository.logout();
+<span class="fstat-no" title="function not covered" >  as</span>ync execute(): Promise&lt;void&gt; {
+<span class="cstat-no" title="statement not covered" >    try {</span>
+<span class="cstat-no" title="statement not covered" >      await this.authRepository.logout();</span>
     } catch (error) {
       // Log logout errors for monitoring
-      console.warn('Logout error:', error);
+<span class="cstat-no" title="statement not covered" >      console.warn('Logout error:', error);</span>
       
       // Re-throw critical errors, but most logout errors should be handled gracefully
-      if (error instanceof Error &amp;&amp; error.message.includes('critical')) {
-        throw error;
+<span class="cstat-no" title="statement not covered" >      if (error instanceof Error &amp;&amp; error.message.includes('critical')) {</span>
+<span class="cstat-no" title="statement not covered" >        throw error;</span>
       }
       
       // For most errors, we still consider logout successful
@@ -604,7 +604,7 @@ export class LogoutUseCase {
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2025-05-30T19:50:06.682Z
+                at 2025-06-01T18:02:20.399Z
             </div>
         <script src="../../../../../prettify.js"></script>
         <script>

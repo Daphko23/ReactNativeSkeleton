@@ -25,21 +25,21 @@
             <div class='fl pad1y space-right2'>
                 <span class="strong">0% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>0/3</span>
-            </div>
-        
-            
-            <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
-                <span class="quiet">Branches</span>
-                <span class='fraction'>0/116</span>
+                <span class='fraction'>0/4</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
                 <span class="strong">100% </span>
-                <span class="quiet">Functions</span>
+                <span class="quiet">Branches</span>
                 <span class='fraction'>0/0</span>
+            </div>
+        
+            
+            <div class='fl pad1y space-right2'>
+                <span class="strong">0% </span>
+                <span class="quiet">Functions</span>
+                <span class='fraction'>0/1</span>
             </div>
         
             
@@ -358,31 +358,7 @@
 <a name='L293'></a><a href='#L293'>293</a>
 <a name='L294'></a><a href='#L294'>294</a>
 <a name='L295'></a><a href='#L295'>295</a>
-<a name='L296'></a><a href='#L296'>296</a>
-<a name='L297'></a><a href='#L297'>297</a>
-<a name='L298'></a><a href='#L298'>298</a>
-<a name='L299'></a><a href='#L299'>299</a>
-<a name='L300'></a><a href='#L300'>300</a>
-<a name='L301'></a><a href='#L301'>301</a>
-<a name='L302'></a><a href='#L302'>302</a>
-<a name='L303'></a><a href='#L303'>303</a>
-<a name='L304'></a><a href='#L304'>304</a>
-<a name='L305'></a><a href='#L305'>305</a>
-<a name='L306'></a><a href='#L306'>306</a>
-<a name='L307'></a><a href='#L307'>307</a>
-<a name='L308'></a><a href='#L308'>308</a>
-<a name='L309'></a><a href='#L309'>309</a>
-<a name='L310'></a><a href='#L310'>310</a>
-<a name='L311'></a><a href='#L311'>311</a>
-<a name='L312'></a><a href='#L312'>312</a>
-<a name='L313'></a><a href='#L313'>313</a>
-<a name='L314'></a><a href='#L314'>314</a>
-<a name='L315'></a><a href='#L315'>315</a>
-<a name='L316'></a><a href='#L316'>316</a>
-<a name='L317'></a><a href='#L317'>317</a>
-<a name='L318'></a><a href='#L318'>318</a>
-<a name='L319'></a><a href='#L319'>319</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L296'></a><a href='#L296'>296</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -403,28 +379,6 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -712,27 +666,26 @@
  */
 &nbsp;
 import { StyleSheet, Dimensions } from 'react-native';
-import { spacing, colors } from '@core/theme';
 &nbsp;
 const { width: _width } = <span class="cstat-no" title="statement not covered" >Dimensions.get('window');</span>
 const _height = <span class="cstat-no" title="statement not covered" >Dimensions.get('window').height;</span>
 &nbsp;
 /**
- * Stylesheet for the optimized RegisterScreen component.
+ * Creates styles for the RegisterScreen component using theme tokens
  */
-export const registerScreenStyles = <span class="cstat-no" title="statement not covered" >StyleSheet.create({</span>
+export const createRegisterScreenStyles = <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >(t</span>heme: any) =&gt; <span class="cstat-no" title="statement not covered" >StyleSheet.create({</span></span>
   // ===================================
   // CONTAINER STYLES
   // ===================================
   container: {
     flex: 1,
-    backgroundColor: colors.background || '#ffffff',
+    backgroundColor: theme.colors.background,
   },
   
   scrollContainer: {
     flexGrow: 1,
     justifyContent: 'center',
-    padding: spacing.lg || 24,
+    padding: theme.spacing[5],
     minHeight: '100%',
   },
 &nbsp;
@@ -741,124 +694,124 @@ export const registerScreenStyles = <span class="cstat-no" title="statement not 
   // ===================================
   header: {
     alignItems: 'center',
-    marginBottom: spacing.xl || 32,
-    paddingHorizontal: spacing.md || 16,
+    marginBottom: theme.spacing[6],
+    paddingHorizontal: theme.spacing[4],
   },
 &nbsp;
   title: {
-    fontSize: 28,
-    fontWeight: '700',
-    color: colors.text || '#1a1a1a',
+    fontSize: theme.typography.fontSizes['2xl'],
+    fontWeight: theme.typography.fontWeights.bold,
+    color: theme.colors.text,
     textAlign: 'center',
-    marginBottom: spacing.sm || 12,
+    marginBottom: theme.spacing[3],
     letterSpacing: -0.5,
   },
 &nbsp;
   subtitle: {
-    fontSize: 16,
-    color: colors.textSecondary || '#666666',
+    fontSize: theme.typography.fontSizes.base,
+    color: theme.colors.textSecondary,
     textAlign: 'center',
     lineHeight: 24,
-    paddingHorizontal: spacing.md || 16,
+    paddingHorizontal: theme.spacing[4],
   },
 &nbsp;
   // ===================================
   // FORM STYLES
   // ===================================
   formContainer: {
-    marginBottom: spacing.xl || 32,
+    marginBottom: theme.spacing[6],
   },
 &nbsp;
   nameContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    marginBottom: spacing.md || 16,
+    marginBottom: theme.spacing[4],
   },
 &nbsp;
   nameField: {
     flex: 1,
-    marginHorizontal: spacing.xs || 4,
+    marginHorizontal: theme.spacing[1],
   },
 &nbsp;
   validationError: {
-    fontSize: 14,
-    color: colors.error || '#d32f2f',
-    marginTop: spacing.xs || 8,
-    marginBottom: spacing.sm || 12,
-    paddingHorizontal: spacing.sm || 12,
+    fontSize: theme.typography.fontSizes.sm,
+    color: theme.colors.error,
+    marginTop: theme.spacing[2],
+    marginBottom: theme.spacing[3],
+    paddingHorizontal: theme.spacing[3],
   },
 &nbsp;
   // ===================================
   // PASSWORD STRENGTH STYLES
   // ===================================
   passwordStrengthContainer: {
-    marginTop: spacing.sm || 12,
-    marginBottom: spacing.md || 16,
+    marginTop: theme.spacing[3],
+    marginBottom: theme.spacing[4],
   },
 &nbsp;
   strengthBarContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: spacing.sm || 12,
+    marginBottom: theme.spacing[3],
   },
 &nbsp;
   strengthBar: {
     flex: 1,
     height: 4,
-    backgroundColor: '#e0e0e0',
-    borderRadius: 2,
-    marginRight: spacing.sm || 12,
+    backgroundColor: theme.colors.surfaceVariant,
+    borderRadius: theme.borderRadius.sm,
+    marginRight: theme.spacing[3],
     overflow: 'hidden',
   },
 &nbsp;
   strengthFill: {
     height: '100%',
-    borderRadius: 2,
+    borderRadius: theme.borderRadius.sm,
   },
 &nbsp;
   strengthText: {
-    fontSize: 14,
-    fontWeight: '500',
+    fontSize: theme.typography.fontSizes.sm,
+    fontWeight: theme.typography.fontWeights.medium,
     minWidth: 60,
   },
 &nbsp;
   feedbackContainer: {
-    paddingLeft: spacing.sm || 12,
+    paddingLeft: theme.spacing[3],
   },
 &nbsp;
   feedbackText: {
-    fontSize: 12,
-    color: colors.textSecondary || '#666666',
+    fontSize: theme.typography.fontSizes.xs,
+    color: theme.colors.textSecondary,
     lineHeight: 18,
-    marginBottom: spacing.xs || 4,
+    marginBottom: theme.spacing[1],
   },
 &nbsp;
   // ===================================
   // AGREEMENT STYLES
   // ===================================
   agreementContainer: {
-    marginVertical: spacing.lg || 24,
+    marginVertical: theme.spacing[5],
   },
 &nbsp;
   checkboxContainer: {
     flexDirection: 'row',
     alignItems: 'flex-start',
-    marginBottom: spacing.md || 16,
+    marginBottom: theme.spacing[4],
   },
 &nbsp;
   agreementTextContainer: {
     flex: 1,
-    marginLeft: spacing.sm || 12,
+    marginLeft: theme.spacing[3],
   },
 &nbsp;
   agreementText: {
-    fontSize: 14,
-    color: colors.textSecondary || '#666666',
+    fontSize: theme.typography.fontSizes.sm,
+    color: theme.colors.textSecondary,
     lineHeight: 20,
   },
 &nbsp;
   linkText: {
-    color: colors.primary || '#007bff',
+    color: theme.colors.primary,
     textDecorationLine: 'underline',
   },
 &nbsp;
@@ -867,102 +820,54 @@ export const registerScreenStyles = <span class="cstat-no" title="statement not 
   // ===================================
   successHeader: {
     alignItems: 'center',
-    marginBottom: spacing.xl || 32,
-    paddingHorizontal: spacing.md || 16,
+    marginBottom: theme.spacing[6],
+    paddingHorizontal: theme.spacing[4],
   },
 &nbsp;
   successIcon: {
     fontSize: 64,
-    marginBottom: spacing.md || 16,
+    marginBottom: theme.spacing[4],
   },
 &nbsp;
   successTitle: {
-    fontSize: 24,
-    fontWeight: '600',
-    color: colors.success || '#2e7d32',
+    fontSize: theme.typography.fontSizes.xl,
+    fontWeight: theme.typography.fontWeights.semibold,
+    color: theme.colors.success,
     textAlign: 'center',
-    marginBottom: spacing.sm || 12,
+    marginBottom: theme.spacing[3],
   },
 &nbsp;
   successSubtitle: {
-    fontSize: 16,
-    color: colors.textSecondary || '#666666',
+    fontSize: theme.typography.fontSizes.base,
+    color: theme.colors.textSecondary,
     textAlign: 'center',
     lineHeight: 24,
-    paddingHorizontal: spacing.md || 16,
-  },
-&nbsp;
-  // Legacy success styles (for compatibility)
-  successContainer: {
-    backgroundColor: colors.success || '#4CAF50',
-    borderRadius: 8,
-    marginBottom: spacing.lg || 24,
-    padding: spacing.md || 16,
-  },
-&nbsp;
-  successText: {
-    color: 'white',
-    fontSize: 16,
-    fontWeight: '600',
-    marginBottom: spacing.xs || 8,
-    textAlign: 'center',
-  },
-&nbsp;
-  redirectText: {
-    color: 'white',
-    fontSize: 14,
-    textAlign: 'center',
-  },
-&nbsp;
-  // ===================================
-  // INSTRUCTIONS STYLES
-  // ===================================
-  instructionsContainer: {
-    backgroundColor: colors.surface || '#f8f9fa',
-    borderRadius: 12,
-    padding: spacing.lg || 24,
-    marginBottom: spacing.xl || 32,
-    borderWidth: 1,
-    borderColor: colors.border || '#e0e0e0',
-  },
-&nbsp;
-  instructionsTitle: {
-    fontSize: 18,
-    fontWeight: '600',
-    color: colors.text || '#1a1a1a',
-    marginBottom: spacing.md || 16,
-  },
-&nbsp;
-  instructionStep: {
-    fontSize: 16,
-    color: colors.textSecondary || '#666666',
-    lineHeight: 24,
-    marginBottom: spacing.sm || 12,
-    paddingLeft: spacing.sm || 12,
+    paddingHorizontal: theme.spacing[4],
   },
 &nbsp;
   // ===================================
   // OAUTH SOCIAL LOGIN STYLES
   // ===================================
   oauthContainer: {
-    marginVertical: spacing.xl || 32,
+    marginVertical: theme.spacing[5],
   },
 &nbsp;
   divider: {
-    marginVertical: spacing.lg || 24,
+    width: '100%',
+    marginVertical: theme.spacing[4],
   },
 &nbsp;
   socialText: {
-    fontSize: 16,
-    color: colors.textSecondary || '#666666',
+    fontSize: theme.typography.fontSizes.sm,
+    color: theme.colors.textSecondary,
+    marginBottom: theme.spacing[4],
     textAlign: 'center',
-    marginBottom: spacing.lg || 24,
   },
 &nbsp;
   socialButtonsContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    gap: spacing.md || 16,
+    gap: theme.spacing[4],
   },
 &nbsp;
   socialButton: {
@@ -970,51 +875,77 @@ export const registerScreenStyles = <span class="cstat-no" title="statement not 
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    paddingVertical: spacing.md || 16,
-    paddingHorizontal: spacing.lg || 24,
-    borderRadius: 8,
+    paddingVertical: theme.spacing[4],
+    paddingHorizontal: theme.spacing[4],
+    borderRadius: theme.borderRadius.md,
     borderWidth: 1,
-    minHeight: 50,
+    borderColor: theme.colors.outline,
+    backgroundColor: theme.colors.surface,
+    minHeight: 48,
+    ...theme.shadows.sm,
   },
 &nbsp;
   googleButton: {
-    backgroundColor: '#ffffff',
-    borderColor: '#dadce0',
+    borderColor: '#4285f4',
   },
 &nbsp;
   appleButton: {
-    backgroundColor: '#000000',
-    borderColor: '#000000',
+    borderColor: theme.colors.onSurface,
   },
 &nbsp;
   socialIcon: {
-    fontSize: 20,
-    marginRight: spacing.sm || 12,
+    fontSize: theme.typography.fontSizes.base,
+    marginRight: theme.spacing[2],
   },
 &nbsp;
   socialButtonText: {
-    fontSize: 16,
-    fontWeight: '500',
+    fontSize: theme.typography.fontSizes.sm,
+    fontWeight: theme.typography.fontWeights.semibold,
+    color: theme.colors.text,
+  },
+&nbsp;
+  // ===================================
+  // INSTRUCTIONS STYLES
+  // ===================================
+  instructionsContainer: {
+    backgroundColor: theme.colors.surfaceVariant,
+    borderRadius: theme.borderRadius.md,
+    padding: theme.spacing[4],
+    marginBottom: theme.spacing[5],
+  },
+&nbsp;
+  instructionsTitle: {
+    fontSize: theme.typography.fontSizes.base,
+    fontWeight: theme.typography.fontWeights.semibold,
+    color: theme.colors.text,
+    marginBottom: theme.spacing[3],
+  },
+&nbsp;
+  instructionStep: {
+    fontSize: theme.typography.fontSizes.sm,
+    color: theme.colors.textSecondary,
+    lineHeight: 20,
+    marginBottom: theme.spacing[2],
   },
 &nbsp;
   // ===================================
   // NAVIGATION STYLES
   // ===================================
   navigationContainer: {
-    marginTop: 'auto',
-    paddingTop: spacing.xl || 32,
+    marginTop: theme.spacing[5],
+    alignItems: 'center',
   },
 &nbsp;
   linkContainer: {
-    alignItems: 'center',
-    paddingVertical: spacing.md || 16,
+    marginTop: theme.spacing[4],
+    paddingVertical: theme.spacing[3],
   },
 &nbsp;
   navigationLinkText: {
-    color: colors.primary || '#007bff',
-    fontSize: 16,
-    fontWeight: '500',
+    color: theme.colors.primary,
+    fontSize: theme.typography.fontSizes.sm,
     textAlign: 'center',
+    textDecorationLine: 'underline',
   },
 });
 &nbsp;</pre></td></tr></table></pre>
@@ -1024,7 +955,7 @@ export const registerScreenStyles = <span class="cstat-no" title="statement not 
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2025-05-30T19:50:06.682Z
+                at 2025-06-01T18:02:20.399Z
             </div>
         <script src="../../../../../../prettify.js"></script>
         <script>

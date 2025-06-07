@@ -23,9 +23,9 @@
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">6.66% </span>
+                <span class="strong">0% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>6/90</span>
+                <span class='fraction'>0/90</span>
             </div>
         
             
@@ -37,16 +37,16 @@
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">20% </span>
+                <span class="strong">0% </span>
                 <span class="quiet">Functions</span>
-                <span class='fraction'>2/10</span>
+                <span class='fraction'>0/10</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">6.74% </span>
+                <span class="strong">0% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>6/89</span>
+                <span class='fraction'>0/89</span>
             </div>
         
             
@@ -1095,10 +1095,10 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">12x</span>
-<span class="cline-any cline-yes">12x</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">12x</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -1616,9 +1616,9 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">12x</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">12x</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -1626,7 +1626,7 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">12x</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -1900,14 +1900,14 @@ export class OAuthServiceImpl implements IOAuthService {
    * @businessRule BR-300: Dependency injection for enterprise services
    * @securityNote OAuth configuration secured during initialization
    */
-  constructor(
+<span class="fstat-no" title="function not covered" >  co</span>nstructor(
     config: OAuthConfig,
     private readonly logger: ILoggerService
   ) {
-    this.config = config;
-    this.initializeProviders();
+<span class="cstat-no" title="statement not covered" >    this.config = config;</span>
+<span class="cstat-no" title="statement not covered" >    this.initializeProviders();</span>
 &nbsp;
-    this.logger.info('OAuth Service initialized', LogCategory.SECURITY, {
+<span class="cstat-no" title="statement not covered" >    this.logger.info('OAuth Service initialized', LogCategory.SECURITY, {</span>
       service: 'OAuthService',
       metadata: { 
         hasGoogleConfig: !!this.config.google,
@@ -2424,10 +2424,10 @@ export class OAuthServiceImpl implements IOAuthService {
    * 
    * @returns {Promise&lt;void&gt;} Promise resolving when providers initialized
    */
-  private async initializeProviders(): Promise&lt;void&gt; {
-    try {
+<span class="fstat-no" title="function not covered" >  pr</span>ivate async initializeProviders(): Promise&lt;void&gt; {
+<span class="cstat-no" title="statement not covered" >    try {</span>
       // Initialize Google Sign-In with secure configuration
-      await GoogleSignin.configure({
+<span class="cstat-no" title="statement not covered" >      await GoogleSignin.configure({</span>
         webClientId: this.config.google.webClientId,
         iosClientId: this.config.google.iosClientId,
         offlineAccess: true,
@@ -2435,7 +2435,7 @@ export class OAuthServiceImpl implements IOAuthService {
         forceCodeForRefreshToken: true,
       });
 &nbsp;
-      this.logger.info('OAuth providers initialized successfully', LogCategory.SECURITY, {
+<span class="cstat-no" title="statement not covered" >      this.logger.info('OAuth providers initialized successfully', LogCategory.SECURITY, {</span>
         service: 'OAuthService',
         metadata: { 
           hasGoogleConfig: !!this.config.google,
@@ -2497,7 +2497,7 @@ export class OAuthServiceImpl implements IOAuthService {
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2025-05-30T19:50:06.682Z
+                at 2025-06-01T18:02:20.399Z
             </div>
         <script src="../../../../../prettify.js"></script>
         <script>

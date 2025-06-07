@@ -14,35 +14,30 @@ const mockLogger = {
   debug: jest.fn()
 };
 
-// Mock speakeasy for TOTP
-const mockSpeakeasy = {
+// Mock external dependencies - nur lokale Implementierungen
+jest.mock('crypto', () => ({
+  randomBytes: jest.fn(),
+}));
+
+// Mock speakeasy funktionalität direkt
+const _mockSpeakeasy = {
   generateSecret: jest.fn(),
   totp: {
     verify: jest.fn(),
-    generate: jest.fn()
-  }
+  },
 };
 
-// Mock QR code generation
-const mockQRCode = {
-  toDataURL: jest.fn()
+// Mock QRCode direkt
+const _mockQRCode = {
+  toDataURL: jest.fn(),
 };
 
-// Mock Twilio SMS
-const mockTwilio = jest.fn(() => ({
-  messages: {
-    create: jest.fn()
-  }
+// Mock Twilio client direkt
+const _mockTwilio = jest.fn(() => ({
+  messages: { create: jest.fn() },
 }));
 
-// Mock crypto-js
-const mockCrypto = {
-  randomBytes: jest.fn(),
-  createHash: jest.fn(() => ({
-    update: jest.fn().mockReturnThis(),
-    digest: jest.fn()
-  }))
-};
+const _mockSendMessage = jest.fn();
 
 // Mock MFA Service Implementation Class for testing
 class MockMFAServiceImpl {
@@ -61,7 +56,7 @@ class MockMFAServiceImpl {
     };
   }
 
-  async setupTOTP(userId: string) {
+  async setupTOTP(_userId: string) {
     try {
       const mockSecret = {
         ascii: 'test-secret-key',
@@ -79,7 +74,7 @@ class MockMFAServiceImpl {
         qrCode,
         backupCodes
       };
-    } catch (error) {
+    } catch {
       return {
         success: false,
         error: 'TOTP setup failed'
@@ -87,7 +82,7 @@ class MockMFAServiceImpl {
     }
   }
 
-  async verifyTOTP(userId: string, token: string) {
+  async verifyTOTP(_userId: string, token: string) {
     if (!token || token.length !== 6 || !/^\d+$/.test(token)) {
       return {
         success: false,
@@ -101,7 +96,7 @@ class MockMFAServiceImpl {
         success: true,
         verified
       };
-    } catch (error) {
+    } catch {
       return {
         success: false,
         error: 'TOTP verification failed'
@@ -109,7 +104,7 @@ class MockMFAServiceImpl {
     }
   }
 
-  async setupSMS(userId: string, phoneNumber: string) {
+  async setupSMS(_userId: string, phoneNumber: string) {
     const phoneRegex = /^\+\d{10,15}$/;
     if (!phoneRegex.test(phoneNumber)) {
       return {
@@ -123,15 +118,15 @@ class MockMFAServiceImpl {
     };
   }
 
-  async sendSMSCode(userId: string) {
+  async sendSMSCode(_userId: string) {
     // Mock rate limiting
-    const rateLimitKey = `sms_rate_${userId}`;
+    const _rateLimitKey = `sms_rate_${_userId}`;
     
     try {
       return {
         success: true
       };
-    } catch (error) {
+    } catch {
       return {
         success: false,
         error: 'SMS delivery failed'
@@ -139,10 +134,10 @@ class MockMFAServiceImpl {
     }
   }
 
-  async verifySMSCode(userId: string, code: string) {
+  async verifySMSCode(_userId: string, code: string) {
     // Mock SMS code storage
     const storage = new Map();
-    const storedData = storage.get(userId);
+    const storedData = storage.get(_userId);
     
     if (!storedData) {
       return {
@@ -165,7 +160,7 @@ class MockMFAServiceImpl {
     };
   }
 
-  async generateBackupCodes(userId: string) {
+  async generateBackupCodes(_userId: string) {
     return Array(8).fill(null).map((_, i) => `backup-code-${i}-${Math.random()}`);
   }
 
@@ -192,7 +187,7 @@ class MockMFAServiceImpl {
     return this.config;
   }
 
-  async getMFAMethods(userId: string) {
+  async getMFAMethods(_userId: string) {
     return [
       {
         id: 'totp-1',

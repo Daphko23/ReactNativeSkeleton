@@ -159,6 +159,39 @@ export class OptimizedSecurityServiceFactory {
    * @description Enhanced default configuration
    */
   private static readonly ENHANCED_DEFAULT_CONFIG: EnhancedSecurityServiceConfig = {
+    encryption: {
+      algorithm: 'AES-256-GCM',
+      keyLength: 256
+    },
+    mfa: {
+      enabled: true,
+      methods: ['totp', 'sms', 'email'],
+      backupCodes: 10
+    },
+    session: {
+      timeout: 900000, // 15 minutes
+      maxConcurrent: 5
+    },
+    biometric: {
+      enabled: true,
+      fallbackToPin: true
+    },
+    advancedThreats: {
+      enabled: true,
+      ml: {
+        enabled: true,
+        models: ['anomaly-detection', 'behavioral-analysis']
+      }
+    },
+    audit: {
+      enabled: true,
+      retention: 90 // 90 days
+    },
+    compliance: {
+      gdpr: true,
+      hipaa: false,
+      sox: false
+    },
     enableThreatAssessment: true,
     enableDeviceFingerprinting: true,
     enableLocationMonitoring: true,
@@ -394,6 +427,42 @@ export class OptimizedSecurityServiceFactory {
     dependencies: Partial<SecurityServiceDependencies>
   ): Promise<IAdvancedSecurityService> {
     const testConfig: EnhancedSecurityServiceConfig = {
+      // Base SecurityServiceConfig properties
+      encryption: {
+        algorithm: 'AES-256-GCM',
+        keyLength: 256
+      },
+      mfa: {
+        enabled: false, // Disabled for tests
+        methods: ['totp'],
+        backupCodes: 0
+      },
+      session: {
+        timeout: 60000, // 1 minute for tests
+        maxConcurrent: 1
+      },
+      biometric: {
+        enabled: false, // Disabled for tests
+        fallbackToPin: false
+      },
+      // Enhanced properties
+      advancedThreats: {
+        enabled: false,
+        ml: {
+          enabled: false,
+          models: []
+        }
+      },
+      audit: {
+        enabled: false,
+        retention: 1 // 1 day for tests
+      },
+      compliance: {
+        gdpr: false,
+        hipaa: false,
+        sox: false
+      },
+      // Additional properties
       enableThreatAssessment: false, // Disabled for faster tests
       enableDeviceFingerprinting: true,
       enableLocationMonitoring: false,

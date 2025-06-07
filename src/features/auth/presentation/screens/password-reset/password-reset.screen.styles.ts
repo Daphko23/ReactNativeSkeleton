@@ -11,27 +11,26 @@
  */
 
 import { StyleSheet, Dimensions } from 'react-native';
-import { spacing, colors } from '@core/theme';
 
 const _width = Dimensions.get('window').width;
 const _height = Dimensions.get('window').height;
 
 /**
- * Stylesheet for the optimized PasswordResetScreen component.
+ * Creates styles for the PasswordResetScreen component using theme tokens
  */
-export const passwordResetScreenStyles = StyleSheet.create({
+export const createPasswordResetScreenStyles = (theme: any) => StyleSheet.create({
   // ===================================
   // CONTAINER STYLES
   // ===================================
   container: {
     flex: 1,
-    backgroundColor: colors.background || '#ffffff',
+    backgroundColor: theme.colors.background,
   },
   
   scrollContainer: {
     flexGrow: 1,
     justifyContent: 'center',
-    padding: spacing.lg || 24,
+    padding: theme.spacing[5],
     minHeight: '100%',
   },
 
@@ -40,40 +39,40 @@ export const passwordResetScreenStyles = StyleSheet.create({
   // ===================================
   header: {
     alignItems: 'center',
-    marginBottom: spacing.xl || 32,
-    paddingHorizontal: spacing.md || 16,
+    marginBottom: theme.spacing[6],
+    paddingHorizontal: theme.spacing[4],
   },
 
   title: {
-    fontSize: 28,
-    fontWeight: '700',
-    color: colors.text || '#1a1a1a',
+    fontSize: theme.typography.fontSizes['2xl'],
+    fontWeight: theme.typography.fontWeights.bold,
+    color: theme.colors.text,
     textAlign: 'center',
-    marginBottom: spacing.sm || 12,
+    marginBottom: theme.spacing[3],
     letterSpacing: -0.5,
   },
 
   subtitle: {
-    fontSize: 16,
-    color: colors.textSecondary || '#666666',
+    fontSize: theme.typography.fontSizes.base,
+    color: theme.colors.textSecondary,
     textAlign: 'center',
     lineHeight: 24,
-    paddingHorizontal: spacing.md || 16,
+    paddingHorizontal: theme.spacing[4],
   },
 
   // ===================================
   // FORM STYLES
   // ===================================
   formContainer: {
-    marginBottom: spacing.xl || 32,
+    marginBottom: theme.spacing[6],
   },
 
   validationError: {
-    fontSize: 14,
-    color: colors.error || '#d32f2f',
-    marginTop: spacing.xs || 8,
-    marginBottom: spacing.sm || 12,
-    paddingHorizontal: spacing.sm || 12,
+    fontSize: theme.typography.fontSizes.sm,
+    color: theme.colors.error,
+    marginTop: theme.spacing[2],
+    marginBottom: theme.spacing[3],
+    paddingHorizontal: theme.spacing[3],
   },
 
   // ===================================
@@ -81,56 +80,56 @@ export const passwordResetScreenStyles = StyleSheet.create({
   // ===================================
   successHeader: {
     alignItems: 'center',
-    marginBottom: spacing.xl || 32,
-    paddingHorizontal: spacing.md || 16,
+    marginBottom: theme.spacing[6],
+    paddingHorizontal: theme.spacing[4],
   },
 
   successIcon: {
     fontSize: 64,
-    marginBottom: spacing.md || 16,
+    marginBottom: theme.spacing[4],
   },
 
   successTitle: {
-    fontSize: 24,
-    fontWeight: '600',
-    color: colors.success || '#2e7d32',
+    fontSize: theme.typography.fontSizes.xl,
+    fontWeight: theme.typography.fontWeights.semibold,
+    color: theme.colors.success,
     textAlign: 'center',
-    marginBottom: spacing.sm || 12,
+    marginBottom: theme.spacing[3],
   },
 
   successSubtitle: {
-    fontSize: 16,
-    color: colors.textSecondary || '#666666',
+    fontSize: theme.typography.fontSizes.base,
+    color: theme.colors.textSecondary,
     textAlign: 'center',
     lineHeight: 24,
-    paddingHorizontal: spacing.md || 16,
+    paddingHorizontal: theme.spacing[4],
   },
 
   // ===================================
   // INSTRUCTIONS STYLES
   // ===================================
   instructionsContainer: {
-    backgroundColor: colors.surface || '#f8f9fa',
-    borderRadius: 12,
-    padding: spacing.lg || 24,
-    marginBottom: spacing.xl || 32,
+    backgroundColor: theme.colors.surfaceVariant,
+    borderRadius: theme.borderRadius.md,
+    padding: theme.spacing[5],
+    marginBottom: theme.spacing[6],
     borderWidth: 1,
-    borderColor: colors.border || '#e0e0e0',
+    borderColor: theme.colors.outline,
   },
 
   instructionsTitle: {
-    fontSize: 18,
-    fontWeight: '600',
-    color: colors.text || '#1a1a1a',
-    marginBottom: spacing.md || 16,
+    fontSize: theme.typography.fontSizes.lg,
+    fontWeight: theme.typography.fontWeights.semibold,
+    color: theme.colors.text,
+    marginBottom: theme.spacing[4],
   },
 
   instructionStep: {
-    fontSize: 16,
-    color: colors.textSecondary || '#666666',
+    fontSize: theme.typography.fontSizes.base,
+    color: theme.colors.textSecondary,
     lineHeight: 24,
-    marginBottom: spacing.sm || 12,
-    paddingLeft: spacing.sm || 12,
+    marginBottom: theme.spacing[3],
+    paddingLeft: theme.spacing[3],
   },
 
   // ===================================
@@ -138,38 +137,38 @@ export const passwordResetScreenStyles = StyleSheet.create({
   // ===================================
   resendContainer: {
     alignItems: 'center',
-    marginBottom: spacing.xl || 32,
-    paddingHorizontal: spacing.md || 16,
+    marginBottom: theme.spacing[6],
+    paddingHorizontal: theme.spacing[4],
   },
 
   resendText: {
-    fontSize: 16,
-    color: colors.textSecondary || '#666666',
+    fontSize: theme.typography.fontSizes.base,
+    color: theme.colors.textSecondary,
     textAlign: 'center',
-    marginBottom: spacing.md || 16,
+    marginBottom: theme.spacing[4],
   },
 
   resendButton: {
     backgroundColor: 'transparent',
     borderWidth: 1,
-    borderColor: colors.primary || '#007bff',
-    borderRadius: 8,
-    paddingVertical: spacing.sm || 12,
-    paddingHorizontal: spacing.lg || 24,
+    borderColor: theme.colors.primary,
+    borderRadius: theme.borderRadius.md,
+    paddingVertical: theme.spacing[3],
+    paddingHorizontal: theme.spacing[5],
     minWidth: 180,
     alignItems: 'center',
     justifyContent: 'center',
   },
 
   resendButtonText: {
-    fontSize: 16,
-    fontWeight: '500',
-    color: colors.primary || '#007bff',
+    fontSize: theme.typography.fontSizes.base,
+    fontWeight: theme.typography.fontWeights.medium,
+    color: theme.colors.primary,
   },
 
   cooldownText: {
-    fontSize: 14,
-    color: colors.textSecondary || '#666666',
+    fontSize: theme.typography.fontSizes.sm,
+    color: theme.colors.textSecondary,
     fontStyle: 'italic',
   },
 
@@ -178,13 +177,13 @@ export const passwordResetScreenStyles = StyleSheet.create({
   // ===================================
   changeEmailButton: {
     alignItems: 'center',
-    paddingVertical: spacing.md || 16,
-    marginBottom: spacing.lg || 24,
+    paddingVertical: theme.spacing[4],
+    marginBottom: theme.spacing[5],
   },
 
   changeEmailText: {
-    fontSize: 16,
-    color: colors.primary || '#007bff',
+    fontSize: theme.typography.fontSizes.base,
+    color: theme.colors.primary,
     textDecorationLine: 'underline',
   },
 
@@ -192,38 +191,37 @@ export const passwordResetScreenStyles = StyleSheet.create({
   // SECURITY NOTICE STYLES
   // ===================================
   securityNotice: {
-    backgroundColor: colors.info || '#e3f2fd',
-    borderRadius: 8,
-    padding: spacing.md || 16,
-    marginBottom: spacing.xl || 32,
+    backgroundColor: theme.colors.surfaceVariant,
+    borderRadius: theme.borderRadius.md,
+    padding: theme.spacing[4],
+    marginBottom: theme.spacing[6],
     borderLeftWidth: 4,
-    borderLeftColor: colors.primary || '#007bff',
+    borderLeftColor: theme.colors.primary,
   },
 
   securityText: {
-    fontSize: 14,
-    color: colors.textSecondary || '#666666',
+    fontSize: theme.typography.fontSizes.sm,
+    color: theme.colors.textSecondary,
     lineHeight: 20,
-    textAlign: 'center',
   },
 
   // ===================================
   // NAVIGATION STYLES
   // ===================================
   navigationContainer: {
-    marginTop: 'auto',
-    paddingTop: spacing.xl || 32,
+    marginTop: theme.spacing[5],
+    alignItems: 'center',
   },
 
   linkContainer: {
-    alignItems: 'center',
-    paddingVertical: spacing.md || 16,
+    marginTop: theme.spacing[4],
+    paddingVertical: theme.spacing[3],
   },
 
   linkText: {
-    color: colors.primary || '#007bff',
-    fontSize: 16,
-    fontWeight: '500',
+    color: theme.colors.primary,
+    fontSize: theme.typography.fontSizes.sm,
     textAlign: 'center',
+    textDecorationLine: 'underline',
   },
 });

@@ -202,6 +202,42 @@ export class AuthIntegration {
       enablePasswordPolicy: config.securityFeatures.enablePasswordPolicy,
       enableAuthOrchestrator: true,
       securityConfig: {
+        // Base SecurityServiceConfig properties
+        encryption: {
+          algorithm: 'AES-256-GCM',
+          keyLength: 256
+        },
+        mfa: {
+          enabled: true,
+          methods: ['totp', 'sms', 'email'],
+          backupCodes: 10
+        },
+        session: {
+          timeout: 900000, // 15 minutes
+          maxConcurrent: 5
+        },
+        biometric: {
+          enabled: true,
+          fallbackToPin: true
+        },
+        // Enhanced properties
+        advancedThreats: {
+          enabled: true,
+          ml: {
+            enabled: true,
+            models: ['anomaly-detection', 'behavioral-analysis']
+          }
+        },
+        audit: {
+          enabled: true,
+          retention: 90 // 90 days
+        },
+        compliance: {
+          gdpr: true,
+          hipaa: false,
+          sox: false
+        },
+        // Additional properties
         enableThreatAssessment: config.securityFeatures.enableAdvancedSecurity,
         enableDeviceFingerprinting: config.securityFeatures.enableAdvancedSecurity,
         enableLocationMonitoring: config.securityFeatures.enableAdvancedSecurity,

@@ -37,7 +37,7 @@ import { AuthStackParamList } from '@core/navigation/navigation.types';
 import { PrimaryButton } from '@shared/components/buttons/primary-button.component';
 import { FormTextInput } from '@shared/components/form-text-input/form-text-input.component';
 import { FormErrorText } from '@shared/components/form-text-input/form-text-error.component';
-import { passwordChangeScreenStyles } from './password-change.screen.styles';
+import { useTheme, createThemedStyles } from '@core/theme/theme.system';
 import { useAuth } from '@features/auth/presentation/hooks/use-auth';
 import { useTranslation } from 'react-i18next';
 import { withAuthGuard } from '@shared/hoc/with-auth.guard';
@@ -95,9 +95,179 @@ interface PasswordStrength {
  * - Accessibility support
  * - Responsive design
  */
+
+const useStyles = createThemedStyles((theme) => ({
+  // Container Styles
+  container: {
+    flex: 1,
+    backgroundColor: theme.colors.background,
+  },
+  scrollContainer: {
+    flexGrow: 1,
+    paddingHorizontal: theme.spacing[6],
+    paddingTop: theme.spacing[8],
+    paddingBottom: theme.spacing[10],
+  },
+
+  // Header Styles
+  header: {
+    marginBottom: theme.spacing[8],
+    alignItems: 'center' as const,
+  },
+  headerIcon: {
+    fontSize: theme.typography.fontSizes['4xl'],
+    marginBottom: theme.spacing[4],
+  },
+  title: {
+    fontSize: theme.typography.fontSizes['2xl'],
+    fontWeight: theme.typography.fontWeights.bold,
+    color: theme.colors.text,
+    textAlign: 'center' as const,
+    marginBottom: theme.spacing[2],
+    letterSpacing: -0.5,
+  },
+  subtitle: {
+    fontSize: theme.typography.fontSizes.base,
+    color: theme.colors.textSecondary,
+    textAlign: 'center' as const,
+    lineHeight: theme.typography.lineHeights.relaxed * theme.typography.fontSizes.base,
+    paddingHorizontal: theme.spacing[4],
+  },
+
+  // Form Styles
+  formContainer: {
+    gap: theme.spacing[5],
+  },
+  validationError: {
+    fontSize: theme.typography.fontSizes.sm,
+    color: theme.colors.error,
+    marginTop: -theme.spacing[4],
+    marginBottom: theme.spacing[1],
+    paddingHorizontal: theme.spacing[1],
+  },
+
+  // Password Strength Styles
+  strengthContainer: {
+    marginTop: theme.spacing[2],
+    padding: theme.spacing[4],
+    backgroundColor: theme.colors.backgroundSecondary,
+    borderRadius: theme.borderRadius.md,
+    borderWidth: 1,
+    borderColor: theme.colors.border,
+  },
+  strengthHeader: {
+    flexDirection: 'row' as const,
+    justifyContent: 'space-between' as const,
+    alignItems: 'center' as const,
+    marginBottom: theme.spacing[3],
+  },
+  strengthLabel: {
+    fontSize: theme.typography.fontSizes.sm,
+    fontWeight: theme.typography.fontWeights.medium,
+    color: theme.colors.text,
+  },
+  strengthScore: {
+    fontSize: theme.typography.fontSizes.sm,
+    fontWeight: theme.typography.fontWeights.semibold,
+  },
+  strengthBar: {
+    height: 6,
+    borderRadius: theme.borderRadius.sm,
+    marginBottom: theme.spacing[3],
+  },
+  
+  // Requirements Styles
+  requirementsContainer: {
+    marginTop: theme.spacing[2],
+  },
+  requirementsTitle: {
+    fontSize: theme.typography.fontSizes.sm,
+    fontWeight: theme.typography.fontWeights.medium,
+    color: theme.colors.text,
+    marginBottom: theme.spacing[2],
+  },
+  requirementItem: {
+    flexDirection: 'row' as const,
+    alignItems: 'center' as const,
+    marginBottom: theme.spacing[1],
+  },
+  requirementIcon: {
+    fontSize: theme.typography.fontSizes.sm,
+    marginRight: theme.spacing[2],
+    width: 16,
+  },
+  requirementText: {
+    fontSize: theme.typography.fontSizes.sm,
+    flex: 1,
+  },
+  requirementMet: {
+    color: theme.colors.success,
+  },
+  requirementUnmet: {
+    color: theme.colors.textSecondary,
+  },
+
+  // Feedback Styles
+  feedbackContainer: {
+    marginTop: theme.spacing[3],
+  },
+  feedbackTitle: {
+    fontSize: theme.typography.fontSizes.sm,
+    fontWeight: theme.typography.fontWeights.medium,
+    color: theme.colors.text,
+    marginBottom: theme.spacing[2],
+  },
+  feedbackItem: {
+    fontSize: theme.typography.fontSizes.sm,
+    color: theme.colors.warning,
+    marginBottom: theme.spacing[1],
+    paddingLeft: theme.spacing[2],
+  },
+
+  // Info Box Styles
+  infoBox: {
+    flexDirection: 'row' as const,
+    alignItems: 'flex-start' as const,
+    backgroundColor: theme.colors.info + '20',
+    borderRadius: theme.borderRadius.lg,
+    padding: theme.spacing[4],
+    marginTop: theme.spacing[4],
+    borderWidth: 1,
+    borderColor: theme.colors.info + '40',
+  },
+  infoIcon: {
+    fontSize: theme.typography.fontSizes.lg,
+    marginRight: theme.spacing[3],
+    marginTop: theme.spacing[1],
+  },
+  infoText: {
+    fontSize: theme.typography.fontSizes.sm,
+    color: theme.colors.info,
+    lineHeight: theme.typography.lineHeights.relaxed * theme.typography.fontSizes.sm,
+    flex: 1,
+  },
+
+  // Button Styles
+  submitButton: {
+    marginTop: theme.spacing[6],
+  },
+  backButton: {
+    marginTop: theme.spacing[4],
+    alignItems: 'center' as const,
+    paddingVertical: theme.spacing[3],
+  },
+  backButtonText: {
+    fontSize: theme.typography.fontSizes.base,
+    color: theme.colors.primary,
+    fontWeight: theme.typography.fontWeights.medium,
+  },
+}));
+
 const PasswordChangeScreen = () => {
   const { user: _user, isLoading: _isLoading, error, clearError, enterprise: _enterprise } = useAuth();
   const { t } = useTranslation();
+  const { theme } = useTheme();
+  const styles = useStyles(theme);
   const navigation = useNavigation<NativeStackNavigationProp<AuthStackParamList>>();
 
   // Form State
@@ -385,27 +555,27 @@ const PasswordChangeScreen = () => {
 
   return (
     <KeyboardAvoidingView
-      style={passwordChangeScreenStyles.container}
+      style={styles.container}
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
       keyboardVerticalOffset={Platform.OS === 'ios' ? 64 : 0}
     >
       <ScrollView
-        contentContainerStyle={passwordChangeScreenStyles.scrollContainer}
+        contentContainerStyle={styles.scrollContainer}
         showsVerticalScrollIndicator={false}
         keyboardShouldPersistTaps="handled"
       >
         {/* Header */}
-        <View style={passwordChangeScreenStyles.header}>
-          <Text style={passwordChangeScreenStyles.title}>
+        <View style={styles.header}>
+          <Text style={styles.title}>
             {t('auth.passwordChange.title') || 'Passwort ändern'}
           </Text>
-          <Text style={passwordChangeScreenStyles.subtitle}>
+          <Text style={styles.subtitle}>
             {t('auth.passwordChange.subtitle') || 'Erstellen Sie ein neues, sicheres Passwort für Ihr Konto'}
           </Text>
         </View>
 
         {/* Current Password */}
-        <View style={passwordChangeScreenStyles.formContainer}>
+        <View style={styles.formContainer}>
           <FormTextInput
             label={t('auth.passwordChange.currentPasswordLabel') || 'Aktuelles Passwort'}
             value={formData.currentPassword}
@@ -414,7 +584,7 @@ const PasswordChangeScreen = () => {
             error={!!validationErrors.currentPassword || !!error}
           />
           {validationErrors.currentPassword && (
-            <Text style={passwordChangeScreenStyles.validationError}>
+            <Text style={styles.validationError}>
               {validationErrors.currentPassword}
             </Text>
           )}
@@ -428,20 +598,20 @@ const PasswordChangeScreen = () => {
             error={!!validationErrors.newPassword}
           />
           {validationErrors.newPassword && (
-            <Text style={passwordChangeScreenStyles.validationError}>
+            <Text style={styles.validationError}>
               {validationErrors.newPassword}
             </Text>
           )}
 
           {/* Password Strength Indicator */}
           {formData.newPassword && (
-            <View style={passwordChangeScreenStyles.passwordStrengthContainer}>
-              <View style={passwordChangeScreenStyles.passwordStrengthHeader}>
-                <Text style={passwordChangeScreenStyles.passwordStrengthLabel}>
+            <View style={styles.strengthContainer}>
+              <View style={styles.strengthHeader}>
+                <Text style={styles.strengthLabel}>
                   {t('auth.password.strength.label') || 'Passwort-Stärke'}
                 </Text>
                 <Text style={[
-                  passwordChangeScreenStyles.passwordStrengthText,
+                  styles.strengthScore,
                   { color: getPasswordStrengthColor(passwordStrength.score) }
                 ]}>
                   {getPasswordStrengthText(passwordStrength.score)}
@@ -450,28 +620,28 @@ const PasswordChangeScreen = () => {
               <ProgressBar 
                 progress={passwordStrength.score / 6} 
                 color={getPasswordStrengthColor(passwordStrength.score)}
-                style={passwordChangeScreenStyles.passwordStrengthBar}
+                style={styles.strengthBar}
               />
             </View>
           )}
 
           {/* Password Requirements */}
           {(showPasswordRequirements || formData.newPassword) && (
-            <View style={passwordChangeScreenStyles.requirementsContainer}>
-              <Text style={passwordChangeScreenStyles.requirementsTitle}>
+            <View style={styles.requirementsContainer}>
+              <Text style={styles.requirementsTitle}>
                 {t('auth.password.requirements.title') || 'Anforderungen:'}
               </Text>
               
               {Object.entries(passwordStrength.requirements).map(([key, met]) => (
-                <View key={key} style={passwordChangeScreenStyles.requirementItem}>
+                <View key={key} style={styles.requirementItem}>
                   <Text style={[
-                    passwordChangeScreenStyles.requirementIcon,
+                    styles.requirementIcon,
                     { color: met ? '#22c55e' : '#ef4444' }
                   ]}>
                     {met ? '✓' : '✗'}
                   </Text>
                   <Text style={[
-                    passwordChangeScreenStyles.requirementText,
+                    styles.requirementText,
                     { color: met ? '#22c55e' : '#6b7280' }
                   ]}>
                     {getRequirementText(key)}
@@ -490,7 +660,7 @@ const PasswordChangeScreen = () => {
             error={!!validationErrors.confirmPassword}
           />
           {validationErrors.confirmPassword && (
-            <Text style={passwordChangeScreenStyles.validationError}>
+            <Text style={styles.validationError}>
               {validationErrors.confirmPassword}
             </Text>
           )}
@@ -506,9 +676,9 @@ const PasswordChangeScreen = () => {
           />
 
           {/* Security Info */}
-          <View style={passwordChangeScreenStyles.securityInfo}>
-            <Text style={passwordChangeScreenStyles.securityInfoIcon}>🔒</Text>
-            <Text style={passwordChangeScreenStyles.securityInfoText}>
+          <View style={styles.infoBox}>
+            <Text style={styles.infoIcon}>🔒</Text>
+            <Text style={styles.infoText}>
               {t('auth.passwordChange.securityInfo') || 'Nach der Passwort-Änderung werden Sie auf allen anderen Geräten automatisch abgemeldet.'}
             </Text>
           </View>

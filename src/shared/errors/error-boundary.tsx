@@ -1,6 +1,7 @@
 import React from 'react';
 import {View, Text, Button, StyleSheet} from 'react-native';
 import {colors} from '@core/theme';
+import { useTranslation } from 'react-i18next';
 
 /**
  * Props für ErrorBoundary-Komponente.
@@ -45,18 +46,24 @@ export class ErrorBoundary extends React.Component<
 
   render() {
     if (this.state.hasError) {
-      return (
-        <View style={styles.container}>
-          <Text style={styles.title}>Etwas ist schiefgelaufen.</Text>
-          <Text style={styles.errorText}>{this.state.error?.message}</Text>
-          <Button title="Neu laden" onPress={this.handleReload} />
-        </View>
-      );
+      return <ErrorBoundaryContent error={this.state.error} onReload={this.handleReload} />;
     }
 
     return this.props.children;
   }
 }
+
+const ErrorBoundaryContent: React.FC<{ error: Error | null; onReload: () => void }> = ({ error, onReload }) => {
+  const { t } = useTranslation();
+  
+  return (
+    <View style={styles.container}>
+      <Text style={styles.title}>{t('error.boundaryScreen.title')}</Text>
+      <Text style={styles.errorText}>{error?.message}</Text>
+      <Button title={t('error.boundaryScreen.reload')} onPress={onReload} />
+    </View>
+  );
+};
 
 const styles = StyleSheet.create({
   container: {

@@ -214,7 +214,7 @@ export const DatePicker: React.FC<DatePickerProps> = ({
           <View style={styles.modalContainer}>
             <View style={styles.modalContent}>
               <Text style={styles.modalTitle}>
-                {t('common.selectDate', {defaultValue: 'Datum wählen'})}
+                {t('shared.datePicker.selectDate', {defaultValue: 'Datum wählen'})}
               </Text>
 
               <DateTimePicker
@@ -234,7 +234,7 @@ export const DatePicker: React.FC<DatePickerProps> = ({
                   {t('common.cancel', {defaultValue: 'Abbrechen'})}
                 </Button>
                 <Button mode="contained" onPress={confirmPicker}>
-                  {t('common.confirm', {defaultValue: 'Bestätigen'})}
+                  {t('shared.datePicker.confirm', {defaultValue: 'Bestätigen'})}
                 </Button>
               </View>
             </View>

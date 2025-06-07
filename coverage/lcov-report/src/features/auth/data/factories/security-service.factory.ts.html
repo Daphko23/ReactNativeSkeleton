@@ -23,9 +23,9 @@
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">3.87% </span>
+                <span class="strong">0% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>5/129</span>
+                <span class='fraction'>0/129</span>
             </div>
         
             
@@ -44,9 +44,9 @@
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">3.93% </span>
+                <span class="strong">0% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>5/127</span>
+                <span class='fraction'>0/127</span>
             </div>
         
             
@@ -1031,29 +1031,14 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -1065,14 +1050,29 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -1880,14 +1880,14 @@ export class OptimizedSecurityServiceFactory {
    * @private
    * @description Enhanced cache with TTL and metadata
    */
-  private static cache: Map&lt;string, CacheEntry&gt; = new Map();
+  private static cache: Map&lt;string, CacheEntry&gt; = <span class="cstat-no" title="statement not covered" >new Map();</span>
 &nbsp;
   /**
    * @static
    * @private
    * @description Factory performance metrics
    */
-  private static metrics: FactoryMetrics = {
+  private static metrics: FactoryMetrics = <span class="cstat-no" title="statement not covered" >{</span>
     totalCreated: 0,
     cacheHits: 0,
     cacheMisses: 0,
@@ -1902,7 +1902,7 @@ export class OptimizedSecurityServiceFactory {
    * @private
    * @description Circuit breaker state
    */
-  private static circuitBreaker: CircuitBreakerState = {
+  private static circuitBreaker: CircuitBreakerState = <span class="cstat-no" title="statement not covered" >{</span>
     isOpen: false,
     failureCount: 0,
     lastFailureTime: 0,
@@ -1914,14 +1914,14 @@ export class OptimizedSecurityServiceFactory {
    * @private
    * @description Cleanup interval
    */
-  private static cleanupInterval: NodeJS.Timeout | null = null;
+  private static cleanupInterval: NodeJS.Timeout | null = <span class="cstat-no" title="statement not covered" >null;</span>
 &nbsp;
   /**
    * @static
    * @private
    * @description Enhanced default configuration
    */
-  private static readonly ENHANCED_DEFAULT_CONFIG: EnhancedSecurityServiceConfig = {
+  private static readonly ENHANCED_DEFAULT_CONFIG: EnhancedSecurityServiceConfig = <span class="cstat-no" title="statement not covered" >{</span>
     enableThreatAssessment: true,
     enableDeviceFingerprinting: true,
     enableLocationMonitoring: true,
@@ -2617,7 +2617,7 @@ export class OptimizedSecurityServiceFactory {
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2025-05-30T19:50:06.682Z
+                at 2025-06-01T18:02:20.399Z
             </div>
         <script src="../../../../../prettify.js"></script>
         <script>

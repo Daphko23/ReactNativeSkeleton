@@ -8,8 +8,13 @@ require Pod::Executable.execute_command('node', ['-p',
 platform :ios, '15.5' # Updated for CodePush compatibility
 prepare_react_native_project!
 
-# Enable static linking globally if needed
-use_frameworks! :linkage => :static # Add this if you want static frameworks
+# Disable New Architecture completely
+ENV['RCT_NEW_ARCH_ENABLED'] = '0'
+ENV['USE_HERMES'] = '1'
+ENV['USE_FRAMEWORKS'] = 'static'
+
+# Disable problematic compilation units
+$RNCodegen = false
 
 linkage = ENV['USE_FRAMEWORKS']
 if linkage != nil
@@ -17,30 +22,41 @@ if linkage != nil
   use_frameworks! :linkage => linkage.to_sym
 end
 
-target 'ReactNativeSkeleton' do
+target 'DaphkoAiSkeleton' do
   config = use_native_modules!
 
   use_react_native!(
     :path => config[:reactNativePath],
     # An absolute path to your application root.
-    :app_path => "#{Pod::Config.instance.installation_root}/.."
+    :app_path => "#{Pod::Config.instance.installation_root}/..",
+    :hermes_enabled => true,
+    :fabric_enabled => false,
+    :new_arch_enabled => false
   )
 
   pod 'RNVectorIcons', :path => '../node_modules/react-native-vector-icons'
 
   post_install do |installer|
-    # https://github.com/facebook/react-native/blob/main/packages/react-native/scripts/react_native_pods.rb#L197-L202
     react_native_post_install(
       installer,
       config[:reactNativePath],
       :mac_catalyst_enabled => false,
-      # :ccache_enabled => true
+      :ccache_enabled => true
     )
     
-    # Ensure all targets use the minimum deployment target
+    # Disable problematic warnings and fix build issues
     installer.pods_project.targets.each do |target|
       target.build_configurations.each do |config|
-        config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = '15.5'
+        config.build_settings['CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER'] = 'NO'
+        config.build_settings['ENABLE_BITCODE'] = 'NO'
+        config.build_settings['OTHER_LDFLAGS'] = '$(inherited) -Wl,-weak_framework,UserNotifications'
+        config.build_settings['LIBRARY_SEARCH_PATHS'] = '$(inherited) $(TOOLCHAIN_DIR)/usr/lib/swift/$(PLATFORM_NAME)'
+        
+        # Fix react-native-maps New Architecture issues
+        if target.name == 'react-native-maps'
+          config.build_settings['GCC_PREPROCESSOR_DEFINITIONS'] ||= ['$(inherited)', 'HAVE_FULLFSYNC=1']
+          config.build_settings['OTHER_CFLAGS'] = '$(inherited) -DRCT_NEW_ARCH_ENABLED=0'
+        end
       end
     end
   end

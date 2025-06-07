@@ -5,7 +5,6 @@
 import React, {useState, useCallback} from 'react';
 import {TouchableOpacity, StyleProp, ViewStyle} from 'react-native';
 import {Text} from 'react-native-paper';
-// @ts-expect-error - Optional dependency
 import DatePicker from 'react-native-date-picker';
 import {colors} from '@core/theme';
 import Ionicons from 'react-native-vector-icons/Ionicons';

@@ -11,27 +11,26 @@
  */
 
 import { StyleSheet, Dimensions } from 'react-native';
-import { spacing, colors } from '@core/theme';
 
 const { width: _width } = Dimensions.get('window');
 const _height = Dimensions.get('window').height;
 
 /**
- * Stylesheet for the optimized RegisterScreen component.
+ * Creates styles for the RegisterScreen component using theme tokens
  */
-export const registerScreenStyles = StyleSheet.create({
+export const createRegisterScreenStyles = (theme: any) => StyleSheet.create({
   // ===================================
   // CONTAINER STYLES
   // ===================================
   container: {
     flex: 1,
-    backgroundColor: colors.background || '#ffffff',
+    backgroundColor: theme.colors.background,
   },
   
   scrollContainer: {
     flexGrow: 1,
     justifyContent: 'center',
-    padding: spacing.lg || 24,
+    padding: theme.spacing[5],
     minHeight: '100%',
   },
 
@@ -40,124 +39,168 @@ export const registerScreenStyles = StyleSheet.create({
   // ===================================
   header: {
     alignItems: 'center',
-    marginBottom: spacing.xl || 32,
-    paddingHorizontal: spacing.md || 16,
+    marginBottom: theme.spacing[6],
+    paddingHorizontal: theme.spacing[4],
   },
 
   title: {
-    fontSize: 28,
-    fontWeight: '700',
-    color: colors.text || '#1a1a1a',
+    fontSize: theme.typography.fontSizes['2xl'],
+    fontWeight: theme.typography.fontWeights.bold,
+    color: theme.colors.text,
     textAlign: 'center',
-    marginBottom: spacing.sm || 12,
+    marginBottom: theme.spacing[3],
     letterSpacing: -0.5,
   },
 
   subtitle: {
-    fontSize: 16,
-    color: colors.textSecondary || '#666666',
+    fontSize: theme.typography.fontSizes.base,
+    color: theme.colors.textSecondary,
     textAlign: 'center',
     lineHeight: 24,
-    paddingHorizontal: spacing.md || 16,
+    paddingHorizontal: theme.spacing[4],
   },
 
   // ===================================
   // FORM STYLES
   // ===================================
   formContainer: {
-    marginBottom: spacing.xl || 32,
+    marginBottom: theme.spacing[6],
+  },
+
+  optionalSectionTitle: {
+    fontSize: theme.typography.fontSizes.sm,
+    fontWeight: theme.typography.fontWeights.medium,
+    color: theme.colors.textSecondary,
+    marginTop: theme.spacing[5],
+    marginBottom: theme.spacing[4],
+    paddingHorizontal: theme.spacing[2],
   },
 
   nameContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    marginBottom: spacing.md || 16,
+    marginBottom: theme.spacing[4],
+    gap: theme.spacing[3],
   },
 
   nameField: {
     flex: 1,
-    marginHorizontal: spacing.xs || 4,
   },
 
   validationError: {
-    fontSize: 14,
-    color: colors.error || '#d32f2f',
-    marginTop: spacing.xs || 8,
-    marginBottom: spacing.sm || 12,
-    paddingHorizontal: spacing.sm || 12,
+    fontSize: theme.typography.fontSizes.sm,
+    color: theme.colors.error,
+    marginTop: theme.spacing[2],
+    marginBottom: theme.spacing[3],
+    paddingHorizontal: theme.spacing[3],
   },
 
   // ===================================
   // PASSWORD STRENGTH STYLES
   // ===================================
   passwordStrengthContainer: {
-    marginTop: spacing.sm || 12,
-    marginBottom: spacing.md || 16,
+    marginTop: theme.spacing[3],
+    marginBottom: theme.spacing[4],
   },
 
   strengthBarContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: spacing.sm || 12,
+    marginBottom: theme.spacing[3],
   },
 
   strengthBar: {
     flex: 1,
     height: 4,
-    backgroundColor: '#e0e0e0',
-    borderRadius: 2,
-    marginRight: spacing.sm || 12,
+    backgroundColor: theme.colors.surfaceVariant,
+    borderRadius: theme.borderRadius.sm,
+    marginRight: theme.spacing[3],
     overflow: 'hidden',
   },
 
   strengthFill: {
     height: '100%',
-    borderRadius: 2,
+    borderRadius: theme.borderRadius.sm,
   },
 
   strengthText: {
-    fontSize: 14,
-    fontWeight: '500',
+    fontSize: theme.typography.fontSizes.sm,
+    fontWeight: theme.typography.fontWeights.medium,
     minWidth: 60,
   },
 
   feedbackContainer: {
-    paddingLeft: spacing.sm || 12,
+    paddingLeft: theme.spacing[3],
   },
 
   feedbackText: {
-    fontSize: 12,
-    color: colors.textSecondary || '#666666',
+    fontSize: theme.typography.fontSizes.xs,
+    color: theme.colors.textSecondary,
     lineHeight: 18,
-    marginBottom: spacing.xs || 4,
+    marginBottom: theme.spacing[1],
   },
 
   // ===================================
   // AGREEMENT STYLES
   // ===================================
   agreementContainer: {
-    marginVertical: spacing.lg || 24,
+    marginVertical: theme.spacing[5],
   },
 
   checkboxContainer: {
     flexDirection: 'row',
-    alignItems: 'flex-start',
-    marginBottom: spacing.md || 16,
+    alignItems: 'center',
+    marginBottom: theme.spacing[4],
+  },
+
+  customCheckbox: {
+    width: 24,
+    height: 24,
+    borderWidth: 2,
+    borderColor: theme.colors.text,
+    borderRadius: 4,
+    backgroundColor: 'transparent',
+    marginRight: theme.spacing[2],
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+
+  customCheckboxChecked: {
+    backgroundColor: theme.colors.primary,
+    borderColor: theme.colors.primary,
+  },
+
+  checkIcon: {
+    color: 'white',
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
+
+  checkbox: {
+    backgroundColor: theme.colors.surface,
+    borderColor: theme.colors.outline,
+    borderWidth: 1,
+    borderRadius: theme.borderRadius.sm,
+  },
+
+  checkboxChecked: {
+    backgroundColor: theme.colors.primary,
+    borderColor: theme.colors.primary,
   },
 
   agreementTextContainer: {
     flex: 1,
-    marginLeft: spacing.sm || 12,
+    marginLeft: theme.spacing[3],
   },
 
   agreementText: {
-    fontSize: 14,
-    color: colors.textSecondary || '#666666',
+    fontSize: theme.typography.fontSizes.sm,
+    color: theme.colors.textSecondary,
     lineHeight: 20,
   },
 
   linkText: {
-    color: colors.primary || '#007bff',
+    color: theme.colors.primary,
     textDecorationLine: 'underline',
   },
 
@@ -166,102 +209,54 @@ export const registerScreenStyles = StyleSheet.create({
   // ===================================
   successHeader: {
     alignItems: 'center',
-    marginBottom: spacing.xl || 32,
-    paddingHorizontal: spacing.md || 16,
+    marginBottom: theme.spacing[6],
+    paddingHorizontal: theme.spacing[4],
   },
 
   successIcon: {
     fontSize: 64,
-    marginBottom: spacing.md || 16,
+    marginBottom: theme.spacing[4],
   },
 
   successTitle: {
-    fontSize: 24,
-    fontWeight: '600',
-    color: colors.success || '#2e7d32',
+    fontSize: theme.typography.fontSizes.xl,
+    fontWeight: theme.typography.fontWeights.semibold,
+    color: theme.colors.success,
     textAlign: 'center',
-    marginBottom: spacing.sm || 12,
+    marginBottom: theme.spacing[3],
   },
 
   successSubtitle: {
-    fontSize: 16,
-    color: colors.textSecondary || '#666666',
+    fontSize: theme.typography.fontSizes.base,
+    color: theme.colors.textSecondary,
     textAlign: 'center',
     lineHeight: 24,
-    paddingHorizontal: spacing.md || 16,
-  },
-
-  // Legacy success styles (for compatibility)
-  successContainer: {
-    backgroundColor: colors.success || '#4CAF50',
-    borderRadius: 8,
-    marginBottom: spacing.lg || 24,
-    padding: spacing.md || 16,
-  },
-
-  successText: {
-    color: 'white',
-    fontSize: 16,
-    fontWeight: '600',
-    marginBottom: spacing.xs || 8,
-    textAlign: 'center',
-  },
-
-  redirectText: {
-    color: 'white',
-    fontSize: 14,
-    textAlign: 'center',
-  },
-
-  // ===================================
-  // INSTRUCTIONS STYLES
-  // ===================================
-  instructionsContainer: {
-    backgroundColor: colors.surface || '#f8f9fa',
-    borderRadius: 12,
-    padding: spacing.lg || 24,
-    marginBottom: spacing.xl || 32,
-    borderWidth: 1,
-    borderColor: colors.border || '#e0e0e0',
-  },
-
-  instructionsTitle: {
-    fontSize: 18,
-    fontWeight: '600',
-    color: colors.text || '#1a1a1a',
-    marginBottom: spacing.md || 16,
-  },
-
-  instructionStep: {
-    fontSize: 16,
-    color: colors.textSecondary || '#666666',
-    lineHeight: 24,
-    marginBottom: spacing.sm || 12,
-    paddingLeft: spacing.sm || 12,
+    paddingHorizontal: theme.spacing[4],
   },
 
   // ===================================
   // OAUTH SOCIAL LOGIN STYLES
   // ===================================
   oauthContainer: {
-    marginVertical: spacing.xl || 32,
+    marginVertical: theme.spacing[5],
   },
 
   divider: {
-    marginVertical: spacing.lg || 24,
+    width: '100%',
+    marginVertical: theme.spacing[4],
   },
 
   socialText: {
-    fontSize: 16,
-    color: colors.textSecondary || '#666666',
+    fontSize: theme.typography.fontSizes.sm,
+    color: theme.colors.textSecondary,
+    marginBottom: theme.spacing[4],
     textAlign: 'center',
-    marginBottom: spacing.lg || 24,
   },
 
   socialButtonsContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    gap: spacing.md || 16,
+    gap: theme.spacing[4],
   },
 
   socialButton: {
@@ -269,50 +264,76 @@ export const registerScreenStyles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    paddingVertical: spacing.md || 16,
-    paddingHorizontal: spacing.lg || 24,
-    borderRadius: 8,
+    paddingVertical: theme.spacing[4],
+    paddingHorizontal: theme.spacing[4],
+    borderRadius: theme.borderRadius.md,
     borderWidth: 1,
-    minHeight: 50,
+    borderColor: theme.colors.outline,
+    backgroundColor: theme.colors.surface,
+    minHeight: 48,
+    ...theme.shadows.sm,
   },
 
   googleButton: {
-    backgroundColor: '#ffffff',
-    borderColor: '#dadce0',
+    borderColor: '#4285f4',
   },
 
   appleButton: {
-    backgroundColor: '#000000',
-    borderColor: '#000000',
+    borderColor: theme.colors.onSurface,
   },
 
   socialIcon: {
-    fontSize: 20,
-    marginRight: spacing.sm || 12,
+    fontSize: theme.typography.fontSizes.base,
+    marginRight: theme.spacing[2],
   },
 
   socialButtonText: {
-    fontSize: 16,
-    fontWeight: '500',
+    fontSize: theme.typography.fontSizes.sm,
+    fontWeight: theme.typography.fontWeights.semibold,
+    color: theme.colors.text,
+  },
+
+  // ===================================
+  // INSTRUCTIONS STYLES
+  // ===================================
+  instructionsContainer: {
+    backgroundColor: theme.colors.surfaceVariant,
+    borderRadius: theme.borderRadius.md,
+    padding: theme.spacing[4],
+    marginBottom: theme.spacing[5],
+  },
+
+  instructionsTitle: {
+    fontSize: theme.typography.fontSizes.base,
+    fontWeight: theme.typography.fontWeights.semibold,
+    color: theme.colors.text,
+    marginBottom: theme.spacing[3],
+  },
+
+  instructionStep: {
+    fontSize: theme.typography.fontSizes.sm,
+    color: theme.colors.textSecondary,
+    lineHeight: 20,
+    marginBottom: theme.spacing[2],
   },
 
   // ===================================
   // NAVIGATION STYLES
   // ===================================
   navigationContainer: {
-    marginTop: 'auto',
-    paddingTop: spacing.xl || 32,
+    marginTop: theme.spacing[5],
+    alignItems: 'center',
   },
 
   linkContainer: {
-    alignItems: 'center',
-    paddingVertical: spacing.md || 16,
+    marginTop: theme.spacing[4],
+    paddingVertical: theme.spacing[3],
   },
 
   navigationLinkText: {
-    color: colors.primary || '#007bff',
-    fontSize: 16,
-    fontWeight: '500',
+    color: theme.colors.primary,
+    fontSize: theme.typography.fontSizes.sm,
     textAlign: 'center',
+    textDecorationLine: 'underline',
   },
 });

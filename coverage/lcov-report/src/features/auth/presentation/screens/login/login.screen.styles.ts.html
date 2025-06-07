@@ -25,21 +25,21 @@
             <div class='fl pad1y space-right2'>
                 <span class="strong">0% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>0/1</span>
-            </div>
-        
-            
-            <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
-                <span class="quiet">Branches</span>
-                <span class='fraction'>0/20</span>
+                <span class='fraction'>0/2</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
                 <span class="strong">100% </span>
-                <span class="quiet">Functions</span>
+                <span class="quiet">Branches</span>
                 <span class='fraction'>0/0</span>
+            </div>
+        
+            
+            <div class='fl pad1y space-right2'>
+                <span class="strong">0% </span>
+                <span class="quiet">Functions</span>
+                <span class='fraction'>0/1</span>
             </div>
         
             
@@ -227,17 +227,7 @@
 <a name='L162'></a><a href='#L162'>162</a>
 <a name='L163'></a><a href='#L163'>163</a>
 <a name='L164'></a><a href='#L164'>164</a>
-<a name='L165'></a><a href='#L165'>165</a>
-<a name='L166'></a><a href='#L166'>166</a>
-<a name='L167'></a><a href='#L167'>167</a>
-<a name='L168'></a><a href='#L168'>168</a>
-<a name='L169'></a><a href='#L169'>169</a>
-<a name='L170'></a><a href='#L170'>170</a>
-<a name='L171'></a><a href='#L171'>171</a>
-<a name='L172'></a><a href='#L172'>172</a>
-<a name='L173'></a><a href='#L173'>173</a>
-<a name='L174'></a><a href='#L174'>174</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L165'></a><a href='#L165'>165</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -401,14 +391,6 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">/**
  * @fileoverview PRESENTATION-STYLES-001: Optimized Login Screen Styles
  * @description Comprehensive styles für den optimierten Enterprise Login Screen.
@@ -420,164 +402,155 @@
  * @module LoginScreenStyles
  */
 &nbsp;
-import {StyleSheet} from 'react-native';
-import {spacing, colors} from '@core/theme';
+import { StyleSheet } from 'react-native';
 &nbsp;
 /**
- * Stylesheet for the optimized LoginScreen component
+ * Creates styles for the LoginScreen component using theme tokens
  */
-export const loginScreenStyles = <span class="cstat-no" title="statement not covered" >StyleSheet.create({</span>
+export const createLoginScreenStyles = <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >(t</span>heme: any) =&gt; <span class="cstat-no" title="statement not covered" >StyleSheet.create({</span></span>
   // Container Styles
   container: {
     flex: 1,
-    backgroundColor: colors.background || '#f8f9fa',
+    backgroundColor: theme.colors.background,
   },
   scrollContainer: {
     flexGrow: 1,
     justifyContent: 'center',
-    padding: spacing.lg,
-    paddingTop: spacing.xl,
-    paddingBottom: spacing.xl,
+    padding: theme.spacing[5],
+    paddingTop: theme.spacing[6],
+    paddingBottom: theme.spacing[6],
   },
 &nbsp;
   // Header Styles
   header: {
     alignItems: 'center',
-    marginBottom: spacing.xl,
+    marginBottom: theme.spacing[6],
   },
   title: {
-    fontSize: 32,
-    fontWeight: 'bold',
-    marginBottom: spacing.sm,
+    fontSize: theme.typography.fontSizes['2xl'],
+    fontWeight: theme.typography.fontWeights.bold,
+    marginBottom: theme.spacing[3],
     textAlign: 'center',
-    color: colors.text || '#212529',
+    color: theme.colors.text,
   },
   subtitle: {
-    fontSize: 16,
-    color: colors.textSecondary || '#6c757d',
+    fontSize: theme.typography.fontSizes.base,
+    color: theme.colors.textSecondary,
     textAlign: 'center',
     lineHeight: 22,
   },
 &nbsp;
   // Form Container Styles
   formContainer: {
-    marginBottom: spacing.lg,
+    marginBottom: theme.spacing[5],
   },
   input: {
-    marginBottom: spacing.md,
+    marginBottom: theme.spacing[4],
   },
   validationError: {
-    color: colors.error || '#dc3545',
-    fontSize: 12,
-    marginTop: -spacing.sm,
-    marginBottom: spacing.sm,
-    marginLeft: spacing.sm,
+    color: theme.colors.error,
+    fontSize: theme.typography.fontSizes.xs,
+    marginTop: -theme.spacing[3],
+    marginBottom: theme.spacing[3],
+    marginLeft: theme.spacing[3],
   },
   loginButton: {
-    marginTop: spacing.md,
+    marginTop: theme.spacing[4],
   },
 &nbsp;
   // Biometric Authentication Styles
   biometricContainer: {
-    marginVertical: spacing.lg,
+    marginVertical: theme.spacing[5],
     alignItems: 'center',
   },
   divider: {
     width: '100%',
-    marginVertical: spacing.md,
+    marginVertical: theme.spacing[4],
   },
   orText: {
-    fontSize: 14,
-    color: colors.textSecondary || '#6c757d',
-    marginBottom: spacing.md,
+    fontSize: theme.typography.fontSizes.sm,
+    color: theme.colors.textSecondary,
+    marginBottom: theme.spacing[4],
     textAlign: 'center',
   },
   biometricButton: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: colors.primary || '#007bff',
-    paddingVertical: spacing.md,
-    paddingHorizontal: spacing.lg,
-    borderRadius: 12,
+    backgroundColor: theme.colors.primary,
+    paddingVertical: theme.spacing[4],
+    paddingHorizontal: theme.spacing[5],
+    borderRadius: theme.borderRadius.md,
     minWidth: 200,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
+    ...theme.shadows.md,
   },
   biometricIcon: {
-    fontSize: 20,
-    marginRight: spacing.sm,
+    fontSize: theme.typography.fontSizes.lg,
+    marginRight: theme.spacing[3],
   },
   biometricText: {
-    color: '#fff',
-    fontSize: 16,
-    fontWeight: '600',
+    color: theme.colors.onPrimary,
+    fontSize: theme.typography.fontSizes.base,
+    fontWeight: theme.typography.fontWeights.semibold,
   },
 &nbsp;
   // OAuth Social Login Styles
   oauthContainer: {
-    marginVertical: spacing.lg,
+    marginVertical: theme.spacing[5],
   },
   socialText: {
-    fontSize: 14,
-    color: colors.textSecondary || '#6c757d',
-    marginBottom: spacing.md,
+    fontSize: theme.typography.fontSizes.sm,
+    color: theme.colors.textSecondary,
+    marginBottom: theme.spacing[4],
     textAlign: 'center',
   },
   socialButtonsContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    gap: spacing.md,
+    gap: theme.spacing[4],
   },
   socialButton: {
     flex: 1,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    paddingVertical: spacing.md,
-    paddingHorizontal: spacing.md,
-    borderRadius: 8,
+    paddingVertical: theme.spacing[4],
+    paddingHorizontal: theme.spacing[4],
+    borderRadius: theme.borderRadius.md,
     borderWidth: 1,
-    borderColor: colors.border || '#dee2e6',
-    backgroundColor: '#fff',
+    borderColor: theme.colors.outline,
+    backgroundColor: theme.colors.surface,
     minHeight: 48,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.05,
-    shadowRadius: 2,
-    elevation: 1,
+    ...theme.shadows.sm,
   },
   googleButton: {
     borderColor: '#4285f4',
   },
   appleButton: {
-    borderColor: '#000',
+    borderColor: theme.colors.onSurface,
   },
   socialIcon: {
-    fontSize: 16,
-    marginRight: spacing.xs,
+    fontSize: theme.typography.fontSizes.base,
+    marginRight: theme.spacing[2],
   },
   socialButtonText: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: colors.text || '#212529',
+    fontSize: theme.typography.fontSizes.sm,
+    fontWeight: theme.typography.fontWeights.semibold,
+    color: theme.colors.text,
   },
 &nbsp;
   // Navigation Links Styles
   navigationContainer: {
-    marginTop: spacing.lg,
+    marginTop: theme.spacing[5],
     alignItems: 'center',
   },
   linkContainer: {
-    marginTop: spacing.md,
-    paddingVertical: spacing.sm,
+    marginTop: theme.spacing[4],
+    paddingVertical: theme.spacing[3],
   },
   linkText: {
-    color: colors.primary || '#007bff',
-    fontSize: 14,
+    color: theme.colors.primary,
+    fontSize: theme.typography.fontSizes.sm,
     textAlign: 'center',
     textDecorationLine: 'underline',
   },
@@ -589,7 +562,7 @@ export const loginScreenStyles = <span class="cstat-no" title="statement not cov
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2025-05-30T19:50:06.682Z
+                at 2025-06-01T18:02:20.399Z
             </div>
         <script src="../../../../../../prettify.js"></script>
         <script>

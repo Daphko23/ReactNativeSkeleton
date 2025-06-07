@@ -10,13 +10,13 @@
  *
  * @requires @core/config/supabase.config
  * @requires @features/auth/data/interfaces/auth.datasource.interface
- * @requires @features/auth/data/dtos/auth-user.dto
+ * @requires @features/auth/application/dtos/auth-user.dto
  * @requires @features/auth/data/mappers/supabase-auth-error.mapper
  */
 
 import {supabase} from '@core/config/supabase.config';
-import {AuthDatasource} from '@features/auth/data/interfaces/auth.datasource.interface';
-import {AuthUserDto} from '@features/auth/data/dtos/auth-user.dto';
+import {AuthDatasource} from '@features/auth/domain/interfaces/auth.datasource.interface';
+import {AuthUserDto} from '@features/auth/application/dtos/auth-user.dto';
 import {SupabaseAuthErrorMapper} from '../mappers/supabase-auth-error.mapper';
 import type {AuthChangeEvent, Session, User} from '@supabase/supabase-js';
 
@@ -229,21 +229,42 @@ export class AuthSupabaseDatasource implements AuthDatasource {
    * ```
    */
   async getCurrentUser(): Promise<AuthUserDto | null> {
-    const {
-      data: {user},
-      error,
-    } = await supabase.auth.getUser();
+    try {
+      // First check if we have a session
+      const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+      
+      if (sessionError) {
+        console.warn('[AuthSupabaseDatasource] Failed to get session:', sessionError.message);
+        return null;
+      }
 
-    if (error) {
-      console.warn('Failed to get current user:', error.message);
+      if (!session) {
+        console.log('[AuthSupabaseDatasource] No active session found');
+        return null;
+      }
+
+      // Session exists, now get the user
+      const {
+        data: {user},
+        error,
+      } = await supabase.auth.getUser();
+
+      if (error) {
+        console.warn('[AuthSupabaseDatasource] Failed to get current user:', error.message);
+        return null;
+      }
+
+      if (!user) {
+        console.log('[AuthSupabaseDatasource] No user found in session');
+        return null;
+      }
+
+      console.log('[AuthSupabaseDatasource] Current user retrieved:', user.email);
+      return this.mapSupabaseUserToDto(user);
+    } catch (error) {
+      console.error('[AuthSupabaseDatasource] Unexpected error getting current user:', error);
       return null;
     }
-
-    if (!user) {
-      return null;
-    }
-
-    return this.mapSupabaseUserToDto(user);
   }
 
   /**
@@ -302,6 +323,9 @@ export class AuthSupabaseDatasource implements AuthDatasource {
     return {
       id: user.id,
       email: user.email ?? '',
+      emailVerified: user.email_confirmed_at !== null,
+      createdAt: user.created_at || new Date().toISOString(),
+      updatedAt: user.updated_at || new Date().toISOString(),
       displayName: user.user_metadata?.display_name ?? null,
       photoURL: user.user_metadata?.avatar_url ?? null,
     };

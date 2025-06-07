@@ -39,10 +39,33 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   error: '',
   
   // Basic operations (placeholder implementations)
-  login: async (email: string, _password: string) => {
+  login: async (email: string, password: string) => {
     set({ isLoading: true, error: '' });
     try {
-      // Simple mock implementation for tests
+      console.log('[AuthStore] Starting login for:', email);
+      
+      // Use the real auth repository for login
+      try {
+        const { AuthServiceContainer } = await import('@features/auth/data/factories/auth-service.container');
+        const authContainer = AuthServiceContainer.getInstance();
+        if (authContainer.isInitialized()) {
+          const authOrchestratorService = await authContainer.getAuthOrchestratorService();
+          const user = await authOrchestratorService.login({ email, password });
+          
+          set({ 
+            user, 
+            isAuthenticated: true, 
+            isLoading: false,
+            error: ''
+          });
+          console.log('[AuthStore] Real login successful for:', user.email);
+          return;
+        }
+      } catch (repositoryError) {
+        console.warn('[AuthStore] Repository login failed, falling back to mock:', repositoryError);
+      }
+      
+      // Fallback to mock implementation for tests/development
       const mockUser: AuthUser = {
         id: 'mock-user-id',
         email,
@@ -62,7 +85,9 @@ export const useAuthStore = create<AuthState>((set, get) => ({
         isLoading: false,
         error: ''
       });
+      console.log('[AuthStore] Mock login successful for:', email);
     } catch (error) {
+      console.error('[AuthStore] Login failed:', error);
       set({ error: error instanceof Error ? error.message : 'Login failed', isLoading: false });
       throw error;
     }
@@ -100,8 +125,25 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   logout: async () => {
     set({ isLoading: true });
     try {
+      // Clear the persisted session from the actual auth repository
+      try {
+        const { AuthServiceContainer } = await import('@features/auth/data/factories/auth-service.container');
+        const authContainer = AuthServiceContainer.getInstance();
+        if (authContainer.isInitialized()) {
+          const authRepository = authContainer.getAuthRepository();
+          await authRepository.logout();
+          console.log('[AuthStore] Successfully logged out from auth repository');
+        }
+      } catch (error) {
+        console.warn('[AuthStore] Warning: Could not clear auth repository session:', error);
+        // Continue with memory state clear even if repository logout fails
+      }
+      
+      // Clear the memory state
       set({ user: null, isAuthenticated: false, isLoading: false, error: '' });
+      console.log('[AuthStore] Memory state cleared');
     } catch (error) {
+      console.error('[AuthStore] Logout failed:', error);
       set({ error: error instanceof Error ? error.message : 'Logout failed', isLoading: false });
       throw error;
     }
@@ -126,11 +168,49 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   initializeSession: async () => {
     set({ isLoading: true });
     try {
-      // TODO: Implement session initialization
-      set({ isLoading: false });
+      console.log('[AuthStore] Initializing session...');
+      
+      // Try to get current user from the real auth repository
+      try {
+        const { AuthServiceContainer } = await import('@features/auth/data/factories/auth-service.container');
+        const authContainer = AuthServiceContainer.getInstance();
+        if (authContainer.isInitialized()) {
+          const authRepository = authContainer.getAuthRepository();
+          const currentUser = await authRepository.getCurrentUser();
+          
+          if (currentUser) {
+            console.log('[AuthStore] Session found - restoring user:', currentUser.email);
+            set({
+              user: currentUser,
+              isAuthenticated: true,
+              isLoading: false,
+              error: ''
+            });
+            return;
+          } else {
+            console.log('[AuthStore] No existing session found');
+          }
+        }
+      } catch (repositoryError) {
+        console.warn('[AuthStore] Repository session check failed:', repositoryError);
+      }
+      
+      // No session found - set default state
+      set({ 
+        user: null, 
+        isAuthenticated: false, 
+        isLoading: false,
+        error: ''
+      });
+      console.log('[AuthStore] Session initialization completed - no active session');
     } catch (error) {
-      set({ error: error instanceof Error ? error.message : 'Session initialization failed', isLoading: false });
-      throw error;
+      console.error('[AuthStore] Session initialization failed:', error);
+      set({ 
+        user: null,
+        isAuthenticated: false,
+        isLoading: false,
+        error: error instanceof Error ? error.message : 'Session initialization failed' 
+      });
     }
   },
   

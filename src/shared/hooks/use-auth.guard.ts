@@ -1,11 +1,11 @@
 import {useEffect, useRef} from 'react';
 import {CommonActions, useNavigation} from '@react-navigation/native';
 import type {StackNavigationProp} from '@react-navigation/stack';
-import {useAuthStore} from '@features/auth/presentation/store/auth.store';
+import {useAuth} from '@features/auth/presentation/hooks/use-auth';
 import type {RootStackParamList} from '@core/navigation/navigation.types';
 
 export function useAuthGuard() {
-  const isAuthenticated = useAuthStore(s => s.isAuthenticated);
+  const { isAuthenticated } = useAuth();
   const navigation = useNavigation<StackNavigationProp<RootStackParamList>>();
   const didRedirect = useRef(false);
 
@@ -25,6 +25,11 @@ export function useAuthGuard() {
           routes: [{name: 'Auth', params: {screen: 'Login'}}],
         })
       );
+    }
+    
+    // Reset redirect flag when user logs in
+    if (isAuthenticated) {
+      didRedirect.current = false;
     }
   }, [isAuthenticated, navigation]);
 } 

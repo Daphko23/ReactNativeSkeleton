@@ -1,0 +1,260 @@
+{
+  "name": "profile",
+  "description": "Enterprise-grade user profile management system with Clean Architecture, customizable profile fields, privacy controls, data export, and extensible design for project-specific adaptations.",
+  "status": "active",
+  "version": "1.0.0",
+  "maturityLevel": "enterprise",
+  "securityLevel": "high",
+  "complianceStandards": ["GDPR", "SOC2", "ISO27001", "HIPAA-ready"],
+  "entryPoints": [
+    "ProfileScreen",
+    "ProfileEditScreen", 
+    "PrivacySettingsScreen",
+    "ProfileDataScreen",
+    "ProfileNavigator"
+  ],
+  "useCases": [
+    "GetProfileUseCase",
+    "UpdateProfileUseCase", 
+    "UploadAvatarUseCase",
+    "DeleteAvatarUseCase",
+    "GetPrivacySettingsUseCase",
+    "UpdatePrivacySettingsUseCase",
+    "ExportProfileDataUseCase",
+    "DeleteProfileDataUseCase",
+    "ValidateProfileFieldsUseCase",
+    "GetProfileHistoryUseCase",
+    "RestoreProfileVersionUseCase"
+  ],
+  "store": {
+    "file": "profileStore.ts",
+    "state": [
+      "profile: UserProfile | null",
+      "isLoading: boolean",
+      "error: string | null",
+      "privacySettings: PrivacySettings | null",
+      "profileHistory: ProfileHistoryEntry[]",
+      "avatarUploadProgress: number",
+      "isDirty: boolean",
+      "lastSyncTime: Date | null"
+    ],
+    "actions": [
+      "getProfile(): Promise<UserProfile>",
+      "updateProfile(profile: Partial<UserProfile>): Promise<UserProfile>",
+      "uploadAvatar(imageUri: string): Promise<string>",
+      "deleteAvatar(): Promise<void>",
+      "getPrivacySettings(): Promise<PrivacySettings>",
+      "updatePrivacySettings(settings: Partial<PrivacySettings>): Promise<PrivacySettings>",
+      "exportProfileData(): Promise<ProfileDataExport>",
+      "deleteProfileData(keepAuth: boolean): Promise<void>",
+      "validateProfileFields(profile: Partial<UserProfile>): ValidationResult",
+      "getProfileHistory(): Promise<ProfileHistoryEntry[]>",
+      "restoreProfileVersion(versionId: string): Promise<UserProfile>",
+      "syncProfile(): Promise<void>",
+      "clearError(): void"
+    ]
+  },
+  "enterpriseFeatures": {
+    "customFields": {
+      "maxCustomFields": 20,
+      "fieldTypes": ["text", "number", "date", "select", "multiselect", "boolean", "url", "phone", "location"],
+      "validation": "configurable",
+      "required": "configurable"
+    },
+    "privacy": {
+      "visibility": ["public", "private", "friends", "custom"],
+      "fieldLevelPrivacy": true,
+      "profileAnalytics": true,
+      "dataRetention": true
+    },
+    "versioning": {
+      "enabled": true,
+      "maxVersions": 50,
+      "autoBackup": true,
+      "restorePoints": true
+    },
+    "avatar": {
+      "maxSize": "10MB",
+      "formats": ["jpg", "png", "webp"],
+      "cropping": true,
+      "compression": true,
+      "cdnIntegration": true
+    },
+    "integration": {
+      "authFeature": true,
+      "rbacPermissions": true,
+      "auditLogging": true,
+      "realTimeSync": true
+    }
+  },
+  "baseFields": {
+    "core": [
+      "id",
+      "email", 
+      "firstName",
+      "lastName",
+      "displayName",
+      "avatar",
+      "bio",
+      "location",
+      "website",
+      "phone",
+      "dateOfBirth",
+      "timeZone",
+      "language",
+      "currency"
+    ],
+    "preferences": [
+      "theme",
+      "notifications",
+      "privacy",
+      "accessibility"
+    ],
+    "social": [
+      "linkedIn",
+      "twitter", 
+      "github",
+      "instagram"
+    ],
+    "professional": [
+      "company",
+      "jobTitle",
+      "industry",
+      "skills",
+      "experience"
+    ],
+    "custom": [
+      "customField1",
+      "customField2",
+      "customField3",
+      "customField4", 
+      "customField5"
+    ]
+  },
+  "extensibilityPoints": {
+    "customProfileSections": true,
+    "additionalValidation": true,
+    "customPrivacyRules": true,
+    "thirdPartyIntegrations": true,
+    "customAvatarSources": true,
+    "profileThemes": true,
+    "customDataExports": true
+  },
+  "dependencies": {
+    "dataSources": [
+      "ProfileSupabaseDatasource",
+      "AvatarStorageDatasource", 
+      "ProfileHistoryDatasource"
+    ],
+    "repository": "ProfileRepositoryImpl",
+    "services": [
+      "ProfileServiceImpl",
+      "AvatarServiceImpl",
+      "PrivacyServiceImpl",
+      "ProfileValidationServiceImpl",
+      "ProfileSyncServiceImpl"
+    ],
+    "factories": [
+      "ProfileServiceContainer"
+    ],
+    "state": ["zustand"],
+    "routing": ["@react-navigation/native", "@react-navigation/native-stack"],
+    "ui": [
+      "react-native-paper",
+      "react-native-safe-area-context",
+      "react-native-vector-icons"
+    ],
+    "forms": [
+      "react-hook-form",
+      "@hookform/resolvers"
+    ],
+    "imageHandling": [
+      "react-native-image-picker",
+      "react-native-image-crop-picker",
+      "react-native-fast-image"
+    ],
+    "validation": [
+      "yup",
+      "validator"
+    ],
+    "feedback": ["snackbarStore"],
+    "i18n": ["react-i18next"],
+    "storage": [
+      "@supabase/supabase-js",
+      "react-native-fs"
+    ]
+  },
+  "hooks": {
+    "core": [
+      "useProfile",
+      "useProfileForm",
+      "useAvatar"
+    ],
+    "privacy": [
+      "usePrivacySettings",
+      "useProfileVisibility"
+    ],
+    "data": [
+      "useProfileHistory",
+      "useProfileExport"
+    ]
+  },
+  "i18n": {
+    "namespace": "profile",
+    "languages": ["de", "en"],
+    "keys": [
+      "profile.title",
+      "profile.edit.title",
+      "profile.edit.save",
+      "profile.edit.cancel",
+      "profile.avatar.upload",
+      "profile.avatar.delete",
+      "profile.fields.firstName",
+      "profile.fields.lastName", 
+      "profile.fields.bio",
+      "profile.fields.location",
+      "profile.fields.website",
+      "profile.fields.phone",
+      "profile.privacy.title",
+      "profile.privacy.visibility",
+      "profile.privacy.public",
+      "profile.privacy.private",
+      "profile.data.title",
+      "profile.data.export",
+      "profile.data.delete",
+      "profile.validation.required",
+      "profile.validation.email",
+      "profile.validation.url",
+      "profile.success.updated",
+      "profile.error.upload",
+      "profile.error.validation"
+    ]
+  },
+  "permissions": [
+    "profile:read:own",
+    "profile:write:own", 
+    "profile:delete:own",
+    "profile:read:others",
+    "profile:write:others",
+    "profile:admin:all",
+    "avatar:upload:own",
+    "avatar:delete:own",
+    "privacy:read:own",
+    "privacy:write:own",
+    "data:export:own",
+    "data:delete:own"
+  ],
+  "testingStrategy": {
+    "unitTests": "jest + react-native-testing-library",
+    "integrationTests": "detox",
+    "e2eTests": "maestro",
+    "coverage": "> 85%",
+    "mockServices": true
+  },
+  "documentation": {
+    "readme": "comprehensive setup and usage guide",
+    "apiDocs": "JSDoc for all public interfaces",
+    "examples": "real-world usage examples",
+    "migrationGuide": "upgrading from older versions"
+  }
+} 

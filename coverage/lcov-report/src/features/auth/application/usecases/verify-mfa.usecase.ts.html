@@ -23,30 +23,30 @@
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">100% </span>
+                <span class="strong">0% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>12/12</span>
+                <span class='fraction'>0/12</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">100% </span>
+                <span class="strong">0% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>12/12</span>
+                <span class='fraction'>0/12</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">100% </span>
+                <span class="strong">0% </span>
                 <span class="quiet">Functions</span>
-                <span class='fraction'>2/2</span>
+                <span class='fraction'>0/2</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">100% </span>
+                <span class="strong">0% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>12/12</span>
+                <span class='fraction'>0/12</span>
             </div>
         
             
@@ -61,7 +61,7 @@
             </div>
         </template>
     </div>
-    <div class='status-line high'></div>
+    <div class='status-line low'></div>
     <pre><table class="coverage">
 <tr><td class="line-count quiet"><a name='L1'></a><a href='#L1'>1</a>
 <a name='L2'></a><a href='#L2'>2</a>
@@ -518,8 +518,8 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">2x</span>
-<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -678,23 +678,23 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">18x</span>
-<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">16x</span>
-<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">14x</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">14x</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">9x</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -711,13 +711,13 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">9x</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">5x</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -735,7 +735,7 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">5x</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -855,9 +855,9 @@ export class VerifyMFAUseCase {
    * 
    * @since 1.0.0
    */
-  constructor(private readonly authRepository: AuthRepository) {
-    if (!authRepository) {
-      throw new Error('AuthRepository is required for VerifyMFAUseCase');
+<span class="fstat-no" title="function not covered" >  co</span>nstructor(private readonly authRepository: AuthRepository) {
+<span class="cstat-no" title="statement not covered" >    if (!authRepository) {</span>
+<span class="cstat-no" title="statement not covered" >      throw new Error('AuthRepository is required for VerifyMFAUseCase');</span>
     }
   }
 &nbsp;
@@ -1014,25 +1014,25 @@ export class VerifyMFAUseCase {
    * @todo Add support for push notification MFA
    * @todo Implement step-up authentication for sensitive operations
    */
-  async execute(request: VerifyMFARequest): Promise&lt;VerifyMFAResponse&gt; {
+<span class="fstat-no" title="function not covered" >  as</span>ync execute(request: VerifyMFARequest): Promise&lt;VerifyMFAResponse&gt; {
     // Validate request
-    if (!request.challengeId || !request.code) {
-      throw new Error('Challenge ID and verification code are required');
+<span class="cstat-no" title="statement not covered" >    if (!request.challengeId || !request.code) {</span>
+<span class="cstat-no" title="statement not covered" >      throw new Error('Challenge ID and verification code are required');</span>
     }
 &nbsp;
-    if (request.code.length &lt; 4 || request.code.length &gt; 8) {
-      throw new Error('Invalid verification code format');
+<span class="cstat-no" title="statement not covered" >    if (request.code.length &lt; 4 || request.code.length &gt; 8) {</span>
+<span class="cstat-no" title="statement not covered" >      throw new Error('Invalid verification code format');</span>
     }
 &nbsp;
-    try {
+<span class="cstat-no" title="statement not covered" >    try {</span>
       // Verify MFA challenge through repository (interface expects code, challengeId)
-      const user = await this.authRepository.verifyMFAChallenge(
+      const user = <span class="cstat-no" title="statement not covered" >await this.authRepository.verifyMFAChallenge(</span>
         request.code,
         request.challengeId
       );
 &nbsp;
       // Log successful MFA verification
-      await this.authRepository.logSecurityEvent({
+<span class="cstat-no" title="statement not covered" >      await this.authRepository.logSecurityEvent({</span>
         id: `mfa-verified-${Date.now()}`,
         type: SecurityEventType.LOGIN,
         userId: user.id,
@@ -1049,13 +1049,13 @@ export class VerifyMFAUseCase {
         userAgent: 'React Native App',
       });
 &nbsp;
-      return {
+<span class="cstat-no" title="statement not covered" >      return {</span>
         success: true,
         user,
       };
     } catch (error) {
       // Log failed MFA verification
-      await this.authRepository.logSecurityEvent({
+<span class="cstat-no" title="statement not covered" >      await this.authRepository.logSecurityEvent({</span>
         id: `mfa-verify-failed-${Date.now()}`,
         type: SecurityEventType.SUSPICIOUS_ACTIVITY,
         userId: 'unknown', // User ID might not be available on failed verification
@@ -1073,7 +1073,7 @@ export class VerifyMFAUseCase {
         userAgent: 'React Native App',
       });
 &nbsp;
-      throw error;
+<span class="cstat-no" title="statement not covered" >      throw error;</span>
     }
   }
 }
@@ -1084,7 +1084,7 @@ export class VerifyMFAUseCase {
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2025-05-30T19:50:06.682Z
+                at 2025-06-01T18:02:20.399Z
             </div>
         <script src="../../../../../prettify.js"></script>
         <script>

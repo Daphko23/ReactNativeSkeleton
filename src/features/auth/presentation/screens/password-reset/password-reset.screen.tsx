@@ -30,16 +30,18 @@ import {
   Alert,
 } from 'react-native';
 import { Text, /* Divider, */ ActivityIndicator } from 'react-native-paper';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { AuthStackParamList } from '@core/navigation/navigation.types';
 import { PrimaryButton } from '@shared/components/buttons/primary-button.component';
 import { FormTextInput } from '@shared/components/form-text-input/form-text-input.component';
 import { FormErrorText } from '@shared/components/form-text-input/form-text-error.component';
-import { passwordResetScreenStyles } from './password-reset.screen.styles';
+import { createPasswordResetScreenStyles } from './password-reset.screen.styles';
 import { useAuth } from '@features/auth/presentation/hooks/use-auth';
 import { useTranslation } from 'react-i18next';
 import { withGuestGuard } from '@shared/hoc/with-guest.guard';
+import { useTheme } from '@core/theme/theme.system';
 
 /**
  * @enum ResetStep
@@ -60,6 +62,14 @@ interface ValidationErrors {
 }
 
 /**
+ * @interface TouchedFields
+ * @description Tracks which fields have been touched by the user
+ */
+interface TouchedFields {
+  email: boolean;
+}
+
+/**
  * @component PasswordResetScreen
  * @description Optimized Enterprise Password Reset Screen
  * 
@@ -76,6 +86,9 @@ const PasswordResetScreen = () => {
   const { resetPassword, isLoading, error, clearError, enterprise: _enterprise } = useAuth();
   const { t } = useTranslation();
   const navigation = useNavigation<NativeStackNavigationProp<AuthStackParamList>>();
+  const { theme } = useTheme();
+
+  const styles = createPasswordResetScreenStyles(theme);
 
   // State Management
   const [currentStep, setCurrentStep] = useState<ResetStep>(ResetStep.EMAIL_INPUT);
@@ -85,12 +98,14 @@ const PasswordResetScreen = () => {
   const [resetAttempts, setResetAttempts] = useState(0);
   const [canResend, setCanResend] = useState(false);
   const [resendCooldown, setResendCooldown] = useState(0);
+  const [touchedFields, setTouchedFields] = useState<TouchedFields>({ email: false });
 
   // Clear errors when component focuses
   useFocusEffect(
     useCallback(() => {
       clearError();
       setValidationErrors({});
+      setTouchedFields({ email: false });
     }, [clearError])
   );
 
@@ -119,9 +134,9 @@ const PasswordResetScreen = () => {
     
     // Email validation
     if (!email) {
-      errors.email = t('auth.validation.emailRequired') || 'E-Mail ist erforderlich';
+      errors.email = t('auth.registerScreen.errors.emailRequired') || 'E-Mail ist erforderlich';
     } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-      errors.email = t('auth.validation.emailInvalid') || 'Ungültige E-Mail-Adresse';
+      errors.email = t('auth.registerScreen.errors.emailInvalid') || 'Ungültige E-Mail-Adresse';
     }
 
     setValidationErrors(errors);
@@ -134,6 +149,7 @@ const PasswordResetScreen = () => {
   const handleEmailChange = (value: string) => {
     setEmail(value);
     clearError();
+    setTouchedFields({ ...touchedFields, email: true });
   };
 
   /**
@@ -159,8 +175,8 @@ const PasswordResetScreen = () => {
 
       // Show success feedback
       Alert.alert(
-        t('auth.reset.successTitle') || 'E-Mail gesendet',
-        t('auth.reset.successMessage') || 'Prüfen Sie Ihr E-Mail-Postfach für weitere Anweisungen.'
+        t('auth.resetScreen.successTitle') || 'E-Mail gesendet',
+        t('auth.resetScreen.successMessage') || 'Prüfen Sie Ihr E-Mail-Postfach für weitere Anweisungen.'
       );
 
     } catch (error) {
@@ -170,8 +186,8 @@ const PasswordResetScreen = () => {
       // Show appropriate error based on attempts
       if (resetAttempts >= 3) {
         Alert.alert(
-          t('auth.reset.rateLimitTitle') || 'Zu viele Versuche',
-          t('auth.reset.rateLimitMessage') || 'Bitte warten Sie 15 Minuten bevor Sie es erneut versuchen.'
+          t('auth.resetScreen.rateLimitTitle') || 'Zu viele Versuche',
+          t('auth.resetScreen.rateLimitMessage') || 'Bitte warten Sie 15 Minuten bevor Sie es erneut versuchen.'
         );
       }
     }
@@ -193,8 +209,8 @@ const PasswordResetScreen = () => {
       setCanResend(false);
       
       Alert.alert(
-        t('auth.reset.resendSuccessTitle') || 'E-Mail erneut gesendet',
-        t('auth.reset.resendSuccessMessage') || 'Eine neue E-Mail wurde an Ihre Adresse gesendet.'
+        t('auth.resetScreen.resendSuccessTitle') || 'E-Mail erneut gesendet',
+        t('auth.resetScreen.resendSuccessMessage') || 'Eine neue E-Mail wurde an Ihre Adresse gesendet.'
       );
 
     } catch (error) {
@@ -219,6 +235,7 @@ const PasswordResetScreen = () => {
     setResetAttempts(0);
     setCanResend(false);
     setResendCooldown(0);
+    setTouchedFields({ email: false });
     clearError();
   };
 
@@ -228,27 +245,29 @@ const PasswordResetScreen = () => {
   const renderEmailInputStep = () => (
     <>
       {/* Header */}
-      <View style={passwordResetScreenStyles.header}>
-        <Text style={passwordResetScreenStyles.title}>
-          {t('auth.reset.title') || 'Passwort zurücksetzen'}
+      <View style={styles.header}>
+        <Text style={styles.title}>
+          {t('auth.resetScreen.title') || 'Passwort zurücksetzen'}
         </Text>
-        <Text style={passwordResetScreenStyles.subtitle}>
-          {t('auth.reset.subtitle') || 'Geben Sie Ihre E-Mail-Adresse ein, um Ihr Passwort zurückzusetzen'}
+        <Text style={styles.subtitle}>
+          {t('auth.resetScreen.subtitle') || 'Geben Sie Ihre E-Mail-Adresse ein, um Ihr Passwort zurückzusetzen'}
         </Text>
       </View>
 
       {/* Email Form */}
-      <View style={passwordResetScreenStyles.formContainer}>
+      <View style={styles.formContainer}>
         <FormTextInput
-          label={t('auth.reset.emailLabel') || 'E-Mail-Adresse'}
+          label={t('auth.resetScreen.emailLabel') || 'E-Mail-Adresse'}
           value={email}
           onChangeText={handleEmailChange}
           keyboardType="email-address"
-          error={!!validationErrors.email || !!error}
+          autoCapitalize="none"
+          autoCorrect={false}
+          error={(touchedFields.email && !!validationErrors.email) || !!error}
         />
         
-        {validationErrors.email && (
-          <Text style={passwordResetScreenStyles.validationError}>
+        {touchedFields.email && validationErrors.email && (
+          <Text style={styles.validationError}>
             {validationErrors.email}
           </Text>
         )}
@@ -256,7 +275,7 @@ const PasswordResetScreen = () => {
         <FormErrorText errorMessage={error} />
 
         <PrimaryButton
-          label={t('auth.reset.button') || 'Passwort zurücksetzen'}
+          label={t('auth.resetScreen.button') || 'Passwort zurücksetzen'}
           onPress={handleReset}
           loading={isLoading}
           disabled={!isFormValid || isLoading}
@@ -264,9 +283,9 @@ const PasswordResetScreen = () => {
       </View>
 
       {/* Security Notice */}
-      <View style={passwordResetScreenStyles.securityNotice}>
-        <Text style={passwordResetScreenStyles.securityText}>
-          🔒 {t('auth.reset.securityNotice') || 'Aus Sicherheitsgründen erhalten Sie nur dann eine E-Mail, wenn Ihr Konto existiert.'}
+      <View style={styles.securityNotice}>
+        <Text style={styles.securityText}>
+          🔒 {t('auth.resetScreen.securityNotice') || 'Aus Sicherheitsgründen erhalten Sie nur dann eine E-Mail, wenn Ihr Konto existiert.'}
         </Text>
       </View>
     </>
@@ -278,99 +297,101 @@ const PasswordResetScreen = () => {
   const renderEmailSentStep = () => (
     <>
       {/* Success Header */}
-      <View style={passwordResetScreenStyles.successHeader}>
-        <Text style={passwordResetScreenStyles.successIcon}>📧</Text>
-        <Text style={passwordResetScreenStyles.successTitle}>
-          {t('auth.reset.emailSentTitle') || 'E-Mail gesendet!'}
+      <View style={styles.successHeader}>
+        <Text style={styles.successIcon}>📧</Text>
+        <Text style={styles.successTitle}>
+          {t('auth.resetScreen.emailSentTitle') || 'E-Mail gesendet!'}
         </Text>
-        <Text style={passwordResetScreenStyles.successSubtitle}>
-          {t('auth.reset.emailSentMessage') || `Wir haben eine E-Mail an ${email} gesendet. Folgen Sie den Anweisungen in der E-Mail, um Ihr Passwort zurückzusetzen.`}
+        <Text style={styles.successSubtitle}>
+          {t('auth.resetScreen.emailSentMessage') || `Wir haben eine E-Mail an ${email} gesendet. Folgen Sie den Anweisungen in der E-Mail, um Ihr Passwort zurückzusetzen.`}
         </Text>
       </View>
 
       {/* Instructions */}
-      <View style={passwordResetScreenStyles.instructionsContainer}>
-        <Text style={passwordResetScreenStyles.instructionsTitle}>
-          {t('auth.reset.nextStepsTitle') || 'Nächste Schritte:'}
+      <View style={styles.instructionsContainer}>
+        <Text style={styles.instructionsTitle}>
+          {t('auth.resetScreen.nextStepsTitle') || 'Nächste Schritte:'}
         </Text>
-        <Text style={passwordResetScreenStyles.instructionStep}>
-          1. {t('auth.reset.step1') || 'Prüfen Sie Ihr E-Mail-Postfach'}
+        <Text style={styles.instructionStep}>
+          1. {t('auth.resetScreen.step1') || 'Prüfen Sie Ihr E-Mail-Postfach'}
         </Text>
-        <Text style={passwordResetScreenStyles.instructionStep}>
-          2. {t('auth.reset.step2') || 'Klicken Sie auf den Link in der E-Mail'}
+        <Text style={styles.instructionStep}>
+          2. {t('auth.resetScreen.step2') || 'Klicken Sie auf den Link in der E-Mail'}
         </Text>
-        <Text style={passwordResetScreenStyles.instructionStep}>
-          3. {t('auth.reset.step3') || 'Erstellen Sie ein neues Passwort'}
+        <Text style={styles.instructionStep}>
+          3. {t('auth.resetScreen.step3') || 'Erstellen Sie ein neues Passwort'}
         </Text>
       </View>
 
       {/* Resend Section */}
-      <View style={passwordResetScreenStyles.resendContainer}>
-        <Text style={passwordResetScreenStyles.resendText}>
-          {t('auth.reset.noEmailReceived') || 'Keine E-Mail erhalten?'}
+      <View style={styles.resendContainer}>
+        <Text style={styles.resendText}>
+          {t('auth.resetScreen.noEmailReceived') || 'Keine E-Mail erhalten?'}
         </Text>
         
         {canResend ? (
           <TouchableOpacity
-            style={passwordResetScreenStyles.resendButton}
+            style={styles.resendButton}
             onPress={handleResendEmail}
             disabled={isLoading}
           >
             {isLoading ? (
               <ActivityIndicator size="small" color="#007bff" />
             ) : (
-              <Text style={passwordResetScreenStyles.resendButtonText}>
-                {t('auth.reset.resendButton') || 'E-Mail erneut senden'}
+              <Text style={styles.resendButtonText}>
+                {t('auth.resetScreen.resendButton') || 'E-Mail erneut senden'}
               </Text>
             )}
           </TouchableOpacity>
         ) : (
-          <Text style={passwordResetScreenStyles.cooldownText}>
-            {t('auth.reset.resendCooldown') || `Erneut senden in ${resendCooldown}s`}
+          <Text style={styles.cooldownText}>
+            {t('auth.resetScreen.resendCooldown') || `Erneut senden in ${resendCooldown}s`}
           </Text>
         )}
       </View>
 
       {/* Try Different Email */}
       <TouchableOpacity
-        style={passwordResetScreenStyles.changeEmailButton}
+        style={styles.changeEmailButton}
         onPress={resetForm}
       >
-        <Text style={passwordResetScreenStyles.changeEmailText}>
-          {t('auth.reset.tryDifferentEmail') || 'Andere E-Mail-Adresse verwenden'}
+        <Text style={styles.changeEmailText}>
+          {t('auth.resetScreen.tryDifferentEmail') || 'Andere E-Mail-Adresse verwenden'}
         </Text>
       </TouchableOpacity>
     </>
   );
 
   return (
-    <KeyboardAvoidingView
-      style={passwordResetScreenStyles.container}
-      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-      keyboardVerticalOffset={Platform.OS === 'ios' ? 64 : 0}
-    >
-      <ScrollView
-        contentContainerStyle={passwordResetScreenStyles.scrollContainer}
-        showsVerticalScrollIndicator={false}
-        keyboardShouldPersistTaps="handled"
+    <SafeAreaView style={styles.container}>
+      <KeyboardAvoidingView
+        style={styles.container}
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        keyboardVerticalOffset={Platform.OS === 'ios' ? 64 : 0}
       >
-        {/* Render appropriate step */}
-        {currentStep === ResetStep.EMAIL_INPUT && renderEmailInputStep()}
-        {currentStep === ResetStep.EMAIL_SENT && renderEmailSentStep()}
+        <ScrollView
+          contentContainerStyle={styles.scrollContainer}
+          showsVerticalScrollIndicator={false}
+          keyboardShouldPersistTaps="handled"
+        >
+          {/* Render appropriate step */}
+          {currentStep === ResetStep.EMAIL_INPUT && renderEmailInputStep()}
+          {currentStep === ResetStep.EMAIL_SENT && renderEmailSentStep()}
 
-        {/* Navigation */}
-        <View style={passwordResetScreenStyles.navigationContainer}>
-          <TouchableOpacity
-            onPress={navigateToLogin}
-            style={passwordResetScreenStyles.linkContainer}
-          >
-            <Text style={passwordResetScreenStyles.linkText}>
-              ← {t('auth.navigation.backToLogin') || 'Zurück zur Anmeldung'}
-            </Text>
-          </TouchableOpacity>
-        </View>
-      </ScrollView>
-    </KeyboardAvoidingView>
+          {/* Navigation */}
+          <View style={styles.navigationContainer}>
+            <TouchableOpacity
+              onPress={navigateToLogin}
+              style={styles.linkContainer}
+            >
+              <Text style={styles.linkText}>
+                ← {t('auth.navigation.backToLogin') || 'Zurück zur Anmeldung'}
+              </Text>
+            </TouchableOpacity>
+          </View>
+        </ScrollView>
+      </KeyboardAvoidingView>
+    </SafeAreaView>
   );
 };
 

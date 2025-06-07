@@ -24,7 +24,7 @@ export const SnackbarHost = () => {
               ? colors.success
               : colors.error,
       }}>
-      {t(message)}
+      {t(message) || message}
     </Snackbar>
   );
 };

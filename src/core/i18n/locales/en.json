@@ -1,6 +1,17 @@
 {
   "common": {
     "cancel": "Cancel",
+    "delete": "Delete",
+    "ok": "OK",
+    "save": "Save",
+    "discard": "Discard",
+    "continue": "Continue",
+    "loading": "Loading...",
+    "error": "Error",
+    "success": "Success",
+    "retry": "Retry",
+    "unexpectedError": "An unexpected error occurred",
+    "loadingError": "Error loading data",
     "alert": {
       "titles": {
         "error": "Error",
@@ -16,44 +27,32 @@
       }
     }
   },
-  "error": {
-    "auth": {
-      "invalidCredentials": "Invalid credentials. Please try again.",
-      "userNotFound": "User not found. Please check your details.",
-      "emailAlreadyInUse": "This email address is already registered.",
-      "weakPassword": "Your password is too weak. Please choose a stronger one.",
-      "generic": "An unknown authentication error occurred.",
-      "biometric": {
-        "notAvailable": "Biometric authentication is not available or not set up on this device.",
-        "failed": "Biometric authentication failed.",
-        "enableFailed": "Could not enable biometric authentication. Please try again.",
-        "disableFailed": "Failed to disable biometric authentication.",
-        "testFailed": "Biometric authentication test failed.",
-        "userNotAuthenticated": "You must be logged in to enable biometric authentication.",
-        "notEnabled": "Biometric authentication is not enabled."
-      },
-      "mfa": {
-        "setupFailed": "MFA setup failed. Please try again.",
-        "verificationFailed": "Verification failed. Please try again.",
-        "codeRequired": "Please enter the verification code.",
-        "invalidMethod": "Invalid MFA method selected."
-      }
-    },
-    "matchday": {
-      "create": "Error creating matchday",
-      "update": "Error updating matchday",
-      "load": "Error loading matchday"
+  "navigation": {
+    "tabBar": {
+      "home": "Home",
+      "profile": "Profile",
+      "notifications": "Notifications",
+      "theme": "Theme",
+      "themeDemo": "Theme Demo",
+      "credits": "Credits",
+      "settings": "Settings",
+      "errors": {}
     }
   },
   "auth": {
-    "login": {
+    "loginScreen": {
       "title": "Sign In",
       "emailLabel": "Email",
       "passwordLabel": "Password",
       "button": "Login",
-      "success": "Successfully logged in"
+      "success": "Successfully logged in",
+      "errors": {
+        "invalidCredentials": "Invalid credentials. Please try again.",
+        "userNotFound": "User not found. Please check your details.",
+        "generic": "An unknown authentication error occurred."
+      }
     },
-    "register": {
+    "registerScreen": {
       "title": "Register",
       "emailLabel": "Email",
       "passwordLabel": "Password",
@@ -61,21 +60,20 @@
       "button": "Register",
       "success": "Registration successful!",
       "emailConfirmationMessage": "Registration successful! Please check your email to confirm your account.",
-      "redirectingToLogin": "Redirecting to login page..."
+      "redirectingToLogin": "Redirecting to login page...",
+      "errors": {
+        "emailAlreadyInUse": "This email address is already registered.",
+        "weakPassword": "Your password is too weak. Please choose a stronger one."
+      }
     },
-    "reset": {
+    "resetScreen": {
       "title": "Reset Password",
       "emailLabel": "Email",
       "button": "Send Link",
-      "success": "Password reset email sent"
+      "success": "Password reset email sent",
+      "errors": {}
     },
-    "navigation": {
-      "noAccount": "Don't have an account? Register now!",
-      "forgotPassword": "Forgot your password?",
-      "alreadyAccount": "Already have an account? Sign in!",
-      "backToLogin": "Back to Login"
-    },
-    "biometric": {
+    "biometricScreen": {
       "title": "Biometric Authentication",
       "subtitle": {
         "ios": "Face ID / Touch ID",
@@ -122,9 +120,18 @@
         "title": "Login Required",
         "subtitle": "Sign in to configure biometric authentication.",
         "icon": "🔒"
+      },
+      "errors": {
+        "notAvailable": "Biometric authentication is not available or not set up on this device.",
+        "failed": "Biometric authentication failed.",
+        "enableFailed": "Could not enable biometric authentication. Please try again.",
+        "disableFailed": "Failed to disable biometric authentication.",
+        "testFailed": "Biometric authentication test failed.",
+        "userNotAuthenticated": "You must be logged in to enable biometric authentication.",
+        "notEnabled": "Biometric authentication is not enabled."
       }
     },
-    "mfa": {
+    "mfaScreen": {
       "title": "Enable Multi-Factor Authentication",
       "subtitle": "Choose a method for additional security:",
       "methods": {
@@ -182,9 +189,15 @@
       },
       "success": {
         "enabled": "MFA has been successfully enabled!"
+      },
+      "errors": {
+        "setupFailed": "MFA setup failed. Please try again.",
+        "verificationFailed": "Verification failed. Please try again.",
+        "codeRequired": "Please enter the verification code.",
+        "invalidMethod": "Invalid MFA method selected."
       }
     },
-    "passwordStrength": {
+    "passwordStrengthScreen": {
       "title": "Password Strength",
       "strength": {
         "very_strong": "Very Strong",
@@ -201,175 +214,909 @@
         "numbers": "Numbers (0-9)",
         "specialChars": "Special characters (!@#$%^&*)"
       },
-      "score": "{{strength}} ({{score}}/100)"
+      "score": "{{strength}} ({{score}}/100)",
+      "errors": {}
+    },
+    "navigation": {
+      "noAccount": "Don't have an account? Register now!",
+      "forgotPassword": "Forgot your password?",
+      "alreadyAccount": "Already have an account? Sign in!",
+      "backToLogin": "Back to Login"
+    },
+    "securityScreen": {
+      "title": "Security Settings",
+      "navigationMessage": "Navigate to security settings"
+    },
+    "adminScreen": {
+      "title": "Administration",
+      "userManagement": "User Management",
+      "viewDetails": "View Details"
+    },
+    "mainScreen": {
+      "lastActivity": "Last Activity"
+    },
+    "roles": {
+      "super_admin": "Super Admin",
+      "admin": "Administrator",
+      "moderator": "Moderator",
+      "verified_user": "Verified User",
+      "premium_user": "Premium User",
+      "user": "User"
     }
   },
-  "matchdayList": {
-    "title": "Matchdays",
-    "teamPlaceholder": "e.g. U8",
-    "details": "Details",
-    "home": "Home",
-    "away": "Away",
-    "status": {
-      "scheduled": "Scheduled",
-      "in_progress": "Ongoing",
-      "completed": "Finished",
-      "cancelled": "Cancelled"
+  "profile": {
+    "mainScreen": {
+      "title": "Profile",
+      "noProfileFound": "No Profile Found",
+      "createProfile": "Create Profile",
+      "unnamedUser": "Unnamed User",
+      "noBioAvailable": "No bio available",
+      "profileComplete": "Profile {{percent}}% Complete",
+      "quickActions": "Quick Actions",
+      "editProfileData": "Edit Profile Data",
+      "profileInformation": "Profile Information",
+      "email": "Email",
+      "bio": "Bio",
+      "location": "Location",
+      "notSet": "Not set",
+      "na": "N/A",
+      "loadingProfile": "Loading profile...",
+      "loading": "Loading...",
+      "refreshProfileAccessibilityLabel": "Refresh profile",
+      "profileContentAccessibilityLabel": "Profile content",
+      "completeness": "Completeness",
+      "lastActivity": "Last activity",
+      "uploadAvatar": "Upload Avatar",
+      "avatarAccessibilityLabel": "Profile picture of {{name}}",
+      "headerAccessibilityLabel": "Profile header",
+      "displayNameAccessibilityLabel": "Display name",
+      "bioAccessibilityLabel": "Biography",
+      "completenessAccessibilityLabel": "Profile completeness: {{percent}} percent",
+      "editProfileAccessibilityLabel": "Edit profile",
+      "editProfileAccessibilityHint": "Opens the profile editor",
+      "uploadAvatarAccessibilityLabel": "Upload avatar",
+      "uploadAvatarAccessibilityHint": "Opens the avatar upload function",
+      "actionsAccessibilityLabel": "Profile actions",
+      "informationAccessibilityLabel": "Profile information",
+      "infoItemAccessibilityLabel": "{{label}}: {{value}}",
+      "navigationTitle": "Navigation",
+      "accountSection": "Account",
+      "profileSection": "Profile",
+      "advancedSection": "Advanced",
+      "accountSettings": "Account Settings",
+      "accountSettingsLabel": "Account Settings",
+      "accountSettingsHint": "Manage your account settings",
+      "privacySettings": "Privacy Settings",
+      "privacySettingsLabel": "Privacy Settings",
+      "privacySettingsHint": "Manage your privacy settings",
+      "customFields": "Custom Fields",
+      "customFieldsLabel": "Custom Fields",
+      "customFieldsHint": "Edit custom profile fields",
+      "skillsManagement": "Skills Management",
+      "skillsManagementLabel": "Skills Management",
+      "skillsManagementHint": "Manage your skills",
+      "socialLinks": "Social Links",
+      "socialLinksLabel": "Social Links",
+      "socialLinksHint": "Manage your social media links",
+      "avatarDemo": "Avatar Demo",
+      "avatarDemoLabel": "Avatar Demo",
+      "avatarDemoHint": "Shows avatar features",
+      "emptyStateAccessibilityLabel": "Empty state - No profile available",
+      "noProfileFoundAccessibilityLabel": "No profile found",
+      "createProfileAccessibilityLabel": "Create profile",
+      "createProfileAccessibilityHint": "Creates a new profile",
+      "error": "Error",
+      "errorDisplayAccessibilityLabel": "Error display",
+      "errorMessageAccessibilityLabel": "Error message: {{error}}",
+      "retry": "Retry",
+      "retryAccessibilityLabel": "Retry",
+      "retryAccessibilityHint": "Attempts the action again",
+      "errors": {
+        "title": "Error",
+        "loadProfile": "Could not load profile"
+      }
     },
-    "search": {
-      "placeholder": "Search for opponent, location..."
+    "editScreen": {
+      "title": "Edit Profile",
+      "accessDenied": "Access Denied",
+      "noPermission": "You don't have permission to edit profiles.",
+      "success": "Success",
+      "profileUpdated": "Profile updated successfully",
+      "error": "Error",
+      "updateFailed": "Update failed",
+      "unexpectedError": "An unexpected error occurred",
+      "saveChanges": "Save Changes",
+      "cancel": "Cancel",
+      "discardChanges": "Discard Changes",
+      "unsavedChanges": "Unsaved Changes",
+      "basicInfo": "Basic Information",
+      "contactInfo": "Contact Information",
+      "professionalInfo": "Professional Information",
+      "socialLinks": "Social Links",
+      "customFields": "Custom Fields",
+      "firstName": "First Name",
+      "lastName": "Last Name",
+      "displayName": "Display Name",
+      "bio": "Bio",
+      "location": "Location",
+      "website": "Website",
+      "phone": "Phone",
+      "company": "Company",
+      "jobTitle": "Job Title",
+      "industry": "Industry",
+      "workLocationPreference": "Work Location Preference",
+      "skills": "Skills",
+      "addSkill": "Add Skill",
+      "characters": "characters",
+      "notes": "Notes",
+      "notesPlaceholder": "Additional information...",
+      "customFieldsNote": "Additional custom fields can be added here.",
+      "workLocation": {
+        "remote": "Remote",
+        "onsite": "On-site",
+        "hybrid": "Hybrid"
+      },
+      "errors": {}
     },
-    "filter": {
-      "title": "Filter",
-      "show": "Show filters",
-      "hide": "Hide filters",
-      "apply": "Apply",
-      "reset": "Reset",
-      "home": "Home game",
-      "away": "Away game",
-      "dateFrom": "From",
-      "dateTo": "To",
-      "selectDate": "Select date"
+    "avatarScreen": {
+      "title": "Upload Avatar",
+      "subtitle": {
+        "select": "Choose a photo for your profile picture",
+        "selected": "Edit your profile picture"
+      },
+      "select": {
+        "title": "Select Photo",
+        "message": "Choose an option:",
+        "camera": "Camera",
+        "gallery": "Gallery"
+      },
+      "selecting": "Selecting photo...",
+      "uploading": "Uploading...",
+      "upload": {
+        "action": "Upload",
+        "success": {
+          "title": "Success",
+          "message": "Avatar uploaded successfully!"
+        },
+        "error": {
+          "title": "Error",
+          "message": "Avatar could not be uploaded. Please try again."
+        }
+      },
+      "remove": {
+        "action": "Remove",
+        "title": "Remove Avatar",
+        "message": "Do you really want to remove your profile picture?",
+        "confirm": "Remove"
+      },
+      "current": {
+        "title": "Current Profile Picture",
+        "selected": "New image selected",
+        "description": "Choose a photo for your profile picture"
+      },
+      "errors": {
+        "camera": {
+          "title": "Camera Error",
+          "message": "Camera could not be opened. Please try again."
+        },
+        "gallery": {
+          "title": "Gallery Error",
+          "message": "Gallery could not be opened. Please try again."
+        },
+        "remove": {
+          "message": "Avatar could not be removed. Please try again."
+        }
+      }
     },
-    "loading": "Loading matchdays...",
-    "noMatchdays": "No matchdays found",
-    "noFilterResults": "No results for your filter settings"
+    "avatarDemoScreen": {
+      "title": "Avatar Demo",
+      "refreshAvatar": "🔄 Refresh Avatar",
+      "deleteAvatar": "🗑️ Delete Avatar",
+      "goBack": "← Go Back",
+      "featureInfo": "Feature Information",
+      "features": "📦 Features:",
+      "featuresText": "• Gallery & Camera Selection\n• Automatic Cropping\n• Image Compression\n• Progress Tracking\n• Fallback to Initials\n• Enterprise Security",
+      "security": "🔒 Security:",
+      "securityText": "• JWT Authentication\n• RLS Policies\n• RBAC Integration\n• Audit Logging\n• File Validation",
+      "architecture": "🏗️ Architecture:",
+      "architectureText": "• Clean Architecture\n• Service Layer Pattern\n• React Hooks\n• Supabase Integration\n• Edge Functions",
+      "errors": {}
+    },
+    "privacyScreen": {
+      "title": "Privacy Settings"
+    },
+    "customFieldsScreen": {
+      "title": "Custom Fields"
+    },
+    "avatarDemoScreen": {
+      "title": "Avatar Demo",
+      "uploading": "Uploading avatar...",
+      "userInfo": "User Information",
+      "avatarManagement": "Avatar Management",
+      "actions": "Actions",
+      "refreshAvatar": "Refresh Avatar",
+      "deleteAvatar": "Delete Avatar",
+      "goBack": "Go Back",
+      "featureInfo": "Feature Information"
+    },
+    "socialLinksScreen": {
+      "title": "Edit Social Links",
+      "placeholders": {
+        "linkedin": "LinkedIn username",
+        "github": "GitHub username",
+        "twitter": "Twitter username", 
+        "instagram": "Instagram username",
+        "youtube": "YouTube channel",
+        "behance": "Behance username",
+        "dribbble": "Dribbble username",
+        "medium": "Medium username",
+        "website": "Website URL",
+        "portfolio": "Portfolio URL"
+      },
+      "urlPreview": {
+        "title": "URL Preview:",
+        "valid": "Valid URL"
+      },
+      "stats": {
+        "total": "Total",
+        "professional": "Professional",
+        "social": "Social",
+        "creative": "Creative"
+      },
+      "empty": {
+        "subtitle": "No social links added yet",
+        "action": "Add your first links"
+      },
+      "progress": {
+        "title": "Social Links Overview"
+      },
+      "platforms": {
+        "title": "Available Platforms"
+      },
+      "summary": {
+        "title": "Connected Accounts"
+      },
+      "tips": {
+        "title": "Tips",
+        "general": {
+          "username": "Use only your username, not the full URL",
+          "professional": "Add professional profiles like LinkedIn first",
+          "complete": "Make sure your profiles are completely filled out",
+          "active": "Only link active profiles that you use regularly",
+          "verify": "Verify your profiles for more credibility",
+          "privacy": "Check your privacy settings on the platforms"
+        },
+        "linkedin": "Use your LinkedIn username without '/in/' - e.g. 'john-doe'",
+        "github": "Enter only your GitHub username - e.g. 'johndoe'",
+        "twitter": "Use your Twitter handle without '@' - e.g. 'johndoe'",
+        "instagram": "Instagram username only - e.g. 'john.doe'",
+        "youtube": "Your YouTube channel name with '@' - e.g. 'johndoe'",
+        "behance": "Your Behance username - e.g. 'johndoe'",
+        "dribbble": "Your Dribbble username - e.g. 'johndoe'",
+        "medium": "Your Medium username without '@' - e.g. 'johndoe'",
+        "website": "Full URL of your website - e.g. 'https://johndoe.com'",
+        "portfolio": "Full URL of your portfolio - e.g. 'https://portfolio.johndoe.com'"
+      },
+      "actions": {
+        "reset": "Reset changes"
+      }
+    },
+    "skillsScreen": {
+      "title": "Manage Skills",
+      "search": {
+        "placeholder": "Search skills..."
+      },
+      "addCustom": "Add \"{{skill}}\"",
+      "current": {
+        "title": "Current Skills"
+      },
+      "categories": {
+        "title": "Categories",
+        "technical": "Technical",
+        "soft": "Soft Skills",
+        "languages": "Languages"
+      },
+      "suggestions": {
+        "title": "Suggested Skills",
+        "category": "{{category}} Skills"
+      },
+      "stats": {
+        "total": "Total",
+        "technical": "Technical",
+        "soft": "Soft Skills"
+      },
+      "tips": {
+        "title": "Tips",
+        "relevant": "Add relevant skills that reflect your expertise",
+        "specific": "Be specific when selecting your skills",
+        "current": "Keep your skills list current",
+        "categories": "Use categories for better organization"
+      }
+    },
+    "accountScreen": {
+      "title": "Account Settings",
+      "overview": {
+        "title": "Account Overview",
+        "completeness": "Profile Completeness"
+      },
+      "memberSince": "Member since {{date}}",
+      "profileCompleteness": "Profile Completeness",
+      "actions": {
+        "title": "Account Actions",
+        "profile": "Edit Profile",
+        "profileDesc": "Edit your personal information",
+        "privacy": "Privacy Settings",
+        "privacyDesc": "Manage your privacy preferences",
+        "changePassword": "Change Password",
+        "changePasswordDesc": "Update your account password"
+      },
+      "data": {
+        "title": "Data & Storage",
+        "usage": "Data Usage",
+        "lastBackup": "Last Backup",
+        "devices": "Active Devices",
+        "deviceCount": "{{count}} device",
+        "deviceCount_plural": "{{count}} devices",
+        "exportData": "Export Data"
+      },
+      "security": {
+        "title": "Security",
+        "lastLogin": "Last Login",
+        "activeSessions": "Active Sessions",
+        "activeDevices": "Active Devices",
+        "mfa": "Two-Factor Authentication",
+        "enabled": "Enabled",
+        "disabled": "Disabled",
+        "loginAttempts": "Login Attempts",
+        "neverLoggedIn": "Never logged in",
+        "manageDevices": "Manage Devices",
+        "twoFactor": "Two-Factor Authentication",
+        "twoFactorDesc": "Add an additional security layer"
+      },
+      "support": {
+        "title": "Support",
+        "help": "Help & FAQ",
+        "helpDesc": "Find answers to frequently asked questions",
+        "contact": "Contact Support",
+        "contactDesc": "Get technical assistance",
+        "documentation": "Documentation",
+        "documentationDesc": "Browse complete documentation",
+        "community": "Community",
+        "communityDesc": "Interact with other users"
+      },
+      "danger": {
+        "title": "Danger Zone",
+        "deleteTitle": "Delete Account",
+        "deleteAction": "Delete Account Permanently",
+        "deleteWarning": "This action will permanently delete your account and all associated data. This action cannot be undone.",
+        "resetTitle": "Reset Data",
+        "resetAction": "Reset All Data",
+        "resetWarning": "All your data will be reset to default values.",
+        "clearTitle": "Clear Cache",
+        "clearAction": "Clear Cache",
+        "clearWarning": "Local cache will be cleared.",
+        "revokeTitle": "Revoke Access",
+        "revokeAction": "Revoke Access",
+        "revokeWarning": "All active sessions will be terminated.",
+        "disableTitle": "Disable Account",
+        "disableAction": "Disable Account",
+        "disableWarning": "Your account will be temporarily disabled.",
+        "customTitle": "Execute Action",
+        "customAction": "Execute",
+        "customWarning": "This action will be executed.",
+        "deleteAccount": "Delete Account",
+        "deleteAccountDesc": "Permanently delete account and all data"
+      },
+      "errors": {}
+    },
+    "navigation": {
+      "myProfile": "My Profile",
+      "userProfile": "User Profile",
+      "editProfile": "Edit Profile",
+      "accountSettings": "Account Settings",
+      "avatarUpload": "Upload Avatar",
+      "skillsManagement": "Skills Management",
+      "socialLinksEdit": "Edit Social Links",
+      "customFieldsEdit": "Edit Custom Fields",
+      "profileAvatarDemo": "Avatar Demo"
+    },
+    "professionalCard": {
+      "title": "Professional Information",
+      "experience": "Experience",
+      "skills": "Skills",
+      "customFields": "Custom Fields",
+      "availableForWork": "Available for work",
+      "notAvailableForWork": "Not available for work",
+      "empty": {
+        "message": "No professional information available",
+        "action": "Add"
+      },
+      "experienceLevel": {
+        "entry": "Entry Level",
+        "junior": "Junior",
+        "mid": "Mid Level",
+        "senior": "Senior",
+        "lead": "Lead",
+        "executive": "Executive"
+      },
+      "workLocation": {
+        "remote": "Remote",
+        "onsite": "On-site",
+        "hybrid": "Hybrid"
+      }
+    },
+    "completionCard": {
+      "title": "Profile Completeness",
+      "progress": "{{percentage}}% complete",
+      "excellent": "Excellent",
+      "good": "Good",
+      "fair": "Fair",
+      "needsWork": "Needs work",
+      "suggestions": {
+        "title": "Improvement suggestions",
+        "addAvatar": {
+          "title": "Add profile picture",
+          "description": "Add a profile picture to personalize your profile"
+        },
+        "improveBio": {
+          "title": "Improve biography",
+          "description": "Write a meaningful biography (at least 50 characters)"
+        },
+        "addProfessional": {
+          "title": "Add professional information",
+          "description": "Add your company and job title"
+        },
+        "addSkills": {
+          "title": "Add skills",
+          "description": "Add at least 3 skills"
+        },
+        "addLocation": {
+          "title": "Add location",
+          "description": "Specify your location"
+        },
+        "addSocial": {
+          "title": "Link social networks",
+          "description": "Link your LinkedIn or GitHub profiles"
+        }
+      },
+      "priority": {
+        "high": "High",
+        "medium": "Medium",
+        "low": "Low"
+      },
+      "viewAll": "View all {{count}}",
+      "congratulations": {
+        "title": "Congratulations!",
+        "description": "Your profile is almost complete"
+      }
+    },
+    "avatarUploader": {
+      "select": {
+        "title": "Select profile picture",
+        "gallery": "Choose from gallery",
+        "camera": "Take photo"
+      },
+      "remove": {
+        "title": "Remove profile picture",
+        "message": "Do you really want to remove your profile picture?",
+        "confirm": "Remove",
+        "action": "Remove"
+      },
+      "upload": {
+        "error": {
+          "message": "Upload failed"
+        }
+      },
+      "error": {
+        "gallery": {
+          "message": "Error accessing gallery"
+        },
+        "camera": {
+          "message": "Error accessing camera"
+        }
+      }
+    }
+  },
+  "credits": {
+    "mainScreen": {
+      "title": "Credits",
+      "balance": "Balance",
+      "yourCredits": "Your Credits",
+      "creditsLow": "Credits are low. Top up now!",
+      "bonusText": "Bonus",
+      "totalText": "total",
+      "dailyBonusMessage": "Come back daily for bonus credits!",
+      "errors": {}
+    },
+    "shopScreen": {
+      "title": "Credit Shop",
+      "subtitle": "Choose the perfect credit package for you",
+      "packages": "Credit Packages",
+      "purchaseSuccess": "🎉 Purchase successful!",
+      "purchaseSuccessMessage": "You received {{amount}} credits!",
+      "purchaseSuccessButton": "Great!",
+      "purchaseFailed": "Purchase failed",
+      "purchaseFailedMessage": "The purchase could not be completed",
+      "loadingProducts": "Loading products...",
+      "noProducts": "No products available",
+      "noProductsMessage": "No credit packages are currently available. Please try again later.",
+      "popular": "🔥 Popular",
+      "bestValue": "💎 Best Value",
+      "whyBuyCredits": "💡 Why buy credits?",
+      "bonusCredits": "🎁 Bonus Credits!",
+      "bonusCreditsDescription": "Larger packages include bonus credits! The more you buy, the more you save.",
+      "benefits": {
+        "unlimitedAccess": "• Unlimited access to all stories",
+        "premiumFeatures": "• Unlock premium features",
+        "noAds": "• Ad-free experience",
+        "exclusiveContent": "• Exclusive content"
+      },
+      "errors": {}
+    },
+    "transactionsScreen": {
+      "title": "Transactions",
+      "loadingMore": "Loading more transactions...",
+      "noTransactions": "No Transactions",
+      "noTransactionsMessage": "Your credit transactions will appear here as soon as you have some.",
+      "today": "Today",
+      "yesterday": "Yesterday",
+      "stats": {
+        "earned": "Earned",
+        "spent": "Spent",
+        "total": "Total",
+        "tapForDetails": "Tap for details ›"
+      },
+      "errors": {}
+    },
+    "dashboardScreen": {
+      "title": "Credit Dashboard",
+      "quickActions": "Quick Actions",
+      "buyCredits": "Buy Credits",
+      "dailyBonus": "Daily Bonus",
+      "claimBonus": "Claim Bonus!",
+      "recentTransactions": "Recent Transactions",
+      "seeAll": "See All",
+      "loadingTransactions": "Loading transactions...",
+      "noTransactions": "No Transactions",
+      "noTransactionsMessage": "Your credit transactions will appear here",
+      "errors": {}
+    }
+  },
+  "onboarding": {
+    "welcomeScreen": {
+      "title": "Welcome to ReactNative Skeleton!",
+      "description": "The modern Enterprise app with Clean Architecture and TypeScript.",
+      "feature1": "Clean Architecture Design",
+      "feature2": "Enterprise-grade Security",
+      "feature3": "Performance Optimized",
+      "skip": "Skip",
+      "back": "Back",
+      "next": "Next",
+      "getStarted": "Get Started!",
+      "errors": {}
+    },
+    "profileScreen": {
+      "title": "Manage Your Profile",
+      "description": "Create and manage your personal profile with advanced features.",
+      "feature1": "Avatar Upload & Editing",
+      "feature2": "Privacy Settings",
+      "feature3": "Completeness Tracking",
+      "errors": {}
+    },
+    "notificationsScreen": {
+      "title": "Smart Notifications",
+      "description": "Receive important updates and stay in control of your notifications.",
+      "feature1": "Real-time Updates",
+      "feature2": "Categorized Messages",
+      "feature3": "Granular Control",
+      "errors": {}
+    },
+    "securityScreen": {
+      "title": "Enterprise Security",
+      "description": "Your data is secure with state-of-the-art security standards.",
+      "feature1": "XSS & Injection Protection",
+      "feature2": "Encrypted Storage",
+      "feature3": "Biometric Auth",
+      "errors": {}
+    },
+    "readyScreen": {
+      "title": "Ready to Start!",
+      "description": "You're ready to discover all the app's features. Have fun!",
+      "feature1": "All Features Available",
+      "feature2": "Demo Data for Testing",
+      "feature3": "Complete Clean Architecture",
+      "errors": {}
+    }
+  },
+  "settings": {
+    "mainScreen": {
+      "title": "Settings",
+      "errors": {}
+    },
+    "securityScreen": {
+      "title": "Security",
+      "lastLogin": "Last Login",
+      "activeSessions": "Active Sessions",
+      "activeDevices": "Active Devices",
+      "mfa": "Two-Factor Authentication",
+      "enabled": "Enabled",
+      "disabled": "Disabled",
+      "loginAttempts": "Login Attempts",
+      "neverLoggedIn": "Never logged in",
+      "manageDevices": "Manage Devices",
+      "twoFactor": "Two-Factor Authentication",
+      "twoFactorDesc": "Add an additional security layer",
+      "errors": {}
+    },
+    "supportScreen": {
+      "help": "Help & FAQ",
+      "helpDesc": "Find answers to frequently asked questions",
+      "contact": "Contact Support",
+      "contactDesc": "Get technical assistance",
+      "documentation": "Documentation",
+      "documentationDesc": "Browse complete documentation",
+      "community": "Community",
+      "communityDesc": "Interact with other users",
+      "errors": {}
+    },
+    "dangerScreen": {
+      "title": "Danger Zone",
+      "warning": "This action cannot be undone.",
+      "deleteTitle": "Delete Account",
+      "deleteAction": "Delete Account Permanently",
+      "deleteWarning": "This action will permanently delete your account and all associated data. This action cannot be undone.",
+      "deleteAccountDesc": "Permanently delete account and all data. This action cannot be undone.",
+      "confirm": "Delete Account",
+      "account": "Your Account",
+      "errors": {}
+    }
   },
   "validation": {
-    "failed": "Invalid input. Please check your information.",
-    "opponent": {
-      "tooShort": "Opponent must be at least 3 characters long",
-      "tooLong": "Opponent must be at most 50 characters long"
-    },
-    "date": {
-      "invalid": "Invalid date format"
-    },
-    "time": {
-      "invalid": "Invalid time format"
-    },
-    "location": {
-      "tooShort": "Location must be at least 3 characters long",
-      "tooLong": "Location must be at most 100 characters long"
-    },
-    "matchFormat": {
-      "required": "Match format is required",
-      "invalid": "Invalid match format"
-    },
-    "parallelGames": {
-      "tooFew": "At least 1 parallel game required",
-      "tooMany": "Maximum 5 parallel games allowed"
-    },
-    "matchDuration": {
-      "tooShort": "Match duration must be at least 10 minutes",
-      "tooLong": "Match duration must be at most 120 minutes"
-    },
-    "status": {
-      "required": "Status is required",
-      "invalid": "Invalid status"
+    "common": {
+      "failed": "Invalid input. Please check your information.",
+      "opponent": {
+        "tooShort": "Opponent must be at least 3 characters long",
+        "tooLong": "Opponent must be at most 50 characters long"
+      },
+      "date": {
+        "invalid": "Invalid date format"
+      },
+      "time": {
+        "invalid": "Invalid time format"
+      },
+      "location": {
+        "tooShort": "Location must be at least 3 characters long",
+        "tooLong": "Location must be at most 100 characters long"
+      },
+      "matchFormat": {
+        "required": "Match format is required",
+        "invalid": "Invalid match format"
+      },
+      "parallelGames": {
+        "tooFew": "At least 1 parallel game required",
+        "tooMany": "Maximum 5 parallel games allowed"
+      },
+      "matchDuration": {
+        "tooShort": "Match duration must be at least 10 minutes",
+        "tooLong": "Match duration must be at most 120 minutes"
+      },
+      "status": {
+        "required": "Status is required",
+        "invalid": "Invalid status"
+      },
+      "errors": {}
     }
   },
-  "matchdayForm": {
-    "title": {
-      "new": "New Matchday",
-      "edit": "Edit Matchday"
+  "error": {
+    "boundaryScreen": {
+      "title": "Something went wrong.",
+      "reload": "Reload",
+      "errors": {}
     },
-    "section": {
-      "basic": "Basic Information",
-      "datetime": "Date & Time",
-      "location": "Location",
-      "details": "Match Details"
-    },
-    "opponent": "Opponent",
-    "date": "Date",
-    "time": "Time",
-    "isHome": "Home game",
-    "isAway": "Away game",
-    "location": "Location",
-    "address": "Address (optional)",
-    "matchFormat": "Match format",
-    "parallelGames": "Parallel games",
-    "matchDuration": "Match duration",
-    "competitionLabel": "Competition (optional)",
-    "notes": "Notes",
-    "status": {
-      "title": "Status",
-      "scheduled": "Scheduled",
-      "in_progress": "Ongoing",
-      "completed": "Finished",
-      "cancelled": "Cancelled"
-    },
-    "dropdown": {
-      "pleaseSelect": "Please select..."
-    },
-    "placeholder": {
-      "opponent": "Enter opponent name",
-      "location": "Enter location",
-      "matchDuration": "Duration in minutes",
-      "notes": "Additional information..."
-    },
-    "competition": {
-      "friendly": "Friendly match",
-      "championship": "Championship"
-    },
-    "label": {
-      "opponent": "Opponent",
-      "date": "Date",
-      "time": "Time",
-      "location": "Location",
-      "address": "Address (optional)"
-    },
-    "button": {
-      "create": "Create",
-      "update": "Update"
-    },
-    "create": {
-      "success": "Matchday successfully created"
-    },
-    "update": {
-      "success": "Matchday successfully updated"
-    },
-    "selectFormat": "Select format",
-    "selectCompetition": "Select competition type",
-    "selectDate": "Select date",
-    "selectTime": "Select time"
+    "matchdayScreen": {
+      "create": "Error creating matchday",
+      "update": "Error updating matchday",
+      "load": "Error loading matchday",
+      "errors": {}
+    }
   },
-  "teamSetup": {
-    "title": "Set up Team",
-    "subtitle": "Create your team and select your club",
-    "teamName": "Team Name",
-    "selectClub": "Select Club",
-    "selectAgeGroup": "Select Age Group",
-    "league": "League (optional)",
-    "createTeam": "Create Team",
-    "searchClubs": "Search clubs...",
-    "searchingClubs": "Searching clubs...",
-    "noClubsFound": "No clubs found",
-    "createCustomClub": "Create Custom Club",
-    "clubName": "Club Name",
-    "clubCity": "City",
-    "clubLeague": "League",
-    "ageGroups": {
-      "u8": "Under 8 (U8)",
-      "u10": "Under 10 (U10)",
-      "u12": "Under 12 (U12)",
-      "u14": "Under 14 (U14)",
-      "u16": "Under 16 (U16)",
-      "u18": "Under 18 (U18)",
-      "senioren": "Seniors"
+  "dialogs": {
+    "deleteDialog": {
+      "title": "Confirm Delete",
+      "titleWithItem": "Delete {{item}}",
+      "content": "Are you sure you want to permanently delete this item? This action cannot be undone.",
+      "contentWithItem": "Are you sure you want to permanently delete \"{{item}}\"? This action cannot be undone.",
+      "errors": {}
     },
-    "success": {
-      "teamCreated": "Team created successfully!",
-      "clubCreated": "Club '{{clubName}}' created successfully!"
+    "saveDialog": {
+      "title": "Save Changes?",
+      "content": "You have unsaved changes. Do you want to save them?",
+      "errors": {}
+    },
+    "warningDialog": {
+      "title": "Warning",
+      "errors": {}
+    }
+  },
+  "mfa": {
+    "setup": {
+      "title": "Set up Multi-Factor Authentication",
+      "subtitle": "Enhance your account security",
+      "description": "Choose an additional security method",
+      "selectMethod": "Select method",
+      "continue": "Continue",
+      "skip": "Skip",
+      "later": "Set up later"
+    },
+    "verify": {
+      "title": "Enter code",
+      "subtitle": "Enter the 6-digit code",
+      "description": "We sent a code to your {{method}}",
+      "inputPlaceholder": "123456",
+      "submit": "Verify",
+      "resend": "Resend code",
+      "changeMethod": "Change method"
+    },
+    "methods": {
+      "totp": {
+        "name": "Authenticator App",
+        "description": "Use an app like Google Authenticator",
+        "icon": "📱",
+        "setup": {
+          "title": "Set up Authenticator App",
+          "scanQR": "Scan QR code",
+          "manualEntry": "Enter manually",
+          "secretKey": "Secret key",
+          "appInstructions": "1. Open your Authenticator app\n2. Scan the QR code\n3. Enter the 6-digit code"
+        }
+      },
+      "sms": {
+        "name": "SMS",
+        "description": "Receive codes via text message",
+        "icon": "💬",
+        "setup": {
+          "title": "Verify phone number",
+          "enterPhone": "Enter phone number",
+          "phonePlaceholder": "+1 234 567 8900",
+          "sendCode": "Send code"
+        }
+      },
+      "email": {
+        "name": "Email",
+        "description": "Receive codes via email",
+        "icon": "��",
+        "setup": {
+          "title": "Verify email",
+          "currentEmail": "Current email address",
+          "sendCode": "Send code"
+        }
+      },
+      "backup": {
+        "name": "Backup codes",
+        "description": "One-time codes for emergencies",
+        "icon": "🔐",
+        "setup": {
+          "title": "Generate backup codes",
+          "description": "Store these codes safely for emergencies",
+          "generate": "Generate codes",
+          "download": "Download codes",
+          "print": "Print codes"
+        }
+      }
+    },
+    "status": {
+      "enabled": "Enabled",
+      "disabled": "Disabled",
+      "pending": "Setup required"
+    },
+    "manage": {
+      "title": "Manage MFA",
+      "current": "Current methods",
+      "add": "Add new method",
+      "remove": "Remove",
+      "edit": "Edit",
+      "disable": "Disable MFA"
     },
     "errors": {
-      "teamNameRequired": "Team name is required",
-      "clubRequired": "Club is required",
-      "ageGroupRequired": "Age group is required",
-      "createTeam": "Error creating team",
-      "searchClubs": "Error searching clubs",
-      "createClub": "Error creating club",
-      "clubNameRequired": "Club name is required",
-      "clubCityRequired": "City is required"
+      "invalidCode": "Invalid code",
+      "codeExpired": "Code expired",
+      "tooManyAttempts": "Too many attempts",
+      "setupFailed": "Setup failed",
+      "verificationFailed": "Verification failed",
+      "methodNotSupported": "Method not supported"
+    },
+    "success": {
+      "setupComplete": "MFA successfully set up",
+      "verified": "Successfully verified",
+      "methodAdded": "New method added",
+      "methodRemoved": "Method removed"
+    }
+  },
+  "passwordStrength": {
+    "check": {
+      "title": "Check password strength",
+      "subtitle": "Password security assessment",
+      "enterPassword": "Enter password",
+      "checkStrength": "Check strength"
+    },
+    "requirements": {
+      "title": "Requirements",
+      "minLength": "At least 8 characters",
+      "uppercase": "At least one uppercase letter",
+      "lowercase": "At least one lowercase letter",
+      "numbers": "At least one number",
+      "specialChars": "At least one special character",
+      "noCommonWords": "No commonly used words",
+      "noPersonalInfo": "No personal information"
+    },
+    "score": {
+      "title": "Score",
+      "current": "Current strength: {{score}}/100",
+      "recommendation": "Recommendation: {{level}}"
+    },
+    "levels": {
+      "veryWeak": "Very weak",
+      "weak": "Weak",
+      "fair": "Fair",
+      "good": "Good",
+      "strong": "Strong",
+      "veryStrong": "Very strong"
+    },
+    "feedback": {
+      "tooShort": "Password is too short",
+      "tooCommon": "Password is too commonly used",
+      "needsVariety": "More character variety needed",
+      "excellent": "Excellent password!"
+    },
+    "tips": {
+      "title": "Tips for strong passwords",
+      "useLongPasswords": "Use longer passwords",
+      "mixCharacters": "Mix different character types",
+      "avoidPersonalInfo": "Avoid personal information",
+      "useUniquePasswords": "Use unique passwords",
+      "considerPassManager": "Consider a password manager"
+    }
+  },
+  "forgotPassword": {
+    "screen": {
+      "title": "Reset password",
+      "subtitle": "Enter your email address",
+      "description": "We'll send you a reset link",
+      "emailLabel": "Email address",
+      "sendButton": "Send link",
+      "backToLogin": "Back to login"
+    },
+    "success": {
+      "title": "Email sent",
+      "message": "We've sent you a reset link",
+      "checkEmail": "Please check your email inbox",
+      "noEmail": "Didn't receive an email?",
+      "resend": "Resend"
+    },
+    "errors": {
+      "emailRequired": "Email address is required",
+      "emailInvalid": "Invalid email address",
+      "userNotFound": "User not found",
+      "sendFailed": "Failed to send email",
+      "rateLimited": "Too many attempts, please wait"
+    }
+  },
+  "terms": {
+    "title": "Terms of Service",
+    "lastUpdated": "Last updated: {{date}}",
+    "sections": {
+      "acceptance": "Acceptance of Terms",
+      "services": "Our Services",
+      "userAccount": "Your User Account",
+      "privacy": "Privacy",
+      "liability": "Liability",
+      "termination": "Termination"
+    },
+    "actions": {
+      "accept": "Accept Terms",
+      "decline": "Decline",
+      "viewFull": "View Full Terms",
+      "download": "Download as PDF"
     }
   }
 }

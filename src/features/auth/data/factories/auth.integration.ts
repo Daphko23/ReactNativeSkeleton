@@ -25,6 +25,7 @@
 import { AuthServiceContainer, type AuthServiceContainerConfig } from './auth-service.container';
 import type { ILoggerService } from '../../../../core/logging/logger.service.interface';
 import { Environment, type EnvironmentConfig } from '../../../../core/config/environment.config.interface';
+import type { EnhancedSecurityServiceConfig } from '../interfaces/security-service-factory.interfaces';
 
 /**
  * @class AuthServiceFactory
@@ -102,7 +103,7 @@ export class AuthServiceFactory {
       enableCompliance: true,
       enablePasswordPolicy: true,
       enableAuthOrchestrator: true,
-      securityConfig: {
+      securityConfig: createSecurityConfig({
         enableThreatAssessment: true,
         enableDeviceFingerprinting: true,
         enableLocationMonitoring: true,
@@ -119,7 +120,7 @@ export class AuthServiceFactory {
           circuitBreakerTimeout: 30000,
           enableLazyLoading: true
         }
-      },
+      }),
       ...overrides
     };
 
@@ -170,7 +171,7 @@ export class AuthServiceFactory {
       enableCompliance: false, // Not needed in development
       enablePasswordPolicy: false, // Relaxed for development
       enableAuthOrchestrator: true,
-      securityConfig: {
+      securityConfig: createSecurityConfig({
         enableThreatAssessment: false,
         enableDeviceFingerprinting: false,
         enableLocationMonitoring: false,
@@ -187,7 +188,7 @@ export class AuthServiceFactory {
           circuitBreakerTimeout: 30000,
           enableLazyLoading: true
         }
-      },
+      }),
       ...overrides
     };
 
@@ -240,7 +241,7 @@ export class AuthServiceFactory {
       enableCompliance: false,
       enablePasswordPolicy: false,
       enableAuthOrchestrator: true,
-      securityConfig: {
+      securityConfig: createSecurityConfig({
         enableThreatAssessment: false,
         enableDeviceFingerprinting: false,
         enableLocationMonitoring: false,
@@ -257,7 +258,7 @@ export class AuthServiceFactory {
           circuitBreakerTimeout: 5000,
           enableLazyLoading: false
         }
-      },
+      }),
       ...testConfig
     };
 
@@ -308,7 +309,7 @@ export class AuthServiceFactory {
       enableCompliance: true,
       enablePasswordPolicy: true,
       enableAuthOrchestrator: true,
-      securityConfig: {
+      securityConfig: createSecurityConfig({
         enableThreatAssessment: true,
         enableDeviceFingerprinting: true,
         enableLocationMonitoring: false, // Reduced for staging
@@ -325,25 +326,12 @@ export class AuthServiceFactory {
           circuitBreakerTimeout: 25000,
           enableLazyLoading: true
         }
-      },
+      }),
       ...overrides
     };
 
     await container.initialize(stagingConfig);
     
-    logger.info('Auth services created for STAGING environment', undefined, {
-      service: 'AuthServiceFactory',
-      metadata: {
-        environment: Environment.STAGING,
-        servicesEnabled: {
-          security: stagingConfig.enableAdvancedSecurity,
-          mfa: stagingConfig.enableMFA,
-          compliance: stagingConfig.enableCompliance,
-          biometric: stagingConfig.enableBiometric,
-          oauth: stagingConfig.enableOAuth
-        }
-      }
-    });
 
     return container;
   }
@@ -475,4 +463,83 @@ export async function createEnterpriseAuthServices(
     enableOAuth: true,
     enableAuthOrchestrator: true
   });
+}
+
+/**
+ * Create default security config with all required properties
+ */
+function createSecurityConfig(overrides: Partial<EnhancedSecurityServiceConfig> = {}): EnhancedSecurityServiceConfig {
+  return {
+    // Base SecurityServiceConfig properties
+    encryption: {
+      algorithm: 'AES-256-GCM',
+      keyLength: 256
+    },
+    mfa: {
+      enabled: true,
+      methods: ['totp', 'sms', 'email'],
+      backupCodes: 10
+    },
+    session: {
+      timeout: 900000, // 15 minutes
+      maxConcurrent: 5
+    },
+    biometric: {
+      enabled: true,
+      fallbackToPin: true
+    },
+    // Enhanced properties
+    advancedThreats: {
+      enabled: true,
+      ml: {
+        enabled: true,
+        models: ['anomaly-detection', 'behavioral-analysis']
+      }
+    },
+    audit: {
+      enabled: true,
+      retention: 90 // 90 days
+    },
+    compliance: {
+      gdpr: true,
+      hipaa: false,
+      sox: false
+    },
+    // Default additional properties
+    enableThreatAssessment: true,
+    enableDeviceFingerprinting: true,
+    enableLocationMonitoring: true,
+    riskThresholds: {
+      low: 30,
+      medium: 60,
+      high: 85,
+      critical: 95
+    },
+    monitoringIntervals: {
+      deviceCheck: 30000,
+      locationCheck: 60000,
+      threatAssessment: 300000,
+      healthCheck: 120000
+    },
+    cache: {
+      enabled: true,
+      ttl: 300000,
+      maxSize: 100,
+      cleanupInterval: 60000
+    },
+    performance: {
+      enableMetrics: true,
+      enableCircuitBreaker: true,
+      circuitBreakerThreshold: 5,
+      circuitBreakerTimeout: 30000,
+      enableLazyLoading: true
+    },
+    resources: {
+      enableAutoCleanup: true,
+      cleanupThreshold: 80,
+      memoryLimitMB: 200
+    },
+    // Apply overrides
+    ...overrides
+  };
 } 

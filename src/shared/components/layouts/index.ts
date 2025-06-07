@@ -1,0 +1,1 @@
+export { SettingsScreenLayout } from './settings-screen-layout.component'; 

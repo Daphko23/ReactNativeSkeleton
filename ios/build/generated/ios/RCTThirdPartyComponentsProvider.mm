@@ -22,8 +22,7 @@
     thirdPartyComponents = @{
 			@"RNGoogleSignInButton": NSClassFromString(@"RNGoogleSignInButtonComponentView"), // @react-native-google-signin/google-signin
 			@"RNGestureHandlerButton": NSClassFromString(@"RNGestureHandlerButtonComponentView"), // react-native-gesture-handler
-			@"RNCSafeAreaProvider": NSClassFromString(@"RNCSafeAreaProviderComponentView"), // react-native-safe-area-context
-			@"RNCSafeAreaView": NSClassFromString(@"RNCSafeAreaViewComponentView"), // react-native-safe-area-context
+			@"RNCViewPager": NSClassFromString(@"RNCPagerViewComponentView"), // react-native-pager-view
 			@"RNSFullWindowOverlay": NSClassFromString(@"RNSFullWindowOverlay"), // react-native-screens
 			@"RNSModalScreen": NSClassFromString(@"RNSModalScreen"), // react-native-screens
 			@"RNSScreenContainer": NSClassFromString(@"RNSScreenContainerView"), // react-native-screens

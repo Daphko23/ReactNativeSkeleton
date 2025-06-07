@@ -1,0 +1,1 @@
+export { CreditProductCard } from './credit-product-card.component'; 

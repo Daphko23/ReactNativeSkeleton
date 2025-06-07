@@ -73,7 +73,7 @@ export const TimePicker: React.FC<TimePickerProps> = ({
   }, [value]);
 
   const displayValue =
-    value || t('timePicker.placeholder', {defaultValue: 'Zeit wählen'});
+    value || t('shared.timePicker.placeholder', {defaultValue: 'Zeit wählen'});
 
   const openPicker = useCallback(() => setOpen(true), []);
   const cancelPicker = useCallback(() => setOpen(false), []);
@@ -133,7 +133,7 @@ export const TimePicker: React.FC<TimePickerProps> = ({
           <View style={styles.modalContainer}>
             <View style={styles.modalContent}>
               <Text style={styles.modalTitle}>
-                {t('timePicker.title', {defaultValue: 'Zeit wählen'})}
+                {t('shared.timePicker.title', {defaultValue: 'Zeit wählen'})}
               </Text>
               <View style={styles.pickerContainer}>
                 <DateTimePicker
@@ -158,7 +158,7 @@ export const TimePicker: React.FC<TimePickerProps> = ({
                   onPress={confirmPicker}
                   testID={testID ? `${testID}-confirm` : undefined}>
                   <Text>
-                    {t('common.confirm', {defaultValue: 'Bestätigen'})}
+                    {t('shared.timePicker.confirm', {defaultValue: 'Bestätigen'})}
                   </Text>
                 </Button>
               </View>
