@@ -1,4 +1,3 @@
-
 {
   "name": "daphko-ai-skeleton",
   "version": "1.0.0",
@@ -119,7 +118,15 @@
     "pods:install": "cd ios && pod install --repo-update && cd ..",
     "build:analyze": "npx react-native-bundle-visualizer --format json --output bundle-analysis.json",
     "security:check": "npm audit --audit-level=moderate",
-    "license:check": "npx license-checker --onlyAllow 'MIT;Apache-2.0;BSD-2-Clause;BSD-3-Clause;ISC;0BSD'"
+    "license:check": "npx license-checker --onlyAllow 'MIT;Apache-2.0;BSD-2-Clause;BSD-3-Clause;ISC;0BSD'",
+    "a11y:audit": "npx @axe-core/cli --dir ./src --include-dir",
+    "a11y:test": "jest --testNamePattern='accessibility'",
+    "a11y:report": "npm run a11y:audit && npm run a11y:test",
+    "biome:check": "npx @biomejs/biome check ./src",
+    "biome:fix": "npx @biomejs/biome check --apply ./src",
+    "react:compiler": "npx react-compiler-healthcheck",
+    "bundle:budget": "npx bundlesize",
+    "vitals:monitor": "npm run performance:analyze && open vitals-report.html"
   },
   "lint-staged": {
     "*.{js,jsx,ts,tsx}": [
@@ -233,7 +240,7 @@
     "crypto-browserify": "^3.12.1",
     "detox": "^20.28.2",
     "empty-module": "^0.0.2",
-    "eslint": "8.57.1",
+    "eslint": "^9.15.0",
     "eslint-config-prettier": "^10.1.2",
     "eslint-plugin-prettier": "^5.2.6",
     "eslint-plugin-react": "^7.37.5",
@@ -261,11 +268,12 @@
     "stream-browserify": "^3.0.0",
     "stream-http": "^3.2.0",
     "twilio": "^5.7.0",
-    "typescript": "5.0.4",
+    "typescript": "^5.3.3",
     "typescript-eslint": "^8.33.0",
     "url": "^0.11.4",
     "util": "^0.12.5",
-    "vm-browserify": "^1.1.2"
+    "vm-browserify": "^1.1.2",
+    "zlib": "^1.0.5"
   },
   "engines": {
     "node": ">=18",
