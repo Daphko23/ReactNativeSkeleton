@@ -82,10 +82,12 @@ import { useTheme } from 'react-native-paper';
 
 // Shared Components
 import { 
-  AlertService,
   InfoCard,
   ActionCard,
 } from '../../../../../shared/components';
+
+// Core Services
+import { AlertService } from '../../../../../core/services';
 import type { ActionItem } from '../../../../../shared/components/cards/types/card.types';
 
 // Hooks

@@ -11,3 +11,9 @@
 
 // Error system exports
 export * from './errors';
+
+// Component exports
+export * from './components';
+
+// Theme exports
+export * from './theme';

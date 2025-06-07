@@ -1,6 +1,18 @@
 # 📜 Scripts Dokumentation
 
-Dieses Verzeichnis enthält alle Entwicklungstools und Automatisierungsscripts für das React Native Skeleton Template.
+Dieses Verzeichnis enthält alle Entwicklungstools und Automatisierungsscripts für das React Native Skeleton Template, organisiert in logischen Kategorien.
+
+## 🗂️ Ordnerstruktur
+
+```
+scripts/
+├── 📦 features/          # Feature-Management Scripts
+├── 🏗️ build/            # Build & Analyse Scripts  
+├── 📚 docs/              # Dokumentations Scripts
+├── ⚙️ setup/             # Setup & Konfiguration
+├── 🛠️ dev/               # Development Tools
+└── 📄 README.md          # Diese Dokumentation
+```
 
 ## 🚀 Schnellstart
 
@@ -15,532 +27,205 @@ npm run dev:menu
 npm run dev:validate
 ```
 
-## 📋 Verfügbare Scripts
+## 📋 Script-Kategorien
 
-### 🏗️ Feature-Management
+### 📦 [Feature Management](./features/)
+**Zweck:** Automatisierte Feature-Erstellung und -Verwaltung
 
-#### `create_feature.sh`
+**Scripts:**
+- `create.sh` - Neues Feature mit Clean Architecture
+- `create-crud.mjs` - CRUD-Feature mit API-Integration
+- `update.sh` - Feature erweitern
+- `delete.sh` - Feature löschen
+- `list.sh` - Features auflisten
+- `cli.mjs` - Interaktive Feature-CLI
 
-Erstellt ein neues Feature mit Clean Architecture Struktur.
-
+**Schnellzugriff:**
 ```bash
-# Direkt ausführen
-bash scripts/create_feature.sh
-
-# Über npm
-npm run feature:create
+npm run feature:cli    # Interaktive CLI
+npm run feature:create # Neues Feature
+npm run feature:crud   # CRUD Feature
 ```
 
-**Generiert:**
+### 🏗️ [Build & Analysis](./build/)
+**Zweck:** Bundle-Analyse und Projekt-Validierung
 
-- Domain Layer (Entities, Repositories, Types)
-- Application Layer (Use Cases, Services)
-- Data Layer (Repository Implementation, DTOs, Mappers)
-- Presentation Layer (Screens, Components, Store, Hooks)
-- Tests-Struktur
-- feature.json Metadaten
+**Scripts:**
+- `bundle-analyzer.js` - Bundle-Größe analysieren
+- `bundle-analyzer.mjs` - ES6 Bundle Analyzer
+- `validate-project.mjs` - Projekt validieren
 
-#### `create-crud-feature.js`
-
-Erstellt ein vollständiges CRUD-Feature mit API-Integration.
-
+**Schnellzugriff:**
 ```bash
-# Direkt ausführen
-node scripts/create-crud-feature.js
-
-# Über npm
-npm run feature:crud
+npm run build:analyze  # Bundle analysieren
+npm run dev:validate   # Projekt validieren
 ```
 
-**Features:**
+### 📚 [Documentation](./docs/)
+**Zweck:** Automatische Dokumentationsgenerierung
 
-- Vollständige CRUD-Operationen (Create, Read, Update, Delete)
-- Supabase-Integration
-- Zustand State Management
-- React Native Paper UI
-- TypeScript-Support
-- Automatische Code-Formatierung
+**Scripts:**
+- `generate-docs.ts` - Feature-Dokumentation generieren
+- `adr-manager.js` - Architecture Decision Records
 
-**Beispiel-Eingaben:**
-
-```
-Feature-Name: todo
-Beschreibung: Todo-Verwaltung mit CRUD-Operationen
-Entity-Felder: title:string,completed:boolean,priority:number
-Authentifizierung: y
-API-Endpoint: /api/todos
-```
-
-#### `list_features.sh`
-
-Listet alle vorhandenen Features mit Details auf.
-
+**Schnellzugriff:**
 ```bash
-# Direkt ausführen
-bash scripts/list_features.sh
-
-# Über npm
-npm run feature:list
+npm run docs:generate  # Dokumentation generieren
+npm run docs:features  # Feature-Docs
 ```
 
-**Zeigt an:**
+### ⚙️ [Setup & Configuration](./setup/)
+**Zweck:** Projekt-Setup und Konfiguration
 
-- Feature-Namen und Beschreibungen
-- Anzahl Screens und UseCases
-- Store-Integration
-- Erstellungsdatum
-- Statistiken
+**Scripts:**
+- `setup-monitoring.mjs` - Monitoring konfigurieren
+- `dependency-management.mjs` - Dependencies verwalten
 
-#### `update_feature.sh`
-
-Erweitert ein vorhandenes Feature um neue Komponenten.
-
+**Schnellzugriff:**
 ```bash
-# Direkt ausführen
-bash scripts/update_feature.sh
-
-# Über npm
-npm run feature:update
+node scripts/setup/setup-monitoring.mjs
+node scripts/setup/dependency-management.mjs
 ```
 
-**Kann hinzufügen:**
+### 🛠️ [Development Tools](./dev/)
+**Zweck:** Entwicklungsunterstützung
 
-- Neue Screens
-- Zusätzliche UseCases
-- Components
-- Services
+**Scripts:**
+- `dev-menu.mjs` - Umfassendes Development Menu
 
-#### `delete_feature.sh`
-
-Löscht ein Feature komplett (mit Sicherheitsabfrage).
-
+**Schnellzugriff:**
 ```bash
-# Direkt ausführen
-bash scripts/delete_feature.sh
-
-# Über npm
-npm run feature:delete
+npm run dev:menu       # Development Menu
 ```
 
-**Sicherheitsfeatures:**
+## 🎯 Empfohlene Workflows
 
-- Übersicht vor Löschung
-- "yes"-Bestätigung erforderlich
-- Cleanup-Hinweise
-
-### 🛠️ Development Tools
-
-#### `feature-cli.js`
-
-Interaktive Cross-Platform CLI für Feature-Management.
-
-```bash
-# Direkt ausführen
-node scripts/feature-cli.js
-
-# Über npm
-npm run feature:cli
-```
-
-**Menü-Optionen:**
-
-1. 📦 Neues Feature erstellen
-2. 🏗️ CRUD-Feature erstellen
-3. 📋 Features auflisten
-4. ✨ Feature erweitern
-5. 🗑️ Feature löschen
-6. 📚 Dokumentation generieren
-7. 🔧 Projekt validieren
-8. ❌ Beenden
-
-**Cross-Platform:**
-
-- macOS/Linux: Bash-Scripts
-- Windows: Node.js-Implementierung
-- Automatische Plattform-Erkennung
-
-#### `dev-menu.js`
-
-Umfassendes Development Menu für alle Entwicklungsaufgaben.
-
-```bash
-# Direkt ausführen
-node scripts/dev-menu.js
-
-# Über npm
-npm run dev:menu
-```
-
-**Kategorien:**
-
-**📱 App-Verwaltung:**
-
-- iOS App starten
-- Android App starten
-- Cache leeren
-- Metro Server neustarten
-
-**🔧 Code-Qualität:**
-
-- ESLint ausführen (mit Auto-Fix)
-- Code formatieren (Prettier)
-- TypeScript prüfen
-- Tests ausführen (verschiedene Modi)
-
-**📦 Feature-Management:**
-
-- Feature CLI öffnen
-- Features auflisten
-- Dokumentation generieren
-
-**🔧 Projekt-Tools:**
-
-- Projekt validieren
-- Bundle-Größe analysieren
-- Komplette Bereinigung
-
-#### `validate-project.js`
-
-Umfassender Projekt-Validator für Template-Qualität.
-
-```bash
-# Direkt ausführen
-node scripts/validate-project.js
-
-# Über npm
-npm run dev:validate
-```
-
-**Validierungs-Bereiche (100 Punkte):**
-
-1. **Projektstruktur (20 Punkte)**
-
-   - src/, src/core/, src/features/, src/shared/
-   - scripts/, docs/, **tests**/
-   - ios/, android/
-
-2. **Konfigurationsdateien (15 Punkte)**
-
-   - package.json, tsconfig.json, .eslintrc.js
-   - babel.config.js, metro.config.js, jest.config.js
-   - .prettierrc, .gitignore, README.md
-
-3. **Package.json (10 Punkte)**
-
-   - Erforderliche Scripts
-   - Moderne Dependencies
-   - Korrekte Metadaten
-
-4. **TypeScript (5 Punkte)**
-
-   - Strict Mode
-   - BaseUrl Konfiguration
-   - Path Mapping
-
-5. **ESLint (5 Punkte)**
-
-   - React Native Config
-   - Prettier Integration
-
-6. **Feature-Struktur (10 Punkte)**
-
-   - Clean Architecture Compliance
-   - feature.json Metadaten
-
-7. **Scripts (10 Punkte)**
-
-   - Vollständigkeit
-   - Ausführbarkeit
-
-8. **Dokumentation (5 Punkte)**
-
-   - README.md, docs/FEATURES.md
-   - docs/ARCHITECTURE.md, scripts/README.md
-
-9. **Git Hooks (5 Punkte)**
-
-   - Husky Setup
-   - lint-staged Konfiguration
-
-10. **Template-Qualität (10 Punkte)**
-    - Keine hardcodierten Namen
-    - Template-kompatible Scripts
-    - Clean Architecture
-    - Moderne Patterns
-
-**Bewertungsskala:**
-
-- 🏆 95-100%: EXZELLENT
-- 🥇 85-94%: SEHR GUT
-- 🥈 75-84%: GUT
-- 🥉 65-74%: BEFRIEDIGEND
-- ⚠️ 50-64%: AUSREICHEND
-- ❌ <50%: MANGELHAFT
-
-### 📚 Dokumentation
-
-#### `generate-docs.ts`
-
-Generiert automatisch Feature-Dokumentation.
-
-```bash
-# Direkt ausführen
-npx ts-node scripts/generate-docs.ts
-
-# Über npm
-npm run docs:generate
-npm run docs:features
-```
-
-**Generiert:**
-
-- `docs/GENERATED_FEATURES.md`
-- Feature-Übersicht mit Metadaten
-- Clean Architecture Diagramme
-- Verwendungsbeispiele
-- Zeitstempel und Statistiken
-
-## 🎯 Best Practices
-
-### 1. Feature-Entwicklung
-
-**Empfohlener Workflow:**
-
+### 🆕 Neues Feature erstellen
 ```bash
 # 1. Feature CLI starten
 npm run feature:cli
 
-# 2. CRUD-Feature erstellen (Option 2)
-# Eingaben machen
-
-# 3. Projekt validieren
-npm run dev:validate
-
-# 4. Tests schreiben
-npm run test
-
-# 5. Dokumentation generieren
-npm run docs:generate
+# 2. Option wählen (Create Feature oder CRUD Feature)
+# 3. Eingaben machen
+# 4. Feature wird automatisch generiert
 ```
 
-### 2. Code-Qualität
-
-**Vor jedem Commit:**
-
+### 🔍 Code-Qualität prüfen
 ```bash
-# Development Menu öffnen
+# 1. Development Menu öffnen
 npm run dev:menu
 
-# Code-Qualität prüfen (Optionen 5-8)
-# - ESLint ausführen
-# - Code formatieren
-# - TypeScript prüfen
-# - Tests ausführen
+# 2. Code-Qualität Optionen nutzen:
+#    - ESLint ausführen
+#    - Code formatieren  
+#    - TypeScript prüfen
+#    - Tests ausführen
 ```
 
-### 3. Debugging
-
-**Bei Problemen:**
-
+### 📊 Projekt analysieren
 ```bash
-# 1. Cache leeren
-npm run dev:menu # Option 3
+# Bundle-Größe analysieren
+npm run build:analyze
 
-# 2. Komplette Bereinigung
-npm run dev:menu # Option 14
-
-# 3. Projekt validieren
+# Projekt validieren
 npm run dev:validate
+
+# Dokumentation generieren
+npm run docs:generate
 ```
 
 ## 🔧 Konfiguration
 
 ### Script-Berechtigungen
-
-Alle Scripts sind automatisch ausführbar. Falls Probleme auftreten:
-
 ```bash
-# Alle Scripts ausführbar machen
-chmod +x scripts/*.sh scripts/*.js
+# Alle Scripts ausführbar machen (macOS/Linux)
+chmod +x scripts/**/*.sh
 
-# Einzelne Scripts
-chmod +x scripts/create_feature.sh
-chmod +x scripts/feature-cli.js
+# Windows: Git Bash oder WSL verwenden
 ```
 
 ### Umgebungsvariablen
-
-Scripts respektieren folgende Umgebungsvariablen:
-
 ```bash
-# Für Windows-Kompatibilität
-export FORCE_NODE_SCRIPTS=true
-
-# Für Debug-Ausgaben
+# Debug-Modus aktivieren
 export DEBUG_SCRIPTS=true
 
-# Für automatische Formatierung
+# Windows-Kompatibilität
+export FORCE_NODE_SCRIPTS=true
+
+# Automatische Formatierung
 export AUTO_FORMAT=true
 ```
 
-### Anpassungen
+## 📊 Statistiken
 
-Scripts können über `package.json` angepasst werden:
+**Gesamt:** 15 Scripts in 5 Kategorien
+- **6 Feature-Management Scripts**
+- **3 Build & Analyse Scripts**
+- **2 Dokumentations Scripts**
+- **2 Setup Scripts**
+- **1 Development Tool**
 
-```json
-{
-  "scripts": {
-    "feature:create": "bash scripts/create_feature.sh",
-    "feature:crud": "node scripts/create-crud-feature.js",
-    "feature:cli": "node scripts/feature-cli.js",
-    "dev:menu": "node scripts/dev-menu.js",
-    "dev:validate": "node scripts/validate-project.js"
-  }
-}
-```
+**Unterstützte Plattformen:** macOS, Linux, Windows
+**Sprachen:** Bash, Node.js, TypeScript
 
-## 🚀 Erweiterte Nutzung
+## 🚀 Migration von alter Struktur
 
-### Batch-Operationen
+Falls Sie Scripts aus der alten flachen Struktur verwenden:
 
+**Alte Pfade → Neue Pfade:**
 ```bash
-# Mehrere Features erstellen
-for feature in user product order; do
-  echo "Creating $feature feature..."
-  # Automatisierte Eingaben hier
-done
-
-# Alle Features validieren
-npm run feature:list | grep "Feature:" | while read line; do
-  echo "Validating $line..."
-done
+scripts/create_feature.sh        → scripts/features/create.sh
+scripts/feature-cli.mjs          → scripts/features/cli.mjs
+scripts/bundle-analyzer.js       → scripts/build/bundle-analyzer.js
+scripts/generate-docs.ts         → scripts/docs/generate-docs.ts
+scripts/setup-monitoring.mjs     → scripts/setup/setup-monitoring.mjs
+scripts/dev-menu.mjs             → scripts/dev/dev-menu.mjs
 ```
 
-### CI/CD Integration
-
-```yaml
-# .github/workflows/ci.yml
-- name: Validate Project
-  run: npm run dev:validate
-
-- name: Generate Documentation
-  run: npm run docs:generate
-
-- name: Check Features
-  run: npm run feature:list
-```
-
-### IDE Integration
-
-**VS Code Tasks (`.vscode/tasks.json`):**
-
-```json
-{
-  "version": "2.0.0",
-  "tasks": [
-    {
-      "label": "Feature CLI",
-      "type": "shell",
-      "command": "npm run feature:cli",
-      "group": "build"
-    },
-    {
-      "label": "Dev Menu",
-      "type": "shell",
-      "command": "npm run dev:menu",
-      "group": "build"
-    }
-  ]
-}
+**NPM Scripts bleiben unverändert:**
+```bash
+npm run feature:cli              # Funktioniert weiterhin
+npm run dev:menu                 # Funktioniert weiterhin
+npm run build:analyze            # Funktioniert weiterhin
 ```
 
 ## 🔍 Troubleshooting
 
 ### Häufige Probleme
 
-**1. Script nicht ausführbar**
-
+**Script nicht gefunden:**
 ```bash
-chmod +x scripts/script-name.sh
+# Prüfen Sie den neuen Pfad
+ls scripts/features/           # Feature Scripts
+ls scripts/build/              # Build Scripts
 ```
 
-**2. Node.js Script Fehler**
-
+**Berechtigungsfehler:**
 ```bash
-# Node.js Version prüfen
-node --version  # Sollte >= 18 sein
+# macOS/Linux
+chmod +x scripts/features/*.sh
+
+# Windows
+# Git Bash oder WSL verwenden
+```
+
+**Node.js Fehler:**
+```bash
+# Node.js Version prüfen (>= 18)
+node --version
 
 # Dependencies installieren
 npm install
 ```
 
-**3. Bash Script Fehler (Windows)**
+## 📖 Weitere Dokumentation
 
-```bash
-# Git Bash verwenden oder WSL
-# Oder Node.js Variante nutzen
-npm run feature:cli  # Statt bash scripts
-```
-
-**4. Pfad-Probleme**
-
-```bash
-# Aus Projekt-Root ausführen
-cd /path/to/project
-npm run feature:cli
-```
-
-**5. Berechtigungsfehler**
-
-```bash
-# macOS/Linux
-sudo chmod +x scripts/*.sh
-
-# Windows (als Administrator)
-icacls scripts /grant Everyone:F /T
-```
-
-### Debug-Modus
-
-```bash
-# Debug-Ausgaben aktivieren
-export DEBUG_SCRIPTS=true
-npm run feature:cli
-
-# Verbose npm
-npm run feature:cli --verbose
-
-# Script direkt mit Debug
-bash -x scripts/create_feature.sh
-```
-
-## 📊 Statistiken
-
-Das Template enthält **9 Scripts** mit folgenden Funktionen:
-
-- **4 Feature-Management Scripts** (create, list, update, delete)
-- **3 Development Tools** (CLI, Menu, Validator)
-- **1 CRUD-Generator** (vollständige API-Integration)
-- **1 Dokumentations-Generator** (automatische Docs)
-
-**Gesamt-Codezeilen:** ~2.500 Zeilen
-**Unterstützte Plattformen:** macOS, Linux, Windows
-**Sprachen:** Bash, Node.js, TypeScript
-
-## 🎯 Roadmap
-
-### Geplante Erweiterungen
-
-1. **GraphQL-Generator** - CRUD mit GraphQL
-2. **Test-Generator** - Automatische Test-Erstellung
-3. **Migration-Tools** - Datenbank-Migrationen
-4. **Performance-Analyzer** - Bundle-Optimierung
-5. **Deployment-Scripts** - CI/CD Automatisierung
-
-### Beiträge
-
-Verbesserungsvorschläge und Pull Requests sind willkommen!
+- [Feature Management](./features/README.md) - Detaillierte Feature-Script Dokumentation
+- [Build & Analysis](./build/README.md) - Bundle-Analyse und Validierung
+- Einzelne Script-Dokumentation in den jeweiligen Ordnern
 
 ---
 
 **Happy Scripting! 🚀**
+
+*Organisiert für bessere Übersichtlichkeit und Wartbarkeit.* 

@@ -1,6 +1,13 @@
 /**
- * ActionCard Component - Enterprise Specialized Component
- * Card component specifically designed for displaying actionable items
+ * @fileoverview ACTION-CARD-COMPONENT: Specialized Interactive Card Component
+ * @description Interactive card component designed for displaying actionable items with icons and navigation
+ * @version 1.0.0
+ * @since 1.0.0
+ * @author ReactNativeSkeleton Enterprise Team
+ * @module Shared.Components.Cards.Specialized
+ * @namespace Shared.Components.Cards.Specialized.ActionCard
+ * @category Components
+ * @subcategory Cards
  */
 
 import React from 'react';
@@ -13,23 +20,66 @@ import type { ActionCardProps } from '../types/card.types';
 import { createCardStyles } from '../utils/card-styles.util';
 
 /**
- * @component ActionCard
- * @description Specialized card for displaying actionable items with icons and navigation
+ * Action Card Component
  * 
- * @param {ActionCardProps} props - Component props
- * @returns {React.ReactElement} Action card component
+ * A specialized card component designed for displaying lists of actionable items.
+ * Each action displays an icon, label, optional description, and navigation indicator.
+ * Perfect for settings menus, navigation lists, and feature discovery interfaces.
+ * 
+ * @component
+ * @function ActionCard
+ * @param {ActionCardProps} props - The component props
+ * @returns {React.ReactElement} Rendered action card component with interactive items
+ * 
+ * @since 1.0.0
+ * @version 1.0.0
+ * @author ReactNativeSkeleton Enterprise Team
+ * @category Components
+ * @subcategory Cards
+ * @module Shared.Components.Cards.Specialized
+ * @namespace Shared.Components.Cards.Specialized.ActionCard
  * 
  * @example
+ * Basic account actions menu:
  * ```tsx
- * <ActionCard
- *   title="Account Actions"
- *   actions={[
- *     { id: 'edit', label: 'Edit Profile', icon: 'account-edit' },
- *     { id: 'settings', label: 'Settings', icon: 'cog' }
- *   ]}
- *   onActionPress={(actionId) => console.log(actionId)}
- * />
+ * import { ActionCard } from '@/shared/components/cards';
+ * 
+ * const AccountActionsCard = () => (
+ *   <ActionCard
+ *     title="Account Actions"
+ *     actions={[
+ *       {
+ *         id: 'edit-profile',
+ *         label: 'Edit Profile',
+ *         description: 'Update your personal information',
+ *         icon: 'account-edit',
+ *         iconColor: '#4CAF50'
+ *       },
+ *       {
+ *         id: 'settings',
+ *         label: 'Account Settings',
+ *         description: 'Manage privacy and security',
+ *         icon: 'cog',
+ *         primary: true
+ *       }
+ *     ]}
+ *     onActionPress={(actionId) => navigation.navigate(actionId)}
+ *   />
+ * );
  * ```
+ * 
+ * @features
+ * - Interactive action items with press handling
+ * - Icon support with customizable colors
+ * - Optional descriptions for better UX
+ * - Disabled state support
+ * - Accessibility compliant
+ * - Touch feedback and animations
+ * - Test-friendly with testID support
+ * 
+ * @see {@link BaseCard} for foundational card functionality
+ * @see {@link ActionCardProps} for complete prop definitions
+ * @see {@link ActionItem} for action item structure
  */
 export const ActionCard: React.FC<ActionCardProps> = ({
   actions,

@@ -1,5 +1,13 @@
 /**
- * @file DatePicker mit react-native-date-picker Library
+ * @fileoverview RN-DATE-PICKER-COMPONENT: Alternative Date Picker Implementation
+ * @description Alternative date picker using react-native-date-picker library for enhanced UX
+ * @version 1.0.0
+ * @since 1.0.0
+ * @author ReactNativeSkeleton Enterprise Team
+ * @module Shared.Components.Form.DatePicker
+ * @namespace Shared.Components.Form.DatePicker.RNDatePicker
+ * @category Components
+ * @subcategory Form
  */
 
 import React, {useState, useCallback} from 'react';
@@ -10,22 +18,104 @@ import {colors} from '@core/theme/colors';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import {styles} from './date-picker.style';
 
+/**
+ * Props interface for the RNDatePicker component.
+ * Extended interface with custom formatting support.
+ * 
+ * @interface RNDatePickerProps
+ * @since 1.0.0
+ * @version 1.0.0
+ * @category Props
+ * @subcategory Components
+ * 
+ * @example
+ * Basic RN date picker:
+ * ```tsx
+ * const rnDatePickerProps: RNDatePickerProps = {
+ *   value: '2024-01-15',
+ *   onChange: (isoDate) => setDate(isoDate),
+ *   label: 'Auswählen'
+ * };
+ * ```
+ */
 export interface RNDatePickerProps {
-  /** Aktuell ausgewähltes Datum als ISO-String 'YYYY-MM-DD' */
+  /**
+   * Currently selected date as ISO string format 'YYYY-MM-DD'.
+   * 
+   * @type {string}
+   * @required
+   * @format YYYY-MM-DD
+   * @example "2024-01-15"
+   */
   value: string;
-  /** Callback bei Änderung des Datums - erhält ISO-String 'YYYY-MM-DD' */
+
+  /**
+   * Callback function executed when date changes.
+   * 
+   * @type {(isoDate: string) => void}
+   * @required
+   * @param isoDate - Selected date in ISO format
+   * @example (isoDate) => setSelectedDate(isoDate)
+   */
   onChange: (isoDate: string) => void;
-  /** Label für das Feld */
+
+  /**
+   * Display label for the date picker field.
+   * 
+   * @type {string}
+   * @required
+   * @example "Geburtsdatum"
+   */
   label: string;
-  /** Optionales Styling für den Container */
+
+  /**
+   * Optional custom styling for the container.
+   * 
+   * @type {StyleProp<ViewStyle>}
+   * @optional
+   * @example { marginVertical: 10 }
+   */
   style?: StyleProp<ViewStyle>;
-  /** Zeigt Fehlerzustand an */
+
+  /**
+   * Indicates error state with visual feedback.
+   * 
+   * @type {boolean}
+   * @optional
+   * @default false
+   * @example true
+   */
   hasError?: boolean;
-  /** Basis Test-ID für Tester */
+
+  /**
+   * Base test identifier for automated testing.
+   * 
+   * @type {string}
+   * @optional
+   * @default "rn-date-picker"
+   * @example "custom-date-picker"
+   */
   testID?: string;
-  /** Label für Screenreader */
+
+  /**
+   * Accessibility label for screen readers.
+   * 
+   * @type {string}
+   * @optional
+   * @example "Datum auswählen"
+   */
   accessibilityLabel?: string;
-  /** Optional: Funktion zum Formatieren des Datums */
+
+  /**
+   * Optional custom date formatting function.
+   * Override default German format.
+   * 
+   * @type {(dateString: string) => string}
+   * @optional
+   * @param dateString - ISO date string to format
+   * @returns Formatted date string
+   * @example (date) => new Date(date).toLocaleDateString('en-US')
+   */
   formatDate?: (dateString: string) => string;
 }
 

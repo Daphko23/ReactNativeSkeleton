@@ -19,7 +19,7 @@ import React from 'react';
 import { View, Text } from 'react-native';
 
 import { PROFILE_CONSTANTS } from '../../constants/profile.constants';
-import { CustomCard } from '../../../../../shared/components/ui/custom-card.component';
+import { CustomCard } from '../../../../../shared/components/cards/specialized/custom-card.component';
 import { createProfileInformationStyles } from './profile-information.component.styles';
 
 export interface ProfileInformationProps {

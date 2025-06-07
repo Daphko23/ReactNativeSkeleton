@@ -72,8 +72,10 @@ import {
   FormField,
   SkillsInput,
   LoadingOverlay,
-  AlertService,
 } from '../../../../../shared/components';
+
+// Core Services
+import { AlertService } from '../../../../../core/services';
 
 // Theme & Hooks
 import { useTheme } from '../../../../../core/theme/theme.system';

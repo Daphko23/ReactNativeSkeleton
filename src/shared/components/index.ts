@@ -15,5 +15,4 @@ export * from './forms';
 // UI Components
 export { LoadingOverlay } from './ui/loading-overlay.component';
 
-// Services
-export { AlertService } from '../services/alert.service'; 
+// Note: AlertService moved to @core/services 

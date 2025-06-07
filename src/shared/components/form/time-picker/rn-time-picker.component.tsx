@@ -1,5 +1,13 @@
 /**
- * @file TimePicker mit react-native-date-picker Library
+ * @fileoverview RN-TIME-PICKER-COMPONENT: Modern Time Selection Component
+ * @description Enhanced time picker using react-native-date-picker library for superior UX
+ * @version 1.0.0
+ * @since 1.0.0
+ * @author ReactNativeSkeleton Enterprise Team
+ * @module Shared.Components.Form.TimePicker
+ * @namespace Shared.Components.Form.TimePicker.RNTimePicker
+ * @category Components
+ * @subcategory Form
  */
 
 import React, {useState, useCallback} from 'react';
@@ -10,20 +18,99 @@ import {colors} from '@core/theme';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import {styles} from './time-picker.style';
 
+/**
+ * Props interface for the RNTimePicker component.
+ * Modern interface for enhanced time selection functionality.
+ * 
+ * @interface RNTimePickerProps
+ * @since 1.0.0
+ * @version 1.0.0
+ * @category Props
+ * @subcategory Components
+ * 
+ * @example
+ * Basic time picker:
+ * ```tsx
+ * const timePickerProps: RNTimePickerProps = {
+ *   value: '14:30',
+ *   onChange: (time) => setSelectedTime(time),
+ *   label: 'Startzeit'
+ * };
+ * ```
+ */
 export interface RNTimePickerProps {
-  /** Aktuell ausgewählte Zeit als String 'HH:mm' */
+  /**
+   * Currently selected time as string in HH:mm format.
+   * 24-hour format for consistency and clarity.
+   * 
+   * @type {string}
+   * @required
+   * @format HH:mm
+   * @example "14:30"
+   */
   value: string;
-  /** Callback bei Änderung der Zeit - erhält String 'HH:mm' */
+
+  /**
+   * Callback function executed when time changes.
+   * Receives time string in HH:mm format.
+   * 
+   * @type {(timeString: string) => void}
+   * @required
+   * @param timeString - Selected time in HH:mm format
+   * @example (timeString) => setSelectedTime(timeString)
+   */
   onChange: (timeString: string) => void;
-  /** Label für das Feld */
+
+  /**
+   * Display label for the time picker field.
+   * Should be descriptive and localized.
+   * 
+   * @type {string}
+   * @required
+   * @example "Startzeit"
+   */
   label: string;
-  /** Optionales Styling für den Container */
+
+  /**
+   * Optional custom styling for the container.
+   * Merged with default styles.
+   * 
+   * @type {StyleProp<ViewStyle>}
+   * @optional
+   * @example { marginVertical: 10 }
+   */
   style?: StyleProp<ViewStyle>;
-  /** Zeigt Fehlerzustand an */
+
+  /**
+   * Indicates error state with visual feedback.
+   * Changes border color to error color.
+   * 
+   * @type {boolean}
+   * @optional
+   * @default false
+   * @example true
+   */
   hasError?: boolean;
-  /** Basis Test-ID für Tester */
+
+  /**
+   * Base test identifier for automated testing.
+   * Used for both container and picker elements.
+   * 
+   * @type {string}
+   * @optional
+   * @default "rn-time-picker"
+   * @example "appointment-time-picker"
+   */
   testID?: string;
-  /** Label für Screenreader */
+
+  /**
+   * Accessibility label for screen readers.
+   * Falls back to label + " auswählen" if not provided.
+   * 
+   * @type {string}
+   * @optional
+   * @example "Startzeit auswählen"
+   */
   accessibilityLabel?: string;
 }
 

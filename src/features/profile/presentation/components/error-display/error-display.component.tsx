@@ -20,7 +20,7 @@ import { Text } from 'react-native';
 import { Button } from 'react-native-paper';
 
 import { PROFILE_CONSTANTS } from '../../constants/profile.constants';
-import { CustomCard } from '../../../../../shared/components/ui/custom-card.component';
+import { CustomCard } from '../../../../../shared/components/cards/specialized/custom-card.component';
 import { createErrorDisplayStyles } from './error-display.component.styles';
 
 export interface ErrorDisplayProps {
