@@ -48,8 +48,7 @@ import { MFAServiceImpl } from '../services/mfa.service.impl';
 import { ComplianceServiceImpl } from '../services/compliance.service.impl';
 import { PasswordPolicyServiceImpl } from '../services/password-policy.service.impl';
 
-// Application services  
-import { AuthOrchestratorService } from '../../application/services/auth-orchestrator.service.impl';
+// Application services - AuthOrchestratorService removed for architectural simplification
 
 // Domain interfaces
 import type { AuthRepository } from '../../domain/interfaces/auth.repository.interface';
@@ -98,8 +97,7 @@ export interface AuthServiceContainerConfig {
   /** Enable password policy enforcement */
   enablePasswordPolicy?: boolean;
   
-  /** Enable auth orchestrator service */
-  enableAuthOrchestrator?: boolean;
+  // enableAuthOrchestrator removed - architectural simplification
   
   /** Cache service instance */
   cache?: Record<string, unknown>;
@@ -140,8 +138,7 @@ export interface AuthServices {
   /** Password policy service */
   passwordPolicyService?: PasswordPolicyServiceImpl;
   
-  /** Auth orchestrator service */
-  authOrchestratorService?: AuthOrchestratorService;
+  // authOrchestratorService removed - architectural simplification
   
   /** Logger service */
   logger: ILoggerService;
@@ -183,7 +180,7 @@ export interface AuthServices {
  * const authRepository = container.getAuthRepository();
  * const mfaService = container.getMFAService();
  * const complianceService = container.getComplianceService();
- * const orchestrator = await container.getAuthOrchestratorService();
+ * // AuthOrchestratorService removed - use container.getAuthRepository() directly
  * ```
  */
 export class AuthServiceContainer {
@@ -281,7 +278,7 @@ export class AuthServiceContainer {
         enableMFA: config.enableMFA,
         enableCompliance: config.enableCompliance,
         enablePasswordPolicy: config.enablePasswordPolicy,
-        enableAuthOrchestrator: config.enableAuthOrchestrator,
+        // enableAuthOrchestrator removed - architectural simplification
         environment: config.environment || Environment.DEVELOPMENT
       }
     });
@@ -461,27 +458,7 @@ export class AuthServiceContainer {
     return this.services.passwordPolicyService;
   }
 
-  /**
-   * @method getAuthOrchestratorService
-   * @description Get the auth orchestrator service (lazy loaded)
-   * 
-   * @returns {Promise<AuthOrchestratorService>} Auth orchestrator service instance
-   * 
-   * @throws {Error} When container not initialized or auth orchestrator not enabled
-   */
-  public async getAuthOrchestratorService(): Promise<AuthOrchestratorService> {
-    this.ensureInitialized();
-
-    if (!this.config!.enableAuthOrchestrator) {
-      throw new Error('Auth orchestrator service not enabled in container configuration');
-    }
-
-    if (!this.services.authOrchestratorService) {
-      this.services.authOrchestratorService = await this.createAuthOrchestratorService();
-    }
-
-    return this.services.authOrchestratorService;
-  }
+  // getAuthOrchestratorService removed - architectural simplification
 
   /**
    * @method getAllServices
@@ -755,23 +732,7 @@ export class AuthServiceContainer {
     return new PasswordPolicyServiceImpl(logger);
   }
 
-  /**
-   * @private
-   * @method createAuthOrchestratorService
-   * @description Create auth orchestrator service
-   */
-  private async createAuthOrchestratorService(): Promise<AuthOrchestratorService> {
-    const logger = this.config!.logger;
-
-    logger.info('Creating auth orchestrator service', undefined, {
-      service: 'AuthServiceContainer'
-    });
-
-    // Get dependencies from container
-    const authRepository = this.getAuthRepository();
-
-    return new AuthOrchestratorService(authRepository);
-  }
+  // createAuthOrchestratorService removed - architectural simplification
 
   /**
    * @private

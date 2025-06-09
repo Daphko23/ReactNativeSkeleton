@@ -7,39 +7,34 @@
 import { AuthenticateWithBiometricUseCase } from '../../../application/usecases/authenticate-with-biometric.usecase';
 import { BiometricNotAvailableError } from '../../../domain/errors/biometric-not-available.error';
 import { SecurityEventType, SecurityEventSeverity } from '../../../domain/types/security.types';
-import { AuthUser } from '../../../domain/entities/auth-user.interface';
+
 import { createMockAuthRepository } from '../../mocks/auth-repository.mock';
+import { createMockAuthUser } from '../../../helpers/auth-user-test.factory';
 
 describe('AuthenticateWithBiometricUseCase', () => {
   const mockRepository = createMockAuthRepository();
   const useCase = new AuthenticateWithBiometricUseCase(mockRepository);
 
   // Mock biometric authenticated users
-  const mockBiometricUser: AuthUser = {
+  const mockBiometricUser = createMockAuthUser({
     id: 'biometric-user-001',
     email: 'biometric@example.com',
     displayName: 'Biometric User',
-    photoURL: 'https://example.com/biometric-user.jpg',
-    emailVerified: true,
+    avatarUrl: 'https://example.com/biometric-user.jpg',
     phoneVerified: true,
     mfaEnabled: false,
-    roles: ['user'],
-    status: 'active',
-    lastLoginAt: new Date(Date.now() - 2 * 60 * 60 * 1000) // 2 hours ago
-  };
+    lastLoginAt: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString() // 2 hours ago
+  });
 
-  const mockPremiumBiometricUser: AuthUser = {
+  const mockPremiumBiometricUser = createMockAuthUser({
     id: 'premium-biometric-user-001',
     email: 'premium.biometric@example.com',
     displayName: 'Premium Biometric User',
-    photoURL: 'https://example.com/premium-biometric-user.jpg',
-    emailVerified: true,
+    avatarUrl: 'https://example.com/premium-biometric-user.jpg',
     phoneVerified: true,
     mfaEnabled: true,
-    roles: ['user', 'premium'],
-    status: 'active',
-    lastLoginAt: new Date(Date.now() - 30 * 60 * 1000) // 30 minutes ago
-  };
+    lastLoginAt: new Date(Date.now() - 30 * 60 * 1000).toISOString() // 30 minutes ago
+  });
 
   beforeEach(() => {
     jest.clearAllMocks();
@@ -116,8 +111,8 @@ describe('AuthenticateWithBiometricUseCase', () => {
       const result = await useCase.execute();
 
       expect(result.success).toBe(true);
-      expect(result.user.roles).toEqual(['user', 'premium']);
-      expect(result.user.mfaEnabled).toBe(true);
+      expect(result.user.role).toBe('user');
+      expect(result.user.metadata.mfaEnabled).toBe(true);
     });
 
     it('should return authenticated user details correctly', async () => {
@@ -127,32 +122,28 @@ describe('AuthenticateWithBiometricUseCase', () => {
 
       expect(result.user.id).toBe('biometric-user-001');
       expect(result.user.email).toBe('biometric@example.com');
-      expect(result.user.displayName).toBe('Biometric User');
+      expect(result.user.getDisplayName()).toBe('Biometric User');
       expect(result.user.emailVerified).toBe(true);
-      expect(result.user.phoneVerified).toBe(true);
+      expect(result.user.profile?.phoneVerified).toBe(true);
     });
 
     it('should handle user with minimal profile data', async () => {
-      const minimalBiometricUser: AuthUser = {
+      const minimalBiometricUser = createMockAuthUser({
         id: 'minimal-biometric-001',
         email: 'minimal@example.com',
         displayName: 'Minimal User',
-        photoURL: undefined,
-        emailVerified: true,
+        avatarUrl: undefined,
         phoneVerified: false,
         mfaEnabled: false,
-        roles: ['user'],
-        status: 'active',
-        lastLoginAt: new Date()
-      };
+      });
 
       mockRepository.authenticateWithBiometric.mockResolvedValueOnce(minimalBiometricUser);
 
       const result = await useCase.execute();
 
       expect(result.success).toBe(true);
-      expect(result.user.photoURL).toBeUndefined();
-      expect(result.user.phoneVerified).toBe(false);
+      expect(result.user.profile?.avatarUrl).toBeUndefined();
+      expect(result.user.profile?.phoneVerified).toBe(false);
     });
   });
 
@@ -401,18 +392,15 @@ describe('AuthenticateWithBiometricUseCase', () => {
 
   describe('Integration Scenarios', () => {
     it('should handle complete biometric authentication flow', async () => {
-      const comprehensiveBiometricUser: AuthUser = {
+      const comprehensiveBiometricUser = createMockAuthUser({
         id: 'comprehensive-biometric-001',
         email: 'comprehensive.biometric@example.com',
         displayName: 'Comprehensive Biometric User',
-        photoURL: 'https://example.com/comprehensive-biometric.jpg',
-        emailVerified: true,
+        avatarUrl: 'https://example.com/comprehensive-biometric.jpg',
         phoneVerified: true,
         mfaEnabled: true,
-        roles: ['user', 'verified'],
-        status: 'active',
-        lastLoginAt: new Date(Date.now() - 15 * 60 * 1000) // 15 minutes ago
-      };
+        lastLoginAt: new Date(Date.now() - 15 * 60 * 1000).toISOString() // 15 minutes ago
+      });
 
       mockRepository.isBiometricAvailable.mockResolvedValueOnce(true);
       mockRepository.authenticateWithBiometric.mockResolvedValueOnce(comprehensiveBiometricUser);
@@ -478,8 +466,8 @@ describe('AuthenticateWithBiometricUseCase', () => {
       const result = await useCase.execute();
 
       expect(result.success).toBe(true);
-      expect(result.user.mfaEnabled).toBe(true);
-      expect(result.user.roles).toContain('premium');
+      expect(result.user.metadata.mfaEnabled).toBe(true);
+      expect(result.user.role).toBe('user');
       
       // Premium users should still use biometric for primary auth
       expect(mockRepository.logSecurityEvent).toHaveBeenCalledWith(

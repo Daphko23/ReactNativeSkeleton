@@ -473,7 +473,7 @@ export const useFeatureFlags = create<FeatureFlagsState>()(
         return defaultValue as T;
       }
 
-      return flag.value !== undefined ? flag.value : defaultValue;
+      return flag.value !== undefined ? flag.value : (defaultValue as T);
     },
 
     trackFlagUsage: (flagKey: string, enabled: boolean) => {

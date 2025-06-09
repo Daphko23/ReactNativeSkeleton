@@ -4,7 +4,8 @@
  */
 
 import React, { useState, useEffect, useCallback, useRef } from 'react';
-import { useAuth } from '@features/auth/presentation/hooks';
+// import { useAuth } from '@features/auth/presentation/hooks';
+import { useAuthStore } from '@features/auth/presentation/store/auth.store';
 import { avatarService } from '../../data/factories/avatar.container';
 
 export interface UseAvatarReturn {
@@ -121,7 +122,8 @@ class AvatarCacheManager {
 }
 
 export const useAvatar = (): UseAvatarReturn => {
-  const { user } = useAuth();
+  // 🔧 Use direct store subscription to avoid race conditions (same fix as other hooks)
+  const user = useAuthStore(state => state.user);
   const cacheManager = useRef(AvatarCacheManager.getInstance()).current;
   
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
@@ -242,24 +244,33 @@ export const useAvatar = (): UseAvatarReturn => {
 
   // Load avatar on mount and when user changes
   useEffect(() => {
+    console.log('🔍 useAvatar useEffect triggered:', {
+      userId: user?.id || 'NULL',
+      hasInitialized,
+      shouldLoad: !!(user?.id && !hasInitialized)
+    });
+    
     if (user?.id && !hasInitialized) {
+      console.log('🔄 useAvatar: Starting initial load for user:', user.id);
+      
       // Use cached data immediately if available, then refresh in background
       const loadInitialAvatar = async () => {
         let cachedUrl: string | null = null;
         
         try {
+          console.log('🔄 useAvatar: Setting loading state...');
           setLoadingState('loading');
           
           // Try to get cached URL first
           console.log('🔄 useAvatar: Checking cache for user:', user.id);
           cachedUrl = await cacheManager.getAvatarUrl(user.id, false);
           
-          if (cachedUrl && cachedUrl !== avatarUrl) {
-            console.log('🔄 useAvatar: Found cached URL, setting immediately');
+          if (cachedUrl) {
+            console.log('🔄 useAvatar: Found cached URL, setting immediately:', cachedUrl);
             setAvatarUrl(cachedUrl);
             setLoadingState('loaded');
-          } else if (!cachedUrl) {
-            console.log('🔄 useAvatar: No cached URL, setting to loaded state');
+          } else {
+            console.log('🔄 useAvatar: No cached URL found, setting to loaded state');
             setLoadingState('loaded');
           }
         } catch (err) {
@@ -267,15 +278,20 @@ export const useAvatar = (): UseAvatarReturn => {
           setLoadingState('error');
         }
         
+        // Mark as initialized
+        console.log('🔄 useAvatar: Marking as initialized');
+        setHasInitialized(true);
+        
         // Then do a full refresh in background if needed
         if (!cachedUrl) {
+          console.log('🔄 useAvatar: No cached URL, triggering background refresh');
           refreshAvatar(false);
         }
       };
 
       loadInitialAvatar();
     }
-  }, [user?.id, hasInitialized, avatarUrl, refreshAvatar, cacheManager]);
+  }, [user?.id, hasInitialized, cacheManager]);
 
   const hasAvatar = Boolean(avatarUrl && !isLoading);
   

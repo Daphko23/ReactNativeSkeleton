@@ -993,6 +993,7 @@
     "skillsScreen": {
       "addCustom": "\"{{skill}}\" hinzufügen",
       "categories": {
+        "hint": "Filter aktiv - Skills zuweisen mit Button oben",
         "languages": "Sprachen",
         "soft": "Soft Skills",
         "technical": "Technisch",
@@ -1000,6 +1001,19 @@
       },
       "current": {
         "title": "Aktuelle Fähigkeiten"
+      },
+      "reassign": {
+        "title": "Kategorie ändern",
+        "message": "Kategorie für \"{{skill}}\" ändern?"
+      },
+      "reassignAll": "Alle zu {{category}}",
+      "reassignAll.title": "Alle Skills verschieben",
+      "reassignAll.message": "Möchten Sie alle {{count}} Skills zu \"{{category}}\" verschieben?",
+      "save": {
+        "success": "Fähigkeiten gespeichert",
+        "successMessage": "Ihre Fähigkeiten wurden erfolgreich aktualisiert.",
+        "error": "Fehler beim Speichern",
+        "errorMessage": "Ihre Fähigkeiten konnten nicht gespeichert werden."
       },
       "search": {
         "placeholder": "Fähigkeiten suchen..."
@@ -1022,6 +1036,122 @@
       },
       "title": "Fähigkeiten verwalten"
     },
+    "socialLinks": {
+      "validation": {
+        "invalid": "Ungültiger {{platform}}-Link. Bitte geben Sie eine gültige URL ein.",
+        "required": "Dieses Feld ist erforderlich",
+        "tooLong": "Link ist zu lang. Maximal {{max}} Zeichen erlaubt.",
+        "tooShort": "Link ist zu kurz. Mindestens {{min}} Zeichen erforderlich.",
+        "hasErrors": {
+          "title": "Ungültige Eingaben",
+          "message": "Bitte korrigieren Sie die Fehler bevor Sie speichern."
+        }
+      },
+      "save": {
+        "success": {
+          "title": "Erfolgreich gespeichert",
+          "message": "Ihre sozialen Links wurden erfolgreich aktualisiert."
+        },
+        "error": {
+          "title": "Speichern fehlgeschlagen",
+          "message": "Ihre Änderungen konnten nicht gespeichert werden. Bitte versuchen Sie es erneut."
+        }
+      },
+      "errors": {
+        "saveFailed": "Speichern der sozialen Links fehlgeschlagen"
+      },
+      "reset": {
+        "title": "Änderungen zurücksetzen",
+        "message": "Möchten Sie alle Änderungen zurücksetzen?"
+      },
+      "open": {
+        "error": {
+          "title": "Link kann nicht geöffnet werden",
+          "message": "Der Link konnte nicht geöffnet werden. Bitte überprüfen Sie die URL."
+        }
+      }
+    },
+    "socialLinksScreen": {
+      "title": "Soziale Links verwalten",
+      "add": {
+        "button": "Link hinzufügen",
+        "accessibility": "Neuen sozialen Link hinzufügen"
+      },
+      "validation": {
+        "invalid": "Ungültiger Link. Bitte geben Sie eine gültige URL ein.",
+        "required": "Dieses Feld ist erforderlich"
+      },
+      "save": {
+        "success": {
+          "title": "Erfolgreich gespeichert",
+          "message": "Ihre sozialen Links wurden erfolgreich aktualisiert."
+        },
+        "error": {
+          "title": "Speichern fehlgeschlagen",
+          "message": "Ihre Änderungen konnten nicht gespeichert werden. Bitte versuchen Sie es erneut."
+        }
+      },
+      "platforms": {
+        "linkedIn": "LinkedIn",
+        "twitter": "Twitter", 
+        "github": "GitHub",
+        "instagram": "Instagram",
+        "facebook": "Facebook",
+        "youtube": "YouTube",
+        "tiktok": "TikTok",
+        "custom": "Benutzerdefiniert"
+      },
+      "placeholders": {
+        "linkedIn": "https://linkedin.com/in/ihr-profil",
+        "twitter": "https://twitter.com/ihr-username",
+        "github": "https://github.com/ihr-username",
+        "instagram": "https://instagram.com/ihr-username",
+        "facebook": "https://facebook.com/ihr-profil",
+        "youtube": "https://youtube.com/@ihr-kanal",
+        "tiktok": "https://tiktok.com/@ihr-username",
+        "custom": "https://ihre-website.com",
+        "linkedin": "LinkedIn Benutzername"
+      },
+      "progress": {
+        "title": "Social Links Übersicht"
+      },
+      "stats": {
+        "total": "Gesamt",
+        "professional": "Beruflich",
+        "social": "Social",
+        "creative": "Kreativ"
+      },
+      "platforms": {
+        "title": "Verfügbare Plattformen"
+      },
+      "summary": {
+        "title": "Verknüpfte Accounts"
+      },
+      "empty": {
+        "subtitle": "Noch keine Social Links hinzugefügt",
+        "action": "Fügen Sie Ihre ersten Links hinzu"
+      },
+      "tips": {
+        "title": "Tipps",
+        "linkedin": "Verwenden Sie Ihren LinkedIn-Benutzernamen ohne '/in/' - z.B. 'max-mustermann'",
+        "github": "Geben Sie nur Ihren GitHub-Benutzernamen ein - z.B. 'maxmustermann'",
+        "twitter": "Verwenden Sie Ihren Twitter-Handle ohne '@' - z.B. 'maxmustermann'",
+        "general": {
+          "username": "Verwenden Sie nur Ihren Benutzernamen, nicht die vollständige URL",
+          "professional": "Fügen Sie zuerst berufliche Profile wie LinkedIn hinzu",
+          "complete": "Stellen Sie sicher, dass Ihre Profile vollständig ausgefüllt sind",
+          "active": "Verlinken Sie nur aktive Profile, die Sie regelmäßig nutzen",
+          "verify": "Verifizieren Sie Ihre Profile für mehr Glaubwürdigkeit",
+          "privacy": "Überprüfen Sie Ihre Datenschutzeinstellungen auf den Plattformen"
+        }
+      },
+      "urlPreview": {
+        "valid": "Gültige URL"
+      },
+      "actions": {
+        "reset": "Änderungen zurücksetzen"
+      }
+    },
     "logout": {
       "button": "Ausloggen",
       "buttonAccessibilityLabel": "Ausloggen Button",
@@ -1033,71 +1163,108 @@
       "cancel": "Abbrechen",
       "errorTitle": "Logout-Fehler",
       "errorMessage": "Beim Ausloggen ist ein Fehler aufgetreten. Bitte versuchen Sie es erneut."
+    }
+  },
+  "shared": {
+    "emptyList": {
+      "noItems": "Keine Elemente verfügbar",
+      "noFilterResults": "Keine Ergebnisse für die aktuellen Filter gefunden",
+      "noSearchResults": "Keine Suchergebnisse gefunden"
+    }
+  },
+  "privacy": {
+    "visibility": {
+      "public": "Öffentlich",
+      "public.description": "Für alle Benutzer sichtbar",
+      "friends": "Freunde",
+      "friends.description": "Nur für Freunde sichtbar",
+      "private": "Privat",
+      "private.description": "Nur für Sie sichtbar"
     },
-    "socialLinksScreen": {
-      "actions": {
-        "reset": "Änderungen zurücksetzen"
-      },
-      "empty": {
-        "action": "Fügen Sie Ihre ersten Links hinzu",
-        "subtitle": "Noch keine Social Links hinzugefügt"
-      },
-      "placeholders": {
-        "behance": "Behance Benutzername",
-        "dribbble": "Dribbble Benutzername",
-        "github": "GitHub Benutzername",
-        "instagram": "Instagram Benutzername",
-        "linkedin": "LinkedIn Benutzername",
-        "medium": "Medium Benutzername",
-        "portfolio": "Portfolio URL",
-        "twitter": "Twitter Benutzername",
-        "website": "Website URL",
-        "youtube": "YouTube Kanal"
-      },
-      "platforms": {
-        "title": "Verfügbare Plattformen"
-      },
-      "progress": {
-        "title": "Social Links Übersicht"
-      },
-      "stats": {
-        "creative": "Kreativ",
-        "professional": "Beruflich",
-        "social": "Social",
-        "total": "Gesamt"
-      },
-      "summary": {
-        "title": "Verknüpfte Accounts"
-      },
-      "tips": {
-        "behance": "Ihr Behance-Benutzername - z.B. 'maxmustermann'",
-        "dribbble": "Ihr Dribbble-Benutzername - z.B. 'maxmustermann'",
-        "general": {
-          "active": "Verlinken Sie nur aktive Profile, die Sie regelmäßig nutzen",
-          "complete": "Stellen Sie sicher, dass Ihre Profile vollständig ausgefüllt sind",
-          "privacy": "Überprüfen Sie Ihre Datenschutzeinstellungen auf den Plattformen",
-          "professional": "Fügen Sie zuerst berufliche Profile wie LinkedIn hinzu",
-          "username": "Verwenden Sie nur Ihren Benutzernamen, nicht die vollständige URL",
-          "verify": "Verifizieren Sie Ihre Profile für mehr Glaubwürdigkeit"
-        },
-        "github": "Geben Sie nur Ihren GitHub-Benutzernamen ein - z.B. 'maxmustermann'",
-        "instagram": "Nur der Instagram-Benutzername - z.B. 'max.mustermann'",
-        "linkedin": "Verwenden Sie Ihren LinkedIn-Benutzernamen ohne '/in/' - z.B. 'max-mustermann'",
-        "medium": "Ihr Medium-Benutzername ohne '@' - z.B. 'maxmustermann'",
-        "portfolio": "Vollständige URL Ihres Portfolios - z.B. 'https://portfolio.maxmustermann.de'",
-        "title": "Tipps",
-        "twitter": "Verwenden Sie Ihren Twitter-Handle ohne '@' - z.B. 'maxmustermann'",
-        "website": "Vollständige URL Ihrer Website - z.B. 'https://maxmustermann.de'",
-        "youtube": "Ihr YouTube-Kanal-Name mit '@' - z.B. 'maxmustermann'"
-      },
-      "title": "Social Links bearbeiten",
-      "urlPreview": {
-        "title": "URL Vorschau:",
-        "valid": "Gültige URL"
+    "profileVisibility": {
+      "title": "Profil-Sichtbarkeit",
+      "description": "Wählen Sie, wer Ihr Profil sehen kann"
+    },
+    "fieldPrivacy": {
+      "title": "Feld-Datenschutz",
+      "description": "Kontrollieren Sie die Sichtbarkeit einzelner Felder"
+    },
+    "fields": {
+      "email": "E-Mail",
+      "phone": "Telefon",
+      "location": "Standort",
+      "socialLinks": "Social Links",
+      "professionalInfo": "Berufliche Informationen"
+    },
+    "emailVisibility": {
+      "title": "E-Mail-Sichtbarkeit",
+      "description": "Wer kann Ihre E-Mail sehen"
+    },
+    "phoneVisibility": {
+      "title": "Telefon-Sichtbarkeit", 
+      "description": "Wer kann Ihre Telefonnummer sehen"
+    },
+    "locationVisibility": {
+      "title": "Standort-Sichtbarkeit",
+      "description": "Wer kann Ihren Standort sehen"
+    },
+    "socialLinksVisibility": {
+      "title": "Social Links-Sichtbarkeit",
+      "description": "Wer kann Ihre Social Links sehen"
+    },
+    "professionalInfoVisibility": {
+      "title": "Berufliche Info-Sichtbarkeit",
+      "description": "Wer kann Ihre beruflichen Informationen sehen"
+    },
+    "emailNotifications": {
+      "title": "E-Mail-Benachrichtigungen",
+      "description": "Marketing-E-Mails erhalten"
+    },
+    "pushNotifications": {
+      "title": "Push-Benachrichtigungen",
+      "description": "App-Benachrichtigungen erhalten"
+    },
+    "dataCollection": {
+      "title": "Datensammlung",
+      "description": "Anonyme Nutzungsdaten sammeln"
+    },
+    "communication": {
+      "title": "Kommunikationseinstellungen",
+      "description": "Verwalten Sie Ihre Benachrichtigungseinstellungen",
+      "emailNotifications": "E-Mail-Benachrichtigungen",
+      "emailNotifications.description": "Benachrichtigungen per E-Mail erhalten",
+      "pushNotifications": "Push-Benachrichtigungen",
+      "pushNotifications.description": "Benachrichtigungen in der App erhalten",
+      "marketing": "Marketing-Kommunikation",
+      "marketing.description": "Marketing-E-Mails und Werbung erhalten"
+    },
+    "dataManagement": {
+      "title": "Datenverwaltung",
+      "download": {
+        "title": "Daten herunterladen",
+        "description": "Laden Sie eine Kopie Ihrer Daten herunter",
+        "accessibility": "Ihre persönlichen Daten herunterladen",
+        "hint": "Startet den sicheren Download Ihrer Daten gemäß DSGVO"
+      }
+    },
+    "reset": {
+      "accessibility": "Datenschutz-Einstellungen zurücksetzen",
+      "hint": "Setzt alle Datenschutz-Einstellungen auf Standardwerte zurück"
+    },
+    "save": {
+      "accessibility": "Datenschutz-Einstellungen speichern",
+      "hint": {
+        "enabled": "Speichert alle Änderungen an Ihren Datenschutz-Einstellungen",
+        "disabled": "Keine Änderungen zum Speichern vorhanden"
       }
     }
   },
   "settings": {
+    "delete": {
+      "title": "Konto löschen",
+      "warning": "Sind Sie sicher, dass Sie Ihr Konto löschen möchten? Diese Aktion kann nicht rückgängig gemacht werden. Alle Ihre Daten werden permanent gelöscht.",
+      "account": "Ihr Konto"
+    },
     "dangerScreen": {
       "account": "Ihr Konto",
       "confirm": "Konto löschen",

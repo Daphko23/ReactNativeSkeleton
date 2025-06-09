@@ -1,6 +1,6 @@
 /**
  * useProfile - Profile Management Hook
- * Enhanced with error handling and loading states
+ * Enhanced with error handling, loading states, and observability
  */
 
 import { useState, useEffect, useCallback } from 'react';
@@ -8,7 +8,10 @@ import { UserProfile } from '../../domain/entities/user-profile.entity';
 import { profileContainer } from '../../application/di/profile.container';
 import { useErrorHandler } from '@shared/hooks/use-error-handler';
 import { useLoadingState } from '@shared/hooks/use-loading-state';
-import { useAuth } from '@features/auth/presentation/hooks';
+// import { useAuth } from '@features/auth/presentation/hooks';
+import { useAuthStore } from '@features/auth/presentation/store/auth.store';
+import { profileObservability } from '@core/monitoring/profile-observability.service';
+import { gdprAuditService } from '../../data/services/gdpr-audit.service';
 
 export interface UseProfileReturn {
   // Profile state
@@ -36,7 +39,8 @@ export interface UseProfileReturn {
 }
 
 export const useProfile = (): UseProfileReturn => {
-  const { user } = useAuth();
+  // Direct auth store subscription to avoid race conditions
+  const user = useAuthStore(state => state.user);
   const { showError, handleAsyncError } = useErrorHandler();
   const { isLoading, withLoading } = useLoadingState();
   
@@ -56,28 +60,60 @@ export const useProfile = (): UseProfileReturn => {
   const loadProfile = useCallback(async () => {
     if (!user?.id) return;
 
-    const result = await handleAsyncError(
-      () => withLoading('loadProfile', () => profileService.getProfile(user.id)),
-      'profile'
-    );
+    // Start observability tracking
+    const correlationId = profileObservability.startProfileOperation('load', user.id);
 
-    if (result) {
-      setProfile(result);
-      setError(null);
+    try {
+      const result = await handleAsyncError(
+        () => withLoading('loadProfile', () => profileService.getProfile(user.id)),
+        'profile'
+      );
+
+      if (result) {
+        setProfile(result);
+        setError(null);
+        
+        // Record successful operation
+        profileObservability.endProfileOperation(correlationId, 'success', undefined, result);
+        
+        // Record metrics
+        profileObservability.recordProfileMetrics(user.id, {
+          profileLoadTime: Date.now() - performance.now(),
+          profileCompletionRate: profileService.calculateCompleteness(result)
+        });
+
+        // GDPR Audit Logging - Data Access
+        await gdprAuditService.logDataAccess(
+          user.id,
+          user.id,
+          'read',
+          ['firstName', 'lastName', 'email', 'bio', 'avatar'],
+          { correlationId }
+        );
+      } else {
+        profileObservability.endProfileOperation(correlationId, 'error', new Error('Profile not found'));
+      }
+    } catch (error) {
+      profileObservability.endProfileOperation(correlationId, 'error', error as Error);
+      setError('Failed to load profile');
     }
   }, [user?.id, profileService, handleAsyncError, withLoading]);
 
   const refreshProfile = useCallback(async () => {
     if (!user?.id) return;
 
-    const result = await handleAsyncError(
-      () => withLoading('refreshProfile', () => profileService.syncProfile(user.id)),
-      'profile'
-    );
+    try {
+      const result = await handleAsyncError(
+        () => withLoading('refreshProfile', () => profileService.syncProfile(user.id)),
+        'profile'
+      );
 
-    if (result) {
-      setProfile(result);
-      setError(null);
+      if (result) {
+        setProfile(result);
+        setError(null);
+      }
+    } catch {
+      // Silent error handling for refresh
     }
   }, [user?.id, profileService, handleAsyncError, withLoading]);
 
@@ -87,17 +123,51 @@ export const useProfile = (): UseProfileReturn => {
       return false;
     }
 
-    const result = await handleAsyncError(
-      () => withLoading('updateProfile', () => profileService.updateProfile(user.id, updates)),
-      'profile'
-    );
+    // Start observability tracking
+    const correlationId = profileObservability.startProfileOperation('update', user.id, {
+      fieldsUpdated: Object.keys(updates)
+    });
 
-    if (result) {
-      setProfile(result);
-      setError(null);
-      return true;
+    try {
+      const result = await handleAsyncError(
+        () => withLoading('updateProfile', () => profileService.updateProfile(user.id, updates)),
+        'profile'
+      );
+
+      if (result) {
+        const previousProfile = profile; // Store for GDPR logging
+        setProfile(result);
+        setError(null);
+        
+        // Record successful operation
+        profileObservability.endProfileOperation(correlationId, 'success', undefined, result);
+        
+        // Record metrics
+        profileObservability.recordProfileMetrics(user.id, {
+          profileUpdateTime: Date.now() - performance.now(),
+          profileCompletionRate: profileService.calculateCompleteness(result)
+        });
+
+        // GDPR Audit Logging - Data Update
+        if (previousProfile) {
+          await gdprAuditService.logDataUpdate(
+            user.id,
+            user.id,
+            previousProfile,
+            result,
+            { correlationId }
+          );
+        }
+        
+        return true;
+      }
+      
+      profileObservability.endProfileOperation(correlationId, 'error', new Error('Update failed'));
+      return false;
+    } catch (error) {
+      profileObservability.endProfileOperation(correlationId, 'error', error as Error);
+      return false;
     }
-    return false;
   }, [user?.id, profileService, handleAsyncError, withLoading, showError]);
 
   const calculateCompleteness = useCallback((): number => {
@@ -111,17 +181,21 @@ export const useProfile = (): UseProfileReturn => {
       return false;
     }
 
-    const result = await handleAsyncError(
-      () => withLoading('updatePrivacy', () => profileService.updatePrivacySettings(user.id, settings)),
-      'profile'
-    );
+    try {
+      const result = await handleAsyncError(
+        () => withLoading('updatePrivacy', () => profileService.updatePrivacySettings(user.id, settings)),
+        'profile'
+      );
 
-    if (result) {
-      // Refresh profile to get updated privacy settings
-      await refreshProfile();
-      return true;
+      if (result) {
+        // Refresh profile to get updated privacy settings
+        await refreshProfile();
+        return true;
+      }
+      return false;
+    } catch {
+      return false;
     }
-    return false;
   }, [user?.id, profileService, handleAsyncError, withLoading, showError, refreshProfile]);
 
   const uploadAvatar = useCallback(async (imageUri: string): Promise<boolean> => {
@@ -130,17 +204,21 @@ export const useProfile = (): UseProfileReturn => {
       return false;
     }
 
-    const result = await handleAsyncError(
-      () => withLoading('uploadAvatar', () => profileService.uploadAvatar(user.id, imageUri)),
-      'profile'
-    );
+    try {
+      const result = await handleAsyncError(
+        () => withLoading('uploadAvatar', () => profileService.uploadAvatar(user.id, imageUri)),
+        'profile'
+      );
 
-    if (result) {
-      // Refresh profile to get updated avatar
-      await refreshProfile();
-      return true;
+      if (result) {
+        // Refresh profile to get updated avatar
+        await refreshProfile();
+        return true;
+      }
+      return false;
+    } catch {
+      return false;
     }
-    return false;
   }, [user?.id, profileService, handleAsyncError, withLoading, showError, refreshProfile]);
 
   const deleteAvatar = useCallback(async (): Promise<boolean> => {
@@ -162,7 +240,7 @@ export const useProfile = (): UseProfileReturn => {
     return false;
   }, [user?.id, profileService, handleAsyncError, withLoading, showError, refreshProfile]);
 
-  return {
+  const hookReturn = {
     // Profile state
     profile,
     
@@ -186,4 +264,6 @@ export const useProfile = (): UseProfileReturn => {
     uploadAvatar,
     deleteAvatar,
   };
+
+  return hookReturn;
 }; 

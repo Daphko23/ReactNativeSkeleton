@@ -13,10 +13,10 @@
 import React, { useEffect, useState, type ReactNode } from 'react';
 import { View, ActivityIndicator, StyleSheet } from 'react-native';
 import { useAuthStore } from '@features/auth/presentation/store/auth.store';
-import { AuthServiceContainer } from '@features/auth/data/factories/auth-service.container';
+import { authContainer } from '@features/auth/application/di/auth.container';
 import { ConsoleLogger } from '@core/logging/console.logger';
 
-import { Environment } from '@core/config/environment.config.interface';
+// Import Environment entfernt - aktuell nicht verwendet
 import * as RNLocalize from 'react-native-localize';
 import i18n from '@core/i18n/i18n';
 
@@ -284,19 +284,17 @@ export const AppInitializer = ({
       try {
         console.log('🚀 Starting app initialization...');
         
-        // 1. Initialize Auth Services
+        // 1. Initialize Auth Services - Using unified authContainer DI
         const logger = new ConsoleLogger();
-        const authContainer = AuthServiceContainer.getInstance();
         
         await authContainer.initialize({
-          logger,
+          enableAdvancedSecurity: true,
           enableBiometric: true,
           enableOAuth: true,
           enableMFA: true,
           enableCompliance: true,
-          enableAuthOrchestrator: true,
-          environment: Environment.DEVELOPMENT
-        });
+          enablePasswordPolicy: true
+        }, logger);
 
         console.log('✅ Auth services initialized');
 

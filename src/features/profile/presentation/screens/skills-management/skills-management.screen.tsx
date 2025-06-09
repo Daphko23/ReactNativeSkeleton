@@ -70,6 +70,8 @@ import { LoadingOverlay } from '@shared/components/ui/loading-overlay.component'
 import { SearchBar } from '@shared/components/search/search-bar.component';
 import { PrimaryButton } from '@shared/components/buttons/primary-button.component';
 import { EmptyList } from '@shared/components/empty-state/empty-list.component';
+import { useProfile } from '../../hooks/use-profile.hook';
+import { AlertService } from '@core/services/alert.service';
 
 /**
  * Props interface for the SkillsManagementScreen component
@@ -235,22 +237,79 @@ export const SkillsManagementScreen: React.FC<SkillsManagementScreenProps> = ({
   testID 
 }) => {
   const {
-    isLoading,
+    isLoading: _isLoading,
     error: _error,
     theme,
     t,
   } = useSkillsManagement();
 
-  // Real state management instead of mock data
-  const [userSkills, setUserSkills] = React.useState(['React', 'TypeScript', 'Node.js']);
+  // Real profile integration instead of mock data
+  const { profile, updateProfile, isLoading, isUpdating } = useProfile();
+
+  // Skills with categories structure
+  interface SkillWithCategory {
+    name: string;
+    category: string;
+  }
+
+  // Initialize skills with categories from profile or empty array
+  const [userSkills, setUserSkills] = React.useState<SkillWithCategory[]>([]);
   const [suggestedSkills, setSuggestedSkills] = React.useState(['React Native', 'GraphQL', 'Docker']);
-  const [isUpdating, setIsUpdating] = React.useState(false);
   const [searchQuery, setSearchQueryState] = React.useState('');
   const [selectedCategory, setSelectedCategory] = React.useState('');
   const [hasUnsavedChanges, setHasUnsavedChanges] = React.useState(false);
   
   // Counter to force SearchBar reset
   const [searchBarResetKey, setSearchBarResetKey] = React.useState(0);
+
+  /**
+   * Gets the color for a skill category for visual distinction
+   * 
+   * @function getCategoryColor
+   * @since 1.0.0
+   * 
+   * @param {string} category - The category to get color for
+   * @returns {string} Hex color for the category
+   */
+  const getCategoryColor = (category: string): string => {
+    switch (category) {
+      case 'technical':
+        return theme.colors.primary;
+      case 'soft':
+        return theme.colors.secondary;
+      case 'languages':
+        return theme.colors.tertiary;
+      default:
+        return theme.colors.outline;
+    }
+  };
+
+  // Load skills from profile when available
+  React.useEffect(() => {
+    if (profile?.professional?.skills) {
+      console.log('🔧 SkillsManagement - Loading skills from profile:', profile.professional.skills);
+      
+      // Parse skills with categories from format "skillName:category" or plain "skillName"
+      const skillsWithCategories: SkillWithCategory[] = profile.professional.skills.map(skillEntry => {
+        if (skillEntry.includes(':')) {
+          // New format: "skillName:category"
+          const [name, category] = skillEntry.split(':');
+          return { name: name.trim(), category: category.trim() };
+        } else {
+          // Legacy format: plain skill name, assign default category
+          return { name: skillEntry, category: 'technical' };
+        }
+      });
+      
+      setUserSkills(skillsWithCategories);
+      
+      // Remove loaded skills from suggestions (only skill names, not the full format)
+      const skillNames = skillsWithCategories.map(skill => skill.name);
+      setSuggestedSkills(prev => 
+        prev.filter(skill => !skillNames.includes(skill))
+      );
+    }
+  }, [profile?.professional?.skills]);
   
   const skillCategories = [
     { name: t?.('profile.skillsScreen.categories.technical') || 'Technisch', value: 'technical' },
@@ -269,14 +328,15 @@ export const SkillsManagementScreen: React.FC<SkillsManagementScreenProps> = ({
    * @since 1.0.0
    * 
    * @param {string} name - The name of the skill to add to the portfolio
+   * @param {string} category - The category of the skill (technical, soft, languages)
    * 
    * @example
    * ```tsx
    * // Add skill from suggestion
-   * addSkill('React Native');
+   * addSkill('React Native', 'technical');
    * 
    * // Add custom skill from search
-   * addSkill(searchQuery.trim());
+   * addSkill(searchQuery.trim(), selectedCategory || 'technical');
    * ```
    * 
    * @validation
@@ -298,10 +358,14 @@ export const SkillsManagementScreen: React.FC<SkillsManagementScreenProps> = ({
    * - Provides screen reader feedback for skill addition
    * - Updates skills count for assistive technologies
    */
-  const addSkill = (name: string) => {
+  const addSkill = (name: string, category: string = 'technical') => {
     const trimmedSkill = name.trim();
-    if (trimmedSkill && !userSkills.includes(trimmedSkill)) {
-      setUserSkills(prev => [...prev, trimmedSkill]);
+    const skillExists = userSkills.some(skill => skill.name === trimmedSkill);
+    
+    if (trimmedSkill && !skillExists) {
+      console.log('🔧 SkillsManagement - Adding skill:', trimmedSkill, 'with category:', category);
+      const newSkill: SkillWithCategory = { name: trimmedSkill, category };
+      setUserSkills(prev => [...prev, newSkill]);
       setSuggestedSkills(prev => prev.filter(skill => skill !== trimmedSkill));
       setHasUnsavedChanges(true);
       // Clear search and force SearchBar reset
@@ -347,7 +411,8 @@ export const SkillsManagementScreen: React.FC<SkillsManagementScreenProps> = ({
    * - Updates skills count for assistive technologies
    */
   const removeSkill = (skillToRemove: string) => {
-    setUserSkills(prev => prev.filter(skill => skill !== skillToRemove));
+    console.log('🔧 SkillsManagement - Removing skill:', skillToRemove);
+    setUserSkills(prev => prev.filter(skill => skill.name !== skillToRemove));
     // Add back to suggestions if it was originally there
     if (['React Native', 'GraphQL', 'Docker'].includes(skillToRemove)) {
       setSuggestedSkills(prev => [...prev, skillToRemove]);
@@ -360,42 +425,141 @@ export const SkillsManagementScreen: React.FC<SkillsManagementScreenProps> = ({
   };
 
   /**
-   * Handles skills category selection for filtered skills display
+   * Reassigns a specific skill to a new category
    * 
-   * @description Manages the selection and deselection of skill categories for filtering
-   * suggested skills. Implements toggle behavior for category selection with smooth
-   * user experience and instant visual feedback.
+   * @description Changes the category of an existing skill and marks changes as unsaved
+   * 
+   * @function reassignSkillToCategory
+   * @since 1.0.0
+   * 
+   * @param {string} skillName - The name of the skill to reassign
+   * @param {string} newCategory - The new category for the skill
+   */
+  const reassignSkillToCategory = (skillName: string, newCategory: string) => {
+    console.log('🔧 SkillsManagement - Reassigning skill:', skillName, 'to category:', newCategory);
+    
+    setUserSkills(prev => prev.map(skill => 
+      skill.name === skillName 
+        ? { ...skill, category: newCategory }
+        : skill
+    ));
+    
+    setHasUnsavedChanges(true);
+  };
+
+  /**
+   * Reassigns all skills to the selected category (bulk operation)
+   * 
+   * @description Moves all current skills to the selected category as a bulk operation
+   * 
+   * @function reassignAllSkillsToCategory
+   * @since 1.0.0
+   * 
+   * @param {string} category - The category to assign all skills to
+   */
+  const reassignAllSkillsToCategory = (category: string) => {
+    if (!category || userSkills.length === 0) return;
+    
+    console.log('🔧 SkillsManagement - Bulk reassigning all skills to category:', category);
+    
+    setUserSkills(prev => prev.map(skill => ({ ...skill, category })));
+    setHasUnsavedChanges(true);
+  };
+
+  /**
+   * Handles skill category selection with intelligent filtering
+   * 
+   * @description Manages skill category selection and filters suggestions based on
+   * the selected category. Provides category-based skill organization and discovery.
    * 
    * @function handleCategorySelect
    * @since 1.0.0
    * 
-   * @param {string} category - The category value to select or deselect
+   * @param {string} category - The category value to select or filter by
    * 
    * @example
    * ```tsx
    * // Select technical skills category
    * handleCategorySelect('technical');
    * 
-   * // Deselect current category (toggle off)
-   * handleCategorySelect(selectedCategory);
+   * // Clear category filter
+   * handleCategorySelect('');
    * ```
    * 
-   * @behavior
-   * - Toggles category selection on/off
-   * - Deselects category if already selected
-   * - Selects new category if different from current
+   * @logic
+   * - Updates selected category state
+   * - Toggles category selection (select/deselect)
+   * - Could be extended for category-based skill filtering
+   * 
+   * @side_effects
+   * - Updates selected category state
+   * - Potentially filters suggestion display
    * 
    * @performance
-   * - Immediate state update for responsive UI
-   * - Efficient category comparison
+   * - Simple state update operation
+   * - No expensive computations
    * 
    * @accessibility
-   * - Updates screen reader announcements for category changes
-   * - Provides clear selection state feedback
+   * - Category selection is announced to screen readers
+   * - Clear indication of selected/deselected state
    */
   const handleCategorySelect = (category: string) => {
-    setSelectedCategory(category === selectedCategory ? '' : category);
+    setSelectedCategory(prev => prev === category ? '' : category);
   };
+
+  /**
+   * Saves skills to the user's profile
+   * 
+   * @description Saves the current skills state to the user's profile using the profile service.
+   * 
+   * @function saveSkillsToProfile
+   * @since 1.0.0
+   * 
+   * @returns {Promise<boolean>} Success status of the save operation
+   */
+  const saveSkillsToProfile = React.useCallback(async (): Promise<boolean> => {
+    try {
+      console.log('🔧 SkillsManagement - Saving skills to profile:', userSkills);
+      
+      // Convert SkillWithCategory[] to string[] with embedded category info
+      // Format: "skillName:category" for new skills, preserves categories
+      // TODO: Extend UserProfile entity to support native SkillWithCategory[] structure
+      const skillsWithCategories = userSkills.map(skill => `${skill.name}:${skill.category}`);
+      
+              const profileUpdate = {
+          professional: {
+            ...profile?.professional,
+            skills: skillsWithCategories,
+          },
+        };
+
+      const success = await updateProfile(profileUpdate);
+      
+      if (success) {
+        console.log('🔧 SkillsManagement - Skills saved successfully to profile');
+        setHasUnsavedChanges(false);
+        AlertService.success({
+          title: t?.('profile.skillsScreen.save.success') || 'Skills gespeichert',
+          message: t?.('profile.skillsScreen.save.successMessage') || 'Ihre Fähigkeiten wurden erfolgreich aktualisiert.'
+        });
+        return true;
+      } else {
+        console.error('🔧 SkillsManagement - Failed to save skills to profile');
+        AlertService.error({
+          title: t?.('profile.skillsScreen.save.error') || 'Fehler beim Speichern',
+          message: t?.('profile.skillsScreen.save.errorMessage') || 'Ihre Fähigkeiten konnten nicht gespeichert werden.'
+        });
+        return false;
+      }
+    } catch (error) {
+      console.error('🔧 SkillsManagement - Error saving skills:', error);
+      AlertService.error({
+        title: t?.('profile.skillsScreen.save.error') || 'Fehler beim Speichern',
+        message: error instanceof Error ? error.message : t?.('profile.skillsScreen.save.errorMessage') || 'Ihre Fähigkeiten konnten nicht gespeichert werden.'
+      });
+      return false;
+    }
+  }, [userSkills, profile?.professional, updateProfile]);
 
   const styles = React.useMemo(() => createSkillsManagementScreenStyles(theme), [theme]);
 
@@ -405,23 +569,14 @@ export const SkillsManagementScreen: React.FC<SkillsManagementScreenProps> = ({
       headerRight: () => (
         <IconButton
           icon="content-save"
-          onPress={() => {
-            // Save functionality - here you would normally save to backend/storage
-            setIsUpdating(true);
-            setTimeout(() => {
-              setHasUnsavedChanges(false);
-              setIsUpdating(false);
-              console.log('Skills saved successfully:', userSkills);
-              // You could show a success message here
-            }, 1000);
-          }}
+          onPress={saveSkillsToProfile}
           disabled={!hasUnsavedChanges || isUpdating}
           iconColor={hasUnsavedChanges && !isUpdating ? theme.colors.primary : theme.colors.disabled}
           testID={SKILLS_TEST_IDS.SAVE_FAB}
         />
       ),
     });
-  }, [navigation, hasUnsavedChanges, isUpdating, theme.colors.primary, theme.colors.disabled, userSkills]);
+  }, [navigation, hasUnsavedChanges, isUpdating, theme.colors.primary, theme.colors.disabled, saveSkillsToProfile]);
 
   // Loading State
   if (isLoading) {
@@ -468,11 +623,11 @@ export const SkillsManagementScreen: React.FC<SkillsManagementScreenProps> = ({
         {/* Add Custom Skill Button - Stable rendering to prevent focus loss */}
         {searchQuery.trim() && 
          !suggestedSkills.some(skill => skill.toLowerCase() === searchQuery.toLowerCase()) &&
-         !userSkills.some(skill => skill.toLowerCase() === searchQuery.toLowerCase()) && (
+         !userSkills.some(skill => skill.name.toLowerCase() === searchQuery.toLowerCase()) && (
           <View style={styles.customSkillButtonContainer}>
             <PrimaryButton
               label={t?.('profile.skillsScreen.addCustom', { skill: searchQuery.trim() }) || `"${searchQuery.trim()}" hinzufügen`}
-              onPress={() => addSkill(searchQuery.trim())}
+              onPress={() => addSkill(searchQuery.trim(), selectedCategory || 'technical')}
               disabled={isUpdating}
             />
           </View>
@@ -481,9 +636,36 @@ export const SkillsManagementScreen: React.FC<SkillsManagementScreenProps> = ({
         {/* Current Skills Section */}
         <Card style={styles.section} testID={SKILLS_TEST_IDS.CURRENT_SKILLS_SECTION}>
           <Card.Content style={styles.sectionContent}>
-            <Text style={styles.sectionTitle}>
-              {t?.('profile.skillsScreen.current.title') || 'Aktuelle Fähigkeiten'} ({userSkills.length})
-            </Text>
+            <View style={styles.currentSkillsHeader}>
+              <Text style={styles.sectionTitle}>
+                {t?.('profile.skillsScreen.current.title') || 'Aktuelle Fähigkeiten'} ({userSkills.length})
+              </Text>
+              
+              {/* Bulk Category Assignment Button */}
+              {selectedCategory && userSkills.length > 0 && (
+                <View style={styles.bulkAssignButton}>
+                  <PrimaryButton
+                    label={t?.('profile.skillsScreen.reassignAll', { 
+                      count: userSkills.length, 
+                      category: skillCategories.find(cat => cat.value === selectedCategory)?.name || selectedCategory 
+                    }) || `Alle zu ${skillCategories.find(cat => cat.value === selectedCategory)?.name || selectedCategory}`}
+                    onPress={() => {
+                      AlertService.confirm({
+                        title: t?.('profile.skillsScreen.reassignAll.title') || 'Alle Skills verschieben',
+                        message: t?.('profile.skillsScreen.reassignAll.message', { 
+                          count: userSkills.length, 
+                          category: skillCategories.find(cat => cat.value === selectedCategory)?.name || selectedCategory 
+                        }) || `Möchten Sie alle ${userSkills.length} Skills zu "${skillCategories.find(cat => cat.value === selectedCategory)?.name || selectedCategory}" verschieben?`,
+                        confirmText: 'Verschieben',
+                        cancelText: 'Abbrechen',
+                        onConfirm: () => reassignAllSkillsToCategory(selectedCategory)
+                      });
+                    }}
+                    disabled={isUpdating}
+                  />
+                </View>
+              )}
+            </View>
             
             {userSkills.length === 0 ? (
               <EmptyList
@@ -493,19 +675,37 @@ export const SkillsManagementScreen: React.FC<SkillsManagementScreenProps> = ({
               />
             ) : (
               <View style={styles.skillsContainer}>
-                {userSkills.map((skill, index) => (
-                  <Chip
-                    key={index}
-                    mode="flat"
-                    onClose={() => removeSkill(skill)}
-                    disabled={isUpdating}
-                    style={styles.userSkillChip}
-                    textStyle={styles.userSkillText}
-                    testID={`${SKILLS_TEST_IDS.USER_SKILL_CHIP}-${index}`}
-                  >
-                    {skill}
-                  </Chip>
-                ))}
+                {userSkills.map((skill, index) => {
+                  const categoryInfo = skillCategories.find(cat => cat.value === skill.category);
+                  const categoryColor = getCategoryColor(skill.category);
+                  
+                  return (
+                    <Chip
+                      key={index}
+                      mode="flat"
+                      onPress={() => {
+                        // Show category selection for this skill
+                        AlertService.confirm({
+                          title: t?.('profile.skillsScreen.reassign.title') || 'Kategorie ändern',
+                          message: t?.('profile.skillsScreen.reassign.message', { skill: skill.name }) || `Kategorie für "${skill.name}" ändern?`,
+                          confirmText: 'Technisch',
+                          cancelText: 'Abbrechen',
+                          onConfirm: () => reassignSkillToCategory(skill.name, 'technical')
+                        });
+                      }}
+                      onClose={() => removeSkill(skill.name)}
+                      disabled={isUpdating}
+                      style={[
+                        styles.userSkillChip,
+                        { borderLeftWidth: 3, borderLeftColor: categoryColor }
+                      ]}
+                      textStyle={styles.userSkillText}
+                      testID={`${SKILLS_TEST_IDS.USER_SKILL_CHIP}-${index}`}
+                    >
+                      {skill.name} ({categoryInfo?.name || skill.category})
+                    </Chip>
+                  );
+                })}
               </View>
             )}
 
@@ -519,9 +719,7 @@ export const SkillsManagementScreen: React.FC<SkillsManagementScreenProps> = ({
                 <View style={styles.statItem}>
                   <Text style={styles.statValue}>
                     {userSkills.filter(skill => 
-                      skillCategories.find(cat => 
-                        cat.value === 'technical' && ['React', 'TypeScript', 'Node.js'].includes(skill)
-                      )
+                      skill.category === 'technical'
                     ).length}
                   </Text>
                   <Text style={styles.statLabel}>{t?.('profile.skillsScreen.stats.technical') || 'Technisch'}</Text>
@@ -529,9 +727,7 @@ export const SkillsManagementScreen: React.FC<SkillsManagementScreenProps> = ({
                 <View style={styles.statItem}>
                   <Text style={styles.statValue}>
                     {userSkills.filter(skill => 
-                      skillCategories.find(cat => 
-                        cat.value === 'soft' && ['Communication', 'Leadership'].includes(skill)
-                      )
+                      skill.category === 'soft'
                     ).length}
                   </Text>
                   <Text style={styles.statLabel}>{t?.('profile.skillsScreen.stats.soft') || 'Soft Skills'}</Text>
@@ -544,9 +740,16 @@ export const SkillsManagementScreen: React.FC<SkillsManagementScreenProps> = ({
         {/* Categories Section */}
         <Card style={styles.section} testID={SKILLS_TEST_IDS.CATEGORIES_SECTION}>
           <Card.Content style={styles.sectionContent}>
-            <Text style={styles.sectionTitle}>
-              {t?.('profile.skillsScreen.categories.title') || 'Kategorien'}
-            </Text>
+            <View style={styles.categoriesHeader}>
+              <Text style={styles.sectionTitle}>
+                {t?.('profile.skillsScreen.categories.title') || 'Kategorien'}
+              </Text>
+              {selectedCategory && (
+                <Text style={styles.categoryHint}>
+                  {t?.('profile.skillsScreen.categories.hint') || 'Filter aktiv - Skills zuweisen mit Button oben'}
+                </Text>
+              )}
+            </View>
             
             <ScrollView horizontal showsHorizontalScrollIndicator={false}>
               <View style={styles.categoriesContainer}>
@@ -595,7 +798,7 @@ export const SkillsManagementScreen: React.FC<SkillsManagementScreenProps> = ({
                   <Chip
                     key={index}
                     mode="outlined"
-                    onPress={() => addSkill(skill)}
+                    onPress={() => addSkill(skill, selectedCategory || 'technical')}
                     disabled={isUpdating}
                     style={styles.suggestionChip}
                     textStyle={styles.suggestionText}

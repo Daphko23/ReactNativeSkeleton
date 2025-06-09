@@ -28,7 +28,7 @@ import RegisterScreen from '@features/auth/presentation/screens/register/registe
 import PasswordResetScreen from '@features/auth/presentation/screens/password-reset/password-reset.screen';
 import PasswordChangeScreen from '@features/auth/presentation/screens/password-change/password-change.screen';
 import SecuritySettingsScreen from '@features/auth/presentation/screens/security-settings/security-settings.screen';
-import AuthDemoScreen from '@features/auth/presentation/screens/demo/auth-demo.screen';
+import AuthHooksCompleteDemoScreen from '@features/auth/presentation/screens/demo/auth-hooks-complete-demo.screen';
 import EmailVerificationScreen from '@features/auth/presentation/screens/email-verification/email-verification.screen';
 import AccountDeletionScreen from '@features/auth/presentation/screens/account-deletion/account-deletion.screen';
 import {AuthStackParamList} from '@core/navigation/navigation.types';
@@ -146,7 +146,7 @@ export const AuthNavigator = () => {
       {/* Development/Demo Screens */}
       <Stack.Screen 
         name="AuthDemo" 
-        component={AuthDemoScreen}
+        component={AuthHooksCompleteDemoScreen}
         options={{
           title: t('auth.navigation.authDemo') || 'Auth Demo',
           headerShown: true,

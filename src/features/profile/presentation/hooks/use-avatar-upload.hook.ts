@@ -4,7 +4,8 @@
  */
 
 import { useState, useCallback } from 'react';
-import { useAuth } from '@features/auth/presentation/hooks';
+// import { useAuth } from '@features/auth/presentation/hooks';
+import { useAuthStore } from '@features/auth/presentation/store/auth.store';
 import { avatarService, imagePickerService } from '../../data/factories/avatar.container';
 import { 
   ImagePickerResult, 
@@ -39,7 +40,8 @@ export interface UseAvatarUploadParams {
 }
 
 export const useAvatarUpload = (params?: UseAvatarUploadParams | string): UseAvatarUploadReturn => {
-  const { user } = useAuth();
+  // 🔧 Use direct store subscription to avoid race conditions (same fix as other hooks)
+  const user = useAuthStore(state => state.user);
   
   // Handle both old and new API
   const { initialImage, userId: overrideUserId } = typeof params === 'string' 
@@ -48,6 +50,15 @@ export const useAvatarUpload = (params?: UseAvatarUploadParams | string): UseAva
   
   // Use override userId if provided, otherwise use auth user id
   const effectiveUserId = overrideUserId || user?.id;
+  
+  // 🔍 Debug Auth State
+  console.log('🔍 useAvatarUpload: Auth Debug:', {
+    userFromAuth: user ? 'EXISTS' : 'NULL',
+    userId: user?.id || 'NULL',
+    overrideUserId: overrideUserId || 'NULL',
+    effectiveUserId: effectiveUserId || 'NULL',
+    isAuthenticated: !!effectiveUserId
+  });
   
   const [selectedImage, setSelectedImage] = useState<string | null>(initialImage || null);
   const [isUploading, setIsUploading] = useState(false);

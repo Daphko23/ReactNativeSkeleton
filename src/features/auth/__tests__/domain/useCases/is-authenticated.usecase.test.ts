@@ -5,22 +5,24 @@
  */
 
 import { IsAuthenticatedUseCase } from '../../../application/usecases/is-authenticated.usecase';
-import { AuthUser } from '../../../domain/entities/auth-user.interface';
+
+import { UserStatus } from '../../../domain/types/security.types';
 import { createMockAuthRepository } from '../../mocks/auth-repository.mock';
+import { createMockAuthUser } from '../../../helpers/auth-user-test.factory';
 
 describe('IsAuthenticatedUseCase - UC-028', () => {
   const mockRepository = createMockAuthRepository();
   const useCase = new IsAuthenticatedUseCase(mockRepository);
 
   // Test data
-  const mockAuthenticatedUser: AuthUser = {
+  const mockAuthenticatedUser = createMockAuthUser({
     id: 'auth-user-123',
     email: 'authenticated@example.com',
-    displayName: 'Authenticated User',
+    firstName: 'Authenticated',
+    lastName: 'User',
     emailVerified: true,
-    status: 'active',
-    roles: ['user']
-  };
+    status: UserStatus.ACTIVE
+  });
 
   beforeEach(() => {
     jest.clearAllMocks();
@@ -66,10 +68,12 @@ describe('IsAuthenticatedUseCase - UC-028', () => {
     });
 
     it('should return true for user with minimal data', async () => {
-      const minimalUser: AuthUser = {
+      const minimalUser = createMockAuthUser({
         id: 'minimal-user',
-        email: 'minimal@example.com'
-      };
+        email: 'minimal@example.com',
+        firstName: 'Minimal',
+        lastName: 'User'
+      });
 
       mockRepository.getCurrentUser.mockResolvedValueOnce(minimalUser);
 
@@ -79,19 +83,17 @@ describe('IsAuthenticatedUseCase - UC-028', () => {
     });
 
     it('should return true for user with complete profile', async () => {
-      const completeUser: AuthUser = {
+      const completeUser = createMockAuthUser({
         id: 'complete-user',
         email: 'complete@example.com',
-        displayName: 'Complete User',
-        photoURL: 'https://example.com/photo.jpg',
+        firstName: 'Complete',
+        lastName: 'User',
         emailVerified: true,
         phoneVerified: true,
         mfaEnabled: true,
-        roles: ['user', 'premium'],
-        status: 'active',
-        lastLoginAt: new Date('2024-01-15T10:00:00Z'),
-        metadata: { theme: 'dark' }
-      };
+        status: UserStatus.ACTIVE,
+        avatarUrl: 'https://example.com/photo.jpg'
+      });
 
       mockRepository.getCurrentUser.mockResolvedValueOnce(completeUser);
 
@@ -440,17 +442,17 @@ describe('IsAuthenticatedUseCase - UC-028', () => {
     });
 
     it('should handle users with different statuses correctly', async () => {
-      const suspendedUser: AuthUser = {
+            const suspendedUser = createMockAuthUser({
         id: 'suspended-user',
         email: 'suspended@example.com',
-        status: 'suspended'
-      };
+        status: UserStatus.SUSPENDED
+      });
 
-      const pendingUser: AuthUser = {
-        id: 'pending-user',
+      const pendingUser = createMockAuthUser({
+        id: 'pending-user', 
         email: 'pending@example.com',
-        status: 'pending_verification'
-      };
+        status: UserStatus.PENDING_VERIFICATION
+      });
 
       mockRepository.getCurrentUser
         .mockResolvedValueOnce(suspendedUser)
@@ -476,11 +478,11 @@ describe('IsAuthenticatedUseCase - UC-028', () => {
     });
 
     it('should handle repository response correctly for authenticated state', async () => {
-      const repositoryUser = {
+      const repositoryUser = createMockAuthUser({
         id: 'repo-user',
         email: 'repo@example.com',
-        status: 'active' as const
-      };
+        status: UserStatus.ACTIVE
+      });
 
       mockRepository.getCurrentUser.mockResolvedValueOnce(repositoryUser);
 
@@ -664,7 +666,7 @@ describe('IsAuthenticatedUseCase - UC-028', () => {
       const result = await useCase.execute();
 
       // In JavaScript: undefined !== null, so undefined would return true
-      // But undefined is not a valid AuthUser, so this is an edge case
+      // But undefined is not a valid  so this is an edge case
       // The UseCase logic is: return user !== null, so undefined !== null is true
       expect(result).toBe(true);
     });

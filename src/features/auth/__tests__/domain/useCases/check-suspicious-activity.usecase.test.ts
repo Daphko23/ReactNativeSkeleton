@@ -8,11 +8,13 @@ import { CheckSuspiciousActivityUseCase } from '../../../application/usecases/ch
 import { UserNotAuthenticatedError } from '../../../domain/errors/user-not-authenticated.error';
 import { SecurityEventType, SecurityEventSeverity } from '../../../domain/types/security.types';
 import { SecurityAlert } from '../../../domain/interfaces/auth.repository.interface';
-import { createMockAuthRepository, mockAuthUser } from '../../mocks/auth-repository.mock';
+import { createMockAuthRepository } from '../../mocks/auth-repository.mock';
+import { createMockAuthUser } from '../../../helpers/auth-user-test.factory';
 
 describe('CheckSuspiciousActivityUseCase', () => {
   const mockRepository = createMockAuthRepository();
   const useCase = new CheckSuspiciousActivityUseCase(mockRepository);
+  const mockAuthUser = createMockAuthUser();
 
   // Mock security alerts
   const mockCriticalAlert: SecurityAlert = {

@@ -15,6 +15,8 @@ import { View, ViewStyle } from 'react-native';
 import { Card } from 'react-native-paper';
 
 import { createCardStyles, createCardVariantStyles, createCardSizeStyles } from '../utils/card-styles.util';
+import { useTheme } from '../../../../core/theme/theme.system';
+import { adaptThemeToMD3 } from '../../../../core/theme/theme-adapter';
 
 /**
  * Props interface for the BaseCard component.
@@ -108,17 +110,6 @@ export interface BaseCardProps {
    * ```
    */
   style?: ViewStyle;
-
-  /**
-   * Theme object for consistent styling.
-   * Automatically provided by theme provider.
-   * 
-   * @type {any}
-   * @optional
-   * @default Current theme from provider
-   * @internal Used by styling utilities
-   */
-  theme?: any;
 
   /**
    * Test identifier for automated testing.
@@ -272,15 +263,18 @@ export const BaseCard: React.FC<BaseCardProps> = ({
   size = 'medium',
   elevation,
   style,
-  theme,
   testID,
   onPress,
   ...props
 }) => {
+  // Get theme from context and adapt to MD3 format
+  const { theme } = useTheme();
+  const md3Theme = adaptThemeToMD3(theme);
+  
   // Create styles based on theme and variants
-  const baseStyles = createCardStyles(theme);
-  const variantStyles = variant !== 'default' ? createCardVariantStyles(theme, variant) : baseStyles;
-  const sizeStyles = size !== 'medium' ? createCardSizeStyles(theme, size) : variantStyles;
+  const baseStyles = createCardStyles(md3Theme);
+  const variantStyles = variant !== 'default' ? createCardVariantStyles(md3Theme, variant) : baseStyles;
+  const sizeStyles = size !== 'medium' ? createCardSizeStyles(md3Theme, size) : variantStyles;
   
   // Compose final card style
   const cardStyle = [

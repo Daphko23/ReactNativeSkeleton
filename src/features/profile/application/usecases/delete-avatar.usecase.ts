@@ -1,10 +1,13 @@
 /**
  * Delete Avatar Use Case
  * Handles profile avatar deletion with cleanup
+ * 
+ * ✅ NEW: GDPR Audit Integration for Enterprise Compliance
  */
 
 import { avatarService } from '../../data/services/avatar.service';
 import { IProfileService } from '../../domain/interfaces/profile-service.interface';
+import { gdprAuditService } from '../../data/services/gdpr-audit.service';
 
 export class DeleteAvatarUseCase {
   constructor(private profileService: IProfileService) {}
@@ -34,6 +37,17 @@ export class DeleteAvatarUseCase {
       // Update profile to remove avatar reference
       try {
         await this.profileService.deleteAvatar(userId);
+
+        // 🔒 GDPR Audit: Additional logging at use case level
+        await gdprAuditService.logDataAccess(
+          userId,
+          userId,
+          'view',
+          ['avatar_delete_usecase'],
+          {
+            correlationId: `delete-avatar-usecase-${Date.now()}`
+          }
+        );
       } catch (error) {
         console.warn('Failed to update profile after avatar deletion:', error);
         // Continue with success since storage deletion worked

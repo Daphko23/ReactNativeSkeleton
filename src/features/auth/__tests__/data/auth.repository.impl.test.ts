@@ -90,7 +90,7 @@ describe('AuthRepositoryImpl via AuthServiceContainer - Factory Pattern', () => 
       enableMFA: true,
       enableCompliance: true,
       enablePasswordPolicy: true,
-      enableAuthOrchestrator: true
+      // enableAuthOrchestrator removed - architectural simplification
     });
     
     // Get repository from container (factory-created with proper dependencies)
@@ -176,7 +176,7 @@ describe('AuthRepositoryImpl via AuthServiceContainer - Factory Pattern', () => 
       expect(result).toMatchObject({
         id: 'user123',
         email: 'newuser@example.com',
-        displayName: undefined,
+        displayName: expect.any(String),
         photoURL: undefined,
       });
       

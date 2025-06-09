@@ -19,6 +19,7 @@ import {
   CUSTOM_FIELDS_TEST_IDS,
   CUSTOM_FIELDS_CONSTANTS,
 } from '../types';
+import { useProfile } from './use-profile.hook';
 
 // Constants
 const _FIELD_TYPES = [
@@ -33,7 +34,7 @@ const _FIELD_TYPES = [
 ] as const;
 
 // Mock Custom Fields Service - replace with actual service
-const mockCustomFieldsService = {
+  const _mockCustomFieldsService = {
   getCustomFields: async (): Promise<CustomField[]> => {
     await new Promise(resolve => setTimeout(resolve, 600));
     
@@ -172,49 +173,44 @@ export const useCustomFieldsEdit = ({ navigation: _navigation }: UseCustomFields
   // External dependencies
   const { t } = useTranslation();
   const { theme } = useTheme();
+  
+  // Profile integration
+  const { profile, updateProfile, isLoading: profileIsLoading, isUpdating } = useProfile();
 
   // State
   const [customFields, setCustomFields] = useState<CustomField[]>([]);
   const [localFields, setLocalFields] = useState<CustomField[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [showTemplates, setShowTemplates] = useState(false);
   const [newFieldMenuVisible, setNewFieldMenuVisible] = useState(false);
   const [fieldValidationErrors, setFieldValidationErrors] = useState<Record<string, string[]>>({});
 
-  // Load initial fields
+  // Load custom fields from profile
   useEffect(() => {
-    let isMounted = true;
-
-    const loadFields = async () => {
-      try {
-        setIsLoading(true);
-        setError(null);
-        
-        const fields = await mockCustomFieldsService.getCustomFields();
-        
-        if (isMounted) {
-          setCustomFields(fields);
-          setLocalFields([...fields]);
+    if (profile?.customFields) {
+      // Convert profile custom fields to CustomField format
+      const fields: CustomField[] = Object.entries(profile.customFields).map(([key, value], index) => ({
+        id: key,
+        key,
+        label: key.charAt(0).toUpperCase() + key.slice(1), // Capitalize first letter
+        value: String(value || ''),
+        type: 'text' as CustomFieldType,
+        required: false,
+        order: index + 1,
+        metadata: {
+          createdAt: new Date(),
+          source: 'user' as const,
         }
-      } catch (err) {
-        if (isMounted) {
-          setError(err instanceof Error ? err.message : 'Unknown error');
-        }
-      } finally {
-        if (isMounted) {
-          setIsLoading(false);
-        }
-      }
-    };
-
-    loadFields();
-
-    return () => {
-      isMounted = false;
-    };
-  }, []);
+      }));
+      
+      setCustomFields(fields);
+      setLocalFields([...fields]);
+    } else {
+      // Initialize with empty fields if no custom fields exist
+      setCustomFields([]);
+      setLocalFields([]);
+    }
+  }, [profile?.customFields]);
 
   // Derived state
   const hasChanges = useMemo(() => {
@@ -352,7 +348,6 @@ export const useCustomFieldsEdit = ({ navigation: _navigation }: UseCustomFields
   // Save functionality
   const handleSave = useCallback(async () => {
     try {
-      setIsSaving(true);
       setError(null);
 
       // Validate all fields
@@ -365,16 +360,28 @@ export const useCustomFieldsEdit = ({ navigation: _navigation }: UseCustomFields
         return;
       }
 
-      // Save to service
-      const result = await mockCustomFieldsService.updateCustomFields(localFields);
+      // Convert CustomField[] back to profile customFields format
+      const customFieldsForProfile: Record<string, any> = {};
+      localFields.forEach(field => {
+        customFieldsForProfile[field.key] = field.value;
+      });
+
+      // Update profile with custom fields
+      const success = await updateProfile({ customFields: customFieldsForProfile });
       
-      if (result.success && result.fields) {
-        setCustomFields(result.fields);
-        setLocalFields([...result.fields]);
+      if (success) {
+        setCustomFields([...localFields]);
         
         Alert.alert(
           t('customFields.save.success.title', { defaultValue: 'Erfolgreich gespeichert' }),
           t('customFields.save.success.message', { defaultValue: 'Ihre benutzerdefinierten Felder wurden erfolgreich gespeichert' })
+        );
+      } else {
+        Alert.alert(
+          t('customFields.save.error.title', { defaultValue: 'Speichern fehlgeschlagen' }),
+          t('customFields.save.error.message', { 
+            defaultValue: 'Ihre Änderungen konnten nicht gespeichert werden. Bitte versuchen Sie es erneut.'
+          })
         );
       }
     } catch (err) {
@@ -388,10 +395,8 @@ export const useCustomFieldsEdit = ({ navigation: _navigation }: UseCustomFields
           error: errorMessage 
         })
       );
-    } finally {
-      setIsSaving(false);
     }
-  }, [localFields, validateAllFields, t]);
+  }, [localFields, validateAllFields, t, updateProfile]);
 
   const handleReset = useCallback(() => {
     Alert.alert(
@@ -424,16 +429,16 @@ export const useCustomFieldsEdit = ({ navigation: _navigation }: UseCustomFields
                   field.type === 'number' ? 'numeric' : 'default',
     autoCapitalize: field.type === 'email' || field.type === 'url' ? 'none' : 'sentences',
     autoCorrect: field.type === 'email' || field.type === 'url' ? false : true,
-    disabled: isSaving,
+    disabled: isUpdating,
     error: fieldValidationErrors[field.id]?.length > 0,
-  }), [handleFieldUpdate, isSaving, fieldValidationErrors]);
+  }), [handleFieldUpdate, isUpdating, fieldValidationErrors]);
 
   return {
     // Required by UseCustomFieldsEditReturn interface
     customFields: localFields,
     localFields,
-    isLoading,
-    isSaving,
+    isLoading: profileIsLoading,
+    isSaving: isUpdating,
     hasChanges,
     error,
     

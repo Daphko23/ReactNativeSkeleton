@@ -40,6 +40,7 @@ export * from './presentation/components/avatar-uploader';
 export { default as ProfileScreen } from './presentation/screens/profile';
 export * from './presentation/screens/profile-edit';
 export { default as ProfileAvatarDemoScreen } from './presentation/screens/profile-avatar-demo/profile-avatar-demo.screen';
+export { default as ProfileComplianceDemoScreen } from './presentation/screens/profile-compliance-demo/profile-compliance-demo.screen';
 
 // Navigation
 export * from './presentation/navigation/profile.navigator';

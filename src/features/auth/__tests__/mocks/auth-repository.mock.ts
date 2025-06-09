@@ -4,7 +4,28 @@
  */
 
 import {AuthRepository} from '../../domain/interfaces/auth.repository.interface';
-import {AuthUser, MFAFactor, UserSession} from '../../domain/entities/auth-user.interface';
+import {AuthUser} from '../../domain/entities/auth-user.entity';
+import {UserStatus, UserRole} from '../../domain/types/security.types';
+import {createMockAuthUser} from '../../helpers/auth-user-test.factory';
+
+// Types for MFAFactor and UserSession (if they exist elsewhere)
+interface MFAFactor {
+  id: string;
+  type: 'totp' | 'sms' | 'email';
+  friendlyName: string;
+  status: 'verified' | 'unverified';
+  createdAt: Date;
+}
+
+interface UserSession {
+  id: string;
+  userId: string;
+  deviceId: string;
+  isActive: boolean;
+  expiresAt: Date;
+  createdAt: Date;
+  lastActiveAt: Date;
+}
 
 // Simple test to satisfy Jest requirement
 describe('AuthRepository Mock', () => {
@@ -16,18 +37,16 @@ describe('AuthRepository Mock', () => {
 });
 
 // Helper function to create dynamic user based on email
-const createUserFromEmail = (email: string, _password?: string): AuthUser => ({
-  id: `user-${email.split('@')[0]}`,
-  email: email,
-  displayName: email.split('@')[0].charAt(0).toUpperCase() + email.split('@')[0].slice(1),
-  photoURL: undefined,
-  emailVerified: false,
-  phoneVerified: false,
-  mfaEnabled: false,
-  roles: ['user'],
-  status: 'pending_verification',
-  lastLoginAt: undefined
-});
+const createUserFromEmail = (email: string, _password?: string): AuthUser => {
+  return createMockAuthUser({
+    id: `user-${email.split('@')[0]}`,
+    email: email,
+    emailVerified: false,
+    firstName: email.split('@')[0].charAt(0).toUpperCase() + email.split('@')[0].slice(1),
+    status: UserStatus.PENDING_VERIFICATION,
+    role: UserRole.USER,
+  });
+};
 
 export const createMockAuthRepository = (): jest.Mocked<AuthRepository> => {
   const mockRepo = {
@@ -90,18 +109,15 @@ export const createMockAuthRepository = (): jest.Mocked<AuthRepository> => {
   return mockRepo as jest.Mocked<AuthRepository>;
 };
 
-export const mockAuthUser: AuthUser = {
+export const mockAuthUser: AuthUser = createMockAuthUser({
   id: 'test-user-id',
   email: 'test@example.com',
-  displayName: 'Test User',
-  photoURL: undefined,
   emailVerified: true,
-  phoneVerified: false,
-  mfaEnabled: false,
-  roles: ['user'],
-  status: 'active',
-  lastLoginAt: new Date(),
-};
+  firstName: 'Test',
+  lastName: 'User',
+  status: UserStatus.ACTIVE,
+  role: UserRole.USER,
+});
 
 export const mockMFAFactor: MFAFactor = {
   id: 'test-mfa-id',

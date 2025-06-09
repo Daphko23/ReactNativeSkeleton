@@ -525,9 +525,17 @@ export const PrivacySettingsScreen: React.FC<PrivacySettingsScreenProps> = ({
    */
   const {
     // States
+    settings,
     isLoading,
-    hasChanges = false,
+    isSaving,
     error,
+    
+    // Operations
+    updateSetting,
+    updateVisibilitySetting,
+    saveSettings,
+    resetToDefaults,
+    hasChanges,
     
     // UI Dependencies
     theme,
@@ -539,26 +547,39 @@ export const PrivacySettingsScreen: React.FC<PrivacySettingsScreenProps> = ({
   // =============================================================================
 
   /**
-   * Mock privacy settings configuration
-   * @description Temporary configuration for privacy settings (to be replaced by hook implementation)
+   * Privacy settings from hook converted to local format
+   * @description Converts hook settings to format expected by UI components
    */
-  const localSettings = {
-    profileVisibility: 'public' as PrivacyVisibilityLevel,
-    emailVisibility: 'public' as PrivacyVisibilityLevel,
-    phoneVisibility: 'private' as PrivacyVisibilityLevel,
-    locationVisibility: 'private' as PrivacyVisibilityLevel,
-    socialLinksVisibility: 'public' as PrivacyVisibilityLevel,
-    professionalInfoVisibility: 'public' as PrivacyVisibilityLevel,
-    emailNotifications: true,
-    pushNotifications: true,
-    marketingCommunications: false,
-  };
+  const localSettings = React.useMemo(() => {
+    const settingsMap = settings.reduce((acc, setting) => {
+      // For visibility settings, use the value property
+      if (setting.category === 'visibility' && setting.value) {
+        acc[setting.key] = setting.value;
+      } else {
+        // For boolean settings, use enabled property
+        acc[setting.key] = setting.enabled;
+      }
+      return acc;
+    }, {} as Record<string, any>);
+
+    return {
+      profileVisibility: settingsMap.profile_visibility || 'public' as PrivacyVisibilityLevel,
+      emailVisibility: settingsMap.email_visibility || 'public' as PrivacyVisibilityLevel,
+      phoneVisibility: settingsMap.phone_visibility || 'private' as PrivacyVisibilityLevel,
+      locationVisibility: settingsMap.location_visibility || 'private' as PrivacyVisibilityLevel,
+      socialLinksVisibility: settingsMap.social_links_visibility || 'public' as PrivacyVisibilityLevel,
+      professionalInfoVisibility: settingsMap.professional_info_visibility || 'public' as PrivacyVisibilityLevel,
+      emailNotifications: settingsMap.email_notifications ?? true,
+      pushNotifications: settingsMap.push_notifications ?? true,
+      marketingCommunications: settingsMap.data_collection ?? false,
+    };
+  }, [settings]);
 
   /**
    * Privacy setting update status
    * @description Tracks the status of privacy setting updates
    */
-  const isUpdating = false;
+  const isUpdating = isSaving;
 
   /**
    * Account deletion confirmation dialog state
@@ -622,40 +643,75 @@ export const PrivacySettingsScreen: React.FC<PrivacySettingsScreenProps> = ({
    * Handles privacy setting changes
    * @description Processes privacy setting changes with audit logging and compliance validation
    */
-  const handleSettingChange = (key: string, value: any) => {
-    console.log('Privacy setting change:', key, value);
-    // Implementation: Update privacy setting with audit logging
-    // Call privacy service to update setting
-    // Log change for compliance auditing
-    // Update UI state optimistically
-    // Sync across user devices
-  };
+  const handleSettingChange = React.useCallback((key: string, value: any) => {
+    console.log('🎯 PRIVACY SCREEN: handleSettingChange ->', key, '=', value);
+    
+    // Map UI keys to hook setting keys, then find the actual setting ID
+    const keyMapping: Record<string, string> = {
+      // Visibility Settings
+      'profileVisibility': 'profile_visibility',
+      'emailVisibility': 'email_visibility',
+      'phoneVisibility': 'phone_visibility',
+      'locationVisibility': 'location_visibility',
+      'socialLinksVisibility': 'social_links_visibility',
+      'professionalInfoVisibility': 'professional_info_visibility',
+      
+      // Communication Settings
+      'emailNotifications': 'email_notifications',
+      'pushNotifications': 'push_notifications',
+      'marketingCommunications': 'data_collection',
+    };
+    
+    const settingKey = keyMapping[key];
+    console.log('🔍 PRIVACY SCREEN: Key mapping ->', key, '->', settingKey);
+    
+    if (settingKey) {
+      // Find the setting by key to get the actual ID
+      const setting = settings.find(s => s.key === settingKey);
+      console.log('🔎 PRIVACY SCREEN: Found setting:', setting);
+      
+      if (setting) {
+        // For visibility settings, use the new updateVisibilitySetting method
+        if (setting.category === 'visibility' && typeof value === 'string') {
+          console.log('🎨 PRIVACY SCREEN: Visibility value - calling updateVisibilitySetting with ID:', setting.id);
+          updateVisibilitySetting(setting.id, value);
+        }
+        // For boolean values (switches)
+        else if (typeof value === 'boolean') {
+          console.log('📱 PRIVACY SCREEN: Boolean value - calling updateSetting with ID:', setting.id);
+          updateSetting(setting.id, value);
+        }
+      } else {
+        console.warn('⚠️ PRIVACY SCREEN: Setting not found for key:', settingKey);
+      }
+    } else {
+      console.warn('⚠️ PRIVACY SCREEN: No mapping found for key:', key);
+    }
+  }, [updateSetting, updateVisibilitySetting, settings]);
 
   /**
    * Handles privacy settings save operation
    * @description Persists all privacy setting changes with compliance validation
    */
-  const handleSave = () => {
+  const handleSave = React.useCallback(async () => {
     console.log('Save privacy settings');
-    // Implementation: Batch save all privacy changes
-    // Validate against compliance requirements
-    // Update audit trail with batch operation
-    // Notify user of successful save
-    // Trigger cross-platform synchronization
-  };
+    try {
+      await saveSettings();
+      // Show success message (AlertService integration could be added)
+    } catch (error) {
+      console.error('Failed to save privacy settings:', error);
+      // Show error message
+    }
+  }, [saveSettings]);
 
   /**
    * Handles privacy settings reset operation
    * @description Resets privacy settings to default values with user confirmation
    */
-  const handleReset = () => {
+  const handleReset = React.useCallback(() => {
     console.log('Reset privacy settings');
-    // Implementation: Reset to default privacy values
-    // Show confirmation dialog for destructive action
-    // Log reset operation for audit trail
-    // Update UI with default settings
-    // Notify user of reset completion
-  };
+    resetToDefaults();
+  }, [resetToDefaults]);
 
   /**
    * Handles data download request

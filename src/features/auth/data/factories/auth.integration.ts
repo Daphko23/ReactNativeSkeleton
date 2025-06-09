@@ -102,7 +102,7 @@ export class AuthServiceFactory {
       enableMFA: true,
       enableCompliance: true,
       enablePasswordPolicy: true,
-      enableAuthOrchestrator: true,
+      // enableAuthOrchestrator removed - architectural simplification
       securityConfig: createSecurityConfig({
         enableThreatAssessment: true,
         enableDeviceFingerprinting: true,
@@ -170,7 +170,7 @@ export class AuthServiceFactory {
       enableMFA: false, // Simplified auth for development
       enableCompliance: false, // Not needed in development
       enablePasswordPolicy: false, // Relaxed for development
-      enableAuthOrchestrator: true,
+      // enableAuthOrchestrator removed - architectural simplification
       securityConfig: createSecurityConfig({
         enableThreatAssessment: false,
         enableDeviceFingerprinting: false,
@@ -240,7 +240,7 @@ export class AuthServiceFactory {
       enableMFA: false,
       enableCompliance: false,
       enablePasswordPolicy: false,
-      enableAuthOrchestrator: true,
+      // enableAuthOrchestrator removed - architectural simplification
       securityConfig: createSecurityConfig({
         enableThreatAssessment: false,
         enableDeviceFingerprinting: false,
@@ -308,7 +308,7 @@ export class AuthServiceFactory {
       enableMFA: true,
       enableCompliance: true,
       enablePasswordPolicy: true,
-      enableAuthOrchestrator: true,
+      // enableAuthOrchestrator removed - architectural simplification
       securityConfig: createSecurityConfig({
         enableThreatAssessment: true,
         enableDeviceFingerprinting: true,
@@ -461,7 +461,7 @@ export async function createEnterpriseAuthServices(
     enablePasswordPolicy: true,
     enableBiometric: true,
     enableOAuth: true,
-    enableAuthOrchestrator: true
+    // enableAuthOrchestrator removed - architectural simplification
   });
 }
 

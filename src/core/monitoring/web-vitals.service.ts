@@ -12,7 +12,6 @@
  * @subcategory WebVitals
  */
 
-import type { Performance as RNPerformance } from 'react-native-performance';
 import { ILoggerService, LogCategory } from '../logging/logger.service.interface';
 
 /**

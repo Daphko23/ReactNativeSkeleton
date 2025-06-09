@@ -5,16 +5,17 @@
  */
 
 import { LoginWithGoogleUseCase } from '../../../application/usecases/login-with-google.usecase';
-import { SecurityEventType, SecurityEventSeverity } from '../../../domain/types/security.types';
-import { AuthUser } from '../../../domain/entities/auth-user.interface';
+import { SecurityEventType, SecurityEventSeverity, UserStatus } from '../../../domain/types/security.types';
+
 import { createMockAuthRepository } from '../../mocks/auth-repository.mock';
+import { createMockAuthUser } from '../../../helpers/auth-user-test.factory';
 
 describe('LoginWithGoogleUseCase', () => {
   const mockRepository = createMockAuthRepository();
   const useCase = new LoginWithGoogleUseCase(mockRepository);
 
   // Mock OAuth users
-  const mockNewGoogleUser: AuthUser = {
+  const mockNewGoogleUser = createMockAuthUser({
     id: 'google-user-new-001',
     email: 'newuser@gmail.com',
     displayName: 'New Google User',
@@ -23,11 +24,11 @@ describe('LoginWithGoogleUseCase', () => {
     phoneVerified: false,
     mfaEnabled: false,
     roles: ['user'],
-    status: 'active',
-    lastLoginAt: undefined // New user indicator
-  };
+    status: UserStatus.ACTIVE,
+    lastLoginAt: undefined  // New user has no previous login
+  });
 
-  const mockExistingGoogleUser: AuthUser = {
+  const mockExistingGoogleUser = createMockAuthUser({
     id: 'google-user-existing-001',
     email: 'existing@gmail.com',
     displayName: 'Existing Google User',
@@ -36,11 +37,11 @@ describe('LoginWithGoogleUseCase', () => {
     phoneVerified: false,
     mfaEnabled: true,
     roles: ['user'],
-    status: 'active',
-    lastLoginAt: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000) // 7 days ago
-  };
+    status: UserStatus.ACTIVE,
+    lastLoginAt: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString()  // Existing user has recent login
+  });
 
-  const mockReturningGoogleUser: AuthUser = {
+  const mockReturningGoogleUser = createMockAuthUser({
     id: 'google-user-returning-001',
     email: 'returning@gmail.com',
     displayName: 'Returning Google User',
@@ -49,9 +50,9 @@ describe('LoginWithGoogleUseCase', () => {
     phoneVerified: true,
     mfaEnabled: true,
     roles: ['user', 'premium'],
-    status: 'active',
-    lastLoginAt: new Date(Date.now() - 400 * 24 * 60 * 60 * 1000) // Over a year ago - considered new
-  };
+    status: UserStatus.ACTIVE,
+    lastLoginAt: new Date(Date.now() - 400 * 24 * 60 * 60 * 1000).toISOString()
+  });
 
   beforeEach(() => {
     jest.clearAllMocks();
@@ -70,7 +71,7 @@ describe('LoginWithGoogleUseCase', () => {
 
   describe('Successful Google OAuth Authentication', () => {
     it('should handle new user registration via Google OAuth', async () => {
-      mockRepository.loginWithGoogle.mockResolvedValueOnce(mockNewGoogleUser);
+      mockRepository.loginWithGoogle.mockResolvedValueOnce(mockNewGoogleUser as any);
       mockRepository.logSecurityEvent.mockResolvedValueOnce();
 
       const result = await useCase.execute();
@@ -85,7 +86,7 @@ describe('LoginWithGoogleUseCase', () => {
     });
 
     it('should handle existing user login via Google OAuth', async () => {
-      mockRepository.loginWithGoogle.mockResolvedValueOnce(mockExistingGoogleUser);
+      mockRepository.loginWithGoogle.mockResolvedValueOnce(mockExistingGoogleUser as any);
       mockRepository.logSecurityEvent.mockResolvedValueOnce();
 
       const result = await useCase.execute();
@@ -109,7 +110,7 @@ describe('LoginWithGoogleUseCase', () => {
     });
 
     it('should return success response for OAuth authentication', async () => {
-      mockRepository.loginWithGoogle.mockResolvedValueOnce(mockExistingGoogleUser);
+      mockRepository.loginWithGoogle.mockResolvedValueOnce(mockExistingGoogleUser as any);
       mockRepository.logSecurityEvent.mockResolvedValueOnce();
 
       const result = await useCase.execute();
@@ -125,7 +126,7 @@ describe('LoginWithGoogleUseCase', () => {
     it('should detect new user when lastLoginAt is null', async () => {
       const newUserWithNullLogin = { ...mockNewGoogleUser, lastLoginAt: undefined };
       
-      mockRepository.loginWithGoogle.mockResolvedValueOnce(newUserWithNullLogin);
+      mockRepository.loginWithGoogle.mockResolvedValueOnce(newUserWithNullLogin as any);
       mockRepository.logSecurityEvent.mockResolvedValueOnce();
 
       const result = await useCase.execute();
@@ -139,7 +140,7 @@ describe('LoginWithGoogleUseCase', () => {
         lastLoginAt: new Date(Date.now() - 24 * 60 * 60 * 1000) // 1 day ago
       };
       
-      mockRepository.loginWithGoogle.mockResolvedValueOnce(recentUser);
+      mockRepository.loginWithGoogle.mockResolvedValueOnce(recentUser as any);
       mockRepository.logSecurityEvent.mockResolvedValueOnce();
 
       const result = await useCase.execute();
@@ -153,7 +154,7 @@ describe('LoginWithGoogleUseCase', () => {
         lastLoginAt: new Date(Date.now() - 366 * 24 * 60 * 60 * 1000) // Over a year ago
       };
       
-      mockRepository.loginWithGoogle.mockResolvedValueOnce(longAbsentUser);
+      mockRepository.loginWithGoogle.mockResolvedValueOnce(longAbsentUser as any);
       mockRepository.logSecurityEvent.mockResolvedValueOnce();
 
       const result = await useCase.execute();
@@ -167,7 +168,7 @@ describe('LoginWithGoogleUseCase', () => {
         lastLoginAt: new Date(Date.now() - 365 * 24 * 60 * 60 * 1000 + 1) // Slightly less than 365 days
       };
       
-      mockRepository.loginWithGoogle.mockResolvedValueOnce(exactlyOneYearUser);
+      mockRepository.loginWithGoogle.mockResolvedValueOnce(exactlyOneYearUser as any);
       mockRepository.logSecurityEvent.mockResolvedValueOnce();
 
       const result = await useCase.execute();
@@ -178,7 +179,7 @@ describe('LoginWithGoogleUseCase', () => {
 
   describe('Security Event Logging', () => {
     it('should log successful OAuth login with new user details', async () => {
-      mockRepository.loginWithGoogle.mockResolvedValueOnce(mockNewGoogleUser);
+      mockRepository.loginWithGoogle.mockResolvedValueOnce(mockNewGoogleUser as any);
       mockRepository.logSecurityEvent.mockResolvedValueOnce();
 
       await useCase.execute();
@@ -201,7 +202,7 @@ describe('LoginWithGoogleUseCase', () => {
     });
 
     it('should log successful OAuth login with existing user details', async () => {
-      mockRepository.loginWithGoogle.mockResolvedValueOnce(mockExistingGoogleUser);
+      mockRepository.loginWithGoogle.mockResolvedValueOnce(mockExistingGoogleUser as any);
       mockRepository.logSecurityEvent.mockResolvedValueOnce();
 
       await useCase.execute();
@@ -217,7 +218,7 @@ describe('LoginWithGoogleUseCase', () => {
     });
 
     it('should generate unique event IDs for successful logins', async () => {
-      mockRepository.loginWithGoogle.mockResolvedValueOnce(mockExistingGoogleUser);
+      mockRepository.loginWithGoogle.mockResolvedValueOnce(mockExistingGoogleUser as any);
       mockRepository.logSecurityEvent.mockResolvedValueOnce();
 
       await useCase.execute();
@@ -232,7 +233,7 @@ describe('LoginWithGoogleUseCase', () => {
     it('should include current timestamp in security events', async () => {
       const beforeExecution = new Date();
       
-      mockRepository.loginWithGoogle.mockResolvedValueOnce(mockExistingGoogleUser);
+      mockRepository.loginWithGoogle.mockResolvedValueOnce(mockExistingGoogleUser as any);
       mockRepository.logSecurityEvent.mockResolvedValueOnce();
 
       await useCase.execute();
@@ -246,7 +247,7 @@ describe('LoginWithGoogleUseCase', () => {
     });
 
     it('should include standard metadata in security events', async () => {
-      mockRepository.loginWithGoogle.mockResolvedValueOnce(mockExistingGoogleUser);
+      mockRepository.loginWithGoogle.mockResolvedValueOnce(mockExistingGoogleUser as any);
       mockRepository.logSecurityEvent.mockResolvedValueOnce();
 
       await useCase.execute();
@@ -358,7 +359,7 @@ describe('LoginWithGoogleUseCase', () => {
 
   describe('User Data Scenarios', () => {
     it('should handle user with complete Google profile', async () => {
-      const completeGoogleUser: AuthUser = {
+      const completeGoogleUser = createMockAuthUser({
         id: 'google-complete-001',
         email: 'complete@gmail.com',
         displayName: 'Complete Google User',
@@ -367,22 +368,22 @@ describe('LoginWithGoogleUseCase', () => {
         phoneVerified: true,
         mfaEnabled: false,
         roles: ['user'],
-        status: 'active',
-        lastLoginAt: new Date(Date.now() - 12 * 60 * 60 * 1000) // 12 hours ago
-      };
+        status: UserStatus.ACTIVE,
+        lastLoginAt: new Date(Date.now() - 12 * 60 * 60 * 1000).toISOString()
+      });
       
-      mockRepository.loginWithGoogle.mockResolvedValueOnce(completeGoogleUser);
+      mockRepository.loginWithGoogle.mockResolvedValueOnce(completeGoogleUser as any);
       mockRepository.logSecurityEvent.mockResolvedValueOnce();
 
       const result = await useCase.execute();
 
-      expect(result.user.photoURL).toBe('https://lh3.googleusercontent.com/complete.jpg');
+      expect((result.user as any).photoURL).toBe('https://lh3.googleusercontent.com/complete.jpg');
       expect(result.user.emailVerified).toBe(true);
-      expect(result.user.displayName).toBe('Complete Google User');
+      expect((result.user as any).displayName).toBe('Complete Google User');
     });
 
     it('should handle user with minimal Google profile', async () => {
-      const minimalGoogleUser: AuthUser = {
+      const minimalGoogleUser = createMockAuthUser({
         id: 'google-minimal-001',
         email: 'minimal@gmail.com',
         displayName: 'Minimal User',
@@ -391,22 +392,22 @@ describe('LoginWithGoogleUseCase', () => {
         phoneVerified: false,
         mfaEnabled: false,
         roles: ['user'],
-        status: 'active',
+        status: UserStatus.ACTIVE,
         lastLoginAt: undefined
-      };
+      });
       
-      mockRepository.loginWithGoogle.mockResolvedValueOnce(minimalGoogleUser);
+      mockRepository.loginWithGoogle.mockResolvedValueOnce(minimalGoogleUser as any);
       mockRepository.logSecurityEvent.mockResolvedValueOnce();
 
       const result = await useCase.execute();
 
-      expect(result.user.photoURL).toBeUndefined();
-      expect(result.user.phoneVerified).toBe(false);
+      expect((result.user as any).photoURL).toBeUndefined();
+      expect((result.user as any).phoneVerified).toBe(false);
       expect(result.isNewUser).toBe(true);
     });
 
     it('should handle user with premium roles', async () => {
-      const premiumGoogleUser: AuthUser = {
+      const premiumGoogleUser = createMockAuthUser({
         id: 'google-premium-001',
         email: 'premium@gmail.com',
         displayName: 'Premium Google User',
@@ -415,58 +416,58 @@ describe('LoginWithGoogleUseCase', () => {
         phoneVerified: true,
         mfaEnabled: true,
         roles: ['user', 'premium', 'admin'],
-        status: 'active',
-        lastLoginAt: new Date(Date.now() - 24 * 60 * 60 * 1000) // 1 day ago
-      };
+        status: UserStatus.ACTIVE,
+        lastLoginAt: new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString()
+      });
       
-      mockRepository.loginWithGoogle.mockResolvedValueOnce(premiumGoogleUser);
+      mockRepository.loginWithGoogle.mockResolvedValueOnce(premiumGoogleUser as any);
       mockRepository.logSecurityEvent.mockResolvedValueOnce();
 
       const result = await useCase.execute();
 
-      expect(result.user.roles).toEqual(['user', 'premium', 'admin']);
-      expect(result.user.mfaEnabled).toBe(true);
+      expect((result.user as any).roles).toEqual(['user', 'premium', 'admin']);
+      expect((result.user as any).mfaEnabled).toBe(true);
       expect(result.isNewUser).toBe(false);
     });
   });
 
   describe('OAuth Flow Variations', () => {
     it('should handle successful OAuth with email-only permissions', async () => {
-      const emailOnlyUser: AuthUser = {
+      const emailOnlyUser = createMockAuthUser({
         ...mockNewGoogleUser,
         displayName: 'User', // Fallback name when profile access denied
         photoURL: undefined
-      };
+      });
       
-      mockRepository.loginWithGoogle.mockResolvedValueOnce(emailOnlyUser);
+      mockRepository.loginWithGoogle.mockResolvedValueOnce(emailOnlyUser as any);
       mockRepository.logSecurityEvent.mockResolvedValueOnce();
 
       const result = await useCase.execute();
 
       expect(result.success).toBe(true);
       expect(result.user.email).toBe('newuser@gmail.com');
-      expect(result.user.displayName).toBe('User');
+      expect((result.user as any).displayName).toBe('User');
     });
 
     it('should handle OAuth re-authentication scenarios', async () => {
-      const reAuthUser: AuthUser = {
+      const reAuthUser = createMockAuthUser({
         ...mockExistingGoogleUser,
-        lastLoginAt: new Date(Date.now() - 30 * 60 * 1000) // 30 minutes ago
-      };
+        lastLoginAt: new Date(Date.now() - 30 * 60 * 1000).toISOString()
+      });
       
-      mockRepository.loginWithGoogle.mockResolvedValueOnce(reAuthUser);
+      mockRepository.loginWithGoogle.mockResolvedValueOnce(reAuthUser as any);
       mockRepository.logSecurityEvent.mockResolvedValueOnce();
 
       const result = await useCase.execute();
 
       expect(result.isNewUser).toBe(false);
-      expect(result.user.mfaEnabled).toBe(true); // Existing user with MFA
+      expect((result.user as any).mfaEnabled).toBe(true); // Existing user with MFA
     });
   });
 
   describe('Integration Scenarios', () => {
     it('should handle complete OAuth flow for new user', async () => {
-      const comprehensiveNewUser: AuthUser = {
+      const comprehensiveNewUser = createMockAuthUser({
         id: 'google-comprehensive-new-001',
         email: 'comprehensive.new@gmail.com',
         displayName: 'Comprehensive New User',
@@ -475,11 +476,11 @@ describe('LoginWithGoogleUseCase', () => {
         phoneVerified: false,
         mfaEnabled: false,
         roles: ['user'],
-        status: 'active',
+        status: UserStatus.ACTIVE,
         lastLoginAt: undefined
-      };
+      });
 
-      mockRepository.loginWithGoogle.mockResolvedValueOnce(comprehensiveNewUser);
+      mockRepository.loginWithGoogle.mockResolvedValueOnce(comprehensiveNewUser as any);
       mockRepository.logSecurityEvent.mockResolvedValueOnce();
 
       const result = await useCase.execute();
@@ -516,7 +517,7 @@ describe('LoginWithGoogleUseCase', () => {
     });
 
     it('should handle complete OAuth flow for returning user', async () => {
-      const comprehensiveExistingUser: AuthUser = {
+      const comprehensiveExistingUser = createMockAuthUser({
         id: 'google-comprehensive-existing-001',
         email: 'comprehensive.existing@gmail.com',
         displayName: 'Comprehensive Existing User',
@@ -525,11 +526,11 @@ describe('LoginWithGoogleUseCase', () => {
         phoneVerified: true,
         mfaEnabled: true,
         roles: ['user', 'verified'],
-        status: 'active',
-        lastLoginAt: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000) // 3 days ago
-      };
+        status: UserStatus.ACTIVE,
+        lastLoginAt: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString()
+      });
 
-      mockRepository.loginWithGoogle.mockResolvedValueOnce(comprehensiveExistingUser);
+      mockRepository.loginWithGoogle.mockResolvedValueOnce(comprehensiveExistingUser as any);
       mockRepository.logSecurityEvent.mockResolvedValueOnce();
 
       const result = await useCase.execute();

@@ -26,6 +26,7 @@ import { ProfileNavigator } from '@features/profile/presentation/navigation/prof
 import { NotificationCenterScreen } from '@features/notifications/presentation/screens/notification-center.screen';
 import { CreditNavigator } from '@features/credits/presentation/navigation/credit.navigator';
 import { ThemeDemoScreen } from '@features/profile/presentation/screens/theme-demo/theme-demo.screen';
+import ProfileComplianceDemoScreen from '@features/profile/presentation/screens/profile-compliance-demo/profile-compliance-demo.screen';
 
 /**
  * Tab navigator instance for bottom navigation.
@@ -254,6 +255,34 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
           <Icon name="chevron-forward" size={20} color="white" />
         </TouchableOpacity>
 
+        {/* Compliance Demo Access - Navigation zu Profile Compliance Demo */}
+        <TouchableOpacity 
+          style={{
+            backgroundColor: '#34C759', 
+            padding: 16, 
+            borderRadius: 12, 
+            marginBottom: 16,
+            flexDirection: 'row',
+            alignItems: 'center'
+          }}
+          onPress={() => {
+            // Navigation direkt zur Compliance Demo
+            navigation.navigate('ProfileCompliance');
+          }}
+          activeOpacity={0.8}
+        >
+          <Icon name="shield-checkmark" size={24} color="white" style={{marginRight: 12}} />
+          <View style={{flex: 1}}>
+            <Text style={{color: 'white', fontSize: 16, fontWeight: '600'}}>
+              Enterprise Compliance
+            </Text>
+            <Text style={{color: 'rgba(255,255,255,0.8)', fontSize: 14, marginTop: 2}}>
+              GDPR • WCAG 2.2 • Observability
+            </Text>
+          </View>
+          <Icon name="chevron-forward" size={20} color="white" />
+        </TouchableOpacity>
+
         {/* Credits Access - Navigation zu CreditNavigator über SettingsTab */}
         <TouchableOpacity 
           style={{
@@ -437,6 +466,22 @@ const HomeNavigator: React.FC = () => {
           },
         }}
       />
+      <HomeStack.Screen 
+        name="ProfileCompliance" 
+        component={ProfileComplianceDemoScreen}
+        options={{
+          headerShown: true,
+          title: 'Enterprise Compliance',
+          headerBackTitle: 'Zurück',
+          headerStyle: {
+            backgroundColor: theme.colors.surface,
+          },
+          headerTintColor: theme.colors.text,
+          headerTitleStyle: {
+            color: theme.colors.text,
+          },
+        }}
+      />
     </HomeStack.Navigator>
   );
 };
@@ -590,7 +635,7 @@ const HomeNavigator: React.FC = () => {
  * @todo Implement analytics tracking
  */
 export default function MainTabNavigator(): React.ReactElement {
-  const { t } = useTranslation();
+  const { t: _t } = useTranslation();
   const { theme, isDark } = useTheme();
   
   return (

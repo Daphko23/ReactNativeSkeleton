@@ -9,6 +9,7 @@ import { supabase } from '@core/config/supabase.config';
 export interface UserProfileRow {
   id?: string;
   user_id: string;
+  email?: string; // Primary email from auth.users (populated by trigger)
   first_name?: string;
   last_name?: string;
   display_name?: string;
@@ -147,6 +148,15 @@ export class ProfileDataSource implements IProfileDataSource {
         }
         this.logger.error('Failed to fetch profile', error.message);
         throw new Error(`Database error: ${error.message}`);
+      }
+
+      // If email is missing in profile, get it from auth.users
+      if (!data.email) {
+        const { data: authUser, error: authError } = await supabase.auth.admin.getUserById(userId);
+        if (!authError && authUser?.user?.email) {
+          data.email = authUser.user.email;
+          console.log('🔧 Profile DataSource: Added missing email from auth.users:', authUser.user.email);
+        }
       }
 
       this.logger.debug('Profile fetched successfully', { userId });

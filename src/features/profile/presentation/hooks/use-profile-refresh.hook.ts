@@ -13,6 +13,7 @@ export interface UseProfileRefreshParams {
   refreshAvatarAfterUpload: () => Promise<void>;
   preloadAvatar: () => Promise<void>;
   shouldCheckForAvatarUpdate: React.MutableRefObject<boolean>;
+  shouldCheckForProfileUpdate: React.MutableRefObject<boolean>;
 }
 
 export interface UseProfileRefreshReturn {
@@ -27,6 +28,7 @@ export const useProfileRefresh = ({
   refreshAvatarAfterUpload,
   preloadAvatar,
   shouldCheckForAvatarUpdate,
+  shouldCheckForProfileUpdate,
 }: UseProfileRefreshParams): UseProfileRefreshReturn => {
   
   const [refreshing, setRefreshing] = React.useState(false);
@@ -49,10 +51,25 @@ export const useProfileRefresh = ({
       const now = Date.now();
       const _timeSinceLastFocus = now - lastFocusTime.current;
       
-      if (!hasInitialized) {
+      console.log('🎯 useProfileRefresh - Focus detected:', { 
+        hasInitialized, 
+        currentUserId: currentUser?.id, 
+        shouldCheckForAvatarUpdate: shouldCheckForAvatarUpdate.current,
+        shouldCheckForProfileUpdate: shouldCheckForProfileUpdate.current
+      });
+      
+      // Always refresh profile if we have a user and haven't initialized
+      if (!hasInitialized && currentUser?.id) {
         console.log('🎯 useProfileRefresh - Initial focus, refreshing profile');
         refreshProfile();
         setHasInitialized(true);
+        lastFocusTime.current = now;
+      } else if (shouldCheckForProfileUpdate.current) {
+        console.log('🎯 useProfileRefresh - Returning from profile edit, refreshing profile data');
+        // Reset the flag
+        shouldCheckForProfileUpdate.current = false;
+        // Force refresh profile after editing
+        refreshProfile();
         lastFocusTime.current = now;
       } else if (shouldCheckForAvatarUpdate.current) {
         console.log('🎯 useProfileRefresh - Returning from potential avatar upload, checking for updates');
@@ -62,15 +79,15 @@ export const useProfileRefresh = ({
         refreshAvatarAfterUpload();
         lastFocusTime.current = now;
       } else {
-        console.log('🎯 useProfileRefresh - Tab navigation detected, NO avatar refresh to prevent issues');
-        // For regular tab navigation, we completely skip any avatar refresh
-        // Avatar should stay in its current cached state
+        console.log('🎯 useProfileRefresh - Tab navigation detected, NO refresh to prevent issues');
+        // For regular tab navigation, we completely skip any refresh
+        // Profile and avatar should stay in their current cached state
         lastFocusTime.current = now;
       }
       
       // TODO: Analytics tracking
       // analytics.track(PROFILE_CONSTANTS.ANALYTICS_EVENTS.SCREEN_VIEW);
-    }, [refreshProfile, refreshAvatarAfterUpload, hasInitialized])
+    }, [refreshProfile, refreshAvatarAfterUpload, hasInitialized, shouldCheckForAvatarUpdate, shouldCheckForProfileUpdate, currentUser?.id])
   );
 
   // Pull-to-refresh handler

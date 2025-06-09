@@ -105,7 +105,7 @@ export const ProfileAvatarDemoScreen: React.FC<ProfileAvatarDemoScreenProps> = (
         {/* User Info Card */}
         <InfoCard
           title={t('profile.avatarDemoScreen.userInfo')}
-          description={`${effectiveUser.displayName}\n${effectiveUser.email}\nID: ${effectiveUser.id}`}
+          description={`${(effectiveUser as any).displayName}\n${effectiveUser.email}\nID: ${effectiveUser.id}`}
           theme={theme as any}
         />
 
@@ -118,7 +118,7 @@ export const ProfileAvatarDemoScreen: React.FC<ProfileAvatarDemoScreenProps> = (
           <View style={styles.avatarContainer}>
             <AvatarUploader
               userId={effectiveUser.id}
-              userName={effectiveUser.displayName}
+              userName={(effectiveUser as any).displayName}
               size={150}
               editable={true}
               showUploadProgress={true}

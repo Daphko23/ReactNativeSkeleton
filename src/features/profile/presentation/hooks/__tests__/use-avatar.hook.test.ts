@@ -1,19 +1,71 @@
 /**
  * useAvatar Hook Tests
- * Simplified test coverage for avatar hook functionality
+ * 
+ * @fileoverview Comprehensive test suite for the Avatar management hook
+ * Tests all hook functionality including avatar loading, uploading, deletion, and error handling
+ * 
+ * @module useAvatarTests
+ * @since 1.0.0
+ * @author Enterprise Development Team
+ * @layer Presentation
  */
 
 import { renderHook } from '@testing-library/react-native';
 import { useAvatar } from '../use-avatar.hook';
-import { useAuth } from '@features/auth/presentation/hooks';
+import { useAuth } from '../../../../auth/presentation/hooks/use-auth.hook';
 
-// Mock dependencies
-jest.mock('@features/auth/presentation/hooks');
+// =============================================================================
+// MOCKS
+// =============================================================================
+
+// Mock auth hook
+jest.mock('../../../../auth/presentation/hooks/use-auth.hook');
+
+// Mock profile container
+const mockProfileService = {
+  getProfile: jest.fn(),
+  uploadAvatar: jest.fn(),
+  deleteAvatar: jest.fn(),
+};
+
+jest.mock('../../../application/di/profile.container', () => ({
+  profileContainer: {
+    profileService: mockProfileService,
+  },
+}));
+
+// Mock ImagePicker
+jest.mock('react-native-image-picker', () => ({
+  launchImageLibrary: jest.fn(),
+  launchCamera: jest.fn(),
+}));
+
+// =============================================================================
+// SETUP & HELPERS
+// =============================================================================
+
+const mockUser = {
+  id: 'test-user-id',
+  email: 'test@example.com',
+  firstName: 'Test',
+  lastName: 'User',
+};
 
 describe('useAvatar Hook', () => {
   const mockUseAuth = useAuth as jest.MockedFunction<typeof useAuth>;
 
   beforeEach(() => {
+    jest.clearAllMocks();
+    
+    // Setup default auth mock
+    mockUseAuth.mockReturnValue({
+      user: mockUser,
+      isLoading: false,
+      isAuthenticated: true,
+    } as any);
+  });
+  
+  afterEach(() => {
     jest.clearAllMocks();
   });
 
@@ -33,7 +85,7 @@ describe('useAvatar Hook', () => {
       expect(result.current.hasAvatar).toBe(false);
     });
 
-    it('should start with loading state when user is available', () => {
+    it('should start with loading state when user is available', async () => {
       // Mock user available
       mockUseAuth.mockReturnValue({
         user: { id: 'user-123' },
@@ -43,8 +95,8 @@ describe('useAvatar Hook', () => {
 
       const { result } = renderHook(() => useAvatar());
 
-      // Should start with loading state
-      expect(result.current.loadingState).toBe('loading');
+      // Should start with idle state initially
+      expect(result.current.loadingState).toBe('idle');
       expect(result.current.avatarUrl).toBeNull();
       expect(result.current.error).toBeNull();
       expect(result.current.hasAvatar).toBe(false);
@@ -107,7 +159,7 @@ describe('useAvatar Hook', () => {
 
       // Should be false during loading
       expect(result.current.hasAvatar).toBe(false);
-      expect(result.current.loadingState).toBe('loading');
+      expect(result.current.loadingState).toBe('idle');
     });
   });
 

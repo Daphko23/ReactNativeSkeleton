@@ -6,8 +6,8 @@
 // Export Interface (Contract)
 export type { IAuthService } from '../../domain/interfaces/auth-service.interface';
 
-// Export Implementation
-export { AuthOrchestratorService } from './auth-orchestrator.service.impl';
+// Implementation removed - Hooks use Container directly for better architecture
+// AuthOrchestratorService eliminated to reduce redundancy
 
 // Export Factory/Container
 export { AuthServiceContainer } from '../../data/factories/auth-service.container';

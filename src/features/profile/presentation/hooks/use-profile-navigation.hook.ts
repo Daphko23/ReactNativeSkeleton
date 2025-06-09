@@ -4,17 +4,19 @@
  */
 
 import React from 'react';
-
+// import { PROFILE_CONSTANTS } from '../constants/profile.constants';
 
 export interface UseProfileNavigationParams {
   navigation: any;
-  avatarUrl: string | null;
+  avatarUrl?: string | null;
 }
 
 export interface UseProfileNavigationReturn {
-  // Navigation Handlers
+  // Core Navigation Handlers
   navigateToProfileEdit: () => void;
   navigateToAvatarUpload: () => void;
+  
+  // Settings Navigation Handlers
   navigateToAccountSettings: () => void;
   navigateToCustomFieldsEdit: () => void;
   navigateToPrivacySettings: () => void;
@@ -22,8 +24,9 @@ export interface UseProfileNavigationReturn {
   navigateToSkillsManagement: () => void;
   navigateToSocialLinksEdit: () => void;
   
-  // Navigation State
+  // Navigation state tracking
   shouldCheckForAvatarUpdate: React.MutableRefObject<boolean>;
+  shouldCheckForProfileUpdate: React.MutableRefObject<boolean>;
 }
 
 export const useProfileNavigation = ({ 
@@ -31,11 +34,18 @@ export const useProfileNavigation = ({
   avatarUrl 
 }: UseProfileNavigationParams): UseProfileNavigationReturn => {
   
-  // Navigation state to track avatar uploads
+  // Navigation state to track updates
   const shouldCheckForAvatarUpdate = React.useRef<boolean>(false);
+  const shouldCheckForProfileUpdate = React.useRef<boolean>(false);
 
   // Core Navigation Handlers
   const navigateToProfileEdit = React.useCallback(() => {
+    // Set flag that we're going to profile edit
+    // This will trigger profile refresh when we return
+    shouldCheckForProfileUpdate.current = true;
+    
+    console.log('🎯 useProfileNavigation - Navigating to ProfileEdit, will check for updates on return');
+    
     // TODO: Analytics tracking
     // analytics.track(PROFILE_CONSTANTS.ANALYTICS_EVENTS.EDIT_PROFILE_CLICKED);
     navigation.navigate('ProfileEdit');
@@ -64,6 +74,11 @@ export const useProfileNavigation = ({
   }, [navigation]);
 
   const navigateToCustomFieldsEdit = React.useCallback(() => {
+    // Set flag for potential profile updates
+    shouldCheckForProfileUpdate.current = true;
+    
+    console.log('🎯 useProfileNavigation - Navigating to CustomFieldsEdit, will check for updates on return');
+    
     // TODO: Analytics tracking
     // analytics.track(PROFILE_CONSTANTS.ANALYTICS_EVENTS.CUSTOM_FIELDS_CLICKED);
     navigation.navigate('CustomFieldsEdit');
@@ -75,28 +90,40 @@ export const useProfileNavigation = ({
     navigation.navigate('PrivacySettings');
   }, [navigation]);
 
-  const navigateToProfileAvatarDemo = React.useCallback(() => {
-    // TODO: Analytics tracking
-    // analytics.track(PROFILE_CONSTANTS.ANALYTICS_EVENTS.AVATAR_DEMO_CLICKED);
-    navigation.navigate('ProfileAvatarDemo');
-  }, [navigation]);
-
   const navigateToSkillsManagement = React.useCallback(() => {
+    // Set flag for potential profile updates (skills are part of profile)
+    shouldCheckForProfileUpdate.current = true;
+    
+    console.log('🎯 useProfileNavigation - Navigating to SkillsManagement, will check for updates on return');
+    
     // TODO: Analytics tracking
     // analytics.track(PROFILE_CONSTANTS.ANALYTICS_EVENTS.SKILLS_MANAGEMENT_CLICKED);
     navigation.navigate('SkillsManagement');
   }, [navigation]);
 
   const navigateToSocialLinksEdit = React.useCallback(() => {
+    // Set flag for potential profile updates (social links are part of profile)
+    shouldCheckForProfileUpdate.current = true;
+    
+    console.log('🎯 useProfileNavigation - Navigating to SocialLinksEdit, will check for updates on return');
+    
     // TODO: Analytics tracking
     // analytics.track(PROFILE_CONSTANTS.ANALYTICS_EVENTS.SOCIAL_LINKS_CLICKED);
     navigation.navigate('SocialLinksEdit');
   }, [navigation]);
 
+  const navigateToProfileAvatarDemo = React.useCallback(() => {
+    // TODO: Analytics tracking
+    // analytics.track(PROFILE_CONSTANTS.ANALYTICS_EVENTS.AVATAR_DEMO_CLICKED);
+    navigation.navigate('ProfileAvatarDemo');
+  }, [navigation]);
+
   return {
-    // Navigation Handlers
+    // Core Navigation Handlers
     navigateToProfileEdit,
     navigateToAvatarUpload,
+    
+    // Settings Navigation Handlers
     navigateToAccountSettings,
     navigateToCustomFieldsEdit,
     navigateToPrivacySettings,
@@ -104,7 +131,8 @@ export const useProfileNavigation = ({
     navigateToSkillsManagement,
     navigateToSocialLinksEdit,
     
-    // Navigation State
+    // Navigation state tracking
     shouldCheckForAvatarUpdate,
+    shouldCheckForProfileUpdate,
   };
 }; 

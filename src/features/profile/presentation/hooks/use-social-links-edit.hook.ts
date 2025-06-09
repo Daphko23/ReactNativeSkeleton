@@ -17,6 +17,7 @@ import {
 import { 
   DEFAULT_SOCIAL_PLATFORMS,
 } from '../../domain/types/social-links.types';
+import { useProfile } from './use-profile.hook';
 
 // Service interface for Social Links
 interface SocialLinksService {
@@ -72,15 +73,10 @@ const SOCIAL_LINKS_CONSTANTS = {
   MAX_USERNAME_LENGTH: 100,
 } as const;
 
-const VALIDATION_ERROR_MESSAGES = {
-  INVALID_FORMAT: 'Ungültiges Format',
-  TOO_LONG: 'Zu lang',
-  TOO_SHORT: 'Zu kurz',
-  DUPLICATE: 'Bereits vorhanden',
-} as const;
+// Removed hardcoded validation messages - now using i18n only
 
 // Mock Social Links Service - Enterprise Pattern
-const mockSocialLinksService: SocialLinksService = {
+const _mockSocialLinksService: SocialLinksService = {
   getSocialLinks: async () => {
     await new Promise(resolve => setTimeout(resolve, 600));
     return [
@@ -145,19 +141,24 @@ export const useSocialLinksEdit = (_navigation?: any): UseSocialLinksEditReturn 
   t: (key: string, options?: any) => string;
   testIds: typeof SOCIAL_LINKS_TEST_IDS;
   socialPlatforms: SocialPlatformDefinition[];
+  getInputValue: (platform: SocialPlatformKey) => string;
 } => {
   // Dependencies
   const { t } = useTranslation();
   const { theme } = useTheme();
+  
+
+  
+  // Profile integration
+  const { profile, updateProfile, isLoading: profileIsLoading, isUpdating } = useProfile();
 
   // State Management
   const [socialLinks, setSocialLinks] = useState<SocialLink[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [isSaving, setIsSaving] = useState(false);
   const [hasChanges, setHasChanges] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [validationErrors, setValidationErrors] = useState<Record<string, string>>({});
   const [initialLinks, setInitialLinks] = useState<SocialLink[]>([]);
+  const [inputValues, setInputValues] = useState<Record<string, string>>({});
 
   // Social Platforms Configuration
   const socialPlatforms = useMemo<SocialPlatformDefinition[]>(() => 
@@ -181,10 +182,49 @@ export const useSocialLinksEdit = (_navigation?: any): UseSocialLinksEditReturn 
     ),
   [socialPlatforms, socialLinks]);
 
-  // Load initial data
+  // Load social links from profile (only once on mount)
   useEffect(() => {
-    loadSocialLinks();
-  }, []);
+    if (profile?.socialLinks && initialLinks.length === 0) {
+      // Reverse mapping from profile format to platform keys
+      const reversePlatformMapping: Record<string, string> = {
+        'linkedIn': 'linkedin',
+        'twitter': 'twitter',
+        'github': 'github', 
+        'instagram': 'instagram',
+        'facebook': 'facebook',
+        'youtube': 'youtube',
+        'tiktok': 'tiktok'
+      };
+      
+      // Convert profile social links to SocialLink format
+      const links: SocialLink[] = Object.entries(profile.socialLinks)
+        .filter(([_, url]) => url) // Only include non-empty links
+        .map(([profileKey, url]) => {
+          const platformKey = reversePlatformMapping[profileKey] || profileKey.toLowerCase();
+          const platformConfig = socialPlatforms.find(p => p.key === platformKey);
+          return {
+            platform: platformKey as SocialPlatformKey,
+            url: url as string,
+            username: platformConfig?.extractUsername ? platformConfig.extractUsername(url as string) : undefined,
+            isPublic: true,
+            verified: false
+          };
+        });
+      
+      console.log('🔍 Loaded Social Links from Profile:', profile.socialLinks);
+      console.log('🔍 Converted to SocialLink[]:', links);
+      
+      setSocialLinks(links);
+      setInitialLinks([...links]);
+      
+      // Initialize input values
+      const inputVals = links.reduce((acc, link) => {
+        acc[link.platform] = link.url;
+        return acc;
+      }, {} as Record<string, string>);
+      setInputValues(inputVals);
+    }
+  }, [profile, initialLinks.length, socialPlatforms]);
 
   // Track changes
   useEffect(() => {
@@ -194,22 +234,12 @@ export const useSocialLinksEdit = (_navigation?: any): UseSocialLinksEditReturn 
   }, [socialLinks, initialLinks]);
 
   /**
-   * Load social links from service
+   * Helper to extract username from URL
    */
-  const loadSocialLinks = useCallback(async () => {
-    try {
-      setIsLoading(true);
-      setError(null);
-      const links = await mockSocialLinksService.getSocialLinks();
-      setSocialLinks(links);
-      setInitialLinks([...links]);
-    } catch {
-      console.error('Failed to load social links:');
-      setError(t('socialLinks.errors.loadFailed'));
-    } finally {
-      setIsLoading(false);
-    }
-  }, [t]);
+  const _extractUsernameFromUrl = useCallback((platform: SocialPlatformKey, url: string): string | undefined => {
+    const platformConfig = socialPlatforms.find(p => p.key === platform);
+    return platformConfig?.extractUsername ? platformConfig.extractUsername(url) : undefined;
+  }, [socialPlatforms]);
 
   /**
    * Validate social link
@@ -228,7 +258,7 @@ export const useSocialLinksEdit = (_navigation?: any): UseSocialLinksEditReturn 
     if (!platformConfig) {
       setValidationErrors(prev => ({
         ...prev,
-        [platform]: VALIDATION_ERROR_MESSAGES.INVALID_FORMAT
+        [platform]: t('profile.socialLinks.validation.invalid', { platform: platform })
       }));
       return false;
     }
@@ -237,7 +267,7 @@ export const useSocialLinksEdit = (_navigation?: any): UseSocialLinksEditReturn 
     if (value.length > SOCIAL_LINKS_CONSTANTS.MAX_URL_LENGTH) {
       setValidationErrors(prev => ({
         ...prev,
-        [platform]: t('socialLinks.validation.tooLong', { max: SOCIAL_LINKS_CONSTANTS.MAX_URL_LENGTH })
+        [platform]: t('profile.socialLinks.validation.tooLong', { max: SOCIAL_LINKS_CONSTANTS.MAX_URL_LENGTH })
       }));
       return false;
     }
@@ -245,7 +275,7 @@ export const useSocialLinksEdit = (_navigation?: any): UseSocialLinksEditReturn 
     if (value.length < SOCIAL_LINKS_CONSTANTS.MIN_USERNAME_LENGTH) {
       setValidationErrors(prev => ({
         ...prev,
-        [platform]: t('socialLinks.validation.tooShort', { min: SOCIAL_LINKS_CONSTANTS.MIN_USERNAME_LENGTH })
+        [platform]: t('profile.socialLinks.validation.tooShort', { min: SOCIAL_LINKS_CONSTANTS.MIN_USERNAME_LENGTH })
       }));
       return false;
     }
@@ -256,7 +286,7 @@ export const useSocialLinksEdit = (_navigation?: any): UseSocialLinksEditReturn 
     if (!isValid) {
       setValidationErrors(prev => ({
         ...prev,
-        [platform]: t('socialLinks.validation.invalid', { platform: platformConfig.name })
+        [platform]: t('profile.socialLinks.validation.invalid', { platform: platformConfig.name })
       }));
       return false;
     }
@@ -275,10 +305,15 @@ export const useSocialLinksEdit = (_navigation?: any): UseSocialLinksEditReturn 
    * Update social link
    */
   const updateSocialLink = useCallback((platform: SocialPlatformKey, value: string) => {
+    // Always update input value immediately for responsive UI
+    setInputValues(prev => ({
+      ...prev,
+      [platform]: value
+    }));
+    
     const isValid = validateLink(platform, value);
     
-    if (!isValid) return;
-
+    // Update social links state only for valid values or empty (to remove)
     setSocialLinks(prev => {
       const existingIndex = prev.findIndex(link => link.platform === platform);
       const trimmedValue = value.trim();
@@ -286,6 +321,11 @@ export const useSocialLinksEdit = (_navigation?: any): UseSocialLinksEditReturn 
       if (!trimmedValue) {
         // Remove link if empty
         return prev.filter(link => link.platform !== platform);
+      }
+      
+      // Only update social links if valid
+      if (!isValid) {
+        return prev; // Keep existing state for invalid input
       }
       
       const platformConfig = socialPlatforms.find(p => p.key === platform);
@@ -336,48 +376,74 @@ export const useSocialLinksEdit = (_navigation?: any): UseSocialLinksEditReturn 
   const saveSocialLinks = useCallback(async () => {
     if (hasValidationErrors) {
       Alert.alert(
-        t('socialLinks.validation.hasErrors.title'),
-        t('socialLinks.validation.hasErrors.message')
+        t('profile.socialLinks.validation.hasErrors.title'),
+        t('profile.socialLinks.validation.hasErrors.message')
       );
       return false;
     }
 
     try {
-      setIsSaving(true);
       setError(null);
       
-      const result = await mockSocialLinksService.updateSocialLinks(socialLinks);
+      // Convert SocialLink[] to socialLinks object format for profile
+      // Map platform keys to match repository expectations
+      const platformMapping: Record<string, string> = {
+        'linkedin': 'linkedIn',
+        'twitter': 'twitter', 
+        'github': 'github',
+        'instagram': 'instagram',
+        'facebook': 'facebook',
+        'youtube': 'youtube',
+        'tiktok': 'tiktok'
+      };
       
-      if (result.success) {
+      const socialLinksUpdate = socialLinks.reduce((acc, link) => {
+        const mappedKey = platformMapping[link.platform] || link.platform;
+        acc[mappedKey] = link.url;
+        return acc;
+      }, {} as Record<string, string>);
+
+      console.log('🔍 Social Links Update:', socialLinksUpdate);
+      
+      const success = await updateProfile({
+        socialLinks: socialLinksUpdate
+      });
+      
+      if (success) {
         setInitialLinks([...socialLinks]);
         setHasChanges(false);
+        console.log('🔍 EXACT KEY TEST:', {
+          profileKey: t('profile.socialLinks.save.success.title'),
+          directTest: t('profile', { ns: 'translation', returnObjects: true }),
+          currentLang: t('common.save') // Test if i18n works at all
+        });
+        
         Alert.alert(
-          t('socialLinks.save.success.title'),
-          t('socialLinks.save.success.message')
+          t('profile.socialLinks.save.success.title'),
+          t('profile.socialLinks.save.success.message')
         );
         return true;
       }
       
       throw new Error('Save failed');
-    } catch {
-      setError(t('socialLinks.errors.saveFailed'));
+    } catch (error) {
+      console.error('❌ Save Social Links Error:', error);
+      setError(t('profile.socialLinks.errors.saveFailed'));
       Alert.alert(
-        t('socialLinks.save.error.title'),
-        t('socialLinks.save.error.message')
+        t('profile.socialLinks.save.error.title'),
+        t('profile.socialLinks.save.error.message')
       );
       return false;
-    } finally {
-      setIsSaving(false);
     }
-  }, [socialLinks, hasValidationErrors, t]);
+  }, [socialLinks, hasValidationErrors, t, updateProfile]);
 
   /**
    * Reset to initial state
    */
   const resetSocialLinks = useCallback(() => {
     Alert.alert(
-      t('socialLinks.reset.title'),
-      t('socialLinks.reset.message'),
+      t('profile.socialLinks.reset.title'),
+      t('profile.socialLinks.reset.message'),
       [
         { text: t('common.cancel'), style: 'cancel' },
         {
@@ -404,14 +470,14 @@ export const useSocialLinksEdit = (_navigation?: any): UseSocialLinksEditReturn 
         await Linking.openURL(link.url);
       } else {
         Alert.alert(
-          t('socialLinks.open.error.title'),
-          t('socialLinks.open.error.message')
+          t('profile.socialLinks.open.error.title'),
+          t('profile.socialLinks.open.error.message')
         );
       }
     } catch {
       Alert.alert(
-        t('socialLinks.open.error.title'),
-        t('socialLinks.open.error.message')
+        t('profile.socialLinks.open.error.title'),
+        t('profile.socialLinks.open.error.message')
       );
     }
   }, [t]);
@@ -422,6 +488,13 @@ export const useSocialLinksEdit = (_navigation?: any): UseSocialLinksEditReturn 
   const getSocialLinkData = useCallback((platform: SocialPlatformKey): SocialLink | undefined => {
     return socialLinks.find(link => link.platform === platform);
   }, [socialLinks]);
+
+  /**
+   * Get input value for platform
+   */
+  const getInputValue = useCallback((platform: SocialPlatformKey): string => {
+    return inputValues[platform] || '';
+  }, [inputValues]);
 
   /**
    * Get platform icon
@@ -449,8 +522,8 @@ export const useSocialLinksEdit = (_navigation?: any): UseSocialLinksEditReturn 
   return {
     // Interface requirements
     socialLinks,
-    isLoading,
-    isSaving,
+    isLoading: profileIsLoading,
+    isSaving: isUpdating,
     hasChanges,
     error,
     validationErrors,
@@ -497,5 +570,6 @@ export const useSocialLinksEdit = (_navigation?: any): UseSocialLinksEditReturn 
     theme,
     t,
     testIds: SOCIAL_LINKS_TEST_IDS,
+    getInputValue,
   };
 }; 

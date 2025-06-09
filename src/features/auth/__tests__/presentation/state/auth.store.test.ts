@@ -6,6 +6,55 @@
 
 import {act} from 'react-test-renderer';
 
+// Mock the entire AuthContainer to prevent DI issues
+jest.mock('../../../application/di/auth.container', () => ({
+  authContainer: {
+    isReady: jest.fn().mockReturnValue(true),
+    get loginWithEmailUseCase() {
+      return {
+        execute: jest.fn().mockResolvedValue({
+          id: 'mock-user-id',
+          email: 'mockuser@example.com',
+          emailVerified: true,
+          firstName: 'Mock',
+          lastName: 'User',
+          displayName: 'Mock User',
+          photoURL: 'http://mock.photo.url',
+          roles: ['user'],
+          status: 'active',
+          role: 'user',
+        }),
+      };
+    },
+    get registerWithEmailUseCase() {
+      return {
+        execute: jest.fn().mockResolvedValue({
+          id: 'mock-new-id',
+          email: 'newuser@example.com',
+          emailVerified: false,
+          firstName: 'New',
+          lastName: 'User',
+          displayName: 'New User',
+          photoURL: null,
+          roles: ['user'],
+          status: 'active',
+          role: 'user',
+        }),
+      };
+    },
+    get logoutUseCase() {
+      return {
+        execute: jest.fn().mockResolvedValue(undefined),
+      };
+    },
+    get passwordResetUseCase() {
+      return {
+        execute: jest.fn().mockResolvedValue(undefined),
+      };
+    },
+  },
+}));
+
 // Mock dependencies locally since DI provider doesn't exist yet
 const _mockAuthRepository = {
   login: jest.fn(),

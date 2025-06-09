@@ -1,6 +1,7 @@
 /**
  * Represents a user authenticated via Supabase with Enterprise features.
  */
+import { UserStatus } from '../types/security.types';
 export interface AuthUser {
   /** Unique identifier from Supabase Authentication. */
   id: string;
@@ -21,7 +22,7 @@ export interface AuthUser {
   /** Last login timestamp */
   lastLoginAt?: Date;
   /** Account status */
-  status?: 'active' | 'suspended' | 'pending_verification';
+  status?: 'active' | 'suspended' | 'pending_verification' | UserStatus;
   /** Email verification status */
   emailVerified?: boolean;
   /** Phone number for SMS MFA */

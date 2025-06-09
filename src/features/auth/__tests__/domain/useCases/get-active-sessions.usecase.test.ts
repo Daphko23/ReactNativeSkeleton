@@ -8,7 +8,7 @@ import { GetActiveSessionsUseCase } from '../../../application/usecases/get-acti
 import { UserNotAuthenticatedError } from '../../../domain/errors/user-not-authenticated.error';
 import { SecurityEventType, SecurityEventSeverity } from '../../../domain/types/security.types';
 import { UserSession } from '../../../domain/entities/auth-user.interface';
-import { createMockAuthRepository, mockAuthUser, mockUserSession } from '../../mocks/auth-repository.mock';
+import { createMockAuthRepository, mockUserSession, mockAuthUser } from '../../mocks/auth-repository.mock';
 
 describe('GetActiveSessionsUseCase', () => {
   const mockRepository = createMockAuthRepository();

@@ -60,7 +60,8 @@
  * @namespace Auth.Domain.Repository
  */
 
-import { AuthUser, MFAFactor, UserSession } from '../entities/auth-user.interface';
+import { AuthUser } from '../entities/auth-user.entity';
+import { MFAFactor, UserSession } from '../entities/auth-user.interface';
 import {
   SecurityEventSeverity,
   SecurityEventType,
@@ -70,6 +71,9 @@ import {
 
 // Re-export security types for use in other modules
 export { SecurityEventSeverity, SecurityEventType, PasswordStrength, MFAType };
+
+// Re-export entity types for use in other modules
+export type { MFAFactor, UserSession };
 
 
 

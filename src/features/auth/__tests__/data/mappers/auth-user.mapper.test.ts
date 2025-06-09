@@ -5,7 +5,6 @@
  */
 
 import { AuthUserMapper } from '../../../data/mappers/auth-user.mapper';
-import { AuthUser } from '../../../domain/entities/auth-user.interface';
 import { User } from '@supabase/supabase-js';
 
 describe('AuthUserMapper - ENTERPRISE DATA TRANSFORMATION', () => {
@@ -528,7 +527,7 @@ describe('AuthUserMapper - ENTERPRISE DATA TRANSFORMATION', () => {
 
       it('should handle concurrent transformations', async () => {
         const promises = Array(100).fill(null).map((_, index) => {
-          return new Promise<AuthUser>((resolve) => {
+          return new Promise<any>((resolve) => {
             const supabaseUser: User = {
               id: `concurrent-user-${index}`,
               email: `concurrent${index}@test.com`,
@@ -546,7 +545,7 @@ describe('AuthUserMapper - ENTERPRISE DATA TRANSFORMATION', () => {
         const results = await Promise.all(promises);
 
         expect(results).toHaveLength(100);
-        results.forEach((result, index) => {
+        results.forEach((result: any, index: number) => {
           expect(result.id).toBe(`concurrent-user-${index}`);
           expect(result.email).toBe(`concurrent${index}@test.com`);
         });

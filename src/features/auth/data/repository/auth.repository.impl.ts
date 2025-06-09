@@ -53,7 +53,7 @@ import {
   SecurityEvent,
   SecurityAlert,
 } from '../../domain/interfaces/auth.repository.interface';
-import { AuthUser } from '../../domain/entities/auth-user.interface';
+import { AuthUser } from '../../domain/entities/auth-user.entity';
 import { AuthDatasource as _AuthDatasource } from '../interfaces/auth.datasource.interface';
 import { AuthUserDto } from '../dtos/auth-user.dto';
 import { AuthSupabaseDatasource } from '../sources/auth.supabase.datasource';
@@ -283,25 +283,37 @@ export class AuthRepositoryImpl implements AuthRepository {
           service: 'AuthRepository',
           metadata: { email, status: 'pending_verification' }
         });
-        // For Supabase with email confirmation, we create a temporary user object
+        // For Supabase with email confirmation, we create a temporary user entity
         // The real user will be available after email confirmation
-        return {
+        return new AuthUser({
           id: 'pending-confirmation',
           email: email,
-          displayName: undefined,
-          photoURL: undefined,
-          // Enterprise fields with defaults
-          roles: [UserRole.USER],
-          permissions: [],
-          mfaEnabled: false,
-          mfaFactors: [],
-          status: UserStatus.PENDING_VERIFICATION,
-          lastLoginAt: undefined,
           emailVerified: false,
-          phoneNumber: undefined,
-          phoneVerified: false,
-          metadata: {},
-        };
+          firstName: undefined,
+          lastName: undefined,
+          status: UserStatus.PENDING_VERIFICATION,
+          role: UserRole.USER,
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+          profile: {
+            displayName: undefined,
+            avatarUrl: undefined,
+            phoneNumber: undefined,
+            phoneVerified: false,
+          },
+          metadata: {
+            lastLoginAt: new Date().toISOString(),
+            lastActiveAt: new Date().toISOString(),
+            loginCount: 1,
+            deviceCount: 1,
+            mfaEnabled: false,
+            biometricEnabled: false,
+            securityScore: 50,
+            riskLevel: 'low',
+            language: 'en',
+            timezone: 'UTC',
+          },
+        });
       }
 
       this.logger.info('User registration successful', LogCategory.SECURITY, {
@@ -1435,8 +1447,7 @@ export class AuthRepositoryImpl implements AuthRepository {
       // Map to domain entity
       const verifiedUser = this.mapDtoToEntity(userDto);
       
-      // Ensure email verified flag is set
-      verifiedUser.emailVerified = true;
+      // Note: Email verification is handled in the constructor during entity creation
 
       this.logger.info('Email verification completed successfully', LogCategory.AUTHENTICATION, {
         service: 'AuthRepository',
@@ -1496,22 +1507,34 @@ export class AuthRepositoryImpl implements AuthRepository {
    * @returns Domain entity
    */
   private mapDtoToEntity(dto: AuthUserDto): AuthUser {
-    return {
+    return new AuthUser({
       id: dto.id,
       email: dto.email,
-      displayName: dto.displayName || undefined,
-      photoURL: dto.photoURL || undefined,
-      // Enterprise fields with defaults
-      roles: [UserRole.USER],
-      permissions: [],
-      mfaEnabled: false,
-      mfaFactors: [],
+      emailVerified: dto.emailVerified || false,
+      firstName: dto.displayName?.split(' ')[0],
+      lastName: dto.displayName?.split(' ').slice(1).join(' ') || undefined,
       status: UserStatus.ACTIVE,
-      lastLoginAt: new Date(),
-      emailVerified: true,
-      phoneNumber: undefined,
-      phoneVerified: false,
-      metadata: {},
-    };
+      role: UserRole.USER,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+      profile: {
+        displayName: dto.displayName || undefined,
+        avatarUrl: dto.photoURL || undefined,
+        phoneNumber: undefined,
+        phoneVerified: false,
+      },
+      metadata: {
+        lastLoginAt: new Date().toISOString(),
+        lastActiveAt: new Date().toISOString(),
+        loginCount: 1,
+        deviceCount: 1,
+        mfaEnabled: false,
+        biometricEnabled: false,
+        securityScore: 50,
+        riskLevel: 'low',
+        language: 'en',
+        timezone: 'UTC',
+      },
+    });
   }
 }

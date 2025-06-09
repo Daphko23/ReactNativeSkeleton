@@ -161,4 +161,28 @@ export const createLoginScreenStyles = (theme: any) => StyleSheet.create({
     textAlign: 'center',
     textDecorationLine: 'underline',
   },
+
+  // Phase 3 Info Container Styles
+  infoContainer: {
+    marginTop: theme.spacing[6],
+    padding: theme.spacing[4],
+    backgroundColor: theme.colors.primaryContainer,
+    borderRadius: theme.borderRadius.md,
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: theme.colors.primary,
+  },
+  infoText: {
+    fontSize: theme.typography.fontSizes.sm,
+    fontWeight: theme.typography.fontWeights.bold,
+    color: theme.colors.onPrimaryContainer,
+    textAlign: 'center',
+    marginBottom: theme.spacing[2],
+  },
+  infoSubtext: {
+    fontSize: theme.typography.fontSizes.xs,
+    color: theme.colors.onPrimaryContainer,
+    textAlign: 'center',
+    opacity: 0.8,
+  },
 });

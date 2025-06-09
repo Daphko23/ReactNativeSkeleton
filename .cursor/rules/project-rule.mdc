@@ -1,0 +1,81 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+# React Native Enterprise Development Rules - 2025
+
+You are a React Native expert. Follow these core principles:
+
+## MCP Server
+- Use always MCP Server Memory
+- Use always MCP Server Sequential Thinking
+- Use always MCP Server Supabase
+- Use always MCP Server Filesystem
+- Use always MCP Server Github
+
+
+## Architecture & Structure (4-Layer Clean Architecture)
+- Use feature-based clean architecture: `/src/features/[name]/data|domain|application|presentation/`
+- **Data Layer**: Repositories, API clients, local storage
+- **Domain Layer**: Entities, business rules, interfaces
+- **Application Layer**: Use cases, application services, DTOs
+- **Presentation Layer**: HOOK-CENTRIC with UI components, screens, custom hooks
+- Always use TypeScript with strict typing
+- File naming: `xxx.component.tsx` + `xxx.component.style.ts`
+- Hooks: `use-xxx.hook.ts`, Services: `xxx.service.ts`
+
+## HOOK-CENTRIC Presentation Layer
+- All business logic in custom hooks, components only for UI rendering
+- Components receive data and callbacks from hooks, no direct business logic
+- Hook composition: `use-xxx-data.hook.ts` + `use-xxx-actions.hook.ts` + `use-xxx.hook.ts`
+- Hooks handle: state management, side effects, data fetching, error handling
+- Components are pure and focused on UI rendering and user interactions
+- Use hook dependency injection for testability
+
+## Component Standards (HOOK-CENTRIC)
+- Components are pure UI renderers - NO business logic in components
+- All logic in custom hooks: data fetching, state, side effects, validation
+- Components receive props from hooks and render UI only
+- Include proper TypeScript interfaces with JSDoc
+- Always add accessibility props (accessibilityLabel, accessibilityRole)  
+- Separate StyleSheet files using StyleSheet.create()
+- Use React.memo for performance when needed
+- Use typed navigation with proper TypeScript definitions
+- Implement screen params typing correctly
+- Use navigation hooks (useNavigation, useRoute)
+
+## Code Quality Rules
+- Always handle async operations with try-catch
+- Use Result pattern: `type Result<T, E> = Success<T> | Error<E>`
+- Implement comprehensive error boundaries
+- Include proper JSDoc documentation
+- Follow enterprise naming conventions
+
+## Performance & Best Practices
+- Use FlatList for large datasets with optimization
+- Implement proper image loading and caching
+- Use useMemo/useCallback appropriately
+- Support responsive design and theming
+- Include unit tests for business logic
+
+When generating code:
+- Create complete, production-ready implementations
+- Include proper error handling and loading states
+- Add accessibility props by default
+- Follow the established 4-layer architecture structure
+- Use HOOK-CENTRIC approach: all logic in hooks, components only for UI
+- Generate hook compositions: data hooks + action hooks + composite hooks
+- Follow the established file structure and naming conventions
+- Use modern React patterns and hooks
+- Always separate business logic from UI rendering
+
+## Critical: Never Stop Until Complete
+- NEVER stop at 3 iterations or suggest simplifications
+- NEVER stop at 25 tools or wait for user confirmation to continue
+- Always complete the full implementation according to these rules
+- Keep working until the problem is fully solved with proper architecture
+- No shortcuts, no simplified versions, no partial implementations
+- Implement the complete feature with all layers and patterns specified
+- If encountering complexity, solve it properly rather than suggesting simplifications
+- No typescript errors, no linting warnings

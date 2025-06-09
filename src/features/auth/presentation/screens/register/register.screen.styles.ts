@@ -336,4 +336,37 @@ export const createRegisterScreenStyles = (theme: any) => StyleSheet.create({
     textAlign: 'center',
     textDecorationLine: 'underline',
   },
+
+  // ===================================
+  // MISSING STYLES FOR V2 SCREEN
+  // ===================================
+  infoContainer: {
+    backgroundColor: theme.colors.info,
+    borderRadius: theme.borderRadius.md,
+    padding: theme.spacing[4],
+    marginTop: theme.spacing[4],
+    alignItems: 'center',
+  },
+
+  infoText: {
+    fontSize: theme.typography.fontSizes.base,
+    fontWeight: theme.typography.fontWeights.semibold,
+    color: theme.colors.textInverse,
+    textAlign: 'center',
+  },
+
+  infoSubtext: {
+    fontSize: theme.typography.fontSizes.sm,
+    color: theme.colors.textInverse,
+    textAlign: 'center',
+    marginTop: theme.spacing[2],
+  },
+
+  inputLabel: {
+    fontSize: theme.typography.fontSizes.base,
+    color: theme.colors.text,
+    marginBottom: theme.spacing[3],
+    textAlign: 'center',
+    lineHeight: 24,
+  },
 });

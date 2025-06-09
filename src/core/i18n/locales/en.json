@@ -476,6 +476,10 @@
       "summary": {
         "title": "Connected Accounts"
       },
+      "empty": {
+        "subtitle": "No social links added yet",
+        "action": "Add your first links"
+      },
       "tips": {
         "title": "Tips",
         "general": {
@@ -499,6 +503,55 @@
       },
       "actions": {
         "reset": "Reset changes"
+      },
+      "validation": {
+        "invalid": "Invalid link. Please enter a valid URL.",
+        "required": "This field is required"
+      },
+      "save": {
+        "success": {
+          "title": "Successfully saved",
+          "message": "Your social links have been successfully updated."
+        },
+        "error": {
+          "title": "Save failed",
+          "message": "Your changes could not be saved. Please try again."
+        }
+      }
+    },
+    "socialLinks": {
+      "validation": {
+        "invalid": "Invalid {{platform}} link. Please enter a valid URL.",
+        "required": "This field is required",
+        "tooLong": "Link is too long. Maximum {{max}} characters allowed.",
+        "tooShort": "Link is too short. Minimum {{min}} characters required.",
+        "hasErrors": {
+          "title": "Invalid inputs",
+          "message": "Please correct the errors before saving."
+        }
+      },
+      "save": {
+        "success": {
+          "title": "Successfully saved",
+          "message": "Your social links have been successfully updated."
+        },
+        "error": {
+          "title": "Save failed",
+          "message": "Your changes could not be saved. Please try again."
+        }
+      },
+      "errors": {
+        "saveFailed": "Failed to save social links"
+      },
+      "reset": {
+        "title": "Reset changes",
+        "message": "Do you want to reset all changes?"
+      },
+      "open": {
+        "error": {
+          "title": "Cannot open link",
+          "message": "The link could not be opened. Please check the URL."
+        }
       }
     },
     "skillsScreen": {
@@ -510,7 +563,15 @@
       "current": {
         "title": "Current Skills"
       },
+      "reassign": {
+        "title": "Change Category",
+        "message": "Change category for \"{{skill}}\"?"
+      },
+      "reassignAll": "All to {{category}}",
+      "reassignAll.title": "Move All Skills",
+      "reassignAll.message": "Do you want to move all {{count}} skills to \"{{category}}\"?",
       "categories": {
+        "hint": "Filter active - assign skills with button above",
         "title": "Categories",
         "technical": "Technical",
         "soft": "Soft Skills",
@@ -826,6 +887,13 @@
       "feature2": "Demo Data for Testing",
       "feature3": "Complete Clean Architecture",
       "errors": {}
+    }
+  },
+  "shared": {
+    "emptyList": {
+      "noItems": "No items available",
+      "noFilterResults": "No results found for current filters",
+      "noSearchResults": "No search results found"
     }
   },
   "settings": {

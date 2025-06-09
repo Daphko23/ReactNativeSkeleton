@@ -28,6 +28,7 @@ import { SocialLinksEditScreen } from '../screens/social-links-edit';
 import { CustomFieldsEditScreen } from '../screens/custom-fields-edit';
 import { ProfileAvatarDemoScreen } from '../screens/profile-avatar-demo/profile-avatar-demo.screen';
 
+
 /**
  * Type definition for the Profile navigation stack parameters.
  * 
@@ -217,6 +218,8 @@ export function ProfileNavigator(): React.JSX.Element {
           title: t('profile.avatarDemoScreen.title'),
         }}
       />
+
+
     </Stack.Navigator>
   );
 }

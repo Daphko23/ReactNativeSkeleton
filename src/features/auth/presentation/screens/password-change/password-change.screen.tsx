@@ -1,7 +1,7 @@
 /**
- * @fileoverview PRESENTATION-SCREEN-005: Optimized Enterprise Password Change Screen
- * @description Vollständig optimierter Password Change Screen mit Enterprise Features.
- * Bietet sichere Passwort-Änderung für angemeldete Benutzer mit modernem UX Design.
+ * @fileoverview PASSWORD-CHANGE-SCREEN: Hook-Centric Enterprise Password Change Screen
+ * @description Enterprise Password Change Screen mit Hook-Centric Architecture.
+ * Nutzt spezialisierte Auth Hooks für optimale Trennung von Business Logic und UI.
  * 
  * @businessRule BR-530: Secure password change for authenticated users
  * @businessRule BR-531: Current password verification required
@@ -10,14 +10,14 @@
  * @businessRule BR-534: Session invalidation after password change
  * @businessRule BR-535: Security audit logging for password changes
  * 
- * @architecture React functional component with hooks
- * @architecture Integration with enterprise auth services
- * @architecture Clean Architecture patterns
- * @architecture Responsive design with modern UX patterns
+ * @architecture React functional component with specialized auth hooks
+ * @architecture Clear separation: Hooks = Logic, Components = UI/UX
+ * @architecture Enterprise password management with security
+ * @architecture Hook-Centric Architecture (Phase 3)
  * 
- * @since 1.0.0
- * @version 2.0.0
- * @author ReactNativeSkeleton Enterprise Team
+ * @since 3.0.0
+ * @version 3.0.0
+ * @author ReactNativeSkeleton Phase3 Team
  * @module PasswordChangeScreen
  * @namespace Auth.Presentation.Screens
  */
@@ -30,17 +30,31 @@ import {
   Platform,
   Alert,
 } from 'react-native';
-import { Text, /* Card, Divider, ActivityIndicator, */ ProgressBar } from 'react-native-paper';
+import { Text, ProgressBar, ActivityIndicator } from 'react-native-paper';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+
+// ** NAVIGATION & UI COMPONENTS **
 import { AuthStackParamList } from '@core/navigation/navigation.types';
 import { PrimaryButton } from '@shared/components/buttons/primary-button.component';
 import { FormTextInput } from '@shared/components/form-text-input/form-text-input.component';
 import { FormErrorText } from '@shared/components/form-text-input/form-text-error.component';
-import { useTheme, createThemedStyles } from '@core/theme/theme.system';
-import { useAuth } from '@features/auth/presentation/hooks/use-auth';
+
+// ** HOOK-CENTRIC ARCHITECTURE - PHASE 3 **
+import { 
+  useAuthPassword,
+  useAuthSecurity,
+  useAuth 
+} from '@features/auth/presentation/hooks';
+
+// ** SHARED INFRASTRUCTURE **
+import { useTheme } from '@core/theme/theme.system';
 import { useTranslation } from 'react-i18next';
 import { withAuthGuard } from '@shared/hoc/with-auth.guard';
+
+// ** STYLES **
+import { createPasswordChangeStyles } from './password-change.screen.styles';
 
 /**
  * @interface PasswordChangeFormData
@@ -63,629 +77,462 @@ interface ValidationErrors {
 }
 
 /**
- * @interface PasswordStrength
- * @description Password strength analysis interface
+ * @interface TouchedFields
+ * @description Tracks which fields have been touched by the user
  */
-interface PasswordStrength {
-  score: number; // 0-4
-  feedback: string[];
-  isValid: boolean;
-  requirements: {
-    length: boolean;
-    uppercase: boolean;
-    lowercase: boolean;
-    numbers: boolean;
-    symbols: boolean;
-    notCommon: boolean;
-  };
+interface TouchedFields {
+  currentPassword: boolean;
+  newPassword: boolean;
+  confirmPassword: boolean;
 }
 
 /**
  * @component PasswordChangeScreen
- * @description Optimized Enterprise Password Change Screen
+ * @description Hook-Centric Enterprise Password Change Screen
  * 
- * Features:
- * - Current password verification
- * - Real-time password strength analysis
- * - Password policy enforcement
- * - Confirmation password matching
+ * ARCHITECTURE IMPROVEMENTS:
+ * ✅ useAuthPassword() - Password management & strength validation specialized hook
+ * ✅ useAuthSecurity() - Security audit & session management specialized hook
+ * ✅ useAuth() - Core authentication verification
+ * ✅ Reduced complexity: Focused UI logic with hook separation
+ * ✅ Better performance: Selective re-rendering through hook optimization
+ * ✅ Enhanced maintainability: Clear separation of concerns
+ * 
+ * FEATURES:
+ * - Current password verification via useAuth hook
+ * - Real-time password strength analysis via useAuthPassword hook
+ * - Password policy enforcement via useAuthPassword hook
+ * - Security audit logging via useAuthSecurity hook
  * - Session invalidation after change
- * - Security audit logging
  * - Loading states and error handling
  * - Accessibility support
- * - Responsive design
+ * - Enterprise security compliance
  */
-
-const useStyles = createThemedStyles((theme) => ({
-  // Container Styles
-  container: {
-    flex: 1,
-    backgroundColor: theme.colors.background,
-  },
-  scrollContainer: {
-    flexGrow: 1,
-    paddingHorizontal: theme.spacing[6],
-    paddingTop: theme.spacing[8],
-    paddingBottom: theme.spacing[10],
-  },
-
-  // Header Styles
-  header: {
-    marginBottom: theme.spacing[8],
-    alignItems: 'center' as const,
-  },
-  headerIcon: {
-    fontSize: theme.typography.fontSizes['4xl'],
-    marginBottom: theme.spacing[4],
-  },
-  title: {
-    fontSize: theme.typography.fontSizes['2xl'],
-    fontWeight: theme.typography.fontWeights.bold,
-    color: theme.colors.text,
-    textAlign: 'center' as const,
-    marginBottom: theme.spacing[2],
-    letterSpacing: -0.5,
-  },
-  subtitle: {
-    fontSize: theme.typography.fontSizes.base,
-    color: theme.colors.textSecondary,
-    textAlign: 'center' as const,
-    lineHeight: theme.typography.lineHeights.relaxed * theme.typography.fontSizes.base,
-    paddingHorizontal: theme.spacing[4],
-  },
-
-  // Form Styles
-  formContainer: {
-    gap: theme.spacing[5],
-  },
-  validationError: {
-    fontSize: theme.typography.fontSizes.sm,
-    color: theme.colors.error,
-    marginTop: -theme.spacing[4],
-    marginBottom: theme.spacing[1],
-    paddingHorizontal: theme.spacing[1],
-  },
-
-  // Password Strength Styles
-  strengthContainer: {
-    marginTop: theme.spacing[2],
-    padding: theme.spacing[4],
-    backgroundColor: theme.colors.backgroundSecondary,
-    borderRadius: theme.borderRadius.md,
-    borderWidth: 1,
-    borderColor: theme.colors.border,
-  },
-  strengthHeader: {
-    flexDirection: 'row' as const,
-    justifyContent: 'space-between' as const,
-    alignItems: 'center' as const,
-    marginBottom: theme.spacing[3],
-  },
-  strengthLabel: {
-    fontSize: theme.typography.fontSizes.sm,
-    fontWeight: theme.typography.fontWeights.medium,
-    color: theme.colors.text,
-  },
-  strengthScore: {
-    fontSize: theme.typography.fontSizes.sm,
-    fontWeight: theme.typography.fontWeights.semibold,
-  },
-  strengthBar: {
-    height: 6,
-    borderRadius: theme.borderRadius.sm,
-    marginBottom: theme.spacing[3],
-  },
-  
-  // Requirements Styles
-  requirementsContainer: {
-    marginTop: theme.spacing[2],
-  },
-  requirementsTitle: {
-    fontSize: theme.typography.fontSizes.sm,
-    fontWeight: theme.typography.fontWeights.medium,
-    color: theme.colors.text,
-    marginBottom: theme.spacing[2],
-  },
-  requirementItem: {
-    flexDirection: 'row' as const,
-    alignItems: 'center' as const,
-    marginBottom: theme.spacing[1],
-  },
-  requirementIcon: {
-    fontSize: theme.typography.fontSizes.sm,
-    marginRight: theme.spacing[2],
-    width: 16,
-  },
-  requirementText: {
-    fontSize: theme.typography.fontSizes.sm,
-    flex: 1,
-  },
-  requirementMet: {
-    color: theme.colors.success,
-  },
-  requirementUnmet: {
-    color: theme.colors.textSecondary,
-  },
-
-  // Feedback Styles
-  feedbackContainer: {
-    marginTop: theme.spacing[3],
-  },
-  feedbackTitle: {
-    fontSize: theme.typography.fontSizes.sm,
-    fontWeight: theme.typography.fontWeights.medium,
-    color: theme.colors.text,
-    marginBottom: theme.spacing[2],
-  },
-  feedbackItem: {
-    fontSize: theme.typography.fontSizes.sm,
-    color: theme.colors.warning,
-    marginBottom: theme.spacing[1],
-    paddingLeft: theme.spacing[2],
-  },
-
-  // Info Box Styles
-  infoBox: {
-    flexDirection: 'row' as const,
-    alignItems: 'flex-start' as const,
-    backgroundColor: theme.colors.info + '20',
-    borderRadius: theme.borderRadius.lg,
-    padding: theme.spacing[4],
-    marginTop: theme.spacing[4],
-    borderWidth: 1,
-    borderColor: theme.colors.info + '40',
-  },
-  infoIcon: {
-    fontSize: theme.typography.fontSizes.lg,
-    marginRight: theme.spacing[3],
-    marginTop: theme.spacing[1],
-  },
-  infoText: {
-    fontSize: theme.typography.fontSizes.sm,
-    color: theme.colors.info,
-    lineHeight: theme.typography.lineHeights.relaxed * theme.typography.fontSizes.sm,
-    flex: 1,
-  },
-
-  // Button Styles
-  submitButton: {
-    marginTop: theme.spacing[6],
-  },
-  backButton: {
-    marginTop: theme.spacing[4],
-    alignItems: 'center' as const,
-    paddingVertical: theme.spacing[3],
-  },
-  backButtonText: {
-    fontSize: theme.typography.fontSizes.base,
-    color: theme.colors.primary,
-    fontWeight: theme.typography.fontWeights.medium,
-  },
-}));
-
 const PasswordChangeScreen = () => {
-  const { user: _user, isLoading: _isLoading, error, clearError, enterprise: _enterprise } = useAuth();
-  const { t } = useTranslation();
-  const { theme } = useTheme();
-  const styles = useStyles(theme);
-  const navigation = useNavigation<NativeStackNavigationProp<AuthStackParamList>>();
+  // ** HOOK-CENTRIC ARCHITECTURE - PHASE 3 **
+  // Core authentication for verification
+  const { 
+    user: _user,
+    isLoading: isAuthLoading, 
+    error: authError, 
+    clearError: clearAuthError 
+  } = useAuth();
 
-  // Form State
+  // Password management specialized hook
+  const {
+    updatePassword,
+    validatePasswordStrength,
+    isLoading: isPasswordLoading,
+    error: passwordError,
+    clearError: clearPasswordError
+  } = useAuthPassword();
+
+  // Security management specialized hook
+  const {
+    hasPermission,
+    checkSuspiciousActivity,
+    isLoading: isSecurityLoading,
+    error: securityError,
+    clearError: clearSecurityError
+  } = useAuthSecurity();
+
+  // ** SHARED INFRASTRUCTURE **
+  const { t: _t } = useTranslation();
+  const navigation = useNavigation<NativeStackNavigationProp<AuthStackParamList>>();
+  const { theme } = useTheme();
+  const styles = createPasswordChangeStyles(theme);
+
+  // ** SIMPLIFIED STATE MANAGEMENT - UI ONLY **
   const [formData, setFormData] = useState<PasswordChangeFormData>({
     currentPassword: '',
     newPassword: '',
     confirmPassword: '',
   });
-
+  
   const [validationErrors, setValidationErrors] = useState<ValidationErrors>({});
+  const [touchedFields, setTouchedFields] = useState<TouchedFields>({
+    currentPassword: false,
+    newPassword: false,
+    confirmPassword: false,
+  });
   const [isFormValid, setIsFormValid] = useState(false);
   
-  // Password Strength State
-  const [passwordStrength, setPasswordStrength] = useState<PasswordStrength>({
-    score: 0,
-    feedback: [],
-    isValid: false,
+  // Password strength state from useAuthPassword hook
+  const [passwordStrength, setPasswordStrength] = useState<{
+    score: number;
+    feedback: string[];
+    isValid: boolean;
     requirements: {
-      length: false,
-      uppercase: false,
-      lowercase: false,
-      numbers: false,
-      symbols: false,
-      notCommon: false,
-    },
-  });
+      length: boolean;
+      uppercase: boolean;
+      lowercase: boolean;
+      numbers: boolean;
+      symbols: boolean;
+      notCommon: boolean;
+    };
+  } | null>(null);
 
-  // Loading State
-  const [isChangingPassword, setIsChangingPassword] = useState(false);
-  const [showPasswordRequirements, _setShowPasswordRequirements] = useState(false);
-
+  // ** LIFECYCLE HOOKS **
   // Clear errors when component focuses
   useFocusEffect(
     useCallback(() => {
-      clearError();
+      clearAuthError();
+      clearPasswordError();
+      clearSecurityError();
       setValidationErrors({});
-    }, [clearError])
+      setTouchedFields({
+        currentPassword: false,
+        newPassword: false,
+        confirmPassword: false,
+      });
+    }, [clearAuthError, clearPasswordError, clearSecurityError])
   );
 
-  // Form validation and password strength analysis
+  // Form validation
   useEffect(() => {
     validateForm();
-    if (formData.newPassword) {
-      analyzePasswordStrength(formData.newPassword);
-    }
-  }, [formData]);
+  }, [formData, passwordStrength]);
 
+  // Password strength analysis using useAuthPassword hook
+  useEffect(() => {
+    if (formData.newPassword && formData.newPassword.length > 0) {
+      const result = validatePasswordStrength(formData.newPassword);
+      // Convert hook result to expected format with requirements
+      const passwordStrengthWithRequirements = {
+        ...result,
+        requirements: {
+          length: formData.newPassword.length >= 8,
+          uppercase: /[A-Z]/.test(formData.newPassword),
+          lowercase: /[a-z]/.test(formData.newPassword),
+          numbers: /[0-9]/.test(formData.newPassword),
+          symbols: /[^a-zA-Z0-9]/.test(formData.newPassword),
+          notCommon: !['password', '123456', 'qwerty'].includes(formData.newPassword.toLowerCase()),
+        }
+      };
+      setPasswordStrength(passwordStrengthWithRequirements);
+    } else {
+      setPasswordStrength(null);
+    }
+  }, [formData.newPassword, validatePasswordStrength]);
+
+  // ** FORM VALIDATION LOGIC **
   /**
-   * Validate all form fields
+   * Validate form fields in real-time
    */
-  const validateForm = () => {
+  const validateForm = useCallback(() => {
     const errors: ValidationErrors = {};
     
     // Current password validation
     if (!formData.currentPassword) {
-      errors.currentPassword = t('auth.validation.currentPasswordRequired') || 'Aktuelles Passwort ist erforderlich';
+      errors.currentPassword = 'Aktuelles Passwort ist erforderlich';
+    } else if (formData.currentPassword.length < 6) {
+      errors.currentPassword = 'Aktuelles Passwort zu kurz';
     }
-
-    // New password validation
+    
+    // New password validation using useAuthPassword hook results
     if (!formData.newPassword) {
-      errors.newPassword = t('auth.validation.newPasswordRequired') || 'Neues Passwort ist erforderlich';
-    } else if (formData.newPassword.length < 8) {
-      errors.newPassword = t('auth.validation.passwordTooShort') || 'Passwort zu kurz (min. 8 Zeichen)';
+      errors.newPassword = 'Neues Passwort ist erforderlich';
+    } else if (passwordStrength && !passwordStrength.isValid) {
+      errors.newPassword = passwordStrength.feedback[0] || 'Passwort entspricht nicht den Richtlinien';
     } else if (formData.newPassword === formData.currentPassword) {
-      errors.newPassword = t('auth.validation.passwordSameAsCurrent') || 'Neues Passwort muss sich vom aktuellen unterscheiden';
+      errors.newPassword = 'Neues Passwort muss sich vom aktuellen unterscheiden';
     }
 
     // Confirm password validation
     if (!formData.confirmPassword) {
-      errors.confirmPassword = t('auth.validation.confirmPasswordRequired') || 'Passwort-Bestätigung ist erforderlich';
-    } else if (formData.confirmPassword !== formData.newPassword) {
-      errors.confirmPassword = t('auth.validation.passwordsDoNotMatch') || 'Passwörter stimmen nicht überein';
+      errors.confirmPassword = 'Passwort bestätigen erforderlich';
+    } else if (formData.newPassword !== formData.confirmPassword) {
+      errors.confirmPassword = 'Passwörter stimmen nicht überein';
     }
 
     setValidationErrors(errors);
-    setIsFormValid(
-      Object.keys(errors).length === 0 && 
-      !!formData.currentPassword && 
-      !!formData.newPassword && 
-      !!formData.confirmPassword &&
-      passwordStrength.isValid
-    );
-  };
-
-  /**
-   * Analyze password strength and requirements
-   */
-  const analyzePasswordStrength = async (password: string) => {
-    try {
-      // Real-time password strength analysis
-      const requirements = {
-        length: password.length >= 8,
-        uppercase: /[A-Z]/.test(password),
-        lowercase: /[a-z]/.test(password),
-        numbers: /\d/.test(password),
-        symbols: /[!@#$%^&*()_+\-={}|:";'\\<>?,./]/.test(password),
-        notCommon: !isCommonPassword(password),
-      };
-
-      const score = Object.values(requirements).filter(Boolean).length;
-      const feedback = generatePasswordFeedback(requirements, password);
-      
-      setPasswordStrength({
-        score: Math.min(score, 4),
-        feedback,
-        isValid: score >= 5, // All requirements must be met
-        requirements,
-      });
-    } catch (error) {
-      console.error('Failed to analyze password strength:', error);
-    }
-  };
-
-  /**
-   * Check if password is commonly used
-   */
-  const isCommonPassword = (password: string): boolean => {
-    const commonPasswords = [
-      'password', '123456', '123456789', 'qwerty', 'abc123',
-      'password123', 'admin', 'letmein', 'welcome', 'monkey'
-    ];
-    return commonPasswords.includes(password.toLowerCase());
-  };
-
-  /**
-   * Generate password feedback based on requirements
-   */
-  const generatePasswordFeedback = (requirements: any, _password: string): string[] => {
-    const feedback: string[] = [];
     
-    if (!requirements.length) {
-      feedback.push(t('auth.password.feedback.length') || 'Mindestens 8 Zeichen verwenden');
-    }
-    if (!requirements.uppercase) {
-      feedback.push(t('auth.password.feedback.uppercase') || 'Großbuchstaben hinzufügen');
-    }
-    if (!requirements.lowercase) {
-      feedback.push(t('auth.password.feedback.lowercase') || 'Kleinbuchstaben hinzufügen');
-    }
-    if (!requirements.numbers) {
-      feedback.push(t('auth.password.feedback.numbers') || 'Zahlen hinzufügen');
-    }
-    if (!requirements.symbols) {
-      feedback.push(t('auth.password.feedback.symbols') || 'Sonderzeichen hinzufügen');
-    }
-    if (!requirements.notCommon) {
-      feedback.push(t('auth.password.feedback.notCommon') || 'Kein häufig verwendetes Passwort');
-    }
-
-    return feedback;
-  };
+    // Form is valid if no errors and password strength is valid
+    const isValid = Object.keys(errors).length === 0 && 
+                   !!formData.currentPassword && !!formData.newPassword && 
+                   !!formData.confirmPassword &&
+                   (!passwordStrength || passwordStrength.isValid);
+    
+    setIsFormValid(isValid);
+  }, [formData, passwordStrength]);
 
   /**
-   * Update form field value
+   * Update form field value and mark as touched
    */
-  const updateFormField = (field: keyof PasswordChangeFormData, value: string) => {
+  const updateFormField = useCallback(<K extends keyof PasswordChangeFormData>(
+    field: K, 
+    value: PasswordChangeFormData[K]
+  ) => {
     setFormData(prev => ({ ...prev, [field]: value }));
-    clearError();
-  };
+    setTouchedFields(prev => ({ ...prev, [field]: true }));
+    clearAuthError();
+    clearPasswordError();
+    clearSecurityError();
+  }, [clearAuthError, clearPasswordError, clearSecurityError]);
 
+  // ** PASSWORD CHANGE HANDLER - USING HOOKS **
   /**
-   * Handle password change submission
+   * Handle password change using specialized hooks
    */
-  const handlePasswordChange = async () => {
+  const handlePasswordChange = useCallback(async () => {
     if (!isFormValid) {
+      console.log('[PasswordChangeScreen] Form is not valid, aborting password change');
       return;
     }
 
-    setIsChangingPassword(true);
+    console.log('[PasswordChangeScreen] Starting password change with useAuthPassword hook');
     try {
-      // Verify current password first
-      const isCurrentPasswordValid = await verifyCurrentPassword(formData.currentPassword);
-      
-      if (!isCurrentPasswordValid) {
-        setValidationErrors(prev => ({
-          ...prev,
-          currentPassword: t('auth.validation.currentPasswordIncorrect') || 'Aktuelles Passwort ist falsch'
-        }));
+      // Check security permissions using useAuthSecurity hook
+      const hasChangePermission = await hasPermission('PASSWORD_CHANGE');
+      if (!hasChangePermission) {
+        Alert.alert('Berechtigung fehlt', 'Sie haben keine Berechtigung zum Ändern des Passworts');
         return;
       }
 
-      // Change password using enterprise service
-      await changePassword(formData.currentPassword, formData.newPassword);
+      // Check for suspicious activity using useAuthSecurity hook
+      const suspiciousActivity = await checkSuspiciousActivity();
+      if (suspiciousActivity.riskScore >= 75) { // HIGH or CRITICAL (75-100)
+        Alert.alert(
+          'Sicherheitswarnung', 
+          'Verdächtige Aktivitäten erkannt. Passwort-Änderung temporär gesperrt.',
+          [
+            { text: 'OK', style: 'default' },
+            { text: 'Support kontaktieren', onPress: () => Alert.alert('Support', 'Feature in Entwicklung') }
+          ]
+        );
+        return;
+      }
+
+      // Update password using useAuthPassword hook (3 parameters required)
+      await updatePassword(formData.currentPassword, formData.newPassword, formData.confirmPassword);
       
-      // Show success message
+      console.log('[PasswordChangeScreen] Password change completed successfully via hooks');
+      
       Alert.alert(
-        t('auth.passwordChange.successTitle') || 'Passwort geändert',
-        t('auth.passwordChange.successMessage') || 'Ihr Passwort wurde erfolgreich geändert. Sie werden auf allen anderen Geräten abgemeldet.',
+        'Erfolg', 
+        'Ihr Passwort wurde erfolgreich geändert. Sie werden automatisch abgemeldet.',
         [
-          {
-            text: 'OK',
+          { 
+            text: 'OK', 
             onPress: () => {
-              // Navigate back to security settings
-              navigation.goBack();
-            }
+              // Navigate back or to login
+              navigation.reset({
+                index: 0,
+                routes: [{ name: 'Login' }],
+              });
+            } 
           }
         ]
       );
-
+      
     } catch (error) {
-      console.error('Password change failed:', error);
+      console.error('[PasswordChangeScreen] Password change failed via hooks:', error);
       Alert.alert(
-        t('auth.passwordChange.errorTitle') || 'Fehler',
-        t('auth.passwordChange.errorMessage') || 'Passwort konnte nicht geändert werden. Versuchen Sie es erneut.'
+        'Fehler', 
+        passwordError || securityError || 'Passwort-Änderung fehlgeschlagen'
       );
-    } finally {
-      setIsChangingPassword(false);
     }
+  }, [
+    isFormValid, 
+    formData, 
+    hasPermission, 
+    checkSuspiciousActivity, 
+    updatePassword, 
+    passwordError, 
+    securityError, 
+    navigation
+  ]);
+
+  // ** PASSWORD STRENGTH VISUALIZATION **
+  /**
+   * Render password strength indicator using useAuthPassword hook data
+   */
+  const renderPasswordStrengthIndicator = () => {
+    if (!formData.newPassword || !passwordStrength) return null;
+
+    const getStrengthColor = (score: number): string => {
+      if (score >= 4) return theme.colors.success || '#4caf50';
+      if (score >= 3) return theme.colors.warning || '#ff9800';
+      if (score >= 2) return theme.colors.error || '#f44336';
+      return '#e0e0e0';
+    };
+
+    const getStrengthText = (score: number): string => {
+      if (score >= 4) return 'Sehr stark';
+      if (score >= 3) return 'Stark';
+      if (score >= 2) return 'Mittel';
+      return 'Schwach';
+    };
+
+    return (
+      <View style={styles.strengthContainer}>
+        <View style={styles.strengthHeader}>
+          <Text style={styles.strengthLabel}>Passwort Stärke</Text>
+          <Text style={[
+            styles.strengthScore,
+            { color: getStrengthColor(passwordStrength.score) }
+          ]}>
+            {getStrengthText(passwordStrength.score)}
+          </Text>
+        </View>
+        
+        <ProgressBar
+          progress={passwordStrength.score / 4}
+          color={getStrengthColor(passwordStrength.score)}
+          style={styles.strengthBar}
+        />
+        
+        {passwordStrength.feedback.length > 0 && (
+          <View style={styles.requirementsContainer}>
+            <Text style={styles.requirementsTitle}>Verbesserungsvorschläge:</Text>
+            {passwordStrength.feedback.map((feedback, index) => (
+              <Text key={index} style={styles.requirementText}>
+                • {feedback}
+              </Text>
+            ))}
+          </View>
+        )}
+        
+        <View style={styles.requirementsContainer}>
+          <Text style={styles.requirementsTitle}>Passwort-Anforderungen:</Text>
+          {Object.entries(passwordStrength.requirements).map(([key, met]) => (
+            <View key={key} style={styles.requirementItem}>
+              <Text style={[
+                styles.requirementIcon,
+                { color: met ? theme.colors.success : theme.colors.error }
+              ]}>
+                {met ? '✓' : '✗'}
+              </Text>
+              <Text style={[
+                styles.requirementText,
+                { color: met ? theme.colors.success : theme.colors.error }
+              ]}>
+                {getRequirementText(key)}
+              </Text>
+            </View>
+          ))}
+        </View>
+      </View>
+    );
   };
 
-  /**
-   * Verify current password
-   */
-  const verifyCurrentPassword = async (_currentPassword: string): Promise<boolean> => {
-    try {
-      // Mock implementation - replace with real service call
-      // return await enterprise.verifyCurrentPassword(currentPassword);
-      return true; // Mock success for now
-    } catch (error) {
-      console.error('Failed to verify current password:', error);
-      return false;
-    }
-  };
-
-  /**
-   * Change password using enterprise service
-   */
-  const changePassword = async (_currentPassword: string, _newPassword: string): Promise<void> => {
-    try {
-      // Mock implementation - replace with real service call
-      // await enterprise.changePassword(currentPassword, newPassword);
-      console.log('Password changed successfully');
-    } catch (error) {
-      console.error('Failed to change password:', error);
-      throw error;
-    }
-  };
-
-  /**
-   * Get password strength color
-   */
-  const getPasswordStrengthColor = (score: number): string => {
-    switch (score) {
-      case 0:
-      case 1: return '#ef4444'; // Red
-      case 2: return '#f59e0b'; // Orange
-      case 3: return '#eab308'; // Yellow
-      case 4: return '#84cc16'; // Light green
-      case 5:
-      case 6: return '#22c55e'; // Green
-      default: return '#6b7280'; // Gray
-    }
-  };
-
-  /**
-   * Get password strength text
-   */
-  const getPasswordStrengthText = (score: number): string => {
-    switch (score) {
-      case 0:
-      case 1: return t('auth.password.strength.weak') || 'Schwach';
-      case 2: return t('auth.password.strength.fair') || 'Ausreichend';
-      case 3: return t('auth.password.strength.good') || 'Gut';
-      case 4: return t('auth.password.strength.strong') || 'Stark';
-      case 5:
-      case 6: return t('auth.password.strength.veryStrong') || 'Sehr stark';
-      default: return '';
-    }
-  };
-
-  /**
-   * Get requirement text based on key
-   */
   const getRequirementText = (key: string): string => {
-    switch (key) {
-      case 'length': return t('auth.password.requirements.length') || 'Mindestens 8 Zeichen';
-      case 'uppercase': return t('auth.password.requirements.uppercase') || 'Großbuchstaben (A-Z)';
-      case 'lowercase': return t('auth.password.requirements.lowercase') || 'Kleinbuchstaben (a-z)';
-      case 'numbers': return t('auth.password.requirements.numbers') || 'Zahlen (0-9)';
-      case 'symbols': return t('auth.password.requirements.symbols') || 'Sonderzeichen (!@#$...)';
-      case 'notCommon': return t('auth.password.requirements.notCommon') || 'Kein häufiges Passwort';
-      default: return '';
-    }
+    const texts: { [key: string]: string } = {
+      length: 'Mindestens 8 Zeichen',
+      uppercase: 'Großbuchstaben (A-Z)',
+      lowercase: 'Kleinbuchstaben (a-z)',
+      numbers: 'Zahlen (0-9)',
+      symbols: 'Sonderzeichen (!@#$%)',
+      notCommon: 'Nicht in häufig verwendeten Passwörtern'
+    };
+    return texts[key] || key;
   };
+
+  // ** COMPUTED VALUES FOR UI **
+  const isLoading = isAuthLoading || isPasswordLoading || isSecurityLoading;
+  const currentError = authError || passwordError || securityError;
 
   return (
-    <KeyboardAvoidingView
-      style={styles.container}
-      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-      keyboardVerticalOffset={Platform.OS === 'ios' ? 64 : 0}
-    >
-      <ScrollView
-        contentContainerStyle={styles.scrollContainer}
-        showsVerticalScrollIndicator={false}
-        keyboardShouldPersistTaps="handled"
+    <SafeAreaView style={styles.container}>
+      <KeyboardAvoidingView
+        style={styles.container}
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        keyboardVerticalOffset={Platform.OS === 'ios' ? 64 : 0}
       >
-        {/* Header */}
-        <View style={styles.header}>
-          <Text style={styles.title}>
-            {t('auth.passwordChange.title') || 'Passwort ändern'}
-          </Text>
-          <Text style={styles.subtitle}>
-            {t('auth.passwordChange.subtitle') || 'Erstellen Sie ein neues, sicheres Passwort für Ihr Konto'}
-          </Text>
-        </View>
-
-        {/* Current Password */}
-        <View style={styles.formContainer}>
-          <FormTextInput
-            label={t('auth.passwordChange.currentPasswordLabel') || 'Aktuelles Passwort'}
-            value={formData.currentPassword}
-            onChangeText={(value) => updateFormField('currentPassword', value)}
-            secureTextEntry
-            error={!!validationErrors.currentPassword || !!error}
-          />
-          {validationErrors.currentPassword && (
-            <Text style={styles.validationError}>
-              {validationErrors.currentPassword}
-            </Text>
-          )}
-
-          {/* New Password */}
-          <FormTextInput
-            label={t('auth.passwordChange.newPasswordLabel') || 'Neues Passwort'}
-            value={formData.newPassword}
-            onChangeText={(value) => updateFormField('newPassword', value)}
-            secureTextEntry
-            error={!!validationErrors.newPassword}
-          />
-          {validationErrors.newPassword && (
-            <Text style={styles.validationError}>
-              {validationErrors.newPassword}
-            </Text>
-          )}
-
-          {/* Password Strength Indicator */}
-          {formData.newPassword && (
-            <View style={styles.strengthContainer}>
-              <View style={styles.strengthHeader}>
-                <Text style={styles.strengthLabel}>
-                  {t('auth.password.strength.label') || 'Passwort-Stärke'}
-                </Text>
-                <Text style={[
-                  styles.strengthScore,
-                  { color: getPasswordStrengthColor(passwordStrength.score) }
-                ]}>
-                  {getPasswordStrengthText(passwordStrength.score)}
-                </Text>
-              </View>
-              <ProgressBar 
-                progress={passwordStrength.score / 6} 
-                color={getPasswordStrengthColor(passwordStrength.score)}
-                style={styles.strengthBar}
-              />
-            </View>
-          )}
-
-          {/* Password Requirements */}
-          {(showPasswordRequirements || formData.newPassword) && (
-            <View style={styles.requirementsContainer}>
-              <Text style={styles.requirementsTitle}>
-                {t('auth.password.requirements.title') || 'Anforderungen:'}
-              </Text>
-              
-              {Object.entries(passwordStrength.requirements).map(([key, met]) => (
-                <View key={key} style={styles.requirementItem}>
-                  <Text style={[
-                    styles.requirementIcon,
-                    { color: met ? '#22c55e' : '#ef4444' }
-                  ]}>
-                    {met ? '✓' : '✗'}
-                  </Text>
-                  <Text style={[
-                    styles.requirementText,
-                    { color: met ? '#22c55e' : '#6b7280' }
-                  ]}>
-                    {getRequirementText(key)}
-                  </Text>
-                </View>
-              ))}
-            </View>
-          )}
-
-          {/* Confirm Password */}
-          <FormTextInput
-            label={t('auth.passwordChange.confirmPasswordLabel') || 'Passwort bestätigen'}
-            value={formData.confirmPassword}
-            onChangeText={(value) => updateFormField('confirmPassword', value)}
-            secureTextEntry
-            error={!!validationErrors.confirmPassword}
-          />
-          {validationErrors.confirmPassword && (
-            <Text style={styles.validationError}>
-              {validationErrors.confirmPassword}
-            </Text>
-          )}
-
-          <FormErrorText errorMessage={error} />
-
-          {/* Change Password Button */}
-          <PrimaryButton
-            label={t('auth.passwordChange.button') || 'Passwort ändern'}
-            onPress={handlePasswordChange}
-            loading={isChangingPassword}
-            disabled={!isFormValid || isChangingPassword}
-          />
-
-          {/* Security Info */}
-          <View style={styles.infoBox}>
-            <Text style={styles.infoIcon}>🔒</Text>
-            <Text style={styles.infoText}>
-              {t('auth.passwordChange.securityInfo') || 'Nach der Passwort-Änderung werden Sie auf allen anderen Geräten automatisch abgemeldet.'}
+        <ScrollView
+          contentContainerStyle={styles.scrollContainer}
+          showsVerticalScrollIndicator={false}
+          keyboardShouldPersistTaps="handled"
+        >
+          {/* Header */}
+          <View style={styles.header}>
+            <Text style={styles.headerIcon}>🔒</Text>
+            <Text style={styles.title}>Passwort ändern</Text>
+            <Text style={styles.subtitle}>
+              Hook Architecture V3 - Sichere Passwort-Verwaltung
             </Text>
           </View>
-        </View>
-      </ScrollView>
-    </KeyboardAvoidingView>
+
+          {/* Form */}
+          <View style={styles.formContainer}>
+            {/* Current Password */}
+            <FormTextInput
+              label="Aktuelles Passwort"
+              value={formData.currentPassword}
+              onChangeText={(value) => updateFormField('currentPassword', value)}
+              secureTextEntry
+              error={(touchedFields.currentPassword && !!validationErrors.currentPassword) || !!currentError}
+            />
+            {touchedFields.currentPassword && validationErrors.currentPassword && (
+              <Text style={styles.validationError}>
+                {validationErrors.currentPassword}
+              </Text>
+            )}
+
+            {/* New Password */}
+            <FormTextInput
+              label="Neues Passwort"
+              value={formData.newPassword}
+              onChangeText={(value) => updateFormField('newPassword', value)}
+              secureTextEntry
+              error={(touchedFields.newPassword && !!validationErrors.newPassword) || !!currentError}
+            />
+            {touchedFields.newPassword && validationErrors.newPassword && (
+              <Text style={styles.validationError}>
+                {validationErrors.newPassword}
+              </Text>
+            )}
+
+            {/* Password Strength Indicator - Via useAuthPassword Hook */}
+            {renderPasswordStrengthIndicator()}
+
+            {/* Confirm Password */}
+            <FormTextInput
+              label="Neues Passwort bestätigen"
+              value={formData.confirmPassword}
+              onChangeText={(value) => updateFormField('confirmPassword', value)}
+              secureTextEntry
+              error={(touchedFields.confirmPassword && !!validationErrors.confirmPassword) || !!currentError}
+            />
+            {touchedFields.confirmPassword && validationErrors.confirmPassword && (
+              <Text style={styles.validationError}>
+                {validationErrors.confirmPassword}
+              </Text>
+            )}
+
+            <FormErrorText errorMessage={currentError || ''} />
+
+            <PrimaryButton
+              label="Passwort ändern"
+              onPress={handlePasswordChange}
+              loading={isLoading}
+              disabled={!isFormValid || isLoading}
+            />
+          </View>
+
+          {/* Phase 3 Hook Architecture Info */}
+          <View style={styles.infoContainer}>
+            <Text style={styles.infoText}>
+              🚀 Phase 3: Hook-Centric Password Management
+            </Text>
+            <Text style={styles.infoSubtext}>
+              ✅ useAuthPassword() ✅ useAuthSecurity() ✅ Enterprise Security
+            </Text>
+          </View>
+
+          {/* Loading Indicator */}
+          {isLoading && (
+            <View style={styles.loadingContainer}>
+              <ActivityIndicator size="large" color={theme.colors.primary} />
+              <Text style={styles.loadingText}>Passwort wird geändert...</Text>
+            </View>
+          )}
+        </ScrollView>
+      </KeyboardAvoidingView>
+    </SafeAreaView>
   );
 };
+
+
 
 export default withAuthGuard(PasswordChangeScreen); 

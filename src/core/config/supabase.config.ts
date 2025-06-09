@@ -720,7 +720,7 @@ export const validateSupabaseConfig = (): boolean => {
       if (!url.hostname.includes('supabase.co') && process.env.NODE_ENV === 'production') {
         console.warn('⚠️ Non-standard Supabase domain detected');
       }
-    } catch (error) {
+    } catch {
       console.error(`❌ Invalid Supabase URL format: ${supabaseConfig.url}`);
       isValid = false;
     }
@@ -870,7 +870,7 @@ export const getSupabaseStatus = async () => {
   
   try {
     // Perform lightweight database operation to check connectivity
-    const { data, error } = await supabase
+    const { error } = await supabase
       .from('users')
       .select('count', { count: 'exact', head: true });
     

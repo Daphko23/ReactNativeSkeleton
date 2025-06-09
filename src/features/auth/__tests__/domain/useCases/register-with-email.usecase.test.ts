@@ -5,8 +5,10 @@
  */
 
 import { RegisterWithEmailUseCase } from '../../../application/usecases/register-with-email.usecase';
-import { AuthUser } from '../../../domain/entities/auth-user.interface';
+
+import { UserStatus } from '../../../domain/types/security.types';
 import { createMockAuthRepository } from '../../mocks/auth-repository.mock';
+import { createMockAuthUser } from '../../../helpers/auth-user-test.factory';
 
 describe('RegisterWithEmailUseCase - UC-002', () => {
   let mockRepository: jest.Mocked<any>;
@@ -16,18 +18,16 @@ describe('RegisterWithEmailUseCase - UC-002', () => {
   const validEmail = 'newuser@example.com';
   const validPassword = 'SecurePass123!';
   
-  const mockNewUser: AuthUser = {
+  const mockNewUser = createMockAuthUser({
     id: 'new-user-001',
     email: 'newuser@example.com',
     displayName: 'New User',
-    photoURL: undefined,
-    emailVerified: false, // New user starts unverified
+    emailVerified: false,
     phoneVerified: false,
     mfaEnabled: false,
     roles: ['user'],
-    status: 'pending_verification', // New user starts with pending_verification status
-    lastLoginAt: undefined
-  };
+    status: UserStatus.PENDING_VERIFICATION
+  });
 
   beforeEach(() => {
     mockRepository = createMockAuthRepository();
@@ -127,7 +127,7 @@ describe('RegisterWithEmailUseCase - UC-002', () => {
 
       const result = await useCase.execute(validEmail, validPassword);
 
-      expect(result.roles).toEqual(['user']);
+      expect((result as any).roles).toEqual(['user']);
     });
 
     it('should handle different email formats', async () => {
@@ -430,7 +430,7 @@ describe('RegisterWithEmailUseCase - UC-002', () => {
 
       for (let i = 0; i < users.length; i++) {
         const userResponse = { ...mockNewUser, id: `user-${i+1}`, email: users[i].email };
-        freshRepository.register.mockResolvedValueOnce(userResponse);
+        freshRepository.register.mockResolvedValueOnce(userResponse as any);
 
         const result = await freshUseCase.execute(users[i].email, users[i].password);
 
@@ -483,7 +483,7 @@ describe('RegisterWithEmailUseCase - UC-002', () => {
       const testPassword = 'MySpecial!Password123';
       
       const testUser = { ...mockNewUser, email: testEmail };
-      mockRepository.register.mockResolvedValueOnce(testUser);
+      mockRepository.register.mockResolvedValueOnce(testUser as any);
 
       await useCase.execute(testEmail, testPassword);
 
@@ -495,7 +495,7 @@ describe('RegisterWithEmailUseCase - UC-002', () => {
       const freshRepository = createMockAuthRepository();
       const freshUseCase = new RegisterWithEmailUseCase(freshRepository);
       
-      const repositoryResponse = {
+      const repositoryResponse = createMockAuthUser({
         id: 'repo-user-001',
         email: 'repo@example.com',
         displayName: 'Repository User',
@@ -504,11 +504,11 @@ describe('RegisterWithEmailUseCase - UC-002', () => {
         phoneVerified: false,
         mfaEnabled: false,
         roles: ['user', 'beta'],
-        status: 'pending_verification' as const,
+        status: UserStatus.PENDING_VERIFICATION,
         lastLoginAt: undefined
-      };
+      });
 
-      freshRepository.register.mockResolvedValueOnce(repositoryResponse);
+      freshRepository.register.mockResolvedValueOnce(repositoryResponse as any);
 
       const result = await freshUseCase.execute(validEmail, validPassword);
 
@@ -523,7 +523,7 @@ describe('RegisterWithEmailUseCase - UC-002', () => {
       const freshRepository = createMockAuthRepository();
       const freshUseCase = new RegisterWithEmailUseCase(freshRepository);
       
-      const newUserRegistration: AuthUser = {
+      const newUserRegistration = createMockAuthUser({
         id: 'integration-user-001',
         email: 'integration@example.com',
         displayName: 'Integration User',
@@ -532,11 +532,11 @@ describe('RegisterWithEmailUseCase - UC-002', () => {
         phoneVerified: false,
         mfaEnabled: false,
         roles: ['user'],
-        status: 'pending_verification',
+        status: UserStatus.PENDING_VERIFICATION,
         lastLoginAt: undefined
-      };
+      });
 
-      freshRepository.register.mockResolvedValueOnce(newUserRegistration);
+      freshRepository.register.mockResolvedValueOnce(newUserRegistration as any);
 
       const result = await freshUseCase.execute('integration@example.com', 'IntegrationPass123!');
 
@@ -547,7 +547,7 @@ describe('RegisterWithEmailUseCase - UC-002', () => {
       expect(result).toEqual(newUserRegistration);
       expect(result.emailVerified).toBe(false);
       expect(result.status).toBe('pending_verification');
-      expect(result.roles).toEqual(['user']);
+      expect((result as any).roles).toEqual(['user']);
     });
 
     it('should handle registration with enterprise email domain (isolated test)', async () => {
@@ -555,7 +555,7 @@ describe('RegisterWithEmailUseCase - UC-002', () => {
       const freshRepository = createMockAuthRepository();
       const freshUseCase = new RegisterWithEmailUseCase(freshRepository);
       
-      const enterpriseUser: AuthUser = {
+      const enterpriseUser = createMockAuthUser({
         id: 'enterprise-user-001',
         email: 'employee@company.com',
         displayName: 'Enterprise Employee',
@@ -564,16 +564,16 @@ describe('RegisterWithEmailUseCase - UC-002', () => {
         phoneVerified: false,
         mfaEnabled: false,
         roles: ['user', 'enterprise'],
-        status: 'pending_verification',
+        status: UserStatus.PENDING_VERIFICATION,
         lastLoginAt: undefined
-      };
+      });
 
-      freshRepository.register.mockResolvedValueOnce(enterpriseUser);
+      freshRepository.register.mockResolvedValueOnce(enterpriseUser as any);
 
       const result = await freshUseCase.execute('employee@company.com', 'EnterprisePass123!');
 
       expect(result.email).toBe('employee@company.com');
-      expect(result.roles).toContain('enterprise');
+      expect((result as any).roles).toContain('enterprise');
     });
   });
 

@@ -200,7 +200,7 @@ export class AuthIntegration {
       enableMFA: config.securityFeatures.enableMFA,
       enableCompliance: config.securityFeatures.enableCompliance,
       enablePasswordPolicy: config.securityFeatures.enablePasswordPolicy,
-      enableAuthOrchestrator: true,
+      // enableAuthOrchestrator removed - architectural simplification
       securityConfig: {
         // Base SecurityServiceConfig properties
         encryption: {

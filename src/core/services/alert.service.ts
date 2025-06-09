@@ -374,23 +374,23 @@ export class AlertService {
    * 
    * @example
    * ```tsx
-   * // Namespaced translation
+   * // Flat structure translation
    * AlertService.t('profile.editScreen.success')
-   * // Returns: namespace='profile', key='editScreen.success'
+   * // Returns: 'profile.editScreen.success' from flat translation structure
    * 
    * // Common translation
    * AlertService.t('ok')
-   * // Returns: default namespace, key='ok'
+   * // Returns: 'ok' from flat translation structure
    * 
-   * // Explicit common namespace
+   * // Common namespace prefix (will be cleaned)
    * AlertService.t('common.cancel')
-   * // Returns: default namespace, key='cancel'
+   * // Returns: 'cancel' from flat translation structure
    * ```
    * 
    * @translation_logic
-   * - Detects namespace from key structure
-   * - Removes 'common.' prefix for default namespace
-   * - Handles nested key paths
+   * - Uses flat translation structure without namespaces
+   * - Removes 'common.' prefix for backward compatibility
+   * - Direct key lookup in translation namespace
    * - Provides fallback for missing translations
    * 
    * @error_handling
@@ -404,15 +404,8 @@ export class AlertService {
    * - Minimal overhead
    */
   private static t(key: string): string {
-    // If key contains a namespace (e.g., 'profile.editScreen.success'), 
-    // use it with explicit namespace
-    if (key.includes('.') && !key.startsWith('common.')) {
-      const [namespace, ...keyParts] = key.split('.');
-      const actualKey = keyParts.join('.');
-      return i18n.t(actualKey, { ns: namespace });
-    }
-    
-    // Remove 'common.' prefix since common is the default namespace
+    // The translation system uses a flat structure with all keys directly under 'translation' namespace
+    // Remove 'common.' prefix since all keys are in the flat structure
     const cleanKey = key.startsWith('common.') ? key.replace('common.', '') : key;
     return i18n.t(cleanKey);
   }

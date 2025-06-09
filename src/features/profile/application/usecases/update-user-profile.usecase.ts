@@ -1,11 +1,14 @@
 /**
  * Update User Profile Use Case - Application Layer
  * Handles the business logic for updating user profiles
+ * 
+ * ✅ NEW: GDPR Audit Integration for Enterprise Compliance
  */
 
 import { IProfileService } from '../../domain/interfaces/profile-service.interface';
 import { UserProfile } from '../../domain/entities/user-profile.entity';
 import { ProfileUpdateData, ProfileValidationResult } from '../../domain/interfaces/profile-update-data.interface';
+import { gdprAuditService } from '../../data/services/gdpr-audit.service';
 
 export class UpdateUserProfileUseCase {
   constructor(private profileService: IProfileService) {}
@@ -31,7 +34,20 @@ export class UpdateUserProfileUseCase {
       const updatedProfile = this.mergeProfileChanges(currentProfile, data);
 
       // Update profile using service
-      return await this.profileService.updateProfile(userId, updatedProfile);
+      const result = await this.profileService.updateProfile(userId, updatedProfile);
+
+      // 🔒 GDPR Audit: Additional logging at use case level
+      await gdprAuditService.logDataAccess(
+        userId,
+        userId,
+        'view',
+        ['profile_update_usecase'],
+        {
+          correlationId: `update-profile-usecase-${Date.now()}`
+        }
+      );
+
+      return result;
     } catch (error) {
       console.error('Failed to update user profile:', error);
       throw new Error('Unable to update profile');

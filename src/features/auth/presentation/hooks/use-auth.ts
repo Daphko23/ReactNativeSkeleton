@@ -28,7 +28,7 @@
 
 import { useCallback, useMemo } from 'react';
 import { useAuthStore } from '@features/auth/presentation/store/auth.store';
-import type { AuthUser } from '@features/auth/domain/entities/auth-user.interface';
+import type { AuthUserInterface as AuthUser } from '@features/auth/domain/entities';
 
 /**
  * @interface BasicAuthOperations
@@ -250,21 +250,26 @@ export interface RBACOperations {
  * @security MFA and biometric operations include additional validation layers
  */
 export const useAuth = (): UseAuthReturn => {
-  // Use the global auth store for state management
-  const {
-    user,
-    isAuthenticated,
-    isLoading,
-    error,
-    login: storeLogin,
-    register: storeRegister,
-    logout: storeLogout,
-    resetPassword: storeResetPassword,
-    getCurrentUser: storeGetCurrentUser,
-    clearError: storeClearError
-  } = useAuthStore();
+  // Use the global auth store for state management - with explicit subscription
+  const user = useAuthStore(state => state.user);
+  const isAuthenticated = useAuthStore(state => state.isAuthenticated);
+  const isLoading = useAuthStore(state => state.isLoading);
+  const error = useAuthStore(state => state.error);
+  const storeLogin = useAuthStore(state => state.login);
+  const storeRegister = useAuthStore(state => state.register);
+  const storeLogout = useAuthStore(state => state.logout);
+  const storeResetPassword = useAuthStore(state => state.resetPassword);
+  const storeGetCurrentUser = useAuthStore(state => state.getCurrentUser);
+  const storeClearError = useAuthStore(state => state.clearError);
 
-  console.log('[useAuth] Current state:', { isAuthenticated, isLoading, user: user?.email || 'null' });
+  console.log('[useAuth] Current state:', { 
+    isAuthenticated, 
+    isLoading, 
+    userEmail: user?.email || 'null',
+    userId: user?.id || 'null',
+    userObj: user ? 'EXISTS' : 'NULL',
+    userFull: user
+  });
 
   // Auth operations that use the store
   const login = useCallback(async (email: string, password: string) => {

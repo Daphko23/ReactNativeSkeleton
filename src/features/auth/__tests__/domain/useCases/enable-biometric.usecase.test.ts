@@ -9,20 +9,21 @@ import { UserNotAuthenticatedError } from '../../../domain/errors/user-not-authe
 import { BiometricNotAvailableError } from '../../../domain/errors/biometric-not-available.error';
 import { SecurityEventType, SecurityEventSeverity } from '../../../domain/types/security.types';
 import { createMockAuthRepository, mockAuthUser } from '../../mocks/auth-repository.mock';
+import { createMockAuthUser } from '../../../helpers/auth-user-test.factory';
+import { UserRole } from '../../../domain/types/security.types';
 
 describe('EnableBiometricUseCase', () => {
   const mockRepository = createMockAuthRepository();
   const useCase = new EnableBiometricUseCase(mockRepository);
 
   // Mock authenticated users for different scenarios
-  const mockStandardUser = { ...mockAuthUser };
-  const mockPremiumUser = {
-    ...mockAuthUser,
+  const mockStandardUser = mockAuthUser;
+  const mockPremiumUser = createMockAuthUser({
     id: 'premium-user-001',
     email: 'premium@example.com',
-    roles: ['user', 'premium'],
+    role: UserRole.USER,
     mfaEnabled: true
-  };
+  });
 
   beforeEach(() => {
     jest.clearAllMocks();
@@ -169,7 +170,7 @@ describe('EnableBiometricUseCase', () => {
     });
 
     it('should handle enablement for users with existing MFA', async () => {
-      const userWithMFA = { ...mockStandardUser, mfaEnabled: true };
+      const userWithMFA = createMockAuthUser({ mfaEnabled: true });
       
       mockRepository.getCurrentUser.mockResolvedValueOnce(userWithMFA);
       mockRepository.enableBiometric.mockResolvedValueOnce();
@@ -435,13 +436,13 @@ describe('EnableBiometricUseCase', () => {
 
   describe('Integration Scenarios', () => {
     it('should handle complete biometric enablement flow', async () => {
-      const comprehensiveUser = {
+      const comprehensiveUser = createMockAuthUser({
         id: 'comprehensive-user-001',
         email: 'comprehensive@example.com',
-        displayName: 'Comprehensive User',
-        roles: ['user', 'verified'],
+        firstName: 'Comprehensive',
+        lastName: 'User',
         mfaEnabled: false
-      };
+      });
 
       mockRepository.getCurrentUser.mockResolvedValueOnce(comprehensiveUser);
       mockRepository.isBiometricAvailable.mockResolvedValueOnce(true);
@@ -549,7 +550,7 @@ describe('EnableBiometricUseCase', () => {
     });
 
     it('should handle concurrent biometric and MFA enablement', async () => {
-      const userWithMFA = { ...mockStandardUser, mfaEnabled: true };
+      const userWithMFA = createMockAuthUser({ mfaEnabled: true });
       
       mockRepository.getCurrentUser.mockResolvedValueOnce(userWithMFA);
       mockRepository.isBiometricAvailable.mockResolvedValueOnce(true);

@@ -83,6 +83,28 @@ export const createSkillsManagementScreenStyles = (theme: any) => StyleSheet.cre
     color: theme.colors.text,
   },
 
+  // Current Skills Header
+  currentSkillsHeader: {
+    marginBottom: theme.spacing[3],
+  },
+
+  bulkAssignButton: {
+    marginTop: theme.spacing[2],
+    marginBottom: theme.spacing[2],
+  },
+
+  // Categories Header
+  categoriesHeader: {
+    marginBottom: theme.spacing[2],
+  },
+
+  categoryHint: {
+    fontSize: theme.typography.fontSizes.sm,
+    color: theme.colors.success,
+    fontStyle: 'italic',
+    marginTop: theme.spacing[1],
+  },
+
   // Search Section
   searchBar: {
     marginBottom: theme.spacing[4],

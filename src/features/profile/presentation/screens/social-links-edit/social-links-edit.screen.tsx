@@ -582,6 +582,7 @@ export const SocialLinksEditScreen: React.FC<SocialLinksEditScreenProps> = ({
     t,
     testIds: _testIds,
     socialPlatforms,
+    getInputValue,
   } = useSocialLinksEdit({ navigation });
 
   // Styling
@@ -675,8 +676,8 @@ export const SocialLinksEditScreen: React.FC<SocialLinksEditScreenProps> = ({
             </Text>
             
             {socialPlatforms.map((platform, _index) => {
-              const linkData = getSocialLinkData(platform.key);
-              const currentValue = linkData?.url || '';
+              const _linkData = getSocialLinkData(platform.key);
+              const currentValue = getInputValue(platform.key);
               const isValid = !getValidationError(platform.key);
               const existingLink = socialLinks.find(l => l.platform === platform.key);
               

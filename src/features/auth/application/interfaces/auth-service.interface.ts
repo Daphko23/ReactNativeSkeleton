@@ -3,7 +3,7 @@
  * Modular service interfaces for different auth concerns
  */
 
-import { AuthUser } from '../../domain/entities/auth-user.interface';
+import { AuthUser } from '../../domain/entities/auth-user.entity';
 
 export interface ICoreAuthService {
   login(email: string, password: string): Promise<AuthUser>;

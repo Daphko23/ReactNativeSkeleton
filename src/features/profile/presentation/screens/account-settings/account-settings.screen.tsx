@@ -147,57 +147,7 @@ interface SecurityItem {
 // EVENT HANDLERS
 // =============================================================================
 
-/**
- * Handles navigation to profile editing screen
- *
- * @function handleNavigateToProfile
- * @since 1.0.0
- * @description Navigates user to the profile editing interface with proper
- * state management and navigation history tracking.
- *
- * @returns {void}
- *
- * @example
- * ```tsx
- * // Usage in action handler
- * const onActionPress = (actionId: string) => {
- *   if (actionId === 'profile') {
- *     handleNavigateToProfile();
- *   }
- * };
- * ```
- */
-const handleNavigateToProfile = (): void => {
-  console.log('Navigate to profile');
-  // TODO: Implement navigation to profile edit screen
-  // navigation.navigate('ProfileEdit');
-};
-
-/**
- * Handles navigation to privacy settings screen
- *
- * @function handleNavigateToPrivacy
- * @since 1.0.0
- * @description Navigates user to comprehensive privacy settings with
- * data control options and consent management.
- *
- * @returns {void}
- *
- * @example
- * ```tsx
- * // Usage in action handler
- * const onActionPress = (actionId: string) => {
- *   if (actionId === 'privacy') {
- *     handleNavigateToPrivacy();
- *   }
- * };
- * ```
- */
-const handleNavigateToPrivacy = (): void => {
-  console.log('Navigate to privacy');
-  // TODO: Implement navigation to privacy settings screen
-  // navigation.navigate('PrivacySettings');
-};
+// Navigation handlers moved inside component where they have access to navigation prop
 
 /**
  * Handles secure account deletion process
@@ -417,6 +367,27 @@ export const AccountSettingsScreen: React.FC<AccountSettingsScreenProps> = ({
     refreshData,
     formattedLastBackup,
   } = useAccountSettings(navigation);
+
+  // =============================================================================
+  // NAVIGATION HANDLERS
+  // =============================================================================
+
+  /**
+   * Handles navigation to profile editing screen
+   */
+  const handleNavigateToProfile = (): void => {
+    console.log('Navigate to profile');
+    // TODO: Implement navigation to profile edit screen
+    // navigation.navigate('ProfileEdit');
+  };
+
+  /**
+   * Handles navigation to privacy settings screen
+   */
+  const handleNavigateToPrivacy = (): void => {
+    console.log('🔐 Navigate to Privacy Settings');
+    navigation.navigate('PrivacySettings');
+  };
 
   // =============================================================================
   // DYNAMIC SECTIONS GENERATION

@@ -11,7 +11,8 @@ import { useProfile } from './use-profile.hook';
 import { useAvatar } from './use-avatar.hook';
 import { useProfileNavigation } from './use-profile-navigation.hook';
 import { useProfileRefresh } from './use-profile-refresh.hook';
-import { useAuth } from '@features/auth/presentation/hooks';
+// import { useAuth } from '@features/auth/presentation/hooks';
+import { useAuthStore } from '@features/auth/presentation/store/auth.store';
 import { useTheme } from '../../../../core/theme/theme.system';
 import { useProfileStore } from '../store/profile.store';
 import { PROFILE_CONSTANTS } from '../constants/profile.constants';
@@ -66,7 +67,23 @@ export interface UseProfileScreenReturn {
 export const useProfileScreen = ({ navigation }: UseProfileScreenParams): UseProfileScreenReturn => {
   const { t } = useTranslation();
   const { theme } = useTheme();
-  const { user: currentUser } = useAuth();
+  
+  // Direct auth store subscription to avoid race conditions
+  const authUser = useAuthStore(state => state.user);
+  const isAuthenticated = useAuthStore(state => state.isAuthenticated);
+  
+  // Use auth user directly for better reliability
+  const currentUser = React.useMemo(() => authUser, [authUser]);
+  
+  // Debug current user from auth
+  React.useEffect(() => {
+    console.log('🔍 useProfileScreen - Auth User Debug:', { 
+      currentUser: currentUser?.email || 'null', 
+      userId: currentUser?.id || 'null',
+      isAuthenticated,
+      authUser: authUser?.email || 'null'
+    });
+  }, [currentUser, isAuthenticated, authUser]);
   
   // Profile State Management
   const profileFromStore = useProfileStore(state => state.profile);
@@ -102,6 +119,7 @@ export const useProfileScreen = ({ navigation }: UseProfileScreenParams): UsePro
     navigateToSkillsManagement,
     navigateToSocialLinksEdit,
     shouldCheckForAvatarUpdate,
+    shouldCheckForProfileUpdate,
   } = useProfileNavigation({
     navigation,
     avatarUrl,
@@ -118,11 +136,19 @@ export const useProfileScreen = ({ navigation }: UseProfileScreenParams): UsePro
     refreshAvatarAfterUpload,
     preloadAvatar,
     shouldCheckForAvatarUpdate,
+    shouldCheckForProfileUpdate,
   });
 
   // Computed Values with Performance Optimization
   const currentProfile = React.useMemo(() => {
     const result = profile || profileFromStore;
+    console.log('🔍 useProfileScreen - Profile Computation:', { 
+      profileFromHook: !!profile, 
+      profileFromStore: !!profileFromStore, 
+      finalProfile: !!result,
+      profileId: result?.id || 'null',
+      firstName: result?.firstName || 'null'
+    });
     return result;
   }, [profile, profileFromStore]);
 
@@ -133,6 +159,11 @@ export const useProfileScreen = ({ navigation }: UseProfileScreenParams): UsePro
 
   const hasProfile = React.useMemo(() => {
     const result = !!currentProfile;
+    console.log('🔍 useProfileScreen - hasProfile Computation:', { 
+      currentProfile: !!currentProfile, 
+      hasProfile: result,
+      profileId: currentProfile?.id || 'null'
+    });
     return result;
   }, [currentProfile]);
 
@@ -151,11 +182,13 @@ export const useProfileScreen = ({ navigation }: UseProfileScreenParams): UsePro
         error: !!error,
         hasAvatar,
         profileId: currentProfile?.id,
+        currentUserId: currentUser?.id,
+        currentUserEmail: currentUser?.email,
       });
     }
-  }, [hasProfile, hasInitialized, isLoading, error, hasAvatar, currentProfile?.id]);
+  }, [hasProfile, hasInitialized, isLoading, error, hasAvatar, currentProfile?.id, currentUser?.id, currentUser?.email]);
 
-  return {
+  const screenReturn = {
     // Profile Data
     currentProfile,
     currentUser,
@@ -197,4 +230,18 @@ export const useProfileScreen = ({ navigation }: UseProfileScreenParams): UsePro
     testIds: PROFILE_CONSTANTS.TEST_IDS,
     analytics: PROFILE_CONSTANTS.ANALYTICS_EVENTS,
   };
+
+  // Debug final return values
+  React.useEffect(() => {
+    console.log('🔍 useProfileScreen - Final Return Debug:', {
+      hasCurrentProfile: !!screenReturn.currentProfile,
+      hasProfile: screenReturn.hasProfile,
+      isLoading: screenReturn.isLoading,
+      refreshing: screenReturn.refreshing,
+      error: !!screenReturn.error,
+      currentUserId: screenReturn.currentUser?.id || 'null'
+    });
+  }, [screenReturn.currentProfile, screenReturn.hasProfile, screenReturn.isLoading, screenReturn.refreshing, screenReturn.error, screenReturn.currentUser?.id]);
+
+  return screenReturn;
 }; 

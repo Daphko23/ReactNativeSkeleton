@@ -1,6 +1,8 @@
 /**
  * Upload Avatar Use Case - Application Layer
  * Handles the business logic for avatar uploads
+ * 
+ * ✅ NEW: GDPR Audit Integration for Enterprise Compliance
  */
 
 import { avatarService } from '../../data/services/avatar.service';
@@ -10,6 +12,7 @@ import type {
   AvatarUploadOptions, 
   AvatarUploadResult 
 } from '../../data/services/avatar.service';
+import { gdprAuditService } from '../../data/services/gdpr-audit.service';
 
 export class UploadAvatarUseCase {
   private static readonly DEFAULT_RULES: AvatarBusinessRules = {
@@ -68,6 +71,17 @@ export class UploadAvatarUseCase {
       if (uploadResult.success && uploadResult.avatarUrl && options.userId) {
         try {
           await this.profileService.uploadAvatar(options.userId, uploadResult.avatarUrl);
+
+          // 🔒 GDPR Audit: Additional logging at use case level
+          await gdprAuditService.logDataAccess(
+            options.userId,
+            options.userId,
+            'view',
+            ['avatar_upload_usecase'],
+            {
+              correlationId: `upload-avatar-usecase-${Date.now()}`
+            }
+          );
         } catch (error) {
           console.warn('Failed to update profile with new avatar URL:', error);
           // Don't fail the upload, just log warning

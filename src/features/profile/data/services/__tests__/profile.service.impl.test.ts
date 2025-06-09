@@ -416,16 +416,16 @@ describe('ProfileServiceImpl', () => {
     });
 
     it('should handle repository errors in updateProfile', async () => {
-      mockRepository.updateProfile.mockRejectedValue(new Error('Update failed'));
+      mockRepository.updateProfile.mockRejectedValue(new Error('Database error'));
 
       await expect(profileService.updateProfile('user-123', { firstName: 'Jane' }))
-        .rejects.toThrow('Update failed');
+        .rejects.toThrow('Database error');
     });
 
     it('should handle repository errors in deleteProfile', async () => {
-      mockRepository.deleteProfile.mockRejectedValue(new Error('Delete failed'));
+      mockRepository.deleteProfile.mockRejectedValue(new Error('Database error'));
 
-      await expect(profileService.deleteProfile('user-123', false)).rejects.toThrow('Delete failed');
+      await expect(profileService.deleteProfile('user-123', false)).rejects.toThrow('Database error');
     });
   });
 }); 

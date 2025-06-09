@@ -1,6 +1,8 @@
 /**
  * ProfileRepositoryImpl - Clean Architecture Data Layer
  * Uses DataSource for database operations and maps to domain entities
+ * 
+ * ✅ NEW: GDPR Audit Integration for Enterprise Compliance
  */
 
 import type { UserProfile } from '../../domain/entities/user-profile.entity';
@@ -11,6 +13,7 @@ import {
   type ProfileHistoryRow as _ProfileHistoryRow,
   type ProfileVersionRow
 } from '../datasources/profile.datasource';
+import { gdprAuditService } from '../services/gdpr-audit.service';
 
 // Extended interfaces for repository operations
 export interface ProfileHistoryItem {
@@ -120,6 +123,17 @@ export class ProfileRepositoryImpl implements IProfileRepository {
 
       const result = await this.dataSource.createProfile(dbProfile);
       const newProfile = this.mapToUserProfile(result);
+      
+      // 🔒 GDPR Audit: Log profile creation (DATA_UPDATE with empty previous)
+      await gdprAuditService.logDataUpdate(
+        userId,
+        userId, // dataSubject same as userId for self-creation
+        {}, // empty previous for new profile
+        newProfile,
+        {
+          correlationId: `profile-create-${Date.now()}`
+        }
+      );
       
       // Cache the new profile
       this.cache.set(`profile:${userId}`, newProfile);
@@ -234,7 +248,21 @@ export class ProfileRepositoryImpl implements IProfileRepository {
   ): Promise<UserProfile[]> {
     try {
       const results = await this.dataSource.searchProfiles(query, filters);
-      return results.map(this.mapToUserProfile);
+      const profiles = results.map(this.mapToUserProfile);
+
+      // 🔒 GDPR Audit: Log profile search (DATA_ACCESS)
+      const searchingUserId = 'system'; // In real app, get from context
+      await gdprAuditService.logDataAccess(
+        searchingUserId,
+        'multiple_subjects', // Multiple profiles accessed
+        'query',
+        ['firstName', 'lastName', 'displayName', 'professional'], // typically searched fields
+        {
+          correlationId: `profile-search-${Date.now()}`
+        }
+      );
+
+      return profiles;
     } catch (error) {
       console.error('Error in searchProfiles:', error);
       throw error;
@@ -411,7 +439,21 @@ export class ProfileRepositoryImpl implements IProfileRepository {
   async exportProfiles(userIds: string[]): Promise<UserProfile[]> {
     try {
       const results = await this.dataSource.getMultipleProfiles(userIds);
-      return results.map(this.mapToUserProfile);
+      const profiles = results.map(this.mapToUserProfile);
+
+      // 🔒 GDPR Audit: Log bulk profile export (DATA_PORTABILITY)
+      const exportingUserId = 'system'; // In real app, get from context
+      await gdprAuditService.logDataExport(
+        exportingUserId,
+        'multiple_subjects', // Multiple profiles exported
+        profiles,
+        'json',
+        {
+          correlationId: `profile-bulk-export-${Date.now()}`
+        }
+      );
+
+      return profiles;
     } catch (error) {
       console.error('Error in exportProfiles:', error);
       throw error;
@@ -425,7 +467,7 @@ export class ProfileRepositoryImpl implements IProfileRepository {
   private mapToUserProfile(data: UserProfileRow): UserProfile {
     return {
       id: data.user_id,
-      email: data.alternative_email || '',
+      email: data.email || data.alternative_email || '', // Primary email from trigger or alternative
       firstName: data.first_name || '',
       lastName: data.last_name || '',
       displayName: data.display_name || `${data.first_name || ''} ${data.last_name || ''}`.trim(),

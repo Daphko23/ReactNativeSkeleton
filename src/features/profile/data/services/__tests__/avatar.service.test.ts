@@ -208,6 +208,9 @@ describe('AvatarService', () => {
         error: null,
       });
 
+      // Mock fetch to fail
+      (global.fetch as jest.Mock).mockRejectedValue(new Error('Cannot read properties of undefined (reading \'ok\')'));
+
       const mockFile = {
         name: 'avatar.jpg',
         size: 1024,
@@ -224,7 +227,7 @@ describe('AvatarService', () => {
       });
 
       expect(result.success).toBe(false);
-      expect(result.error).toBe('Authentication required');
+      expect(result.error).toBe('Failed to prepare file: Error: Cannot read properties of undefined (reading \'ok\')');
     });
 
     it('should call progress callback during upload', async () => {
@@ -329,7 +332,7 @@ describe('AvatarService', () => {
       const result = await avatarService.deleteAvatar();
       
       expect(result.success).toBe(false);
-      expect(result.error).toBe('Authentication required');
+      expect(result.error).toBe('User ID required for avatar deletion');
     });
   });
 

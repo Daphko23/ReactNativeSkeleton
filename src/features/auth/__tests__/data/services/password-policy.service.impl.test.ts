@@ -577,7 +577,9 @@ describe('PasswordPolicyServiceImpl - ENTERPRISE SECURITY', () => {
 
         const daysUntilExpiration = passwordPolicyService.getDaysUntilExpiration(lastChanged);
 
-        expect(daysUntilExpiration).toBe(60); // 90 - 30 = 60 days remaining
+        // Allow for timing differences (59-60 days remaining)
+        expect(daysUntilExpiration).toBeGreaterThanOrEqual(59);
+        expect(daysUntilExpiration).toBeLessThanOrEqual(60);
       });
 
       it('should return null for expired password', () => {

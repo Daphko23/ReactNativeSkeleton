@@ -19,6 +19,19 @@
  */
 
 /**
+ * @enum SecurityLevel
+ * @description Enterprise security level classification
+ * 
+ * @businessRule BR-283a: Security level definitions for enterprise compliance
+ */
+export enum SecurityLevel {
+  LOW = 'low',
+  MEDIUM = 'medium',
+  HIGH = 'high',
+  CRITICAL = 'critical'
+}
+
+/**
  * @enum RiskLevel
  * @description Enterprise risk level classification
  * 
