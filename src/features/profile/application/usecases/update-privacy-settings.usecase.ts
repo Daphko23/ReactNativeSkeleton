@@ -22,11 +22,11 @@ export class UpdatePrivacySettingsUseCase {
       // 🔒 GDPR Audit: Additional logging at use case level
       await gdprAuditService.logDataAccess(
         userId,
-        userId,
-        'view',
         ['privacy_settings_usecase'],
+        'view',
+        userId,
         {
-          correlationId: `update-privacy-usecase-${Date.now()}`
+          correlationId: `update-privacy-usecase-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`
         }
       );
 

@@ -25,14 +25,14 @@
             <div class='fl pad1y space-right2'>
                 <span class="strong">0% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>0/145</span>
+                <span class='fraction'>0/150</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
                 <span class="strong">0% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>0/50</span>
+                <span class='fraction'>0/56</span>
             </div>
         
             
@@ -46,7 +46,7 @@
             <div class='fl pad1y space-right2'>
                 <span class="strong">0% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>0/145</span>
+                <span class='fraction'>0/150</span>
             </div>
         
             
@@ -540,7 +540,38 @@
 <a name='L475'></a><a href='#L475'>475</a>
 <a name='L476'></a><a href='#L476'>476</a>
 <a name='L477'></a><a href='#L477'>477</a>
-<a name='L478'></a><a href='#L478'>478</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L478'></a><a href='#L478'>478</a>
+<a name='L479'></a><a href='#L479'>479</a>
+<a name='L480'></a><a href='#L480'>480</a>
+<a name='L481'></a><a href='#L481'>481</a>
+<a name='L482'></a><a href='#L482'>482</a>
+<a name='L483'></a><a href='#L483'>483</a>
+<a name='L484'></a><a href='#L484'>484</a>
+<a name='L485'></a><a href='#L485'>485</a>
+<a name='L486'></a><a href='#L486'>486</a>
+<a name='L487'></a><a href='#L487'>487</a>
+<a name='L488'></a><a href='#L488'>488</a>
+<a name='L489'></a><a href='#L489'>489</a>
+<a name='L490'></a><a href='#L490'>490</a>
+<a name='L491'></a><a href='#L491'>491</a>
+<a name='L492'></a><a href='#L492'>492</a>
+<a name='L493'></a><a href='#L493'>493</a>
+<a name='L494'></a><a href='#L494'>494</a>
+<a name='L495'></a><a href='#L495'>495</a>
+<a name='L496'></a><a href='#L496'>496</a>
+<a name='L497'></a><a href='#L497'>497</a>
+<a name='L498'></a><a href='#L498'>498</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -679,6 +710,15 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
@@ -1026,31 +1066,42 @@ import { supabase } from '@core/config/supabase.config';
 &nbsp;
 // Database row interfaces (matching Supabase schema)
 export interface UserProfileRow {
+  id?: string;
   user_id: string;
-  email: string;
-  first_name: string;
-  last_name: string;
+  email?: string; // Primary email from auth.users (populated by trigger)
+  first_name?: string;
+  last_name?: string;
   display_name?: string;
-  phone?: string;
-  date_of_birth?: string;
-  avatar?: string;
   bio?: string;
-  location?: string;
+  avatar_url?: string;
+  date_of_birth?: string;
+  phone_number?: string;
+  phone?: string;
+  alternative_email?: string;
+  job_title?: string;
+  company?: string;
+  department?: string;
+  work_location?: string;
+  work_location_preference?: string;
+  skills?: string[];
+  experience_years?: number;
+  salary_range?: string;
+  linkedin_url?: string;
+  twitter_url?: string;
+  github_url?: string;
+  website_url?: string;
   website?: string;
-  social_links: Record&lt;string, any&gt;;
-  preferences: Record&lt;string, any&gt;;
-  privacy_settings: Record&lt;string, any&gt;;
-  is_active: boolean;
-  role: string;
-  professional_info: Record&lt;string, any&gt;;
-  custom_fields: Record&lt;string, any&gt;;
-  metadata: Record&lt;string, any&gt;;
-  profile_completion_rate: number;
-  is_verified: boolean;
-  verification_type?: string;
-  created_at: string;
-  updated_at: string;
-  last_active_at?: string;
+  instagram_url?: string;
+  location?: string;
+  industry?: string;
+  profile_visibility?: string;
+  show_email?: boolean;
+  show_phone?: boolean;
+  show_social_links?: boolean;
+  custom_fields?: Record&lt;string, any&gt;;
+  created_at?: string;
+  updated_at?: string;
+  version?: number;
 }
 &nbsp;
 export interface ProfileHistoryRow {
@@ -1156,6 +1207,15 @@ export class ProfileDataSource implements IProfileDataSource {
         }
 <span class="cstat-no" title="statement not covered" >        this.logger.error('Failed to fetch profile', error.message);</span>
 <span class="cstat-no" title="statement not covered" >        throw new Error(`Database error: ${error.message}`);</span>
+      }
+&nbsp;
+      // If email is missing in profile, get it from auth.users
+<span class="cstat-no" title="statement not covered" >      if (!data.email) {</span>
+        const { data: authUser, error: authError } = <span class="cstat-no" title="statement not covered" >await supabase.auth.admin.getUserById(userId);</span>
+<span class="cstat-no" title="statement not covered" >        if (!authError &amp;&amp; authUser?.user?.email) {</span>
+<span class="cstat-no" title="statement not covered" >          data.email = authUser.user.email;</span>
+<span class="cstat-no" title="statement not covered" >          console.log('🔧 Profile DataSource: Added missing email from auth.users:', authUser.user.email);</span>
+        }
       }
 &nbsp;
 <span class="cstat-no" title="statement not covered" >      this.logger.debug('Profile fetched successfully', { userId });</span>
@@ -1501,7 +1561,7 @@ export class ProfileDataSource implements IProfileDataSource {
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2025-06-01T18:02:20.399Z
+                at 2025-06-09T20:35:24.799Z
             </div>
         <script src="../../../../../prettify.js"></script>
         <script>

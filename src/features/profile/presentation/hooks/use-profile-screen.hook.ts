@@ -13,6 +13,8 @@ import { useProfileNavigation } from './use-profile-navigation.hook';
 import { useProfileRefresh } from './use-profile-refresh.hook';
 // import { useAuth } from '@features/auth/presentation/hooks';
 import { useAuthStore } from '@features/auth/presentation/store/auth.store';
+import { LoggerFactory } from '@core/logging/logger.factory';
+import { LogCategory } from '@core/logging/logger.service.interface';
 import { useTheme } from '../../../../core/theme/theme.system';
 import { useProfileStore } from '../store/profile.store';
 import { PROFILE_CONSTANTS } from '../constants/profile.constants';
@@ -65,6 +67,7 @@ export interface UseProfileScreenReturn {
 }
 
 export const useProfileScreen = ({ navigation }: UseProfileScreenParams): UseProfileScreenReturn => {
+  const logger = LoggerFactory.createServiceLogger('useProfileScreen');
   const { t } = useTranslation();
   const { theme } = useTheme();
   
@@ -77,13 +80,17 @@ export const useProfileScreen = ({ navigation }: UseProfileScreenParams): UsePro
   
   // Debug current user from auth
   React.useEffect(() => {
-    console.log('🔍 useProfileScreen - Auth User Debug:', { 
-      currentUser: currentUser?.email || 'null', 
-      userId: currentUser?.id || 'null',
-      isAuthenticated,
-      authUser: authUser?.email || 'null'
-    });
-  }, [currentUser, isAuthenticated, authUser]);
+    if (process.env.NODE_ENV === 'development') {
+      logger.debug('Auth user state update', LogCategory.AUTHENTICATION, {
+        metadata: { 
+          currentUserEmail: currentUser?.email || 'null', 
+          userId: currentUser?.id || 'null',
+          isAuthenticated,
+          authUserEmail: authUser?.email || 'null'
+        }
+      });
+    }
+  }, [currentUser, isAuthenticated, authUser, logger]);
   
   // Profile State Management
   const profileFromStore = useProfileStore(state => state.profile);
@@ -142,15 +149,19 @@ export const useProfileScreen = ({ navigation }: UseProfileScreenParams): UsePro
   // Computed Values with Performance Optimization
   const currentProfile = React.useMemo(() => {
     const result = profile || profileFromStore;
-    console.log('🔍 useProfileScreen - Profile Computation:', { 
-      profileFromHook: !!profile, 
-      profileFromStore: !!profileFromStore, 
-      finalProfile: !!result,
-      profileId: result?.id || 'null',
-      firstName: result?.firstName || 'null'
-    });
+    if (process.env.NODE_ENV === 'development') {
+      logger.debug('Profile computation', LogCategory.BUSINESS, {
+        metadata: { 
+          profileFromHook: !!profile, 
+          profileFromStore: !!profileFromStore, 
+          finalProfile: !!result,
+          profileId: result?.id || 'null',
+          firstName: result?.firstName || 'null'
+        }
+      });
+    }
     return result;
-  }, [profile, profileFromStore]);
+  }, [profile, profileFromStore, logger]);
 
   const completeness = React.useMemo(() => {
     const result = calculateCompleteness();
@@ -159,13 +170,17 @@ export const useProfileScreen = ({ navigation }: UseProfileScreenParams): UsePro
 
   const hasProfile = React.useMemo(() => {
     const result = !!currentProfile;
-    console.log('🔍 useProfileScreen - hasProfile Computation:', { 
-      currentProfile: !!currentProfile, 
-      hasProfile: result,
-      profileId: currentProfile?.id || 'null'
-    });
+    if (process.env.NODE_ENV === 'development') {
+      logger.debug('Profile existence check', LogCategory.BUSINESS, {
+        metadata: { 
+          currentProfile: !!currentProfile, 
+          hasProfile: result,
+          profileId: currentProfile?.id || 'null'
+        }
+      });
+    }
     return result;
-  }, [currentProfile]);
+  }, [currentProfile, logger]);
 
   const error = React.useMemo(() => {
     const result = storeError;
@@ -175,18 +190,20 @@ export const useProfileScreen = ({ navigation }: UseProfileScreenParams): UsePro
   // Development Debug Logging
   React.useEffect(() => {
     if (process.env.NODE_ENV === 'development') {
-      console.log('useProfileScreen State Update:', {
-        hasProfile,
-        hasInitialized,
-        isLoading,
-        error: !!error,
-        hasAvatar,
-        profileId: currentProfile?.id,
-        currentUserId: currentUser?.id,
-        currentUserEmail: currentUser?.email,
+      logger.debug('Profile screen state update', LogCategory.BUSINESS, {
+        metadata: {
+          hasProfile,
+          hasInitialized,
+          isLoading,
+          hasError: !!error,
+          hasAvatar,
+          profileId: currentProfile?.id,
+          currentUserId: currentUser?.id,
+          currentUserEmail: currentUser?.email,
+        }
       });
     }
-  }, [hasProfile, hasInitialized, isLoading, error, hasAvatar, currentProfile?.id, currentUser?.id, currentUser?.email]);
+  }, [hasProfile, hasInitialized, isLoading, error, hasAvatar, currentProfile?.id, currentUser?.id, currentUser?.email, logger]);
 
   const screenReturn = {
     // Profile Data
@@ -233,15 +250,19 @@ export const useProfileScreen = ({ navigation }: UseProfileScreenParams): UsePro
 
   // Debug final return values
   React.useEffect(() => {
-    console.log('🔍 useProfileScreen - Final Return Debug:', {
-      hasCurrentProfile: !!screenReturn.currentProfile,
-      hasProfile: screenReturn.hasProfile,
-      isLoading: screenReturn.isLoading,
-      refreshing: screenReturn.refreshing,
-      error: !!screenReturn.error,
-      currentUserId: screenReturn.currentUser?.id || 'null'
-    });
-  }, [screenReturn.currentProfile, screenReturn.hasProfile, screenReturn.isLoading, screenReturn.refreshing, screenReturn.error, screenReturn.currentUser?.id]);
+    if (process.env.NODE_ENV === 'development') {
+      logger.debug('Profile screen final return values', LogCategory.BUSINESS, {
+        metadata: {
+          hasCurrentProfile: !!screenReturn.currentProfile,
+          hasProfile: screenReturn.hasProfile,
+          isLoading: screenReturn.isLoading,
+          refreshing: screenReturn.refreshing,
+          hasError: !!screenReturn.error,
+          currentUserId: screenReturn.currentUser?.id || 'null'
+        }
+      });
+    }
+  }, [screenReturn.currentProfile, screenReturn.hasProfile, screenReturn.isLoading, screenReturn.refreshing, screenReturn.error, screenReturn.currentUser?.id, logger]);
 
   return screenReturn;
 }; 

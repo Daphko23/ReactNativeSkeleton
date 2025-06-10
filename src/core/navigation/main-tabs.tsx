@@ -13,7 +13,7 @@
 import React from 'react';
 import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
 import {createStackNavigator} from '@react-navigation/stack';
-import {MainTabParamList} from './navigation.types';
+import {MainTabParamList, HomeStackParamList} from './navigation.types';
 import {View, Text, TouchableOpacity} from 'react-native';
 import {SafeAreaView} from 'react-native-safe-area-context';
 import Icon from 'react-native-vector-icons/Ionicons';
@@ -27,6 +27,7 @@ import { NotificationCenterScreen } from '@features/notifications/presentation/s
 import { CreditNavigator } from '@features/credits/presentation/navigation/credit.navigator';
 import { ThemeDemoScreen } from '@features/profile/presentation/screens/theme-demo/theme-demo.screen';
 import ProfileComplianceDemoScreen from '@features/profile/presentation/screens/profile-compliance-demo/profile-compliance-demo.screen';
+import { AuthGDPRDemoScreen } from '@features/auth/presentation/screens/auth-gdpr-demo.screen';
 
 /**
  * Tab navigator instance for bottom navigation.
@@ -46,7 +47,7 @@ const Tab = createBottomTabNavigator<MainTabParamList>();
  * @since 1.0.0
  * @description Stack navigator for Home tab with sub-screens
  */
-const HomeStack = createStackNavigator();
+const HomeStack = createStackNavigator<HomeStackParamList>();
 
 /**
  * Props interface for HomeScreen component.
@@ -283,6 +284,34 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
           <Icon name="chevron-forward" size={20} color="white" />
         </TouchableOpacity>
 
+        {/* Auth GDPR Demo Access - Navigation zu Auth GDPR Demo */}
+        <TouchableOpacity 
+          style={{
+            backgroundColor: '#007AFF', 
+            padding: 16, 
+            borderRadius: 12, 
+            marginBottom: 16,
+            flexDirection: 'row',
+            alignItems: 'center'
+          }}
+          onPress={() => {
+            // Navigation direkt zur Auth GDPR Demo
+            navigation.navigate('AuthGDPRDemo');
+          }}
+          activeOpacity={0.8}
+        >
+          <Icon name="lock-closed" size={24} color="white" style={{marginRight: 12}} />
+          <View style={{flex: 1}}>
+            <Text style={{color: 'white', fontSize: 16, fontWeight: '600'}}>
+              Auth GDPR Demo
+            </Text>
+            <Text style={{color: 'rgba(255,255,255,0.8)', fontSize: 14, marginTop: 2}}>
+              Authentication • GDPR Audit
+            </Text>
+          </View>
+          <Icon name="chevron-forward" size={20} color="white" />
+        </TouchableOpacity>
+
         {/* Credits Access - Navigation zu CreditNavigator über SettingsTab */}
         <TouchableOpacity 
           style={{
@@ -472,6 +501,22 @@ const HomeNavigator: React.FC = () => {
         options={{
           headerShown: true,
           title: 'Enterprise Compliance',
+          headerBackTitle: 'Zurück',
+          headerStyle: {
+            backgroundColor: theme.colors.surface,
+          },
+          headerTintColor: theme.colors.text,
+          headerTitleStyle: {
+            color: theme.colors.text,
+          },
+        }}
+      />
+      <HomeStack.Screen 
+        name="AuthGDPRDemo" 
+        component={AuthGDPRDemoScreen}
+        options={{
+          headerShown: true,
+          title: 'Auth GDPR Demo',
           headerBackTitle: 'Zurück',
           headerStyle: {
             backgroundColor: theme.colors.surface,

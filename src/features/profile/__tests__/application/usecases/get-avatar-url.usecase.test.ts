@@ -1,0 +1,740 @@
+/**
+ * @fileoverview GET-AVATAR-URL-USECASE-TESTS: Enterprise Avatar URL Retrieval Test Suite Implementation
+ * @description Comprehensive test coverage für GetAvatarUrlUseCase mit
+ * Enterprise Fallback Logic, Avatar URL Management und CDN Integration Testing.
+ * Implementiert Auth Feature Test Patterns für 9/10 Enterprise-Level Coverage.
+ * 
+ * @version 1.0.0
+ * @since 1.0.0
+ * @author ReactNativeSkeleton Enterprise Team
+ * @module GetAvatarUrlUseCaseTests
+ * @namespace Features.Profile.Tests.Application.UseCases
+ * @category ProfileManagement
+ * @subcategory Use Case Tests
+ * 
+ * @testCategories
+ * - **Input Validation Tests:** User ID parameter validation und sanitization
+ * - **Avatar URL Retrieval Tests:** Avatar URL fetching workflow testing
+ * - **Fallback Logic Tests:** Default avatar und initials generation
+ * - **Options Handling Tests:** Configuration options processing
+ * - **Error Handling Tests:** URL retrieval failure scenarios
+ * - **Performance Tests:** URL generation speed und caching
+ * - **Business Logic Tests:** Name sanitization und initials generation
+ * - **Integration Tests:** End-to-end avatar URL workflow
+ * 
+ * @compliance
+ * - **Performance Standards:** Sub-100ms URL retrieval times
+ * - **Fallback Reliability:** 100% uptime with default avatars
+ * - **Input Sanitization:** XSS prevention in name parameters
+ * - **CDN Integration:** Optimized URL generation for media delivery
+ * 
+ * @since 2025-01-23
+ */
+
+import { GetAvatarUrlUseCase } from '../../../application/usecases/get-avatar-url.usecase';
+
+// Mock external services
+jest.mock('../../../data/services/avatar.service', () => ({
+  avatarService: {
+    getAvatarUrl: jest.fn(),
+    getDefaultAvatarUrl: jest.fn(),
+    generateInitialsAvatar: jest.fn(),
+  },
+}));
+
+// Import mocked services
+import { avatarService } from '../../../data/services/avatar.service';
+
+// =============================================================================
+// TEST MOCKS & SETUP
+// =============================================================================
+
+// =============================================================================
+// TEST DATA FACTORIES
+// =============================================================================
+
+/**
+ * Create valid avatar URL
+ */
+const createValidAvatarUrl = (userId: string = 'test-user-123') => 
+  `https://cdn.example.com/avatars/${userId}/avatar.jpg`;
+
+/**
+ * Create thumbnail avatar URL
+ */
+const _createThumbnailAvatarUrl = (userId: string = 'test-user-123') => 
+  `https://cdn.example.com/avatars/${userId}/avatar_thumb.jpg`;
+
+/**
+ * Create default avatar URL
+ */
+const createDefaultAvatarUrl = () => 
+  'https://cdn.example.com/avatars/default.jpg';
+
+/**
+ * Create initials avatar URL
+ */
+const createInitialsAvatarUrl = (initials: string) => 
+  `https://cdn.example.com/avatars/initials/${initials}.svg`;
+
+/**
+ * Create avatar service error
+ */
+const createAvatarServiceError = (message: string) => {
+  const error = new Error(message);
+  error.name = 'AvatarServiceError';
+  return error;
+};
+
+/**
+ * Create network error
+ */
+const createNetworkError = (message: string) => {
+  const error = new Error(message);
+  error.name = 'NetworkError';
+  return error;
+};
+
+/**
+ * Create CDN error
+ */
+const createCDNError = (message: string) => {
+  const error = new Error(message);
+  error.name = 'CDNError';
+  return error;
+};
+
+// =============================================================================
+// MAIN TEST SUITE
+// =============================================================================
+
+describe('GetAvatarUrlUseCase', () => {
+  let useCase: GetAvatarUrlUseCase;
+  let mockAvatarService: jest.Mocked<typeof avatarService>;
+
+  // Test data
+  const validUserId = 'test-user-123';
+  const validUserName = 'John Doe';
+  const validAvatarUrl = createValidAvatarUrl(validUserId);
+  const defaultAvatarUrl = createDefaultAvatarUrl();
+  const initialsAvatarUrl = createInitialsAvatarUrl('JD');
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+    mockAvatarService = avatarService as jest.Mocked<typeof avatarService>;
+    
+    useCase = new GetAvatarUrlUseCase();
+    
+    // Reset mock implementations
+    mockAvatarService.getAvatarUrl.mockResolvedValue(validAvatarUrl);
+    mockAvatarService.getDefaultAvatarUrl.mockReturnValue(defaultAvatarUrl);
+    mockAvatarService.generateInitialsAvatar.mockReturnValue(initialsAvatarUrl);
+  });
+
+  afterEach(() => {
+    jest.clearAllMocks();
+  });
+
+  // =============================================================================
+  // CONSTRUCTOR TESTS
+  // =============================================================================
+
+  describe('Constructor', () => {
+    it('should create instance with default configuration', () => {
+      expect(useCase).toBeInstanceOf(GetAvatarUrlUseCase);
+    });
+
+    it('should initialize with proper default options', () => {
+      const instance = new GetAvatarUrlUseCase();
+      expect(instance).toBeInstanceOf(GetAvatarUrlUseCase);
+    });
+  });
+
+  // =============================================================================
+  // INPUT VALIDATION TESTS
+  // =============================================================================
+
+  describe('Input Validation', () => {
+    it('should return default avatar when userId is empty string', async () => {
+      const result = await useCase.execute('');
+
+      expect(result).toBe(defaultAvatarUrl);
+      expect(mockAvatarService.getAvatarUrl).not.toHaveBeenCalled();
+      expect(mockAvatarService.getDefaultAvatarUrl).toHaveBeenCalled();
+    });
+
+    it('should return default avatar when userId is null', async () => {
+      const result = await useCase.execute(null as any);
+
+      expect(result).toBe(defaultAvatarUrl);
+      expect(mockAvatarService.getAvatarUrl).not.toHaveBeenCalled();
+    });
+
+    it('should return default avatar when userId is undefined', async () => {
+      const result = await useCase.execute(undefined as any);
+
+      expect(result).toBe(defaultAvatarUrl);
+      expect(mockAvatarService.getAvatarUrl).not.toHaveBeenCalled();
+    });
+
+    it('should accept valid userId', async () => {
+      const result = await useCase.execute(validUserId);
+
+      expect(result).toBe(validAvatarUrl);
+      expect(mockAvatarService.getAvatarUrl).toHaveBeenCalledWith(validUserId);
+    });
+
+    it('should handle special characters in userId', async () => {
+      const specialUserId = 'user_用户_2024@#$%';
+      const specialAvatarUrl = createValidAvatarUrl(specialUserId);
+      mockAvatarService.getAvatarUrl.mockResolvedValue(specialAvatarUrl);
+
+      const result = await useCase.execute(specialUserId);
+
+      expect(result).toBe(specialAvatarUrl);
+      expect(mockAvatarService.getAvatarUrl).toHaveBeenCalledWith(specialUserId);
+    });
+  });
+
+  // =============================================================================
+  // AVATAR URL RETRIEVAL TESTS
+  // =============================================================================
+
+  describe('Avatar URL Retrieval', () => {
+    it('should return user avatar URL when available', async () => {
+      const result = await useCase.execute(validUserId);
+
+      expect(result).toBe(validAvatarUrl);
+      expect(mockAvatarService.getAvatarUrl).toHaveBeenCalledWith(validUserId);
+    });
+
+    it('should handle successful avatar service response', async () => {
+      const customAvatarUrl = 'https://cdn.example.com/custom-avatar.jpg';
+      mockAvatarService.getAvatarUrl.mockResolvedValue(customAvatarUrl);
+
+      const result = await useCase.execute(validUserId);
+
+      expect(result).toBe(customAvatarUrl);
+    });
+
+    it('should handle different avatar formats', async () => {
+      const formats = [
+        'https://cdn.example.com/avatar.jpg',
+        'https://cdn.example.com/avatar.png',
+        'https://cdn.example.com/avatar.gif',
+        'https://cdn.example.com/avatar.webp',
+        'https://cdn.example.com/avatar.svg'
+      ];
+
+      for (const avatarUrl of formats) {
+        mockAvatarService.getAvatarUrl.mockResolvedValue(avatarUrl);
+        
+        const result = await useCase.execute(validUserId);
+        
+        expect(result).toBe(avatarUrl);
+      }
+    });
+
+    it('should handle CDN URLs with different domains', async () => {
+      const cdnUrls = [
+        'https://cdn1.example.com/avatar.jpg',
+        'https://media.company.com/users/avatar.jpg',
+        'https://assets.domain.net/profiles/user123.png'
+      ];
+
+      for (const cdnUrl of cdnUrls) {
+        mockAvatarService.getAvatarUrl.mockResolvedValue(cdnUrl);
+        
+        const result = await useCase.execute(validUserId);
+        
+        expect(result).toBe(cdnUrl);
+      }
+    });
+
+    it('should handle high-resolution avatar URLs', async () => {
+      const highResUrl = 'https://cdn.example.com/avatars/user-123/avatar_2x.jpg';
+      mockAvatarService.getAvatarUrl.mockResolvedValue(highResUrl);
+
+      const result = await useCase.execute(validUserId);
+
+      expect(result).toBe(highResUrl);
+    });
+  });
+
+  // =============================================================================
+  // FALLBACK LOGIC TESTS
+  // =============================================================================
+
+  describe('Fallback Logic', () => {
+    it('should fallback to default avatar when user avatar not found', async () => {
+      mockAvatarService.getAvatarUrl.mockResolvedValue(null);
+
+      const result = await useCase.execute(validUserId);
+
+      expect(result).toBe(defaultAvatarUrl);
+      expect(mockAvatarService.getDefaultAvatarUrl).toHaveBeenCalled();
+    });
+
+    it('should fallback to default avatar when service returns default URL', async () => {
+      mockAvatarService.getAvatarUrl.mockResolvedValue(defaultAvatarUrl);
+
+      const result = await useCase.execute(validUserId);
+
+      expect(result).toBe(defaultAvatarUrl);
+    });
+
+    it('should generate initials avatar when requested with name', async () => {
+      mockAvatarService.getAvatarUrl.mockResolvedValue(null);
+
+      const result = await useCase.execute(validUserId, {
+        generateInitials: true,
+        name: validUserName
+      });
+
+      expect(result).toBe(initialsAvatarUrl);
+      expect(mockAvatarService.generateInitialsAvatar).toHaveBeenCalledWith(validUserName);
+    });
+
+    it('should fallback to default when initials requested without name', async () => {
+      mockAvatarService.getAvatarUrl.mockResolvedValue(null);
+
+      const result = await useCase.execute(validUserId, {
+        generateInitials: true
+        // name not provided
+      });
+
+      expect(result).toBe(defaultAvatarUrl);
+      expect(mockAvatarService.generateInitialsAvatar).not.toHaveBeenCalled();
+    });
+
+    it('should handle fallbackToDefault option', async () => {
+      mockAvatarService.getAvatarUrl.mockResolvedValue(null);
+
+      const result = await useCase.execute(validUserId, {
+        fallbackToDefault: true
+      });
+
+      expect(result).toBe(defaultAvatarUrl);
+    });
+
+    it('should prefer custom avatar over initials when available', async () => {
+      const customAvatarUrl = 'https://cdn.example.com/custom.jpg';
+      mockAvatarService.getAvatarUrl.mockResolvedValue(customAvatarUrl);
+
+      const result = await useCase.execute(validUserId, {
+        generateInitials: true,
+        name: validUserName
+      });
+
+      expect(result).toBe(customAvatarUrl);
+      expect(mockAvatarService.generateInitialsAvatar).not.toHaveBeenCalled();
+    });
+  });
+
+  // =============================================================================
+  // OPTIONS HANDLING TESTS
+  // =============================================================================
+
+  describe('Options Handling', () => {
+    it('should handle size option', async () => {
+      const result = await useCase.execute(validUserId, {
+        size: 200
+      });
+
+      expect(result).toBe(validAvatarUrl);
+    });
+
+    it('should handle all options together', async () => {
+      mockAvatarService.getAvatarUrl.mockResolvedValue(null);
+
+      const result = await useCase.execute(validUserId, {
+        fallbackToDefault: true,
+        generateInitials: true,
+        name: validUserName,
+        size: 150
+      });
+
+      expect(result).toBe(initialsAvatarUrl);
+    });
+
+    it('should handle empty options object', async () => {
+      const result = await useCase.execute(validUserId, {});
+
+      expect(result).toBe(validAvatarUrl);
+    });
+
+    it('should handle undefined options', async () => {
+      const result = await useCase.execute(validUserId, undefined);
+
+      expect(result).toBe(validAvatarUrl);
+    });
+
+    it('should handle partial options', async () => {
+      const result = await useCase.execute(validUserId, {
+        generateInitials: true
+        // name missing
+      });
+
+      expect(result).toBe(validAvatarUrl);
+    });
+  });
+
+  // =============================================================================
+  // ERROR HANDLING TESTS
+  // =============================================================================
+
+  describe('Error Handling', () => {
+    it('should handle avatar service errors', async () => {
+      const serviceError = createAvatarServiceError('Service unavailable');
+      mockAvatarService.getAvatarUrl.mockRejectedValue(serviceError);
+
+      const consoleSpy = jest.spyOn(console, 'error').mockImplementation();
+
+      const result = await useCase.execute(validUserId);
+
+      expect(result).toBe(defaultAvatarUrl);
+      expect(consoleSpy).toHaveBeenCalledWith(
+        'GetAvatarUrlUseCase: Failed to get avatar URL:',
+        serviceError
+      );
+
+      consoleSpy.mockRestore();
+    });
+
+    it('should handle network connectivity errors', async () => {
+      const networkError = createNetworkError('Network timeout');
+      mockAvatarService.getAvatarUrl.mockRejectedValue(networkError);
+
+      const consoleSpy = jest.spyOn(console, 'error').mockImplementation();
+
+      const result = await useCase.execute(validUserId);
+
+      expect(result).toBe(defaultAvatarUrl);
+      expect(consoleSpy).toHaveBeenCalled();
+
+      consoleSpy.mockRestore();
+    });
+
+    it('should handle CDN errors', async () => {
+      const cdnError = createCDNError('CDN temporarily unavailable');
+      mockAvatarService.getAvatarUrl.mockRejectedValue(cdnError);
+
+      const consoleSpy = jest.spyOn(console, 'error').mockImplementation();
+
+      const result = await useCase.execute(validUserId);
+
+      expect(result).toBe(defaultAvatarUrl);
+
+      consoleSpy.mockRestore();
+    });
+
+    it('should handle unexpected errors', async () => {
+      const unexpectedError = new Error('Unexpected error');
+      mockAvatarService.getAvatarUrl.mockRejectedValue(unexpectedError);
+
+      const consoleSpy = jest.spyOn(console, 'error').mockImplementation();
+
+      const result = await useCase.execute(validUserId);
+
+      expect(result).toBe(defaultAvatarUrl);
+
+      consoleSpy.mockRestore();
+    });
+
+    it('should handle errors in default avatar service', async () => {
+      const serviceError = createAvatarServiceError('Service error');
+      mockAvatarService.getAvatarUrl.mockRejectedValue(serviceError);
+      
+      // Default avatar service should still work
+      const result = await useCase.execute(validUserId);
+
+      expect(result).toBe(defaultAvatarUrl);
+    });
+  });
+
+  // =============================================================================
+  // BUSINESS LOGIC TESTS
+  // =============================================================================
+
+  describe('Business Logic', () => {
+    describe('Name Sanitization', () => {
+      it('should sanitize names correctly', () => {
+        const testNames = [
+          'John Doe',
+          'Max Müller',
+          'Anna-Maria Schmidt',
+          'José García',
+          'User@123',
+          '   Spaced Name   ',
+          'VeryLongNameThatExceedsTheFiftyCharacterLimitAndShouldBeTruncated'
+        ];
+
+        testNames.forEach(name => {
+          const result = useCase.generateInitialsAvatar(name);
+          expect(result).toBeDefined();
+          expect(mockAvatarService.generateInitialsAvatar).toHaveBeenCalled();
+        });
+      });
+
+      it('should handle special characters in names', () => {
+        const nameWithSpecialChars = 'John@#$%Doe';
+        
+        const result = useCase.generateInitialsAvatar(nameWithSpecialChars);
+        
+        expect(result).toBe(initialsAvatarUrl);
+        // Name should be sanitized before passing to service (special chars removed)
+        expect(mockAvatarService.generateInitialsAvatar).toHaveBeenCalledWith('JohnDoe');
+      });
+
+      it('should handle German umlauts correctly', () => {
+        const germanName = 'Müller Äöüß';
+        
+        const result = useCase.generateInitialsAvatar(germanName);
+        
+        expect(result).toBe(initialsAvatarUrl);
+        expect(mockAvatarService.generateInitialsAvatar).toHaveBeenCalledWith(germanName);
+      });
+
+      it('should normalize whitespace', () => {
+        const nameWithExtraSpaces = '  John    Doe  ';
+        
+        const result = useCase.generateInitialsAvatar(nameWithExtraSpaces);
+        
+        expect(result).toBe(initialsAvatarUrl);
+        expect(mockAvatarService.generateInitialsAvatar).toHaveBeenCalledWith('John Doe');
+      });
+
+      it('should truncate long names', () => {
+        const longName = 'A'.repeat(100);
+        
+        const result = useCase.generateInitialsAvatar(longName);
+        
+        expect(result).toBe(initialsAvatarUrl);
+        const sanitizedName = mockAvatarService.generateInitialsAvatar.mock.calls[0][0];
+        expect(sanitizedName.length).toBeLessThanOrEqual(50);
+      });
+    });
+
+    describe('Initials Generation', () => {
+      it('should generate initials avatar with default size', () => {
+        const result = useCase.generateInitialsAvatar(validUserName);
+
+        expect(result).toBe(initialsAvatarUrl);
+        expect(mockAvatarService.generateInitialsAvatar).toHaveBeenCalledWith(validUserName);
+      });
+
+      it('should generate initials avatar with custom size', () => {
+        const customSize = 200;
+        
+        const result = useCase.generateInitialsAvatar(validUserName, customSize);
+
+        expect(result).toBe(initialsAvatarUrl);
+        expect(mockAvatarService.generateInitialsAvatar).toHaveBeenCalledWith(validUserName);
+      });
+
+      it('should handle single name', () => {
+        const singleName = 'John';
+        
+        const result = useCase.generateInitialsAvatar(singleName);
+
+        expect(result).toBe(initialsAvatarUrl);
+        expect(mockAvatarService.generateInitialsAvatar).toHaveBeenCalledWith(singleName);
+      });
+
+      it('should handle multiple names', () => {
+        const multipleName = 'John Michael Doe';
+        
+        const result = useCase.generateInitialsAvatar(multipleName);
+
+        expect(result).toBe(initialsAvatarUrl);
+        expect(mockAvatarService.generateInitialsAvatar).toHaveBeenCalledWith(multipleName);
+      });
+    });
+  });
+
+  // =============================================================================
+  // PERFORMANCE TESTS
+  // =============================================================================
+
+  describe('Performance', () => {
+    it('should complete URL retrieval within reasonable time', async () => {
+      const startTime = Date.now();
+      
+      const result = await useCase.execute(validUserId);
+      
+      const endTime = Date.now();
+      const executionTime = endTime - startTime;
+
+      expect(executionTime).toBeLessThan(100); // Should complete within 100ms
+      expect(result).toBe(validAvatarUrl);
+    });
+
+    it('should handle concurrent URL requests efficiently', async () => {
+      const userIds = ['user-1', 'user-2', 'user-3', 'user-4', 'user-5'];
+      
+      const promises = userIds.map(userId => useCase.execute(userId));
+      const results = await Promise.all(promises);
+
+      results.forEach(result => {
+        expect(result).toBeDefined();
+        expect(typeof result).toBe('string');
+      });
+
+      expect(mockAvatarService.getAvatarUrl).toHaveBeenCalledTimes(5);
+    });
+
+    it('should not delay on error conditions', async () => {
+      const serviceError = createAvatarServiceError('Service error');
+      mockAvatarService.getAvatarUrl.mockRejectedValue(serviceError);
+
+      const consoleSpy = jest.spyOn(console, 'error').mockImplementation();
+
+      const startTime = Date.now();
+      const result = await useCase.execute(validUserId);
+      const endTime = Date.now();
+
+      expect(result).toBe(defaultAvatarUrl);
+      expect(endTime - startTime).toBeLessThan(50); // Fast fallback
+
+      consoleSpy.mockRestore();
+    });
+
+    it('should cache-friendly URL generation', async () => {
+      // Multiple calls should use the same service calls
+      await useCase.execute(validUserId);
+      await useCase.execute(validUserId);
+      await useCase.execute(validUserId);
+
+      expect(mockAvatarService.getAvatarUrl).toHaveBeenCalledTimes(3);
+    });
+  });
+
+  // =============================================================================
+  // INTEGRATION TESTS
+  // =============================================================================
+
+  describe('Integration Scenarios', () => {
+    it('should handle complete avatar URL workflow', async () => {
+      const result = await useCase.execute(validUserId);
+
+      expect(result).toBe(validAvatarUrl);
+      expect(mockAvatarService.getAvatarUrl).toHaveBeenCalledWith(validUserId);
+    });
+
+    it('should handle enterprise user avatar URLs', async () => {
+      const enterpriseUserId = 'enterprise-user-789';
+      const enterpriseAvatarUrl = 'https://enterprise-cdn.company.com/avatars/user-789.jpg';
+      
+      mockAvatarService.getAvatarUrl.mockResolvedValue(enterpriseAvatarUrl);
+
+      const result = await useCase.execute(enterpriseUserId);
+
+      expect(result).toBe(enterpriseAvatarUrl);
+    });
+
+    it('should handle mobile app avatar requests', async () => {
+      const mobileUserId = 'mobile-user-456';
+      const mobileAvatarUrl = 'https://mobile-cdn.example.com/users/456.jpg';
+      
+      mockAvatarService.getAvatarUrl.mockResolvedValue(mobileAvatarUrl);
+
+      const result = await useCase.execute(mobileUserId, {
+        size: 64 // Mobile optimized size
+      });
+
+      expect(result).toBe(mobileAvatarUrl);
+    });
+
+    it('should handle web app with initials fallback', async () => {
+      mockAvatarService.getAvatarUrl.mockResolvedValue(null);
+
+      const result = await useCase.execute(validUserId, {
+        generateInitials: true,
+        name: 'Sarah Connor',
+        size: 128
+      });
+
+      expect(result).toBe(initialsAvatarUrl);
+      expect(mockAvatarService.generateInitialsAvatar).toHaveBeenCalledWith('Sarah Connor');
+    });
+  });
+
+  // =============================================================================
+  // EDGE CASES & BOUNDARY TESTS
+  // =============================================================================
+
+  describe('Edge Cases', () => {
+    it('should handle very long user IDs', async () => {
+      const longUserId = 'a'.repeat(1000);
+      const longUserAvatarUrl = createValidAvatarUrl(longUserId);
+      mockAvatarService.getAvatarUrl.mockResolvedValue(longUserAvatarUrl);
+
+      const result = await useCase.execute(longUserId);
+
+      expect(result).toBe(longUserAvatarUrl);
+    });
+
+    it('should handle Unicode characters in user IDs', async () => {
+      const unicodeUserId = 'user_用户_🙂_123';
+      const unicodeAvatarUrl = createValidAvatarUrl(unicodeUserId);
+      mockAvatarService.getAvatarUrl.mockResolvedValue(unicodeAvatarUrl);
+
+      const result = await useCase.execute(unicodeUserId);
+
+      expect(result).toBe(unicodeAvatarUrl);
+    });
+
+    it('should handle empty names for initials generation', async () => {
+      mockAvatarService.getAvatarUrl.mockResolvedValue(null);
+
+      const result = await useCase.execute(validUserId, {
+        generateInitials: true,
+        name: ''
+      });
+
+      expect(result).toBe(defaultAvatarUrl);
+    });
+
+    it('should handle null/undefined names gracefully', async () => {
+      mockAvatarService.getAvatarUrl.mockResolvedValue(null);
+
+      const resultWithNull = await useCase.execute(validUserId, {
+        generateInitials: true,
+        name: null as any
+      });
+
+      const resultWithUndefined = await useCase.execute(validUserId, {
+        generateInitials: true,
+        name: undefined
+      });
+
+      expect(resultWithNull).toBe(defaultAvatarUrl);
+      expect(resultWithUndefined).toBe(defaultAvatarUrl);
+    });
+
+    it('should handle extremely large size values', async () => {
+      const result = await useCase.execute(validUserId, {
+        size: 99999
+      });
+
+      expect(result).toBe(validAvatarUrl);
+    });
+
+    it('should handle negative size values', async () => {
+      const result = await useCase.execute(validUserId, {
+        size: -100
+      });
+
+      expect(result).toBe(validAvatarUrl);
+    });
+
+    it('should handle malformed avatar URLs from service', async () => {
+      const malformedUrl = 'not-a-valid-url';
+      mockAvatarService.getAvatarUrl.mockResolvedValue(malformedUrl);
+
+      const result = await useCase.execute(validUserId);
+
+      expect(result).toBe(malformedUrl); // Should return as-is from service
+    });
+  });
+});

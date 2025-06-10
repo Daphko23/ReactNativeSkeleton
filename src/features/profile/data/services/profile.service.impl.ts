@@ -19,9 +19,12 @@ import {
 } from '../../domain/entities/user-profile.entity';
 import type { IProfileRepository } from '../repositories/profile.repository.impl';
 import { gdprAuditService } from './gdpr-audit.service';
+import { LoggerFactory } from '@core/logging/logger.factory';
+import { LogCategory } from '@core/logging/logger.service.interface';
 import { ProfileObservabilityService } from '../../../../core/monitoring/profile-observability.service';
 
 export class ProfileServiceImpl implements IProfileService {
+  private logger = LoggerFactory.createServiceLogger('ProfileService');
   private options: ProfileServiceOptions;
   private repository: IProfileRepository;
   private observability: ProfileObservabilityService;
@@ -40,7 +43,9 @@ export class ProfileServiceImpl implements IProfileService {
   }
 
   async initialize(): Promise<void> {
-    console.log('ProfileServiceImpl initialized with options:', this.options);
+    this.logger.info('ProfileService initialized', LogCategory.INFRASTRUCTURE, {
+      metadata: { options: this.options }
+    });
   }
 
   // =============================================
@@ -54,7 +59,11 @@ export class ProfileServiceImpl implements IProfileService {
       const profile = await this.repository.getProfile(userId);
       if (!profile) {
         // Log info instead of error for missing profiles (normal for new users)
-        console.info(`No profile found for user: ${userId}. This is normal for new users.`);
+        this.logger.info('Profile not found for user (normal for new users)', LogCategory.BUSINESS, {
+          userId,
+          correlationId,
+          metadata: { operation: 'getProfile', isNewUser: true }
+        });
         this.observability.endProfileOperation(correlationId, 'success');
         return null;
       }
@@ -62,9 +71,9 @@ export class ProfileServiceImpl implements IProfileService {
       // 🔒 GDPR Audit: Log data access
       await gdprAuditService.logDataAccess(
         userId,
-        userId, // dataSubject same as userId for self-access
-        'read',
         Object.keys(profile), // all profile fields accessed
+        'read',
+        userId, // performed by user
         {
           correlationId
         }
@@ -73,7 +82,11 @@ export class ProfileServiceImpl implements IProfileService {
       this.observability.endProfileOperation(correlationId, 'success', undefined, profile);
       return profile;
     } catch (error) {
-      console.error('Error in getProfile:', error);
+      this.logger.error('Failed to get profile', LogCategory.BUSINESS, {
+        userId,
+        correlationId,
+        metadata: { operation: 'getProfile' }
+      }, error as Error);
       this.observability.endProfileOperation(correlationId, 'error', error as Error);
       throw error;
     }
@@ -99,11 +112,13 @@ export class ProfileServiceImpl implements IProfileService {
       if (currentProfile) {
         await gdprAuditService.logDataUpdate(
           userId,
-          userId, // dataSubject same as userId for self-update
-          currentProfile,
-          updatedProfile,
+          Object.keys(profileData), // updated fields
+          'profile_update',
+          userId, // performed by user
           {
-            correlationId
+            correlationId,
+            previousProfile: currentProfile,
+            updatedProfile
           }
         );
       }
@@ -111,7 +126,11 @@ export class ProfileServiceImpl implements IProfileService {
       this.observability.endProfileOperation(correlationId, 'success', undefined, updatedProfile);
       return updatedProfile;
     } catch (error) {
-      console.error('Error in updateProfile:', error);
+      this.logger.error('Failed to update profile', LogCategory.BUSINESS, {
+        userId,
+        correlationId,
+        metadata: { operation: 'updateProfile', fieldsUpdated: Object.keys(profileData) }
+      }, error as Error);
       this.observability.endProfileOperation(correlationId, 'error', error as Error);
       throw error;
     }
@@ -128,18 +147,26 @@ export class ProfileServiceImpl implements IProfileService {
       if (currentProfile) {
         await gdprAuditService.logDataDeletion(
           userId,
-          userId, // dataSubject same as userId for self-deletion
-          currentProfile,
-          'user_request', // deletion type
+          ['profile_data'], // deleted data types
+          'user_request', // deletion reason
+          userId, // performed by user
           {
-            correlationId: `profile-delete-${Date.now()}`
+            correlationId: `profile-delete-${Date.now()}`,
+            deletedProfile: currentProfile
           }
         );
       }
       
-      console.log(`Profile deleted for user: ${userId}, keepAuth: ${keepAuth}`);
+      this.logger.info('Profile deleted successfully', LogCategory.BUSINESS, {
+        userId,
+        correlationId: `profile-delete-${Date.now()}`,
+        metadata: { operation: 'deleteProfile', keepAuth }
+      });
     } catch (error) {
-      console.error('Error in deleteProfile:', error);
+      this.logger.error('Failed to delete profile', LogCategory.BUSINESS, {
+        userId,
+        metadata: { operation: 'deleteProfile', keepAuth }
+      }, error as Error);
       throw error;
     }
   }
@@ -165,18 +192,24 @@ export class ProfileServiceImpl implements IProfileService {
       // 🔒 GDPR Audit: Log avatar upload (DATA_UPDATE)
       await gdprAuditService.logDataUpdate(
         userId,
-        userId, // dataSubject same as userId for self-upload
-        { avatar: oldAvatarUrl },
-        { avatar: imageUri },
+        ['avatar'], // uploaded data types
+        'avatar_upload',
+        userId, // performed by user
         {
-          correlationId
+          correlationId,
+          previousAvatar: oldAvatarUrl,
+          newAvatar: imageUri
         }
       );
 
       this.observability.endProfileOperation(correlationId, 'success', undefined, imageUri);
       return imageUri;
     } catch (error) {
-      console.error('Error in uploadAvatar:', error);
+      this.logger.error('Failed to upload avatar', LogCategory.BUSINESS, {
+        userId,
+        correlationId,
+        metadata: { operation: 'uploadAvatar' }
+      }, error as Error);
       this.observability.endProfileOperation(correlationId, 'error', error as Error);
       throw error;
     }
@@ -194,16 +227,20 @@ export class ProfileServiceImpl implements IProfileService {
       if (oldAvatarUrl) {
         await gdprAuditService.logDataDeletion(
           userId,
-          userId, // dataSubject same as userId for self-deletion
-          { avatar: oldAvatarUrl },
-          'user_request', // deletion type
+          ['avatar'], // deleted data types
+          'user_request', // deletion reason
+          userId, // performed by user
           {
-            correlationId: `avatar-delete-${Date.now()}`
+            correlationId: `avatar-delete-${Date.now()}`,
+            deletedAvatar: oldAvatarUrl
           }
         );
       }
     } catch (error) {
-      console.error('Error in deleteAvatar:', error);
+      this.logger.error('Failed to delete avatar', LogCategory.BUSINESS, {
+        userId,
+        metadata: { operation: 'deleteAvatar' }
+      }, error as Error);
       throw error;
     }
   }
@@ -247,9 +284,10 @@ export class ProfileServiceImpl implements IProfileService {
       // 🔒 GDPR Audit: Log privacy settings update
       await gdprAuditService.logPrivacySettingsUpdate(
         userId,
-        userId, // dataSubject same as userId
+        Object.keys(settings), // updated privacy fields
         currentPrivacySettings,
         updatedPrivacySettings,
+        userId, // performed by user
         {
           correlationId: `privacy-update-${Date.now()}`
         }
@@ -257,7 +295,10 @@ export class ProfileServiceImpl implements IProfileService {
 
       return updatedPrivacySettings;
     } catch (error) {
-      console.error('Error in updatePrivacySettings:', error);
+      this.logger.error('Failed to update privacy settings', LogCategory.BUSINESS, {
+        userId,
+        metadata: { operation: 'updatePrivacySettings' }
+      }, error as Error);
       throw error;
     }
   }
@@ -281,7 +322,10 @@ export class ProfileServiceImpl implements IProfileService {
         reason: item.changeReason || 'Profile update',
       }));
     } catch (error) {
-      console.error('Error in getProfileHistory:', error);
+      this.logger.error('Failed to get profile history', LogCategory.BUSINESS, {
+        userId,
+        metadata: { operation: 'getProfileHistory' }
+      }, error as Error);
       throw error;
     }
   }
@@ -290,7 +334,10 @@ export class ProfileServiceImpl implements IProfileService {
     try {
       return await this.repository.restoreProfileVersion(userId, versionId);
     } catch (error) {
-      console.error('Error in restoreProfileVersion:', error);
+      this.logger.error('Failed to restore profile version', LogCategory.BUSINESS, {
+        userId,
+        metadata: { operation: 'restoreProfileVersion', versionId }
+      }, error as Error);
       throw error;
     }
   }
@@ -320,17 +367,21 @@ export class ProfileServiceImpl implements IProfileService {
       // 🔒 GDPR Audit: Log data export for portability
       await gdprAuditService.logDataExport(
         userId,
-        userId, // dataSubject same as userId
-        exportData,
+        ['profile', 'privacy_settings', 'history'], // exported data types
         format,
+        userId, // performed by user
         {
-          correlationId: `profile-export-${Date.now()}`
+          correlationId: `profile-export-${Date.now()}`,
+          exportData: exportData
         }
       );
 
       return exportData;
     } catch (error) {
-      console.error('Error in exportProfileData:', error);
+      this.logger.error('Failed to export profile data', LogCategory.BUSINESS, {
+        userId,
+        metadata: { operation: 'exportProfileData', format }
+      }, error as Error);
       throw error;
     }
   }
@@ -399,7 +450,10 @@ export class ProfileServiceImpl implements IProfileService {
       const customFields = { ...(profile.customFields || {}), [fieldKey]: value };
       await this.repository.updateProfile(userId, { customFields });
     } catch (error) {
-      console.error('Error in updateCustomField:', error);
+      this.logger.error('Failed to update custom field', LogCategory.BUSINESS, {
+        userId,
+        metadata: { operation: 'updateCustomField', fieldKey }
+      }, error as Error);
       throw error;
     }
   }
@@ -445,36 +499,22 @@ export class ProfileServiceImpl implements IProfileService {
     
     const percentage = Math.round((completedWeight / totalWeight) * 100);
     
-    // Debug logging for completeness calculation
-    console.log('🔍 ProfileService - NEW Completeness Debug:');
-    console.log('📋 Required Fields (weight x3):', requiredFields);
-    console.log('✅ Completed Required:', completedRequired);
-    console.log('❌ Missing Required:', requiredFields.filter(f => !completedRequired.includes(f)));
-    console.log('📋 Optional Fields (weight x2):', optionalFields);
-    console.log('✅ Completed Optional:', completedOptional);
-    console.log('❌ Missing Optional:', optionalFields.filter(f => !completedOptional.includes(f)));
-    console.log('📋 Social Fields (weight x1):', socialFields);
-    console.log('✅ Completed Social:', completedSocial);
-    console.log('📋 Professional Fields (weight x1):', professionalFields);
-    console.log('✅ Completed Professional:', completedProfessional);
-    console.log('📊 Field Values:', {
-      firstName: profile.firstName || '❌ MISSING',
-      lastName: profile.lastName || '❌ MISSING',
-      email: profile.email || '❌ MISSING',
-      bio: profile.bio ? `✅ "${profile.bio.substring(0, 50)}..."` : '❌ MISSING',
-      location: profile.location || '❌ MISSING',
-      website: profile.website || '❌ MISSING',
-      phone: profile.phone || '❌ MISSING',
-      avatar: profile.avatar ? '✅ HAS_AVATAR' : '❌ MISSING',
-      socialLinks: profile.socialLinks ? `✅ HAS_SOCIAL (${Object.keys(profile.socialLinks).length} links)` : '❌ MISSING',
-      professional: profile.professional ? '✅ HAS_PROFESSIONAL' : '❌ MISSING'
-    });
-    console.log('🧮 NEW Calculation:', {
-      totalWeight,
-      completedWeight,
-      percentage,
-      formula: `(${completedRequired.length} * 3 + ${completedOptional.length} * 2 + ${completedSocial.length} * 1 + ${completedProfessional.length} * 1) / ${totalWeight} * 100 = ${percentage}%`
-    });
+    // Debug logging for completeness calculation (development only)
+    if (process.env.NODE_ENV === 'development') {
+      this.logger.debug('Profile completeness calculation', LogCategory.BUSINESS, {
+        metadata: {
+          operation: 'calculateCompleteness',
+          requiredFields: { total: requiredFields, completed: completedRequired },
+          optionalFields: { total: optionalFields, completed: completedOptional },
+          socialFields: { total: socialFields, completed: completedSocial },
+          professionalFields: { total: professionalFields, completed: completedProfessional },
+          totalWeight,
+          completedWeight,
+          percentage
+        }
+      });
+    }
+
     
     return percentage;
   }
@@ -490,11 +530,17 @@ export class ProfileServiceImpl implements IProfileService {
 
   subscribeToProfileChanges(userId: string, _callback: (profile: UserProfile) => void): () => void {
     // TODO: Implement real-time subscription with WebSocket or similar
-    console.log('Subscribed to profile changes for user:', userId);
+    this.logger.info('Subscribed to profile changes', LogCategory.INFRASTRUCTURE, {
+      userId,
+      metadata: { operation: 'subscribeToProfileChanges' }
+    });
     
     // Return unsubscribe function
     return () => {
-      console.log('Unsubscribed from profile changes for user:', userId);
+      this.logger.info('Unsubscribed from profile changes', LogCategory.INFRASTRUCTURE, {
+        userId,
+        metadata: { operation: 'unsubscribeFromProfileChanges' }
+      });
     };
   }
 

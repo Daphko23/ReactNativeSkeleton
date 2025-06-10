@@ -1,5 +1,6 @@
 import {AuthRepository} from '../../domain/interfaces/auth.repository.interface';
 import {AuthUser} from '../../domain/entities/auth-user.entity';
+import { authGDPRAuditService } from '../../data/services/auth-gdpr-audit.service';
 
 /**
  * @fileoverview REGISTER-WITH-EMAIL-USECASE: User Registration Use Case Implementation  
@@ -335,6 +336,8 @@ export class RegisterWithEmailUseCase {
    * @todo Implement invitation-based registration
    */
   async execute(email: string, password: string): Promise<AuthUser> {
+    const correlationId = `register_usecase_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+    
     // Input validation
     if (!email || !password) {
       throw new Error('Email and password are required');
@@ -342,7 +345,15 @@ export class RegisterWithEmailUseCase {
 
     // Delegate to repository with proper error handling
     try {
-      return await this.authRepository.register(email, password);
+      const user = await this.authRepository.register(email, password);
+      
+      // 🔒 GDPR Audit: Additional Use Case level logging for user registration
+      await authGDPRAuditService.logRegistrationSuccess(
+        user,
+        { correlationId }
+      );
+      
+      return user;
     } catch (error) {
       // Re-throw with proper error context
       if (error instanceof Error) {

@@ -85,9 +85,9 @@ export const useProfile = (): UseProfileReturn => {
         // GDPR Audit Logging - Data Access
         await gdprAuditService.logDataAccess(
           user.id,
-          user.id,
-          'read',
           ['firstName', 'lastName', 'email', 'bio', 'avatar'],
+          'read',
+          user.id,
           { correlationId }
         );
       } else {
@@ -152,10 +152,14 @@ export const useProfile = (): UseProfileReturn => {
         if (previousProfile) {
           await gdprAuditService.logDataUpdate(
             user.id,
+            Object.keys(updates),
+            'profile_update',
             user.id,
-            previousProfile,
-            result,
-            { correlationId }
+            { 
+              correlationId,
+              previousProfile,
+              updatedProfile: result
+            }
           );
         }
         
@@ -181,22 +185,47 @@ export const useProfile = (): UseProfileReturn => {
       return false;
     }
 
+    // Start observability tracking
+    const correlationId = profileObservability.startProfileOperation('privacy_update', user.id, {
+      settingsUpdated: Object.keys(settings)
+    });
+
     try {
+      const previousProfile = profile; // Store for GDPR logging
+      
       const result = await handleAsyncError(
         () => withLoading('updatePrivacy', () => profileService.updatePrivacySettings(user.id, settings)),
         'profile'
       );
 
       if (result) {
+        // Record successful operation
+        profileObservability.endProfileOperation(correlationId, 'success', undefined, result);
+        
+        // 🔒 GDPR Audit Logging - Privacy Settings Update
+        if (previousProfile?.privacySettings) {
+          await gdprAuditService.logPrivacySettingsUpdate(
+            user.id,
+            Object.keys(settings),
+            previousProfile.privacySettings,
+            result,
+            user.id,
+            { correlationId }
+          );
+        }
+        
         // Refresh profile to get updated privacy settings
         await refreshProfile();
         return true;
       }
+      
+      profileObservability.endProfileOperation(correlationId, 'error', new Error('Privacy update failed'));
       return false;
     } catch {
+      profileObservability.endProfileOperation(correlationId, 'error', new Error('Privacy update error'));
       return false;
     }
-  }, [user?.id, profileService, handleAsyncError, withLoading, showError, refreshProfile]);
+  }, [user?.id, profile, profileService, handleAsyncError, withLoading, showError, refreshProfile]);
 
   const uploadAvatar = useCallback(async (imageUri: string): Promise<boolean> => {
     if (!user?.id) {
@@ -204,22 +233,51 @@ export const useProfile = (): UseProfileReturn => {
       return false;
     }
 
+    // Start observability tracking
+    const correlationId = profileObservability.startProfileOperation('avatar_upload', user.id, {
+      imageUri: imageUri.substring(0, 50) + '...' // Log truncated URI for privacy
+    });
+
     try {
+      const previousProfile = profile; // Store for GDPR logging
+      
       const result = await handleAsyncError(
         () => withLoading('uploadAvatar', () => profileService.uploadAvatar(user.id, imageUri)),
         'profile'
       );
 
       if (result) {
+        // Record successful operation
+        profileObservability.endProfileOperation(correlationId, 'success', undefined, result);
+        
+        // 🔒 GDPR Audit Logging - Avatar Upload (Data Update)
+        if (previousProfile) {
+          const updatedProfile = { ...previousProfile, avatar: result };
+          await gdprAuditService.logDataUpdate(
+            user.id,
+            ['avatar'],
+            'avatar_upload',
+            user.id,
+            { 
+              correlationId,
+              previousProfile,
+              updatedProfile
+            }
+          );
+        }
+        
         // Refresh profile to get updated avatar
         await refreshProfile();
         return true;
       }
+      
+      profileObservability.endProfileOperation(correlationId, 'error', new Error('Avatar upload failed'));
       return false;
     } catch {
+      profileObservability.endProfileOperation(correlationId, 'error', new Error('Avatar upload error'));
       return false;
     }
-  }, [user?.id, profileService, handleAsyncError, withLoading, showError, refreshProfile]);
+  }, [user?.id, profile, profileService, handleAsyncError, withLoading, showError, refreshProfile]);
 
   const deleteAvatar = useCallback(async (): Promise<boolean> => {
     if (!user?.id) {
@@ -227,18 +285,49 @@ export const useProfile = (): UseProfileReturn => {
       return false;
     }
 
-    const result = await handleAsyncError(
-      () => withLoading('deleteAvatar', () => profileService.deleteAvatar(user.id)),
-      'profile'
-    );
+    // Start observability tracking
+    const correlationId = profileObservability.startProfileOperation('delete', user.id, {
+      operation: 'avatar_delete'
+    });
 
-    if (result !== null) {
-      // Refresh profile to get updated avatar
-      await refreshProfile();
-      return true;
+    try {
+      const previousProfile = profile; // Store for GDPR logging
+      
+      const result = await handleAsyncError(
+        () => withLoading('deleteAvatar', () => profileService.deleteAvatar(user.id)),
+        'profile'
+      );
+
+      if (result !== null) {
+        // Record successful operation
+        profileObservability.endProfileOperation(correlationId, 'success');
+        
+        // 🔒 GDPR Audit Logging - Avatar Deletion (Data Delete)
+        if (previousProfile?.avatar) {
+          await gdprAuditService.logDataDeletion(
+            user.id,
+            ['avatar'],
+            'user_request',
+            user.id,
+            { 
+              correlationId,
+              deletedAvatar: previousProfile.avatar
+            }
+          );
+        }
+        
+        // Refresh profile to get updated avatar
+        await refreshProfile();
+        return true;
+      }
+      
+      profileObservability.endProfileOperation(correlationId, 'error', new Error('Avatar delete failed'));
+      return false;
+    } catch (error) {
+      profileObservability.endProfileOperation(correlationId, 'error', error as Error);
+      return false;
     }
-    return false;
-  }, [user?.id, profileService, handleAsyncError, withLoading, showError, refreshProfile]);
+  }, [user?.id, profile, profileService, handleAsyncError, withLoading, showError, refreshProfile]);
 
   const hookReturn = {
     // Profile state

@@ -82,6 +82,19 @@ import { AuthUser } from '../../domain/entities/auth-user.entity';
 import { MFAType, UserStatus, UserRole } from '../../domain/types/security.types';
 import { createMockAuthUser } from '../../helpers/auth-user-test.factory';
 
+// Enterprise Logging
+import { LoggerFactory } from '@core/logging/logger.factory';
+import { LogCategory } from '@core/logging/logger.service.interface';
+
+// Initialize enterprise logger for Auth Store
+const logger = LoggerFactory.createServiceLogger('AuthStore', {
+  service: 'auth-store',
+  metadata: {
+    component: 'auth-store',
+    module: 'authentication'
+  }
+});
+
 /**
  * @interface AuthState
  * @description Enterprise Authentication Store State Interface
@@ -257,7 +270,11 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   login: async (email: string, password: string) => {
     set({ isLoading: true, error: '' });
     try {
-      console.log('[AuthStore] Starting enterprise login for:', email);
+      logger.info('Starting enterprise login', LogCategory.AUTHENTICATION, {
+        userId: email,
+        correlationId: `login-${Date.now()}`,
+        metadata: { operation: 'login', method: 'email' }
+      });
       
              // Enterprise Implementation: Use Auth Container DI
        if (authContainer.isReady()) {
@@ -270,12 +287,22 @@ export const useAuthStore = create<AuthState>((set, get) => ({
           isLoading: false,
           error: ''
         });
-        console.log('[AuthStore] Enterprise login successful for:', user.email);
+        logger.info('Enterprise login successful', LogCategory.AUTHENTICATION, {
+          userId: user.email,
+          metadata: { 
+            operation: 'login-success',
+            method: 'email',
+            userStatus: user.status 
+          }
+        });
         return;
       }
       
       // Development/Testing Fallback: Mock Implementation
-      console.warn('[AuthStore] Auth container not ready, using mock implementation');
+      logger.warn('Auth container not ready, using mock implementation', LogCategory.AUTHENTICATION, {
+        userId: email,
+        metadata: { operation: 'login-fallback', reason: 'container-not-ready' }
+      });
       // Use factory to create proper AuthUser entity
       const mockUser = createMockAuthUser({
         id: 'mock-user-id',
@@ -298,9 +325,22 @@ export const useAuthStore = create<AuthState>((set, get) => ({
         isLoading: false,
         error: ''
       });
-      console.log('[AuthStore] Mock login successful for:', email);
+      logger.info('Mock login successful', LogCategory.AUTHENTICATION, {
+        userId: email,
+        metadata: { 
+          operation: 'login-mock-success',
+          method: 'email',
+          mockUser: true 
+        }
+      });
     } catch (error) {
-      console.error('[AuthStore] Login failed:', error);
+      logger.error('Login failed', LogCategory.AUTHENTICATION, {
+        userId: email,
+        metadata: { 
+          operation: 'login-error',
+          method: 'email' 
+        }
+      }, error instanceof Error ? error : new Error('Unknown login error'));
       const errorMessage = error instanceof Error ? error.message : 'Login failed';
       set({ error: errorMessage, isLoading: false });
       throw error;
@@ -318,7 +358,11 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   register: async (email: string, password: string) => {
     set({ isLoading: true, error: '' });
     try {
-      console.log('[AuthStore] Starting enterprise registration for:', email);
+      logger.info('Starting enterprise registration', LogCategory.AUTHENTICATION, {
+        userId: email,
+        correlationId: `register-${Date.now()}`,
+        metadata: { operation: 'register', method: 'email' }
+      });
       
       // Enterprise Implementation: Use Auth Container DI
       if (authContainer.isReady()) {
@@ -331,12 +375,22 @@ export const useAuthStore = create<AuthState>((set, get) => ({
           isLoading: false,
           error: ''
         });
-        console.log('[AuthStore] Enterprise registration successful for:', user.email);
+        logger.info('Enterprise registration successful', LogCategory.AUTHENTICATION, {
+          userId: user.email,
+          metadata: { 
+            operation: 'register-success',
+            method: 'email',
+            userStatus: user.status 
+          }
+        });
         return;
       }
       
       // Development/Testing Fallback
-      console.warn('[AuthStore] Auth container not ready, using mock implementation');
+      logger.warn('Auth container not ready, using mock implementation', LogCategory.AUTHENTICATION, {
+        userId: email,
+        metadata: { operation: 'register-fallback', reason: 'container-not-ready' }
+      });
       const mockUser = createMockAuthUser({
         id: 'mock-new-id',
         email,
@@ -356,9 +410,22 @@ export const useAuthStore = create<AuthState>((set, get) => ({
         isLoading: false,
         error: ''
       });
-      console.log('[AuthStore] Mock registration successful for:', email);
+      logger.info('Mock registration successful', LogCategory.AUTHENTICATION, {
+        userId: email,
+        metadata: { 
+          operation: 'register-mock-success',
+          method: 'email',
+          mockUser: true 
+        }
+      });
     } catch (error) {
-      console.error('[AuthStore] Registration failed:', error);
+      logger.error('Registration failed', LogCategory.AUTHENTICATION, {
+        userId: email,
+        metadata: { 
+          operation: 'register-error',
+          method: 'email' 
+        }
+      }, error instanceof Error ? error : new Error('Unknown registration error'));
       const errorMessage = error instanceof Error ? error.message : 'Registration failed';
       set({ error: errorMessage, isLoading: false });
       throw error;
@@ -374,22 +441,33 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   logout: async () => {
     set({ isLoading: true });
     try {
-      console.log('[AuthStore] Starting enterprise logout');
+      logger.info('Starting enterprise logout', LogCategory.AUTHENTICATION, {
+        correlationId: `logout-${Date.now()}`,
+        metadata: { operation: 'logout' }
+      });
       
       // Enterprise Implementation: Use Auth Container DI
       if (authContainer.isReady()) {
         const logoutUseCase = authContainer.logoutUseCase;
         await logoutUseCase.execute();
-        console.log('[AuthStore] Enterprise logout successful');
+        logger.info('Enterprise logout successful', LogCategory.AUTHENTICATION, {
+          metadata: { operation: 'logout-success' }
+        });
       } else {
-        console.warn('[AuthStore] Auth container not ready for logout');
+        logger.warn('Auth container not ready for logout', LogCategory.AUTHENTICATION, {
+          metadata: { operation: 'logout-fallback', reason: 'container-not-ready' }
+        });
       }
       
       // Clear memory state
       set({ user: null, isAuthenticated: false, isLoading: false, error: '' });
-      console.log('[AuthStore] Memory state cleared');
+      logger.info('Memory state cleared', LogCategory.AUTHENTICATION, {
+        metadata: { operation: 'logout-cleanup' }
+      });
     } catch (error) {
-      console.error('[AuthStore] Logout failed:', error);
+      logger.error('Logout failed', LogCategory.AUTHENTICATION, {
+        metadata: { operation: 'logout-error' }
+      }, error instanceof Error ? error : new Error('Unknown logout error'));
       const errorMessage = error instanceof Error ? error.message : 'Logout failed';
       set({ error: errorMessage, isLoading: false });
       throw error;

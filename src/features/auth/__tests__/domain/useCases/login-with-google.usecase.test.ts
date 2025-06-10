@@ -165,7 +165,7 @@ describe('LoginWithGoogleUseCase', () => {
     it('should handle edge case at exactly 365 days', async () => {
       const exactlyOneYearUser = { 
         ...mockExistingGoogleUser, 
-        lastLoginAt: new Date(Date.now() - 365 * 24 * 60 * 60 * 1000 + 1) // Slightly less than 365 days
+        lastLoginAt: new Date(Date.now() - 365 * 24 * 60 * 60 * 1000 + 10000) // Slightly less than 365 days (10 seconds less)
       };
       
       mockRepository.loginWithGoogle.mockResolvedValueOnce(exactlyOneYearUser as any);

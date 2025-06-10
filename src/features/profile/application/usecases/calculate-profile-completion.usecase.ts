@@ -23,19 +23,19 @@ export class CalculateProfileCompletionUseCase {
     
     const filledRequired = requiredFields.filter(field => {
       const value = profile[field as keyof UserProfile];
-      return value !== undefined && value !== null && value !== '';
+      return this.isFieldFilled(value);
     });
     
     const filledOptional = optionalFields.filter(field => {
       const value = profile[field as keyof UserProfile];
-      return value !== undefined && value !== null && value !== '';
+      return this.isFieldFilled(value);
     });
 
     const filledProfessional = professionalFields.filter(field => {
-      const professionalInfo = profile.professional as any;
+      const professionalInfo = profile.professional;
       if (!professionalInfo) return false;
-      const value = professionalInfo[field];
-      return value !== undefined && value !== null && value !== '';
+      const value = professionalInfo[field as keyof typeof professionalInfo];
+      return this.isFieldFilled(value);
     });
     
     const missingFields = [
@@ -65,6 +65,26 @@ export class CalculateProfileCompletionUseCase {
       completedFields,
       suggestions,
     };
+  }
+
+  /**
+   * Check if a field value is considered filled
+   * Handles null, undefined, empty strings, and whitespace-only strings
+   */
+  private isFieldFilled(value: any): boolean {
+    if (value === null || value === undefined) {
+      return false;
+    }
+    
+    if (typeof value === 'string') {
+      return value.trim() !== '';
+    }
+    
+    if (Array.isArray(value)) {
+      return value.length > 0;
+    }
+    
+    return true;
   }
 
   /**

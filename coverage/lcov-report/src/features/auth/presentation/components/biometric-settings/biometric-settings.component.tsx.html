@@ -1968,9 +1968,9 @@ export const BiometricSettings: React.FC&lt;BiometricSettingsProps&gt; = <span c
   logger,
 }) =&gt; {
   const { theme } = <span class="cstat-no" title="statement not covered" >useTheme();</span>
-  const [isEnabled, setIsEnabled] = <span class="cstat-no" title="statement not covered" >useState(false);</span>
+  const [isBiometricEnabled, setIsBiometricEnabled] = <span class="cstat-no" title="statement not covered" >useState(false);</span>
+  const [_isBiometricAvailable, _setIsBiometricAvailable] = <span class="cstat-no" title="statement not covered" >useState(false);</span>
   const [isLoading, setIsLoading] = <span class="cstat-no" title="statement not covered" >useState(false);</span>
-  const [isBiometricAvailable, setIsBiometricAvailable] = <span class="cstat-no" title="statement not covered" >useState(false);</span>
   const authT = <span class="cstat-no" title="statement not covered" >mockTranslations;</span>
   const user = <span class="cstat-no" title="statement not covered" >mockUser;</span>
 &nbsp;
@@ -2033,11 +2033,11 @@ export const BiometricSettings: React.FC&lt;BiometricSettingsProps&gt; = <span c
       userId: user?.id,
       metadata: {
         platform: Platform.OS,
-        isBiometricAvailable
+        _isBiometricAvailable
       }
     });
 <span class="cstat-no" title="statement not covered" >    checkBiometricAvailability();</span>
-<span class="cstat-no" title="statement not covered" >    setIsEnabled(false);</span>
+<span class="cstat-no" title="statement not covered" >    setIsBiometricEnabled(false);</span>
   }, []);
 &nbsp;
   /**
@@ -2053,7 +2053,7 @@ export const BiometricSettings: React.FC&lt;BiometricSettingsProps&gt; = <span c
       metadata: {
         platform: Platform.OS,
         targetState: value,
-        currentState: isEnabled,
+        currentState: isBiometricEnabled,
         biometricType: authT.biometric.subtitle
       }
     });
@@ -2080,7 +2080,7 @@ export const BiometricSettings: React.FC&lt;BiometricSettingsProps&gt; = <span c
 <span class="cstat-no" title="statement not covered" >      return;</span>
     }
 &nbsp;
-<span class="cstat-no" title="statement not covered" >    if (!isBiometricAvailable) {</span>
+<span class="cstat-no" title="statement not covered" >    if (!_isBiometricAvailable) {</span>
 <span class="cstat-no" title="statement not covered" >      logger?.warn('Biometric toggle failed - biometric not available', LogCategory.SECURITY, {</span>
         service: 'BiometricSettings',
         userId: user?.id,
@@ -2111,7 +2111,7 @@ export const BiometricSettings: React.FC&lt;BiometricSettingsProps&gt; = <span c
 <span class="cstat-no" title="statement not covered" >      if (value) {</span>
         // Enable biometric authentication
 <span class="cstat-no" title="statement not covered" >        await enableBiometric();</span>
-<span class="cstat-no" title="statement not covered" >        setIsEnabled(true);</span>
+<span class="cstat-no" title="statement not covered" >        setIsBiometricEnabled(true);</span>
 <span class="cstat-no" title="statement not covered" >        onSettingsChange?.(true);</span>
 &nbsp;
 <span class="cstat-no" title="statement not covered" >        logger?.info('Biometric authentication enabled successfully', LogCategory.SECURITY, {</span>
@@ -2154,7 +2154,7 @@ export const BiometricSettings: React.FC&lt;BiometricSettingsProps&gt; = <span c
           {
             onConfirm: <span class="fstat-no" title="function not covered" >as</span>ync () =&gt; {
 <span class="cstat-no" title="statement not covered" >              try {</span>
-<span class="cstat-no" title="statement not covered" >                setIsEnabled(false);</span>
+<span class="cstat-no" title="statement not covered" >                setIsBiometricEnabled(false);</span>
 <span class="cstat-no" title="statement not covered" >                onSettingsChange?.(false);</span>
 &nbsp;
 <span class="cstat-no" title="statement not covered" >                logger?.info('Biometric authentication disabled successfully', LogCategory.SECURITY, {</span>
@@ -2264,7 +2264,7 @@ export const BiometricSettings: React.FC&lt;BiometricSettingsProps&gt; = <span c
       }
     });
 &nbsp;
-<span class="cstat-no" title="statement not covered" >    if (!isEnabled) {</span>
+<span class="cstat-no" title="statement not covered" >    if (!isBiometricEnabled) {</span>
 <span class="cstat-no" title="statement not covered" >      logger?.warn('Biometric test failed - not enabled', LogCategory.SECURITY, {</span>
         service: 'BiometricSettings',
         userId: user?.id,
@@ -2367,15 +2367,15 @@ export const BiometricSettings: React.FC&lt;BiometricSettingsProps&gt; = <span c
           &lt;/View&gt;
         &lt;/View&gt;
         &lt;Switch
-          value={isEnabled}
+          value={isBiometricEnabled}
           onValueChange={handleToggle}
-          disabled={isLoading || !isBiometricAvailable}
+          disabled={isLoading || !_isBiometricAvailable}
           trackColor={{false: '#e5e7eb', true: '#3b82f6'}}
-          thumbColor={isEnabled ? '#ffffff' : '#f3f4f6'}
+          thumbColor={isBiometricEnabled ? '#ffffff' : '#f3f4f6'}
         /&gt;
       &lt;/View&gt;
 &nbsp;
-      {!isBiometricAvailable &amp;&amp; (
+      {!_isBiometricAvailable &amp;&amp; (
         &lt;View style={styles.warningContainer}&gt;
           &lt;Text style={styles.warningIcon}&gt;⚠️&lt;/Text&gt;
           &lt;Text style={styles.warningText}&gt;
@@ -2385,12 +2385,12 @@ export const BiometricSettings: React.FC&lt;BiometricSettingsProps&gt; = <span c
       )}
 &nbsp;
       &lt;Text style={styles.description}&gt;
-        {isEnabled
+        {isBiometricEnabled
           ? authT.biometric.description.enabled(authT.biometric.subtitle)
           : authT.biometric.description.disabled(authT.biometric.subtitle)}
       &lt;/Text&gt;
 &nbsp;
-      {isEnabled &amp;&amp; (
+      {isBiometricEnabled &amp;&amp; (
         &lt;View style={styles.actionsContainer}&gt;
           &lt;TouchableOpacity
             style={styles.testButton}
@@ -2428,7 +2428,7 @@ export const BiometricSettings: React.FC&lt;BiometricSettingsProps&gt; = <span c
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2025-06-01T18:02:20.399Z
+                at 2025-06-09T20:35:24.799Z
             </div>
         <script src="../../../../../../prettify.js"></script>
         <script>

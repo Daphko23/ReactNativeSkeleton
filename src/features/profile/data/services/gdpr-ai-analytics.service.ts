@@ -12,8 +12,7 @@
 
 import { 
   GDPRAuditEvent, 
-  GDPREventType, 
-   
+  GDPRAuditEventType,
   DataCategory,
   ConsentRecord,
   gdprAuditService 
@@ -199,12 +198,12 @@ export class GDPRAIAnalyticsService {
     const events = await gdprAuditService.loadAuditEventsFromDatabase(undefined, startDate, endDate);
     const consents = await gdprAuditService.loadConsentRecordsFromDatabase();
 
-    const uniqueUsers = new Set(events.map(e => e.userId)).size;
+    const uniqueUsers = new Set(events.map(e => e.dataSubjectId)).size;
     
     // Risk Distribution Analysis
     const userRisks = await Promise.all(
-      Array.from(new Set(events.map(e => e.userId))).map(async userId => {
-        const userEvents = events.filter(e => e.userId === userId);
+      Array.from(new Set(events.map(e => e.dataSubjectId))).map(async userId => {
+        const userEvents = events.filter(e => e.dataSubjectId === userId);
         const userConsents = consents.filter(c => c.userId === userId);
         return this.calculateUserRiskScore(userEvents, userConsents);
       })
@@ -231,12 +230,12 @@ export class GDPRAIAnalyticsService {
       missingConsents: Math.max(0, uniqueUsers - activeConsents.length)
     };
 
-    // Data Processing Metrics
+    // Data Processing Metrics  
     const dataProcessingMetrics = {
-      accessEvents: events.filter(e => e.eventType === GDPREventType.DATA_ACCESS).length,
-      updateEvents: events.filter(e => e.eventType === GDPREventType.DATA_UPDATE).length,
-      deleteEvents: events.filter(e => e.eventType === GDPREventType.DATA_DELETE).length,
-      exportEvents: events.filter(e => e.eventType === GDPREventType.DATA_PORTABILITY).length
+      accessEvents: events.filter(e => e.eventType === 'data_access_request').length,
+      updateEvents: events.filter(e => e.eventType === 'data_processing').length,
+      deleteEvents: events.filter(e => e.eventType === 'data_deletion').length,
+      exportEvents: events.filter(e => e.eventType === GDPRAuditEventType.DATA_PORTABILITY_REQUEST).length
     };
 
     // Overall Compliance Score (AI-calculated)
@@ -262,7 +261,7 @@ export class GDPRAIAnalyticsService {
     const last24Hours = new Date(now.getTime() - 24 * 60 * 60 * 1000);
     
     const recentEvents = await gdprAuditService.loadAuditEventsFromDatabase(
-      undefined, last24Hours, now, 10000
+      undefined, last24Hours, now
     );
 
     const alerts: ComplianceAlert[] = [];
@@ -308,25 +307,22 @@ export class GDPRAIAnalyticsService {
 
   private async analyzeDataMinimization(events: GDPRAuditEvent[]): Promise<number> {
     // Check if only necessary data is being accessed/processed
-    const accessEvents = events.filter(e => e.eventType === GDPREventType.DATA_ACCESS);
+    const accessEvents = events.filter(e => e.eventType === GDPRAuditEventType.DATA_ACCESS_REQUEST);
     
     let score = 100; // Start with perfect score
     
-    // Penalty for accessing too many fields at once
-    const averageFieldsAccessed = accessEvents.reduce((sum, event) => 
-      sum + event.details.affectedFields.length, 0
-    ) / accessEvents.length;
-    
-    if (averageFieldsAccessed > 10) score -= 30;
-    else if (averageFieldsAccessed > 5) score -= 15;
+    if (accessEvents.length === 0) return score;
     
     // Penalty for accessing sensitive data categories frequently
     const sensitiveAccess = accessEvents.filter(e => 
-      e.dataCategories.includes(DataCategory.BIOMETRIC) ||
-      e.dataCategories.includes(DataCategory.SPECIAL_CATEGORY)
+      e.dataCategories?.includes(DataCategory.BIOMETRIC) ||
+      e.dataCategories?.includes(DataCategory.SPECIAL_CATEGORY)
     ).length;
     
     if (sensitiveAccess > accessEvents.length * 0.3) score -= 25;
+    
+    // Penalty for too many access requests
+    if (accessEvents.length > events.length * 0.7) score -= 20;
     
     return Math.max(0, score);
   }
@@ -338,15 +334,15 @@ export class GDPRAIAnalyticsService {
     let score = 100;
     
     const processingEvents = events.filter(e => 
-      e.eventType === GDPREventType.DATA_UPDATE || 
-      e.eventType === GDPREventType.DATA_ACCESS
+      e.eventType === GDPRAuditEventType.DATA_PROCESSING || 
+      e.eventType === GDPRAuditEventType.DATA_ACCESS_REQUEST
     );
 
-    const uniqueUsers = new Set(processingEvents.map(e => e.userId));
+    const uniqueUsers = new Set(processingEvents.map(e => e.dataSubjectId));
     
     uniqueUsers.forEach(userId => {
       const userConsents = consents.filter(c => c.userId === userId && !c.withdrawnAt);
-      const userProcessingEvents = processingEvents.filter(e => e.userId === userId);
+      const userProcessingEvents = processingEvents.filter(e => e.dataSubjectId === userId);
       
       // Check if processing events have valid consent
       if (userProcessingEvents.length > 0 && userConsents.length === 0) {
@@ -380,7 +376,7 @@ export class GDPRAIAnalyticsService {
     }
     
     // Check for deletion events (positive indicator)
-    const deletionEvents = events.filter(e => e.eventType === GDPREventType.DATA_DELETE);
+    const deletionEvents = events.filter(e => e.eventType === GDPRAuditEventType.DATA_DELETION);
     const deletionRatio = deletionEvents.length / events.length;
     
     if (deletionRatio < 0.1) score -= 15; // Low deletion rate
@@ -391,10 +387,10 @@ export class GDPRAIAnalyticsService {
   private async analyzeAccessControl(events: GDPRAuditEvent[]): Promise<number> {
     let score = 100;
     
-    // Check for failed access attempts
-    const failedAccess = events.filter(e => !e.details.accessGranted);
-    if (failedAccess.length > events.length * 0.05) {
-      score -= 20; // Too many failed attempts
+    // Check for unauthorized access events
+    const unauthorizedAccess = events.filter(e => e.eventType === GDPRAuditEventType.UNAUTHORIZED_ACCESS);
+    if (unauthorizedAccess.length > events.length * 0.05) {
+      score -= 20; // Too many unauthorized attempts
     }
     
     // Check for access outside business hours
@@ -413,20 +409,20 @@ export class GDPRAIAnalyticsService {
   private async analyzeDataPortability(events: GDPRAuditEvent[]): Promise<number> {
     let score = 100;
     
-    const exportEvents = events.filter(e => e.eventType === GDPREventType.DATA_PORTABILITY);
-    const updateEvents = events.filter(e => e.eventType === GDPREventType.DATA_UPDATE);
+    const exportEvents = events.filter(e => e.eventType === GDPRAuditEventType.DATA_PORTABILITY_REQUEST);
+    const updateEvents = events.filter(e => e.eventType === GDPRAuditEventType.DATA_PROCESSING);
     
     // Good portability if exports are available and happening
     if (exportEvents.length === 0 && updateEvents.length > 10) {
       score -= 25; // No exports despite active data processing
     }
     
-    // Check export completeness
-    exportEvents.forEach(event => {
-      if (!event.details.exportFormat || event.details.affectedFields.length < 5) {
-        score -= 10; // Incomplete exports
-      }
-    });
+    // Score based on export activity (higher is better for portability)
+    if (exportEvents.length === 0 && events.length > 10) {
+      score -= 30; // No data portability despite significant activity
+    } else if (exportEvents.length > 0) {
+      score += 10; // Bonus for providing data portability
+    }
     
     return Math.max(0, score);
   }
@@ -506,13 +502,13 @@ export class GDPRAIAnalyticsService {
     
     for (const withdrawal of recentWithdrawals) {
       const postWithdrawalEvents = events.filter(e => 
-        e.userId === withdrawal.userId && 
+        e.dataSubjectId === withdrawal.userId && 
         e.timestamp > withdrawal.withdrawnAt!
       );
       
       if (postWithdrawalEvents.length > 0) {
         alerts.push({
-          id: `post_withdrawal_${withdrawal.consentId}`,
+          id: `post_withdrawal_${withdrawal.id}`,
           severity: 'ERROR',
           type: 'CONSENT_ISSUE',
           title: 'Data Processing After Consent Withdrawal',
@@ -535,15 +531,15 @@ export class GDPRAIAnalyticsService {
     // Group events by user and hour
     const userHourlyAccess = new Map<string, Map<number, GDPRAuditEvent[]>>();
     
-    events.filter(e => e.eventType === GDPREventType.DATA_ACCESS).forEach(event => {
+    events.filter(e => e.eventType === GDPRAuditEventType.DATA_ACCESS_REQUEST).forEach(event => {
       const hour = event.timestamp.getHours();
-      if (!userHourlyAccess.has(event.userId)) {
-        userHourlyAccess.set(event.userId, new Map());
+      if (!userHourlyAccess.has(event.dataSubjectId)) {
+        userHourlyAccess.set(event.dataSubjectId, new Map());
       }
-      if (!userHourlyAccess.get(event.userId)!.has(hour)) {
-        userHourlyAccess.get(event.userId)!.set(hour, []);
+      if (!userHourlyAccess.get(event.dataSubjectId)!.has(hour)) {
+        userHourlyAccess.get(event.dataSubjectId)!.set(hour, []);
       }
-      userHourlyAccess.get(event.userId)!.get(hour)!.push(event);
+      userHourlyAccess.get(event.dataSubjectId)!.get(hour)!.push(event);
     });
     
     // Detect unusual patterns
@@ -567,32 +563,31 @@ export class GDPRAIAnalyticsService {
   }
 
   private async detectBulkDataExports(events: GDPRAuditEvent[]): Promise<AnomalyDetection[]> {
-    const exportEvents = events.filter(e => e.eventType === GDPREventType.DATA_PORTABILITY);
+    const exportEvents = events.filter(e => e.eventType === GDPRAuditEventType.DATA_PORTABILITY_REQUEST);
     const anomalies: AnomalyDetection[] = [];
     
     // Group by user
     const userExports = new Map<string, GDPRAuditEvent[]>();
     exportEvents.forEach(event => {
-      if (!userExports.has(event.userId)) {
-        userExports.set(event.userId, []);
+      if (!userExports.has(event.dataSubjectId)) {
+        userExports.set(event.dataSubjectId, []);
       }
-      userExports.get(event.userId)!.push(event);
+      userExports.get(event.dataSubjectId)!.push(event);
     });
     
     userExports.forEach((userEvents, userId) => {
-      const totalDataSize = userEvents.reduce((sum, event) => 
-        sum + (event.details.dataSize || 0), 0
-      );
+      // Simplified scoring based on number of exports instead of size
+      const exportCount = userEvents.length;
       
-      // Large export anomaly
-      if (totalDataSize > 10 * 1024 * 1024) { // 10MB threshold
+      // Large export anomaly based on frequency
+      if (exportCount > 5) { // More than 5 exports
         anomalies.push({
           userId,
           anomalyType: 'BULK_DATA_EXPORT',
-          confidence: 95,
-          description: `Large data export detected: ${(totalDataSize / 1024 / 1024).toFixed(2)}MB`,
+          confidence: 85,
+          description: `Multiple data exports detected: ${exportCount} export requests`,
           events: userEvents,
-          riskScore: Math.min(100, totalDataSize / (1024 * 1024) * 10),
+          riskScore: Math.min(100, exportCount * 15),
           detectedAt: new Date()
         });
       }
@@ -602,7 +597,7 @@ export class GDPRAIAnalyticsService {
   }
 
   private async detectSuspiciousDeletions(events: GDPRAuditEvent[]): Promise<AnomalyDetection[]> {
-    const deletionEvents = events.filter(e => e.eventType === GDPREventType.DATA_DELETE);
+    const deletionEvents = events.filter(e => e.eventType === GDPRAuditEventType.DATA_DELETION);
     const anomalies: AnomalyDetection[] = [];
     
     // Check for rapid deletions (time-based clustering)
@@ -614,7 +609,7 @@ export class GDPRAIAnalyticsService {
       
       if (timeSpan < 60 * 1000) { // Less than 1 minute
         anomalies.push({
-          userId: window[0].userId,
+          userId: window[0].dataSubjectId,
           anomalyType: 'SUSPICIOUS_DELETION',
           confidence: 90,
           description: `Rapid deletion pattern: ${window.length} deletions in ${timeSpan / 1000} seconds`,
@@ -630,8 +625,8 @@ export class GDPRAIAnalyticsService {
 
   private async detectConsentAnomalies(events: GDPRAuditEvent[]): Promise<AnomalyDetection[]> {
     const consentEvents = events.filter(e => 
-      e.eventType === GDPREventType.CONSENT_GIVEN || 
-      e.eventType === GDPREventType.CONSENT_WITHDRAWN
+      e.eventType === GDPRAuditEventType.CONSENT_GIVEN || 
+      e.eventType === GDPRAuditEventType.CONSENT_WITHDRAWN
     );
     
     const anomalies: AnomalyDetection[] = [];
@@ -639,7 +634,7 @@ export class GDPRAIAnalyticsService {
     // Group by day to detect spikes
     const dailyWithdrawals = new Map<string, GDPRAuditEvent[]>();
     
-    consentEvents.filter(e => e.eventType === GDPREventType.CONSENT_WITHDRAWN).forEach(event => {
+    consentEvents.filter(e => e.eventType === GDPRAuditEventType.CONSENT_WITHDRAWN).forEach(event => {
       const day = event.timestamp.toISOString().split('T')[0];
       if (!dailyWithdrawals.has(day)) {
         dailyWithdrawals.set(day, []);
@@ -696,13 +691,13 @@ export class GDPRAIAnalyticsService {
     if (!hasValidConsent && events.length > 0) riskScore += 30;
     
     const sensitiveDataAccess = events.filter(e => 
-      e.dataCategories.includes(DataCategory.BIOMETRIC) ||
-      e.dataCategories.includes(DataCategory.SPECIAL_CATEGORY)
+      e.dataCategories?.includes(DataCategory.BIOMETRIC) ||
+      e.dataCategories?.includes(DataCategory.SPECIAL_CATEGORY)
     ).length;
     riskScore += Math.min(25, sensitiveDataAccess * 5);
     
-    const failedAccess = events.filter(e => !e.details.accessGranted).length;
-    riskScore += Math.min(20, failedAccess * 10);
+    const unauthorizedAccess = events.filter(e => e.eventType === GDPRAuditEventType.UNAUTHORIZED_ACCESS).length;
+    riskScore += Math.min(20, unauthorizedAccess * 10);
     
     return Math.min(100, riskScore);
   }
@@ -729,7 +724,7 @@ export class GDPRAIAnalyticsService {
     }
     
     // Bonus for good practices
-    const deletionEvents = events.filter(e => e.eventType === GDPREventType.DATA_DELETE).length;
+    const deletionEvents = events.filter(e => e.eventType === GDPRAuditEventType.DATA_DELETION).length;
     if (deletionEvents > 0) {
       score += Math.min(10, deletionEvents * 0.5);
     }
@@ -740,8 +735,8 @@ export class GDPRAIAnalyticsService {
   private detectBulkDataAccess(events: GDPRAuditEvent[]): string[] {
     const userAccess = new Map<string, number>();
     
-    events.filter(e => e.eventType === GDPREventType.DATA_ACCESS).forEach(event => {
-      userAccess.set(event.userId, (userAccess.get(event.userId) || 0) + 1);
+    events.filter(e => e.eventType === GDPRAuditEventType.DATA_ACCESS_REQUEST).forEach(event => {
+      userAccess.set(event.dataSubjectId, (userAccess.get(event.dataSubjectId) || 0) + 1);
     });
     
     return Array.from(userAccess.entries())
@@ -752,9 +747,9 @@ export class GDPRAIAnalyticsService {
   private async detectMissingConsents(events: GDPRAuditEvent[]): Promise<string[]> {
     const processingUsers = new Set(
       events.filter(e => 
-        e.eventType === GDPREventType.DATA_UPDATE || 
-        e.eventType === GDPREventType.DATA_ACCESS
-      ).map(e => e.userId)
+        e.eventType === GDPRAuditEventType.DATA_PROCESSING || 
+        e.eventType === GDPRAuditEventType.DATA_ACCESS_REQUEST
+      ).map(e => e.dataSubjectId)
     );
     
     const consentUsers = new Set(

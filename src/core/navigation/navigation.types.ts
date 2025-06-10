@@ -472,6 +472,46 @@ export type CreditStackParamList = {
 };
 
 /**
+ * Home Stack Parameter List
+ * 
+ * Type-safe parameter definitions for the home stack navigation.
+ * Provides comprehensive navigation support for home screens and demos.
+ * 
+ * @type HomeStackParamList
+ * @since 1.0.0
+ * @version 1.0.0
+ * @category Types
+ * @subcategory HomeNavigation
+ * @module Core.Navigation.Types
+ * @namespace Core.Navigation.Types.HomeStackParamList
+ */
+export type HomeStackParamList = {
+  /**
+   * Home Main Screen - Primary home interface
+   * No parameters required for main home screen
+   */
+  HomeMain: undefined;
+
+  /**
+   * Theme Demo Screen - UI theming demonstration
+   * No parameters required for theme demo
+   */
+  ThemeDemo: undefined;
+
+  /**
+   * Profile Compliance Demo Screen - Enterprise compliance demonstration
+   * No parameters required for compliance demo
+   */
+  ProfileCompliance: undefined;
+
+  /**
+   * Auth GDPR Demo Screen - Authentication GDPR audit demonstration
+   * No parameters required for auth GDPR demo
+   */
+  AuthGDPRDemo: undefined;
+};
+
+/**
  * Main Tab Parameter List
  * 
  * Type-safe parameter definitions for the main application tab navigation.

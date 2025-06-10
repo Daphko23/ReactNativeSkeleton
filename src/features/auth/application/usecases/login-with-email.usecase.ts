@@ -1,5 +1,6 @@
 import {AuthRepository} from '../../domain/interfaces/auth.repository.interface';
 import { AuthUser } from '../../domain/entities/auth-user.entity';
+import { authGDPRAuditService } from '../../data/services/auth-gdpr-audit.service';
 
 /**
  * @fileoverview LOGIN-WITH-EMAIL-USECASE: Core Authentication Use Case Implementation
@@ -282,6 +283,8 @@ export class LoginWithEmailUseCase {
    * @todo Implement adaptive authentication
    */
   async execute(email: string, password: string): Promise<AuthUser> {
+    const correlationId = `login_usecase_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+    
     // Input validation
     if (!email || !password) {
       throw new Error('Email and password are required');
@@ -289,8 +292,25 @@ export class LoginWithEmailUseCase {
 
     // Delegate to repository with proper error handling
     try {
-      return await this.authRepository.login(email, password);
+      const user = await this.authRepository.login(email, password);
+      
+      // 🔒 GDPR Audit: Additional Use Case level logging for user data access
+      await authGDPRAuditService.logLoginSuccess(
+        user,
+        'email',
+        { correlationId }
+      );
+      
+      return user;
     } catch (error) {
+      // 🔒 GDPR Audit: Log failed login at Use Case level
+      await authGDPRAuditService.logLoginFailure(
+        email,
+        (error as Error).message,
+        1,
+        { correlationId }
+      );
+      
       // Re-throw with proper error context
       if (error instanceof Error) {
         error.message = `Login failed: ${error.message}`;

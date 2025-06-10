@@ -59,6 +59,24 @@ jest.mock('react-native', () => {
     TouchableOpacity: 'TouchableOpacity',
     ScrollView: 'ScrollView',
     SafeAreaView: 'View',
+    Platform: {
+      OS: 'android',
+      Version: 30,
+      select: jest.fn((platforms) => platforms.android || platforms.default),
+    },
+    PermissionsAndroid: {
+      PERMISSIONS: {
+        CAMERA: 'android.permission.CAMERA',
+        READ_EXTERNAL_STORAGE: 'android.permission.READ_EXTERNAL_STORAGE',
+      },
+      RESULTS: {
+        GRANTED: 'granted',
+        DENIED: 'denied',
+        NEVER_ASK_AGAIN: 'never_ask_again',
+      },
+      check: jest.fn().mockResolvedValue('granted'),
+      request: jest.fn().mockResolvedValue('granted'),
+    },
   };
 });
 

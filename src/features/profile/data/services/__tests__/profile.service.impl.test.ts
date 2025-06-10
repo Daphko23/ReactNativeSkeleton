@@ -6,6 +6,17 @@
 import { ProfileServiceImpl } from '../profile.service.impl';
 import { UserProfile, PrivacySettings } from '../../../domain/entities/user-profile.entity';
 
+// Mock GDPR Audit Service
+jest.mock('../gdpr-audit.service', () => ({
+  gdprAuditService: {
+    logDataAccess: jest.fn(),
+    logDataUpdate: jest.fn(),
+    logDataDeletion: jest.fn(),
+    logDataExport: jest.fn(),
+    logPrivacySettingsUpdate: jest.fn(),
+  }
+}));
+
 // Mock the repository
 const mockRepository = {
   getProfile: jest.fn(),

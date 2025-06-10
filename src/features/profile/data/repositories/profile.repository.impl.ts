@@ -14,6 +14,8 @@ import {
   type ProfileVersionRow
 } from '../datasources/profile.datasource';
 import { gdprAuditService } from '../services/gdpr-audit.service';
+import { LoggerFactory } from '@core/logging/logger.factory';
+import { LogCategory } from '@core/logging/logger.service.interface';
 
 // Extended interfaces for repository operations
 export interface ProfileHistoryItem {
@@ -76,6 +78,7 @@ export interface IProfileRepository {
 }
 
 export class ProfileRepositoryImpl implements IProfileRepository {
+  private logger = LoggerFactory.createServiceLogger('ProfileRepository');
   private dataSource: IProfileDataSource;
   private cache: Map<string, any>;
   
@@ -127,11 +130,13 @@ export class ProfileRepositoryImpl implements IProfileRepository {
       // 🔒 GDPR Audit: Log profile creation (DATA_UPDATE with empty previous)
       await gdprAuditService.logDataUpdate(
         userId,
-        userId, // dataSubject same as userId for self-creation
-        {}, // empty previous for new profile
-        newProfile,
+        ['profile_data'], // dataSubject same as userId for self-creation
+        'profile_creation',
+        userId,
         {
-          correlationId: `profile-create-${Date.now()}`
+          correlationId: `profile-create-${Date.now()}`,
+          previousProfile: {},
+          newProfile
         }
       );
       
@@ -140,7 +145,10 @@ export class ProfileRepositoryImpl implements IProfileRepository {
       
       return newProfile;
     } catch (error) {
-      console.error('Error in createProfile:', error);
+      this.logger.error('Failed to create profile', LogCategory.BUSINESS, {
+        userId,
+        metadata: { operation: 'createProfile' }
+      }, error as Error);
       throw error;
     }
   }
@@ -165,7 +173,10 @@ export class ProfileRepositoryImpl implements IProfileRepository {
 
       return profile;
     } catch (error) {
-      console.error('Error in getProfile:', error);
+      this.logger.error('Failed to get profile', LogCategory.BUSINESS, {
+        userId,
+        metadata: { operation: 'getProfile' }
+      }, error as Error);
       throw error;
     }
   }
@@ -220,7 +231,10 @@ export class ProfileRepositoryImpl implements IProfileRepository {
       
       return updatedProfile;
     } catch (error) {
-      console.error('Error in updateProfile:', error);
+      this.logger.error('Failed to update profile', LogCategory.BUSINESS, {
+        userId,
+        metadata: { operation: 'updateProfile', fieldsUpdated: Object.keys(updates) }
+      }, error as Error);
       throw error;
     }
   }
@@ -233,7 +247,10 @@ export class ProfileRepositoryImpl implements IProfileRepository {
       }
       return success;
     } catch (error) {
-      console.error('Error in deleteProfile:', error);
+      this.logger.error('Failed to delete profile', LogCategory.BUSINESS, {
+        userId,
+        metadata: { operation: 'deleteProfile' }
+      }, error as Error);
       return false;
     }
   }
@@ -254,17 +271,21 @@ export class ProfileRepositoryImpl implements IProfileRepository {
       const searchingUserId = 'system'; // In real app, get from context
       await gdprAuditService.logDataAccess(
         searchingUserId,
-        'multiple_subjects', // Multiple profiles accessed
-        'query',
         ['firstName', 'lastName', 'displayName', 'professional'], // typically searched fields
+        'profile_search',
+        searchingUserId,
         {
-          correlationId: `profile-search-${Date.now()}`
+          correlationId: `profile-search-${Date.now()}`,
+          query,
+          filters
         }
       );
 
       return profiles;
     } catch (error) {
-      console.error('Error in searchProfiles:', error);
+      this.logger.error('Failed to search profiles', LogCategory.BUSINESS, {
+        metadata: { operation: 'searchProfiles', query, filters }
+      }, error as Error);
       throw error;
     }
   }
@@ -445,11 +466,12 @@ export class ProfileRepositoryImpl implements IProfileRepository {
       const exportingUserId = 'system'; // In real app, get from context
       await gdprAuditService.logDataExport(
         exportingUserId,
-        'multiple_subjects', // Multiple profiles exported
-        profiles,
+        ['profile_data'], // Multiple profiles exported
         'json',
+        exportingUserId,
         {
-          correlationId: `profile-bulk-export-${Date.now()}`
+          correlationId: `profile-bulk-export-${Date.now()}`,
+          exportedProfiles: profiles
         }
       );
 

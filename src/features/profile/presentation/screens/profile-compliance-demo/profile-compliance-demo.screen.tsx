@@ -15,7 +15,7 @@ import {
 } from 'react-native';
 import { useProfile } from '../../hooks/use-profile.hook';
 import { profileObservability } from '@core/monitoring/profile-observability.service';
-import { gdprAuditService } from '../../../data/services/gdpr-audit.service';
+import { gdprAuditService, GDPRAuditEventType } from '../../../data/services/gdpr-audit.service';
 import { wcagComplianceService } from '@shared/accessibility/wcag-compliance.service';
 
 interface ComplianceMetrics {
@@ -53,10 +53,12 @@ export const ProfileComplianceDemoScreen: React.FC = () => {
       const obsMetrics = profileObservability.getProfileAnalytics();
       
       // Get GDPR audit summary
-      const gdprReport = await gdprAuditService.generateComplianceReport();
+      const gdprReport = await gdprAuditService.generateComplianceReport(
+        new Date(Date.now() - 30 * 24 * 60 * 60 * 1000), // 30 days ago
+        new Date() // now
+      );
       console.log('🔒 GDPR Report Debug:', {
         totalEvents: gdprReport.summary.totalEvents,
-        events: gdprReport.events.length,
         summary: gdprReport.summary
       });
       
@@ -71,8 +73,8 @@ export const ProfileComplianceDemoScreen: React.FC = () => {
         },
         gdpr: {
           totalEvents: gdprReport.summary.totalEvents,
-          dataAccessEvents: gdprReport.summary.dataAccessEvents,
-          dataUpdateEvents: gdprReport.summary.dataUpdateEvents
+          dataAccessEvents: gdprReport.summary.eventsByType[GDPRAuditEventType.DATA_ACCESS_REQUEST] || 0,
+          dataUpdateEvents: gdprReport.summary.eventsByType[GDPRAuditEventType.DATA_PROCESSING] || 0
         },
         accessibility: {
           complianceScore: accessibilityReport.overallScore,
@@ -144,7 +146,10 @@ export const ProfileComplianceDemoScreen: React.FC = () => {
     try {
       // Generate comprehensive compliance report
       const observabilityData = profileObservability.exportMetrics();
-      const gdprData = await gdprAuditService.generateComplianceReport();
+      const gdprData = await gdprAuditService.generateComplianceReport(
+        new Date(Date.now() - 30 * 24 * 60 * 60 * 1000), // 30 days ago
+        new Date() // now
+      );
       const accessibilityData = wcagComplianceService.generateAccessibilityReport();
 
       const report = {
@@ -180,15 +185,18 @@ export const ProfileComplianceDemoScreen: React.FC = () => {
   // GDPR Compliance Test Methods
   const _generateGDPRReport = async () => {
     try {
-      const gdprReport = await gdprAuditService.generateComplianceReport();
+      const gdprReport = await gdprAuditService.generateComplianceReport(
+        new Date(Date.now() - 30 * 24 * 60 * 60 * 1000), // 30 days ago
+        new Date() // now
+      );
       
       setMetrics(prev => ({
         observability: prev?.observability || { totalOperations: 0, averageLoadTime: 0, errorRate: 0 },
         accessibility: prev?.accessibility || { complianceScore: 0, criticalIssues: 0, testsConducted: 0 },
         gdpr: {
           totalEvents: gdprReport.summary.totalEvents,
-          dataAccessEvents: gdprReport.summary.dataAccessEvents,
-          dataUpdateEvents: gdprReport.summary.dataUpdateEvents
+          dataAccessEvents: gdprReport.summary.eventsByType[GDPRAuditEventType.DATA_ACCESS_REQUEST] || 0,
+          dataUpdateEvents: gdprReport.summary.eventsByType[GDPRAuditEventType.DATA_PROCESSING] || 0
         }
       }));
       
@@ -202,13 +210,16 @@ export const ProfileComplianceDemoScreen: React.FC = () => {
   
   const _exportComplianceData = async () => {
     try {
-      const gdprReport = await gdprAuditService.generateComplianceReport();
+      const gdprReport = await gdprAuditService.generateComplianceReport(
+        new Date(Date.now() - 30 * 24 * 60 * 60 * 1000), // 30 days ago
+        new Date() // now
+      );
       const reportData = {
         timestamp: new Date().toISOString(),
         summary: {
           totalEvents: gdprReport.summary.totalEvents,
-          dataAccessEvents: gdprReport.summary.dataAccessEvents,
-          dataUpdateEvents: gdprReport.summary.dataUpdateEvents
+          dataAccessEvents: gdprReport.summary.eventsByType[GDPRAuditEventType.DATA_ACCESS_REQUEST] || 0,
+          dataUpdateEvents: gdprReport.summary.eventsByType[GDPRAuditEventType.DATA_PROCESSING] || 0
         },
         compliance: 'GDPR Article 30 - Record of Processing Activities',
         recommendation: 'Data processing activities are being properly audited'

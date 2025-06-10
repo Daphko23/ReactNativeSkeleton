@@ -7,6 +7,8 @@ import { ProfileDataSource } from '../../data/datasources/profile.datasource';
 import { ProfileRepositoryImpl } from '../../data/repositories/profile.repository.impl';
 import { IProfileService, ProfileServiceOptions } from '../../domain/interfaces/profile-service.interface';
 import { ProfileServiceImpl } from '../../data/services/profile.service.impl';
+import { LoggerFactory } from '@core/logging/logger.factory';
+import { LogCategory } from '@core/logging/logger.service.interface';
 
 // Use Cases
 import { GetUserProfileUseCase } from '../usecases/get-user-profile.usecase';
@@ -17,10 +19,12 @@ import { DeleteAvatarUseCase } from '../usecases/delete-avatar.usecase';
 import { GetAvatarUrlUseCase } from '../usecases/get-avatar-url.usecase';
 import { UpdatePrivacySettingsUseCase } from '../usecases/update-privacy-settings.usecase';
 import { CalculateProfileCompletionUseCase } from '../usecases/calculate-profile-completion.usecase';
+import { AvatarContainer } from '../../data/factories/avatar.container';
 
 import type { IProfileRepository } from '../../data/repositories/profile.repository.impl';
 
 class ProfileContainer {
+  private logger = LoggerFactory.createServiceLogger('ProfileContainer');
   // Data Layer
   private _profileDataSource: ProfileDataSource | null = null;
   private _profileRepository: IProfileRepository | null = null;
@@ -95,7 +99,10 @@ class ProfileContainer {
 
   get deleteAvatarUseCase(): DeleteAvatarUseCase {
     if (!this._deleteAvatarUseCase) {
-      this._deleteAvatarUseCase = new DeleteAvatarUseCase(this.profileService);
+      this._deleteAvatarUseCase = new DeleteAvatarUseCase(
+        AvatarContainer.getAvatarService(),
+        this.profileService
+      );
     }
     return this._deleteAvatarUseCase;
   }
@@ -144,7 +151,9 @@ class ProfileContainer {
     }
     
     this._isInitialized = true;
-    console.log('ProfileContainer initialized with options:', this._options);
+    this.logger.info('ProfileContainer initialized', LogCategory.INFRASTRUCTURE, {
+      metadata: { options: this._options }
+    });
   }
 
   isReady(): boolean {

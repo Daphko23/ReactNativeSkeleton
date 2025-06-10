@@ -896,7 +896,7 @@ interface OnboardingScreenProps {
 }
 &nbsp;
 const useStyles = <span class="cstat-no" title="statement not covered" >createThemedStyles(<span class="fstat-no" title="function not covered" >(t</span>heme) =&gt; {</span>
-  const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = <span class="cstat-no" title="statement not covered" >Dimensions.get('window');</span>
+  const { width: _SCREEN_WIDTH, height: _SCREEN_HEIGHT } = <span class="cstat-no" title="statement not covered" >Dimensions.get('window');</span>
   
 <span class="cstat-no" title="statement not covered" >  return {</span>
     container: {
@@ -1037,62 +1037,62 @@ export const OnboardingScreen: React.FC&lt;OnboardingScreenProps&gt; = <span cla
   const onboardingSteps: OnboardingStep[] = <span class="cstat-no" title="statement not covered" >[</span>
     {
       id: 'welcome',
-      title: t('onboarding.welcome.title', 'Willkommen bei ReactNative Skeleton!'),
-      description: t('onboarding.welcome.description', 'Die moderne Enterprise-App mit Clean Architecture und TypeScript.'),
+      title: t('onboarding.mainScreen.welcome.title', 'Willkommen bei ReactNative Skeleton!'),
+      description: t('onboarding.mainScreen.welcome.description', 'Die moderne Enterprise-App mit Clean Architecture und TypeScript.'),
       icon: '🚀',
       color: '#667eea',
       features: [
-        t('onboarding.welcome.feature1', 'Clean Architecture Design'),
-        t('onboarding.welcome.feature2', 'Enterprise-grade Security'),
-        t('onboarding.welcome.feature3', 'Performance Optimized'),
+        t('onboarding.mainScreen.welcome.feature1', 'Clean Architecture Design'),
+        t('onboarding.mainScreen.welcome.feature2', 'Enterprise-grade Security'),
+        t('onboarding.mainScreen.welcome.feature3', 'Performance Optimized'),
       ],
     },
     {
       id: 'profile',
-      title: t('onboarding.profile.title', 'Dein Profil verwalten'),
-      description: t('onboarding.profile.description', 'Erstelle und verwalte dein persönliches Profil mit erweiterten Funktionen.'),
+      title: t('onboarding.mainScreen.profile.title', 'Dein Profil verwalten'),
+      description: t('onboarding.mainScreen.profile.description', 'Erstelle und verwalte dein persönliches Profil mit erweiterten Funktionen.'),
       icon: '👤',
       color: '#764ba2',
       features: [
-        t('onboarding.profile.feature1', 'Avatar Upload &amp; Bearbeitung'),
-        t('onboarding.profile.feature2', 'Privacy Settings'),
-        t('onboarding.profile.feature3', 'Vollständigkeit Tracking'),
+        t('onboarding.mainScreen.profile.feature1', 'Avatar Upload &amp; Bearbeitung'),
+        t('onboarding.mainScreen.profile.feature2', 'Privacy Settings'),
+        t('onboarding.mainScreen.profile.feature3', 'Vollständigkeit Tracking'),
       ],
     },
     {
       id: 'notifications',
-      title: t('onboarding.notifications.title', 'Smart Notifications'),
-      description: t('onboarding.notifications.description', 'Erhalte wichtige Updates und behalte die Kontrolle über deine Benachrichtigungen.'),
+      title: t('onboarding.mainScreen.notifications.title', 'Smart Notifications'),
+      description: t('onboarding.mainScreen.notifications.description', 'Erhalte wichtige Updates und behalte die Kontrolle über deine Benachrichtigungen.'),
       icon: '🔔',
       color: '#667eea',
       features: [
-        t('onboarding.notifications.feature1', 'Real-time Updates'),
-        t('onboarding.notifications.feature2', 'Kategorisierte Nachrichten'),
-        t('onboarding.notifications.feature3', 'Granulare Kontrolle'),
+        t('onboarding.mainScreen.notifications.feature1', 'Real-time Updates'),
+        t('onboarding.mainScreen.notifications.feature2', 'Kategorisierte Nachrichten'),
+        t('onboarding.mainScreen.notifications.feature3', 'Granulare Kontrolle'),
       ],
     },
     {
       id: 'security',
-      title: t('onboarding.security.title', 'Enterprise Security'),
-      description: t('onboarding.security.description', 'Deine Daten sind sicher mit modernsten Sicherheitsstandards.'),
+      title: t('onboarding.mainScreen.security.title', 'Enterprise Security'),
+      description: t('onboarding.mainScreen.security.description', 'Deine Daten sind sicher mit modernsten Sicherheitsstandards.'),
       icon: '🔐',
       color: '#f093fb',
       features: [
-        t('onboarding.security.feature1', 'XSS &amp; Injection Schutz'),
-        t('onboarding.security.feature2', 'Encrypted Storage'),
-        t('onboarding.security.feature3', 'Biometric Auth'),
+        t('onboarding.mainScreen.security.feature1', 'XSS &amp; Injection Schutz'),
+        t('onboarding.mainScreen.security.feature2', 'Encrypted Storage'),
+        t('onboarding.mainScreen.security.feature3', 'Biometric Auth'),
       ],
     },
     {
       id: 'ready',
-      title: t('onboarding.ready.title', 'Bereit zum Start!'),
-      description: t('onboarding.ready.description', 'Du bist bereit, alle Features der App zu entdecken. Viel Spaß!'),
+      title: t('onboarding.mainScreen.ready.title', 'Bereit zum Start!'),
+      description: t('onboarding.mainScreen.ready.description', 'Du bist bereit, alle Features der App zu entdecken. Viel Spaß!'),
       icon: '🎉',
       color: '#a8edea',
       features: [
-        t('onboarding.ready.feature1', 'Alle Features verfügbar'),
-        t('onboarding.ready.feature2', 'Demo-Daten zum Testen'),
-        t('onboarding.ready.feature3', 'Vollständige Clean Architecture'),
+        t('onboarding.mainScreen.ready.feature1', 'Alle Features verfügbar'),
+        t('onboarding.mainScreen.ready.feature2', 'Demo-Daten zum Testen'),
+        t('onboarding.mainScreen.ready.feature3', 'Vollständige Clean Architecture'),
       ],
     },
   ];
@@ -1166,7 +1166,7 @@ export const OnboardingScreen: React.FC&lt;OnboardingScreenProps&gt; = <span cla
   // RENDER FUNCTIONS
   // =============================================
 &nbsp;
-  const renderStep = <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >(s</span>tep: OnboardingStep, index: number) =&gt; (</span>
+  const renderStep = <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >(s</span>tep: OnboardingStep, _index: number) =&gt; (</span>
 <span class="cstat-no" title="statement not covered" >    &lt;View key={step.id} style={[styles.stepContainer, { backgroundColor: step.color }]}&gt;</span>
       &lt;View style={styles.stepContent}&gt;
         {/* Icon */}
@@ -1218,7 +1218,7 @@ export const OnboardingScreen: React.FC&lt;OnboardingScreenProps&gt; = <span cla
         {currentPage &lt; onboardingSteps.length - 1 &amp;&amp; (
           &lt;TouchableOpacity style={styles.skipButton} onPress={skipOnboarding}&gt;
             &lt;Text style={styles.skipText}&gt;
-              {t('onboarding.skip', 'Überspringen')}
+              {t('onboarding.mainScreen.skip', 'Überspringen')}
             &lt;/Text&gt;
           &lt;/TouchableOpacity&gt;
         )}
@@ -1230,7 +1230,7 @@ export const OnboardingScreen: React.FC&lt;OnboardingScreenProps&gt; = <span cla
           initialPage={0}
           onPageSelected={<span class="fstat-no" title="function not covered" >(e</span>) =&gt; <span class="cstat-no" title="statement not covered" >handlePageChange(e.nativeEvent.position)}</span>
         &gt;
-          {onboardingSteps.map(<span class="fstat-no" title="function not covered" >(s</span>tep, index) =&gt; <span class="cstat-no" title="statement not covered" >renderStep(step, index))</span>}
+          {onboardingSteps.map(<span class="fstat-no" title="function not covered" >(s</span>tep, _index) =&gt; <span class="cstat-no" title="statement not covered" >renderStep(step, _index))</span>}
         &lt;/PagerView&gt;
 &nbsp;
         {/* Page Indicator */}
@@ -1241,7 +1241,7 @@ export const OnboardingScreen: React.FC&lt;OnboardingScreenProps&gt; = <span cla
           {currentPage &gt; 0 &amp;&amp; (
             &lt;TouchableOpacity style={styles.backButton} onPress={goToPrevious}&gt;
               &lt;Text style={styles.backButtonText}&gt;
-                {t('onboarding.back', 'Zurück')}
+                {t('back', 'Zurück')}
               &lt;/Text&gt;
             &lt;/TouchableOpacity&gt;
           )}
@@ -1251,8 +1251,8 @@ export const OnboardingScreen: React.FC&lt;OnboardingScreenProps&gt; = <span cla
           &lt;TouchableOpacity style={styles.nextButton} onPress={goToNext}&gt;
             &lt;Text style={styles.nextButtonText}&gt;
               {currentPage === onboardingSteps.length - 1
-                ? t('onboarding.getStarted', 'Los geht\'s!')
-                : t('onboarding.next', 'Weiter')
+                ? t('getStarted', 'Los geht\'s!')
+                : t('next', 'Weiter')
               }
             &lt;/Text&gt;
           &lt;/TouchableOpacity&gt;
@@ -1267,7 +1267,7 @@ export const OnboardingScreen: React.FC&lt;OnboardingScreenProps&gt; = <span cla
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2025-06-01T18:02:20.399Z
+                at 2025-06-09T20:35:24.799Z
             </div>
         <script src="../../../../../prettify.js"></script>
         <script>

@@ -25,7 +25,7 @@
             <div class='fl pad1y space-right2'>
                 <span class="strong">0% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>0/15</span>
+                <span class='fraction'>0/20</span>
             </div>
         
             
@@ -39,14 +39,14 @@
             <div class='fl pad1y space-right2'>
                 <span class="strong">0% </span>
                 <span class="quiet">Functions</span>
-                <span class='fraction'>0/7</span>
+                <span class='fraction'>0/12</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
                 <span class="strong">0% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>0/15</span>
+                <span class='fraction'>0/20</span>
             </div>
         
             
@@ -160,7 +160,30 @@
 <a name='L95'></a><a href='#L95'>95</a>
 <a name='L96'></a><a href='#L96'>96</a>
 <a name='L97'></a><a href='#L97'>97</a>
-<a name='L98'></a><a href='#L98'>98</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L98'></a><a href='#L98'>98</a>
+<a name='L99'></a><a href='#L99'>99</a>
+<a name='L100'></a><a href='#L100'>100</a>
+<a name='L101'></a><a href='#L101'>101</a>
+<a name='L102'></a><a href='#L102'>102</a>
+<a name='L103'></a><a href='#L103'>103</a>
+<a name='L104'></a><a href='#L104'>104</a>
+<a name='L105'></a><a href='#L105'>105</a>
+<a name='L106'></a><a href='#L106'>106</a>
+<a name='L107'></a><a href='#L107'>107</a>
+<a name='L108'></a><a href='#L108'>108</a>
+<a name='L109'></a><a href='#L109'>109</a>
+<a name='L110'></a><a href='#L110'>110</a>
+<a name='L111'></a><a href='#L111'>111</a>
+<a name='L112'></a><a href='#L112'>112</a>
+<a name='L113'></a><a href='#L113'>113</a>
+<a name='L114'></a><a href='#L114'>114</a>
+<a name='L115'></a><a href='#L115'>115</a>
+<a name='L116'></a><a href='#L116'>116</a>
+<a name='L117'></a><a href='#L117'>117</a>
+<a name='L118'></a><a href='#L118'>118</a>
+<a name='L119'></a><a href='#L119'>119</a>
+<a name='L120'></a><a href='#L120'>120</a>
+<a name='L121'></a><a href='#L121'>121</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -251,6 +274,29 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -262,10 +308,10 @@
  * Implementiert die IProductRepository Domain Interface
  */
 &nbsp;
-import { IProductRepository } from '../../domain/interfaces/credit-repository.interface';
+import { IProductRepository } from '../../domain/interfaces/product.repository.interface';
 import { CreditProduct, ProductCatalog } from '../../domain/entities/credit-product.entity';
 import { SupabaseCreditDataSource } from '../datasources/supabase-credit.datasource';
-import { CreditProductMapper, ProductCatalogMapper } from '../mappers/credit-product.mapper';
+import { CreditProductMapper } from '../mappers/credit-product.mapper';
 import { ProductNotFoundError } from '../../domain/errors/credit-errors';
 &nbsp;
 export class ProductRepositoryImpl implements IProductRepository {
@@ -297,7 +343,7 @@ export class ProductRepositoryImpl implements IProductRepository {
     };
   }
 &nbsp;
-<span class="fstat-no" title="function not covered" >  as</span>ync updateProductPrices(products: Partial&lt;CreditProduct&gt;[]): Promise&lt;void&gt; {
+<span class="fstat-no" title="function not covered" >  as</span>ync updateProductPrices(_products: Partial&lt;CreditProduct&gt;[]): Promise&lt;void&gt; {
     // TODO: Implement batch update for product prices
     // This would typically involve admin operations
 <span class="cstat-no" title="statement not covered" >    throw new Error('Product price updates not implemented yet');</span>
@@ -354,6 +400,29 @@ export class ProductRepositoryImpl implements IProductRepository {
 &nbsp;
 <span class="cstat-no" title="statement not covered" >    return regionCurrencyMap[region.toUpperCase()] || 'USD';</span>
   }
+&nbsp;
+  // IProductRepository interface methods
+<span class="fstat-no" title="function not covered" >  as</span>ync getProducts(): Promise&lt;any[]&gt; {
+<span class="cstat-no" title="statement not covered" >    return await this.getActiveProducts();</span>
+  }
+&nbsp;
+<span class="fstat-no" title="function not covered" >  as</span>ync getProductById(id: string): Promise&lt;any | null&gt; {
+<span class="cstat-no" title="statement not covered" >    return await this.getProduct(id);</span>
+  }
+&nbsp;
+<span class="fstat-no" title="function not covered" >  as</span>ync getById(id: string): Promise&lt;any | null&gt; {
+<span class="cstat-no" title="statement not covered" >    return await this.getProduct(id);</span>
+  }
+&nbsp;
+<span class="fstat-no" title="function not covered" >  as</span>ync verifyPurchase(_productId: string, _receipt: string): Promise&lt;boolean&gt; {
+    // TODO: Implement actual purchase verification
+<span class="cstat-no" title="statement not covered" >    return true;</span>
+  }
+&nbsp;
+<span class="fstat-no" title="function not covered" >  as</span>ync createMany(_products: CreditProduct[]): Promise&lt;void&gt; {
+    // TODO: Implement bulk product creation
+<span class="cstat-no" title="statement not covered" >    throw new Error('Not implemented yet');</span>
+  }
 } </pre></td></tr></table></pre>
 
                 <div class='push'></div><!-- for sticky footer -->
@@ -361,7 +430,7 @@ export class ProductRepositoryImpl implements IProductRepository {
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2025-06-01T18:02:20.399Z
+                at 2025-06-09T20:35:24.799Z
             </div>
         <script src="../../../../../prettify.js"></script>
         <script>

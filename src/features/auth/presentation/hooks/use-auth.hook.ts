@@ -14,6 +14,7 @@ import { useCallback } from 'react';
 import { useAuthState } from '../store/auth-state.store';
 import { authContainer } from '../../application/di/auth.container';
 import { AuthUser } from '../../domain/entities/auth-user.entity';
+import { authGDPRAuditService } from '../../data/services/auth-gdpr-audit.service';
 
 /**
  * @interface UseAuthReturn
@@ -137,6 +138,7 @@ export const useAuth = (): UseAuthReturn => {
    * @description Authenticate user with email and password
    */
   const login = useCallback(async (email: string, password: string): Promise<AuthUser> => {
+    const correlationId = `auth_hook_login_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
     setLoading(true);
     clearError();
     
@@ -154,6 +156,13 @@ export const useAuth = (): UseAuthReturn => {
         console.log('[useAuth] Using authContainer for login');
         const loginUseCase = authContainer.loginWithEmailUseCase;
         const user = await loginUseCase.execute(email, password);
+        
+        // 🔒 GDPR Audit: Log successful login at Hook level (UI interaction)
+        await authGDPRAuditService.logLoginSuccess(
+          user,
+          'email',
+          { correlationId }
+        );
         
         // Update State
         setUser(user);
@@ -197,6 +206,14 @@ export const useAuth = (): UseAuthReturn => {
       throw new Error('Auth Container nicht verfügbar - Initialisierung fehlgeschlagen');
       
     } catch (error) {
+      // 🔒 GDPR Audit: Log failed login at Hook level
+      await authGDPRAuditService.logLoginFailure(
+        email,
+        (error as Error).message,
+        1,
+        { correlationId }
+      );
+      
       const errorMessage = error instanceof Error ? error.message : 'Login fehlgeschlagen';
       setError(errorMessage);
       setLoading(false);
@@ -255,14 +272,27 @@ export const useAuth = (): UseAuthReturn => {
    * @description Logout current user
    */
   const logout = useCallback(async (): Promise<void> => {
+    const correlationId = `auth_hook_logout_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
     setLoading(true);
     clearError();
     
     try {
+      // Get current user for GDPR logging before logout
+      const currentUser = user;
+      
       // Enterprise Implementation: Use Auth Container DI
       if (authContainer.isReady()) {
         const logoutUseCase = authContainer.logoutUseCase;
         await logoutUseCase.execute();
+      }
+      
+      // 🔒 GDPR Audit: Log logout at Hook level
+      if (currentUser) {
+        await authGDPRAuditService.logLogout(
+          currentUser.id,
+          'user_initiated',
+          { correlationId }
+        );
       }
       
       // Update State (always reset, even if UseCase fails)
@@ -273,7 +303,7 @@ export const useAuth = (): UseAuthReturn => {
       console.warn('Logout UseCase failed, but state reset:', error);
       reset();
     }
-  }, [setLoading, clearError, reset]);
+  }, [setLoading, clearError, reset, user]);
 
   /**
    * @function checkAuthStatus

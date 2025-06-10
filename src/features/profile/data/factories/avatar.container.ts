@@ -41,11 +41,9 @@ export class AvatarContainer {
    */
   static async initialize(): Promise<void> {
     try {
-      // Initialize avatar service bucket
-      const avatarService = this.getAvatarService();
-      if ('initializeBucket' in avatarService) {
-        await (avatarService as AvatarService).initializeBucket();
-      }
+      // Initialize avatar service
+      const _avatarService = this.getAvatarService();
+      // Note: initializeBucket method removed as it's not part of the interface
 
       console.log('Avatar services initialized successfully');
     } catch (error) {

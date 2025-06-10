@@ -93,6 +93,7 @@ import { InvalidTokenError } from '../../domain/errors/invalid-token.error';
 import { TokenExpiredError } from '../../domain/errors/token-expired.error';
 import { EmailAlreadyVerifiedError } from '../../domain/errors/email-already-verified.error';
 import { SupabaseAuthErrorMapper } from '../mappers/supabase-auth-error.mapper';
+import { authGDPRAuditService } from '../services/auth-gdpr-audit.service';
 
 /**
  * @class AuthRepositoryImpl
@@ -168,11 +169,21 @@ export class AuthRepositoryImpl implements AuthRepository {
    * @throws {UserNotAuthenticatedError} When session validation fails
    */
   async login(email: string, password: string): Promise<AuthUser> {
+    const correlationId = `auth_login_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+    
     try {
       this.logger.info('User login attempt', LogCategory.SECURITY, {
         service: 'AuthRepository',
-        metadata: { email }
+        metadata: { email, correlationId }
       });
+
+      // 🔒 GDPR Audit: Log login attempt
+      await authGDPRAuditService.logLoginAttempt(
+        'pending', // userId not available yet
+        email,
+        'email',
+        { correlationId }
+      );
 
       await this.authDataSource.signInWithEmailAndPassword(email, password);
       
@@ -213,16 +224,33 @@ export class AuthRepositoryImpl implements AuthRepository {
 
       this.logger.info('User login successful', LogCategory.SECURITY, {
         service: 'AuthRepository',
-        metadata: { email, userId: supabaseUser.id }
+        metadata: { email, userId: supabaseUser.id, correlationId }
       });
 
-      return this.mapDtoToEntity(userDto);
+      const user = this.mapDtoToEntity(userDto);
+      
+      // 🔒 GDPR Audit: Log successful login
+      await authGDPRAuditService.logLoginSuccess(
+        user,
+        'email',
+        { correlationId }
+      );
+
+      return user;
     } catch (error) {
       // Log the failed login attempt
       this.logger.error('User login failed', LogCategory.SECURITY, {
         service: 'AuthRepository',
-        metadata: { email }
+        metadata: { email, correlationId }
       }, error as Error);
+
+      // 🔒 GDPR Audit: Log failed login
+      await authGDPRAuditService.logLoginFailure(
+        email,
+        (error as Error).message,
+        1, // retry attempt
+        { correlationId }
+      );
 
       // If it's already one of our domain errors, re-throw it
       if (error instanceof MFARequiredError ||
@@ -249,10 +277,12 @@ export class AuthRepositoryImpl implements AuthRepository {
    * @throws {PasswordPolicyViolationError} When password violates policy
    */
   async register(email: string, password: string): Promise<AuthUser> {
+    const correlationId = `auth_register_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+    
     try {
       this.logger.info('Starting user registration', LogCategory.SECURITY, {
         service: 'AuthRepository',
-        metadata: { email }
+        metadata: { email, correlationId }
       });
 
       await this.authDataSource.createUserWithEmailAndPassword(email, password);
@@ -318,10 +348,18 @@ export class AuthRepositoryImpl implements AuthRepository {
 
       this.logger.info('User registration successful', LogCategory.SECURITY, {
         service: 'AuthRepository',
-        metadata: { email: userDto.email, userId: userDto.id }
+        metadata: { email: userDto.email, userId: userDto.id, correlationId }
       });
       
-      return this.mapDtoToEntity(userDto);
+      const user = this.mapDtoToEntity(userDto);
+      
+      // 🔒 GDPR Audit: Log successful registration
+      await authGDPRAuditService.logRegistrationSuccess(
+        user,
+        { correlationId }
+      );
+      
+      return user;
     } catch (error) {
       // Log the failed registration attempt
       this.logger.error('User registration failed', LogCategory.SECURITY, {
@@ -349,7 +387,29 @@ export class AuthRepositoryImpl implements AuthRepository {
    * @throws If logout fails.
    */
   async logout(): Promise<void> {
-    await this.authDataSource.signOut();
+    const correlationId = `auth_logout_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+    
+    try {
+      // Get current user before logout for GDPR logging
+      const currentUser = await this.getCurrentUser();
+      
+      await this.authDataSource.signOut();
+      
+      // 🔒 GDPR Audit: Log logout
+      if (currentUser) {
+        await authGDPRAuditService.logLogout(
+          currentUser.id,
+          'user_initiated',
+          { correlationId }
+        );
+      }
+    } catch (error) {
+      this.logger.error('Logout failed', LogCategory.SECURITY, {
+        service: 'AuthRepository',
+        metadata: { correlationId }
+      }, error as Error);
+      throw error;
+    }
   }
 
   /**
@@ -360,7 +420,24 @@ export class AuthRepositoryImpl implements AuthRepository {
    * @throws If the operation fails.
    */
   async resetPassword(email: string): Promise<void> {
-    await this.authDataSource.sendPasswordResetEmail(email);
+    const correlationId = `auth_password_reset_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+    
+    try {
+      await this.authDataSource.sendPasswordResetEmail(email);
+      
+      // 🔒 GDPR Audit: Log password reset request
+      await authGDPRAuditService.logPasswordReset(
+        'system', // userId not available for reset requests
+        'request',
+        { email, correlationId }
+      );
+    } catch (error) {
+      this.logger.error('Password reset failed', LogCategory.SECURITY, {
+        service: 'AuthRepository',
+        metadata: { email, correlationId }
+      }, error as Error);
+      throw error;
+    }
   }
 
   /**
@@ -501,7 +578,10 @@ export class AuthRepositoryImpl implements AuthRepository {
 
   async verifyMFASetup(code: string, factorId: string): Promise<void> {
     // TODO: Implement with Supabase MFA
-    console.log('Verifying MFA setup:', factorId, code);
+    this.logger.info('Verifying MFA setup', LogCategory.SECURITY, {
+      service: 'AuthRepository',
+      metadata: { factorId, operation: 'mfa-setup-verification' }
+    });
   }
 
   async verifyMFAChallenge(
@@ -526,7 +606,10 @@ export class AuthRepositoryImpl implements AuthRepository {
 
       return this.mapDtoToEntity(userDto);
     } catch (error) {
-      console.error('[AuthRepository] Verify MFA error:', error);
+      this.logger.error('Verify MFA error', LogCategory.SECURITY, {
+        service: 'AuthRepository',
+        metadata: { operation: 'mfa-verification-error' }
+      }, error instanceof Error ? error : new Error('Unknown MFA verification error'));
       throw error;
     }
   }
@@ -539,7 +622,10 @@ export class AuthRepositoryImpl implements AuthRepository {
 
       return data.totp || [];
     } catch (error) {
-      console.error('[AuthRepository] Get MFA factors error:', error);
+      this.logger.error('Get MFA factors error', LogCategory.SECURITY, {
+        service: 'AuthRepository',
+        metadata: { operation: 'mfa-factors-error' }
+      }, error instanceof Error ? error : new Error('Unknown MFA factors error'));
       return [];
     }
   }
@@ -853,7 +939,10 @@ export class AuthRepositoryImpl implements AuthRepository {
 
       return this.mapDtoToEntity(userDto);
     } catch (error) {
-      console.error('[AuthRepository] Google OAuth error:', error);
+      this.logger.error('Google OAuth error', LogCategory.AUTHENTICATION, {
+        service: 'AuthRepository',
+        metadata: { operation: 'oauth-google-error', provider: 'google' }
+      }, error instanceof Error ? error : new Error('Unknown Google OAuth error'));
       throw error;
     }
   }
