@@ -13,7 +13,7 @@
 import React, { ComponentType, useEffect } from 'react';
 import { View, Text, ActivityIndicator } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-import { useRole, UseRoleOptions } from '@shared/hooks/use-role';
+import { useRoleChampion as useRole } from '@shared/hooks/use-role-champion';
 import type { Role } from '@features/auth/domain/constants/permissions.registry';
 import { PrimaryButton } from '@shared/components/buttons/primary-button.component';
 import { useTranslation } from 'react-i18next';
@@ -145,17 +145,6 @@ export interface WithRoleGuardOptions {
    * @compliance Required for audit trails in enterprise environments
    */
   enableAuditLogging?: boolean;
-  
-  /**
-   * Additional role hook options for advanced configuration.
-   * Passes additional configuration to the underlying useRole hook.
-   * 
-   * @type {UseRoleOptions}
-   * @optional
-   * @example { cacheTTL: 60000, enableCaching: true }
-   * @see {@link UseRoleOptions} for available options
-   */
-  roleOptions?: UseRoleOptions;
 }
 
 /**
@@ -241,10 +230,7 @@ export interface WithRoleGuardOptions {
  *       screen: 'SensitiveDataScreen'
  *     });
  *   },
- *   roleOptions: {
- *     cacheTTL: 10000, // Short cache for sensitive data
- *     enableCaching: true
- *   }
+
  * })(SensitiveDataScreen);
  * ```
  * 
@@ -253,8 +239,7 @@ export interface WithRoleGuardOptions {
  * ```tsx
  * const enterpriseGuard = createRoleGuard({
  *   enableAuditLogging: true,
- *   showLoading: true,
- *   roleOptions: { cacheTTL: 30000 }
+ *   showLoading: true
  * });
  * 
  * const AdminScreen = enterpriseGuard({ requiredRole: 'admin' })(AdminComponent);
@@ -366,26 +351,23 @@ export const withRoleGuard = (options: WithRoleGuardOptions) => {
         onAccessDenied,
         onAccessGranted,
         enableAuditLogging = true,
-        roleOptions = {},
       } = options;
 
       const navigation = useNavigation();
       
-      // Use the useRole hook with configuration
+      // Use the Champion Role hook
       const {
-        hasRole,
+        hasRole: hasExactRole,
         userRoles,
         userLevel,
         isLoading,
         error,
         refresh,
-      } = useRole(requiredRole, {
-        checkMinimumLevel,
-        showLoading,
-        enableCaching: true,
-        cacheTTL: 30000, // 30 seconds for role-based access
-        ...roleOptions,
-      });
+        checkMinimumLevel: checkMinLevel,
+      } = useRole(requiredRole);
+      
+      // Calculate hasRole based on checkMinimumLevel option
+      const hasRole = checkMinimumLevel ? checkMinLevel(requiredRole) : hasExactRole;
 
       // Handle access control decision
       useEffect(() => {
@@ -501,10 +483,7 @@ export const withRoleGuard = (options: WithRoleGuardOptions) => {
  * const enterpriseRoleGuard = createRoleGuard({
  *   enableAuditLogging: true,
  *   showLoading: true,
- *   roleOptions: { 
- *     cacheTTL: 60000,
- *     enableCaching: true 
- *   }
+
  * });
  * 
  * // Use factory to create specific role guards
@@ -604,10 +583,6 @@ export const withSuperAdminRole = withRoleGuard({ requiredRole: 'super_admin' })
 export const withEnterpriseRole = createRoleGuard({
   enableAuditLogging: true,
   showLoading: true,
-  roleOptions: {
-    cacheTTL: 30000, // 30 seconds
-    enableCaching: true,
-  },
 });
 
 /**

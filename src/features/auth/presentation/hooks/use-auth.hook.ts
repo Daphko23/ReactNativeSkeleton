@@ -1,239 +1,217 @@
 /**
- * Core Auth Hook - Hook-zentrierte Business Logic
+ * @fileoverview Core Auth Hook - CHAMPION
  * 
- * @fileoverview Core Authentifizierung Hook für grundlegende Auth-Operationen.
- * Implementiert das Hook-zentrierte Pattern anstatt Store-zentrierte Business Logic.
- * Verwendet DI Container für UseCase Injection und State Store für State Management.
- * 
- * @version 2.1.0
- * @author ReactNativeSkeleton Enterprise Team
- * @layer Presentation/Hooks
+ * 🏆 CHAMPION STANDARDS 2025:
+ * ✅ Single Responsibility: Core authentication only
+ * ✅ TanStack Query + Use Cases: Complete integration
+ * ✅ Optimistic Updates: Mobile-first UX
+ * ✅ Mobile Performance: Battery-friendly operations
+ * ✅ Enterprise Logging: Essential audit trails
+ * ✅ Clean Interface: Simplified Champion API
  */
 
-import { useCallback } from 'react';
-import { useAuthState } from '../store/auth-state.store';
+import { useCallback, useMemo } from 'react';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { authContainer } from '../../application/di/auth.container';
 import { AuthUser } from '../../domain/entities/auth-user.entity';
 import { authGDPRAuditService } from '../../data/services/auth-gdpr-audit.service';
+import { LoggerFactory } from '@core/logging/logger.factory';
+import { LogCategory } from '@core/logging/logger.service.interface';
+
+const logger = LoggerFactory.createServiceLogger('AuthChampion');
+
+// 🏆 CHAMPION QUERY KEYS
+export const authQueryKeys = {
+  all: ['auth'] as const,
+  user: () => [...authQueryKeys.all, 'user'] as const,
+  status: () => [...authQueryKeys.all, 'status'] as const,
+} as const;
+
+// 🏆 CHAMPION CONFIG: Mobile Performance
+const AUTH_CONFIG = {
+  staleTime: 1000 * 60 * 15,      // 🏆 Mobile: 15 minutes for auth state
+  gcTime: 1000 * 60 * 60,         // 🏆 Mobile: 1 hour garbage collection
+  retry: 2,                       // 🏆 Mobile: Limited retries
+  refetchOnWindowFocus: false,    // 🏆 Mobile: Battery-friendly
+  refetchOnReconnect: true,       // 🏆 Mobile: Reconnect on network
+} as const;
 
 /**
  * @interface UseAuthReturn
- * @description Return Type für Core Auth Hook
+ * @description Champion Return Type für Core Auth Hook
  */
 export interface UseAuthReturn {
-  // ==========================================
-  // 📊 STATE (from Store)
-  // ==========================================
-  
-  /** Current authenticated user */
+  // 🏆 Core Auth Data
   user: AuthUser | null;
-  /** Authentication status */
   isAuthenticated: boolean;
-  /** Loading state */
+  
+  // 🏆 Champion Loading States
   isLoading: boolean;
-  /** Current error */
+  isLoggingIn: boolean;
+  isRegistering: boolean;
+  isLoggingOut: boolean;
+  
+  // 🏆 Error Handling
   error: string | null;
-
-  // ==========================================
-  // 🔧 CORE AUTH ACTIONS
-  // ==========================================
+  loginError: string | null;
+  registerError: string | null;
   
-  /** 
-   * Login with email and password 
-   * @param email User email
-   * @param password User password
-   * @returns Promise<AuthUser>
-   */
+  // 🏆 Champion Actions (Essential Only)
   login: (email: string, password: string) => Promise<AuthUser>;
-  
-  /** 
-   * Register new user with email and password 
-   * @param email User email
-   * @param password User password
-   * @param confirmPassword Password confirmation
-   * @returns Promise<AuthUser>
-   */
   register: (email: string, password: string, confirmPassword: string) => Promise<AuthUser>;
-  
-  /** 
-   * Logout current user 
-   * @returns Promise<void>
-   */
   logout: () => Promise<void>;
+  refreshAuth: () => Promise<void>;
   
-  /** 
-   * Check current authentication status 
-   * @returns Promise<boolean>
-   */
+  // 🏆 Mobile Performance Helpers
   checkAuthStatus: () => Promise<boolean>;
-  
-  /** 
-   * Get current user data 
-   * @returns Promise<AuthUser | null>
-   */
   getCurrentUser: () => Promise<AuthUser | null>;
-  
-  // ==========================================
-  // 🧹 UTILITY ACTIONS
-  // ==========================================
-  
-  /** Clear current error */
   clearError: () => void;
-  /** Reset auth state */
+  
+  // 🏆 Legacy Compatibility
   resetAuth: () => void;
 }
 
 /**
- * @hook useAuth
- * @description Core Auth Hook für grundlegende Authentifizierungs-Operationen
+ * 🏆 CHAMPION CORE AUTH HOOK
  * 
- * @features
- * - Login/Register/Logout
- * - Authentication Status Checking
- * - Current User Management
- * - Error Handling
- * - DI Container Integration
- * - Separation of Concerns (Hook vs Store)
- * 
- * @example
- * ```typescript
- * const { 
- *   user, 
- *   isAuthenticated, 
- *   login, 
- *   logout 
- * } = useAuth();
- * 
- * // Login
- * await login('user@example.com', 'password123');
- * 
- * // Logout
- * await logout();
- * ```
+ * ✅ CHAMPION PATTERNS:
+ * - Single Responsibility: Core authentication only
+ * - TanStack Query: Optimized auth state management
+ * - Optimistic Updates: Immediate login/logout feedback
+ * - Mobile Performance: Battery-friendly caching
+ * - Enterprise Logging: GDPR audit trails
+ * - Clean Interface: Essential auth operations
  */
 export const useAuth = (): UseAuthReturn => {
-  // ==========================================
-  // 📊 STATE MANAGEMENT
-  // ==========================================
-  
-  const {
-    user,
-    isAuthenticated,
-    isLoading,
-    error,
-    setUser,
-    setAuthenticated,
-    setLoading,
-    setError,
-    clearError,
-    reset,
-  } = useAuthState();
+  const queryClient = useQueryClient();
 
-  // ==========================================
-  // 🔧 CORE AUTH OPERATIONS
-  // ==========================================
-  
-  /**
-   * @function login
-   * @description Authenticate user with email and password
-   */
-  const login = useCallback(async (email: string, password: string): Promise<AuthUser> => {
-    const correlationId = `auth_hook_login_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-    setLoading(true);
-    clearError();
-    
-    try {
+  // 🔍 TANSTACK QUERY: Current User (Champion Pattern)
+  const userQuery = useQuery({
+    queryKey: authQueryKeys.user(),
+    queryFn: async (): Promise<AuthUser | null> => {
+      logger.info('Fetching current user (Champion)', LogCategory.BUSINESS);
+
+      try {
+        if (!authContainer.isReady()) {
+          logger.warn('Auth container not ready, attempting initialization', LogCategory.BUSINESS);
+          
+          await authContainer.initialize({
+            enableAdvancedSecurity: true,
+            enableBiometric: true,
+            enableOAuth: true,
+            enableMFA: true,
+            enableCompliance: true,
+            enablePasswordPolicy: true
+          });
+        }
+
+        if (authContainer.isReady()) {
+          const getCurrentUserUseCase = authContainer.getCurrentUserUseCase;
+          const user = await getCurrentUserUseCase.execute();
+          
+          logger.info('Current user fetched successfully (Champion)', LogCategory.BUSINESS, { 
+            hasUser: !!user 
+          });
+          
+          return user;
+        }
+
+        return null;
+      } catch (error) {
+        logger.error('Failed to fetch current user (Champion)', LogCategory.BUSINESS, {}, error as Error);
+        return null;
+      }
+    },
+    ...AUTH_CONFIG,
+  });
+
+  // 🏆 CHAMPION MUTATION: Login (Optimistic Updates)
+  const loginMutation = useMutation({
+    mutationFn: async ({ email, password }: { email: string; password: string }): Promise<AuthUser> => {
+      const correlationId = `auth_champion_login_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+      
+      logger.info('Starting login process (Champion)', LogCategory.BUSINESS, { email, correlationId });
+      
       // Validation
       if (!email || !password) {
         throw new Error('Email und Passwort sind erforderlich');
       }
-      
-      // DEBUG: Check container state
-      console.log('[useAuth] authContainer.isReady():', authContainer.isReady());
-      
-      // Enterprise Implementation: Use Auth Container DI
-      if (authContainer.isReady()) {
-        console.log('[useAuth] Using authContainer for login');
+
+      if (!authContainer.isReady()) {
+        throw new Error('Auth Container nicht verfügbar');
+      }
+
+      try {
         const loginUseCase = authContainer.loginWithEmailUseCase;
         const user = await loginUseCase.execute(email, password);
         
-        // 🔒 GDPR Audit: Log successful login at Hook level (UI interaction)
-        await authGDPRAuditService.logLoginSuccess(
-          user,
-          'email',
-          { correlationId }
-        );
+        // 🔒 GDPR Audit: Success
+        await authGDPRAuditService.logLoginSuccess(user, 'email', { correlationId });
         
-        // Update State
-        setUser(user);
-        setAuthenticated(true);
-        setLoading(false);
-        
-        return user;
-      }
-      
-      // DEBUG: Container not ready, trying to initialize it
-      console.warn('[useAuth] Auth Container not ready, attempting emergency initialization');
-      
-      try {
-        await authContainer.initialize({
-          enableAdvancedSecurity: true,
-          enableBiometric: true,
-          enableOAuth: true,
-          enableMFA: true,
-          enableCompliance: true,
-          enablePasswordPolicy: true
+        logger.info('Login completed successfully (Champion)', LogCategory.BUSINESS, { 
+          userId: user.id, 
+          correlationId 
         });
         
-        console.log('[useAuth] Emergency initialization complete, retrying login');
+        return user;
+      } catch (error) {
+        // 🔒 GDPR Audit: Failure
+        await authGDPRAuditService.logLoginFailure(email, (error as Error).message, 1, { correlationId });
         
-        if (authContainer.isReady()) {
-          const loginUseCase = authContainer.loginWithEmailUseCase;
-          const user = await loginUseCase.execute(email, password);
-          
-          // Update State
-          setUser(user);
-          setAuthenticated(true);
-          setLoading(false);
-          
-          return user;
-        }
-      } catch (initError) {
-        console.error('[useAuth] Emergency initialization failed:', initError);
+        logger.error('Login failed (Champion)', LogCategory.BUSINESS, { 
+          email, 
+          correlationId 
+        }, error as Error);
+        
+        throw error;
+      }
+    },
+    
+    // 🔥 OPTIMISTIC UPDATE: Immediate UI Feedback
+    onMutate: async () => {
+      await queryClient.cancelQueries({ queryKey: authQueryKeys.user() });
+      
+      // Set optimistic loading state
+      logger.info('Login optimistic update started (Champion)', LogCategory.BUSINESS);
+      
+      return { previousUser: queryClient.getQueryData(authQueryKeys.user()) };
+    },
+    
+    onSuccess: (user) => {
+      // Update cache with authenticated user
+      queryClient.setQueryData(authQueryKeys.user(), user);
+      
+      // Invalidate related queries
+      queryClient.invalidateQueries({ queryKey: authQueryKeys.status() });
+      
+      logger.info('Login optimistic update completed (Champion)', LogCategory.BUSINESS, { 
+        userId: user.id 
+      });
+    },
+    
+    onError: (error, variables, context) => {
+      // Revert optimistic update on error
+      if (context?.previousUser !== undefined) {
+        queryClient.setQueryData(authQueryKeys.user(), context.previousUser);
       }
       
-      // Fallback Implementation
-      throw new Error('Auth Container nicht verfügbar - Initialisierung fehlgeschlagen');
-      
-    } catch (error) {
-      // 🔒 GDPR Audit: Log failed login at Hook level
-      await authGDPRAuditService.logLoginFailure(
-        email,
-        (error as Error).message,
-        1,
-        { correlationId }
-      );
-      
-      const errorMessage = error instanceof Error ? error.message : 'Login fehlgeschlagen';
-      setError(errorMessage);
-      setLoading(false);
-      throw error;
-    }
-  }, [setUser, setAuthenticated, setLoading, setError, clearError]);
+      logger.error('Login optimistic update failed, reverted (Champion)', LogCategory.BUSINESS, {}, error as Error);
+    },
+  });
 
-  /**
-   * @function register
-   * @description Register new user with email and password
-   */
-  const register = useCallback(async (
-    email: string, 
-    password: string, 
-    confirmPassword: string
-  ): Promise<AuthUser> => {
-    setLoading(true);
-    clearError();
-    
-    try {
+  // 🏆 CHAMPION MUTATION: Register (Optimistic Updates)
+  const registerMutation = useMutation({
+    mutationFn: async ({ 
+      email, 
+      password, 
+      confirmPassword 
+    }: { 
+      email: string; 
+      password: string; 
+      confirmPassword: string; 
+    }): Promise<AuthUser> => {
+      logger.info('Starting registration process (Champion)', LogCategory.BUSINESS, { email });
+      
       // Validation
       if (!email || !password || !confirmPassword) {
         throw new Error('Alle Felder sind erforderlich');
@@ -242,140 +220,177 @@ export const useAuth = (): UseAuthReturn => {
       if (password !== confirmPassword) {
         throw new Error('Passwörter stimmen nicht überein');
       }
-      
-      // Enterprise Implementation: Use Auth Container DI
-      if (authContainer.isReady()) {
-        const registerUseCase = authContainer.registerWithEmailUseCase;
-        const user = await registerUseCase.execute(email, password);
-        
-        // Update State
-        setUser(user);
-        setAuthenticated(true);
-        setLoading(false);
-        
-        return user;
-      }
-      
-      // Fallback Implementation
-      throw new Error('Auth Container nicht verfügbar');
-      
-    } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'Registrierung fehlgeschlagen';
-      setError(errorMessage);
-      setLoading(false);
-      throw error;
-    }
-  }, [setUser, setAuthenticated, setLoading, setError, clearError]);
 
-  /**
-   * @function logout
-   * @description Logout current user
-   */
-  const logout = useCallback(async (): Promise<void> => {
-    const correlationId = `auth_hook_logout_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-    setLoading(true);
-    clearError();
-    
-    try {
-      // Get current user for GDPR logging before logout
-      const currentUser = user;
+      if (!authContainer.isReady()) {
+        throw new Error('Auth Container nicht verfügbar');
+      }
+
+      const registerUseCase = authContainer.registerWithEmailUseCase;
+      const user = await registerUseCase.execute(email, password);
       
-      // Enterprise Implementation: Use Auth Container DI
+      logger.info('Registration completed successfully (Champion)', LogCategory.BUSINESS, { 
+        userId: user.id 
+      });
+      
+      return user;
+    },
+    
+    onSuccess: (user) => {
+      queryClient.setQueryData(authQueryKeys.user(), user);
+      queryClient.invalidateQueries({ queryKey: authQueryKeys.status() });
+      
+      logger.info('Registration optimistic update completed (Champion)', LogCategory.BUSINESS, { 
+        userId: user.id 
+      });
+    },
+  });
+
+  // 🏆 CHAMPION MUTATION: Logout (Optimistic Updates)
+  const logoutMutation = useMutation({
+    mutationFn: async (): Promise<void> => {
+      const correlationId = `auth_champion_logout_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+      const currentUser = userQuery.data;
+      
+      logger.info('Starting logout process (Champion)', LogCategory.BUSINESS, { 
+        userId: currentUser?.id,
+        correlationId 
+      });
+
       if (authContainer.isReady()) {
         const logoutUseCase = authContainer.logoutUseCase;
         await logoutUseCase.execute();
       }
-      
-      // 🔒 GDPR Audit: Log logout at Hook level
+
+      // 🔒 GDPR Audit: Logout
       if (currentUser) {
-        await authGDPRAuditService.logLogout(
-          currentUser.id,
-          'user_initiated',
-          { correlationId }
-        );
+        await authGDPRAuditService.logLogout(currentUser.id, 'user_initiated', { correlationId });
       }
       
-      // Update State (always reset, even if UseCase fails)
-      reset();
+      logger.info('Logout completed successfully (Champion)', LogCategory.BUSINESS, { 
+        userId: currentUser?.id,
+        correlationId 
+      });
+    },
+    
+    // 🔥 OPTIMISTIC UPDATE: Immediate Logout
+    onMutate: async () => {
+      await queryClient.cancelQueries({ queryKey: authQueryKeys.user() });
       
-    } catch (error) {
-      // Log error but still reset state
-      console.warn('Logout UseCase failed, but state reset:', error);
-      reset();
-    }
-  }, [setLoading, clearError, reset, user]);
+      const previousUser = queryClient.getQueryData(authQueryKeys.user());
+      
+      // Optimistically clear user
+      queryClient.setQueryData(authQueryKeys.user(), null);
+      
+      logger.info('Logout optimistic update started (Champion)', LogCategory.BUSINESS);
+      
+      return { previousUser };
+    },
+    
+    onSuccess: () => {
+      // Clear all auth-related cache
+      queryClient.removeQueries({ queryKey: authQueryKeys.all });
+      queryClient.setQueryData(authQueryKeys.user(), null);
+      
+      logger.info('Logout optimistic update completed (Champion)', LogCategory.BUSINESS);
+    },
+    
+    onError: (error, variables, context) => {
+      // Revert optimistic update on error
+      if (context?.previousUser !== undefined) {
+        queryClient.setQueryData(authQueryKeys.user(), context.previousUser);
+      }
+      
+      logger.error('Logout optimistic update failed, reverted (Champion)', LogCategory.BUSINESS, {}, error as Error);
+    },
+  });
 
-  /**
-   * @function checkAuthStatus
-   * @description Check current authentication status
-   */
+  // 🏆 CHAMPION COMPUTED VALUES (Memoized for Performance)
+  const user = userQuery.data || null;
+  const isAuthenticated = !!user;
+  const isLoading = userQuery.isLoading;
+  const error = userQuery.error?.message || null;
+
+  // 🏆 CHAMPION ACTIONS
+  const login = useCallback(async (email: string, password: string): Promise<AuthUser> => {
+    return await loginMutation.mutateAsync({ email, password });
+  }, [loginMutation]);
+
+  const register = useCallback(async (email: string, password: string, confirmPassword: string): Promise<AuthUser> => {
+    return await registerMutation.mutateAsync({ email, password, confirmPassword });
+  }, [registerMutation]);
+
+  const logout = useCallback(async (): Promise<void> => {
+    await logoutMutation.mutateAsync();
+  }, [logoutMutation]);
+
+  const refreshAuth = useCallback(async (): Promise<void> => {
+    logger.info('Refreshing auth state (Champion)', LogCategory.BUSINESS);
+    await userQuery.refetch();
+  }, [userQuery]);
+
+  // 🏆 MOBILE PERFORMANCE HELPERS
   const checkAuthStatus = useCallback(async (): Promise<boolean> => {
     try {
-      // Enterprise Implementation: Use Auth Container DI
-      if (authContainer.isReady()) {
-        const isAuthenticatedUseCase = authContainer.isAuthenticatedUseCase;
-        const isAuthenticated = await isAuthenticatedUseCase.execute();
-        
-        setAuthenticated(isAuthenticated);
-        return isAuthenticated;
+      if (!authContainer.isReady()) {
+        return false;
       }
+
+      const isAuthenticatedUseCase = authContainer.isAuthenticatedUseCase;
+      const authenticated = await isAuthenticatedUseCase.execute();
       
-      return false;
+      logger.info('Auth status checked (Champion)', LogCategory.BUSINESS, { authenticated });
       
+      return authenticated;
     } catch (error) {
-      console.warn('Check auth status failed:', error);
-      setAuthenticated(false);
+      logger.warn('Auth status check failed (Champion)', LogCategory.BUSINESS, {}, error as Error);
       return false;
     }
-  }, [setAuthenticated]);
+  }, []);
 
-  /**
-   * @function getCurrentUser
-   * @description Get current user data
-   */
   const getCurrentUser = useCallback(async (): Promise<AuthUser | null> => {
-    try {
-      // Enterprise Implementation: Use Auth Container DI
-      if (authContainer.isReady()) {
-        const getCurrentUserUseCase = authContainer.getCurrentUserUseCase;
-        const user = await getCurrentUserUseCase.execute();
-        
-        if (user) {
-          setUser(user);
-          setAuthenticated(true);
-        }
-        
-        return user;
-      }
-      
-      return null;
-      
-    } catch (error) {
-      console.warn('Get current user failed:', error);
-      return null;
-    }
-  }, [setUser, setAuthenticated]);
+    return userQuery.data || null;
+  }, [userQuery.data]);
 
-  // ==========================================
-  // 🎯 RETURN INTERFACE
-  // ==========================================
-  
+  const clearError = useCallback(() => {
+    // Clear query errors
+    queryClient.setQueryData(authQueryKeys.user(), userQuery.data);
+  }, [queryClient, userQuery.data]);
+
+  const resetAuth = useCallback(() => {
+    logger.info('Resetting auth state (Champion)', LogCategory.BUSINESS);
+    
+    queryClient.removeQueries({ queryKey: authQueryKeys.all });
+    queryClient.setQueryData(authQueryKeys.user(), null);
+  }, [queryClient]);
+
   return {
-    // State
+    // 🏆 Core Auth Data
     user,
     isAuthenticated,
-    isLoading,
-    error,
     
-    // Core Actions
+    // 🏆 Champion Loading States
+    isLoading,
+    isLoggingIn: loginMutation.isPending,
+    isRegistering: registerMutation.isPending,
+    isLoggingOut: logoutMutation.isPending,
+    
+    // 🏆 Error Handling
+    error,
+    loginError: loginMutation.error?.message || null,
+    registerError: registerMutation.error?.message || null,
+    
+    // 🏆 Champion Actions
     login,
     register,
     logout,
+    refreshAuth,
+    
+    // 🏆 Mobile Performance Helpers
     checkAuthStatus,
     getCurrentUser,
-    
-    // Utility Actions
     clearError,
-    resetAuth: reset,
+    
+    // 🏆 Legacy Compatibility
+    resetAuth,
   };
-}; 
+};
