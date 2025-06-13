@@ -28,6 +28,61 @@ export const createProfileEditScreenStyles = (theme: any) => StyleSheet.create({
     alignItems: 'center',
   },
   
+  // Form Field Styles
+  formField: {
+    marginBottom: theme.spacing?.[3] || 12,
+  },
+  
+  fieldSpacing: {
+    marginBottom: theme.spacing?.[3] || 12,
+  },
+  
+  fieldLabel: {
+    fontSize: theme.typography?.fontSizes?.md || 14,
+    fontWeight: '600',
+    color: theme.colors.text,
+    marginBottom: theme.spacing?.[2] || 8,
+  },
+  
+  label: {
+    fontSize: theme.typography?.fontSizes?.md || 14,
+    fontWeight: '600',
+    color: theme.colors.text,
+    marginBottom: theme.spacing?.[2] || 8,
+  },
+  
+  segmentedButtons: {
+    marginVertical: theme.spacing?.[2] || 8,
+  },
+  
+  // Button Styles
+  addFieldButton: {
+    backgroundColor: theme.colors.primary,
+    padding: theme.spacing?.[3] || 12,
+    borderRadius: theme.borderRadius?.medium || 8,
+    alignItems: 'center',
+    marginVertical: theme.spacing?.[2] || 8,
+  },
+  
+  addFieldButtonText: {
+    color: theme.colors.onPrimary,
+    fontSize: theme.typography?.fontSizes?.md || 14,
+    fontWeight: '600',
+  },
+  
+  // Error Styles
+  errorContainer: {
+    backgroundColor: theme.colors.errorContainer,
+    padding: theme.spacing?.[3] || 12,
+    borderRadius: theme.borderRadius?.medium || 8,
+    marginVertical: theme.spacing?.[2] || 8,
+  },
+  
+  errorText: {
+    color: theme.colors.onErrorContainer,
+    fontSize: theme.typography?.fontSizes?.sm || 12,
+  },
+  
   // Text Styles
   extensibilityNote: {
     fontSize: theme.typography?.fontSizes?.xs || 12,

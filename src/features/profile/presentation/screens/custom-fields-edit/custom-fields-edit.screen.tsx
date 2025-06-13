@@ -94,7 +94,7 @@
  * ```
  */
 
-import React, { useLayoutEffect, useCallback, useMemo } from 'react';
+import React, { useLayoutEffect, useCallback, useMemo, useState } from 'react';
 import {
   View,
   ScrollView,
@@ -115,6 +115,8 @@ import {
   Divider,
 } from 'react-native-paper';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useTheme } from 'react-native-paper';
+import { useTranslation } from 'react-i18next';
 
 // Shared Components
 import { 
@@ -124,7 +126,7 @@ import {
 import { EmptyList } from '../../../../../shared/components/empty-state/empty-list.component';
 
 // Business Logic
-import { useCustomFieldsEdit } from '../../hooks/use-custom-fields-edit.hook';
+import { useCustomFieldsManager } from '../../hooks/use-custom-fields-query.hook';
 
 // Styling
 import { createCustomFieldsEditScreenStyles } from './custom-fields-edit.screen.styles';
@@ -491,6 +493,13 @@ export const CustomFieldsEditScreen: React.FC<CustomFieldsEditScreenProps> = ({
   testID 
 }) => {
   // =============================================================================
+  // LOCAL UI STATE
+  // =============================================================================
+  
+  const [showTemplates, setShowTemplates] = useState(false);
+  const [newFieldMenuVisible, setNewFieldMenuVisible] = useState(false);
+
+  // =============================================================================
   // BUSINESS LOGIC & STATE MANAGEMENT
   // =============================================================================
 
@@ -500,32 +509,97 @@ export const CustomFieldsEditScreen: React.FC<CustomFieldsEditScreenProps> = ({
    */
   const {
     // Data
-    localFields,
+    customFields: localFields,
+    templates: fieldTemplates,
     
     // State
     isLoading,
-    isSaving,
+    isUpdating: isSaving,
     hasChanges,
-    showTemplates,
-    newFieldMenuVisible,
-    fieldValidationErrors,
+    fieldErrors: fieldValidationErrors,
+    error: _error,
     
-    // Handlers
-    handleAddCustomField,
-    handleAddFromTemplate,
-    handleRemoveField,
-    handleSave,
-    setShowTemplates,
-    setNewFieldMenuVisible,
-    
-    // UI Dependencies
-    theme,
-    t,
-    testIds,
-    fieldTypes: _fieldTypes,
-    fieldTemplates,
-    getInputProps,
-  } = useCustomFieldsEdit({ navigation });
+    // Actions
+    addField,
+    addFromTemplate,
+    removeField,
+    updateCustomFields,
+    updateField,
+  } = useCustomFieldsManager();
+
+  // =============================================================================
+  // UI INTEGRATION
+  // =============================================================================
+  
+  const theme = useTheme();
+  const { t } = useTranslation();
+  
+  // Define test IDs and field types locally or import from constants
+  const testIds = {
+    SCREEN: 'custom-fields-edit-screen',
+    SCROLL_VIEW: 'custom-fields-scroll-view',
+    FIELD_ITEM: 'custom-field-item',
+    FIELD_REMOVE_BUTTON: 'field-remove-button',
+    FIELD_INPUT: 'field-input',
+    SAVE_FAB: 'save-fab',
+    LOADING_INDICATOR: 'loading-indicator',
+    ADD_FIELD_BUTTON: 'add-field-button',
+    FIELDS_SECTION: 'fields-section',
+    TEMPLATES_SECTION: 'templates-section',
+    SHOW_ALL_TEMPLATES_BUTTON: 'show-all-templates-button',
+    TEMPLATE_CHIP: 'template-chip',
+    TEMPLATE_LIST_ITEM: 'template-list-item',
+    NEW_FIELD_MENU: 'new-field-menu',
+    TIPS_SECTION: 'tips-section',
+  };
+
+  // =============================================================================
+  // ACTION HANDLERS
+  // =============================================================================
+
+  const handleAddCustomField = useCallback(async (label: string, _type: CustomFieldType) => {
+    try {
+      const key = label.toLowerCase().replace(/\s+/g, '_');
+      await addField(key, '', label);
+    } catch (error) {
+      console.error('Failed to add custom field:', error);
+    }
+  }, [addField]);
+
+  const handleAddFromTemplate = useCallback(async (template: any) => {
+    try {
+      await addFromTemplate(template as any);
+      setShowTemplates(false);
+    } catch (error) {
+      console.error('Failed to add field from template:', error);
+    }
+  }, [addFromTemplate]);
+
+  const handleRemoveField = useCallback(async (fieldKey: string) => {
+    try {
+      await removeField(fieldKey);
+    } catch (error) {
+      console.error('Failed to remove field:', error);
+    }
+  }, [removeField]);
+
+  const handleSave = useCallback(async () => {
+    try {
+      await updateCustomFields(localFields);
+    } catch (error) {
+      console.error('Failed to save custom fields:', error);
+    }
+  }, [updateCustomFields, localFields]);
+
+  const getInputProps = useCallback((field: CustomField) => {
+    return {
+      value: field.value || '',
+      onChangeText: (text: string) => updateField(field.key, text),
+      placeholder: field.placeholder || `Enter ${field.label}`,
+      multiline: field.type === 'textarea',
+      keyboardType: field.type === 'email' ? ('email-address' as const) : ('default' as const),
+    };
+  }, [updateField]);
 
   // =============================================================================
   // PERFORMANCE OPTIMIZATIONS
@@ -587,15 +661,15 @@ export const CustomFieldsEditScreen: React.FC<CustomFieldsEditScreenProps> = ({
    * Memoized field renderer for performance with large lists
    * @description Optimizes rendering of field items to prevent lag
    */
-  const renderFieldItem = useCallback((field: CustomField) => {
+  const renderFieldItem = useCallback((field: any) => {
     const fieldType = DEFAULT_FIELD_TYPES.find((ft) => ft.type === field.type);
-    const hasError = fieldValidationErrors[field.id]?.length > 0;
+    const hasError = fieldValidationErrors[field.key]?.length > 0;
     
     return (
       <View 
-        key={field.id} 
+        key={field.key} 
         style={styles.fieldItem}
-        testID={`${testIds.FIELD_ITEM}-${field.id}`}
+        testID={`${testIds.FIELD_ITEM}-${field.key}`}
       >
         <View style={styles.fieldHeader}>
           <View style={styles.fieldInfo}>
@@ -609,10 +683,10 @@ export const CustomFieldsEditScreen: React.FC<CustomFieldsEditScreenProps> = ({
           <IconButton
             icon="delete"
             size={20}
-            onPress={() => handleRemoveField(field.id)}
+            onPress={() => handleRemoveField(field.key)}
             disabled={isSaving}
             style={styles.fieldDeleteButton}
-            testID={`${testIds.FIELD_REMOVE_BUTTON}-${field.id}`}
+            testID={`${testIds.FIELD_REMOVE_BUTTON}-${field.key}`}
             accessibilityLabel={t('customFields.field.remove.accessibility', { 
               defaultValue: `Feld ${field.label} löschen` 
             })}
@@ -628,7 +702,7 @@ export const CustomFieldsEditScreen: React.FC<CustomFieldsEditScreenProps> = ({
             styles.fieldInput,
             hasError && styles.fieldInputError
           ]}
-          testID={`${testIds.FIELD_INPUT}-${field.id}`}
+          testID={`${testIds.FIELD_INPUT}-${field.key}`}
           accessibilityLabel={t('customFields.field.input.accessibility', { 
             defaultValue: `Wert für ${field.label}`,
             fieldLabel: field.label 
@@ -637,7 +711,7 @@ export const CustomFieldsEditScreen: React.FC<CustomFieldsEditScreenProps> = ({
         
         {hasError && (
           <View style={styles.validationContainer}>
-            {fieldValidationErrors[field.id].map((error, index) => (
+            {fieldValidationErrors[field.key].map((error: string, index: number) => (
               <HelperText 
                 key={index} 
                 type="error" 
@@ -676,7 +750,7 @@ export const CustomFieldsEditScreen: React.FC<CustomFieldsEditScreenProps> = ({
           icon="content-save"
           onPress={handleSave}
           disabled={!hasChanges || isSaving}
-          iconColor={hasChanges && !isSaving ? theme.colors.primary : theme.colors.disabled}
+          iconColor={hasChanges && !isSaving ? theme.colors.primary : theme.colors.outline}
           testID={testIds.SAVE_FAB}
           accessibilityLabel={t('customFields.save.accessibility', { 
             defaultValue: 'Änderungen speichern' 
@@ -695,7 +769,7 @@ export const CustomFieldsEditScreen: React.FC<CustomFieldsEditScreenProps> = ({
     hasChanges, 
     isSaving, 
     theme.colors.primary, 
-    theme.colors.disabled, 
+    theme.colors.outline, 
     testIds.SAVE_FAB,
     t
   ]);
@@ -714,7 +788,7 @@ export const CustomFieldsEditScreen: React.FC<CustomFieldsEditScreenProps> = ({
         <ActivityIndicator 
           size="large" 
           color={theme.colors.primary} 
-          accessibilityLabel={t('common.loading.accessibility', { 
+          accessibilityLabel={t('common.loadingAccessibility', { 
             defaultValue: 'Inhalt wird geladen' 
           })}
         />
@@ -784,7 +858,7 @@ export const CustomFieldsEditScreen: React.FC<CustomFieldsEditScreenProps> = ({
             ) : (
               <View style={styles.allTemplatesContainer}>
                                   {localFields.map((field, index) => (
-                    <View key={field.id || index}>
+                    <View key={field.key || index}>
                       <View style={styles.fieldItem}>
                         <View style={styles.fieldInfo}>
                           <Text style={styles.fieldLabel}>{field.label}</Text>
@@ -793,7 +867,7 @@ export const CustomFieldsEditScreen: React.FC<CustomFieldsEditScreenProps> = ({
                           </Text>
                         </View>
                         <View style={styles.fieldInfo}>
-                          {fieldValidationErrors[field.id]?.length > 0 && (
+                          {fieldValidationErrors[field.key]?.length > 0 && (
                             <IconButton 
                               icon="alert-circle" 
                               size={16} 
@@ -826,7 +900,7 @@ export const CustomFieldsEditScreen: React.FC<CustomFieldsEditScreenProps> = ({
                   onPress={() => setShowTemplates(true)}
                   compact
                   testID={testIds.SHOW_ALL_TEMPLATES_BUTTON}
-                  accessibilityLabel={t('customFields.templates.showAll.accessibility', { 
+                  accessibilityLabel={t('customFields.templates.showAllAccessibility', { 
                     defaultValue: 'Alle Vorlagen anzeigen' 
                   })}
                 >
@@ -844,25 +918,25 @@ export const CustomFieldsEditScreen: React.FC<CustomFieldsEditScreenProps> = ({
               >
                 <View style={styles.templatesContainer}>
                   {fieldTemplates.slice(0, 4).map((template) => {
-                    const templateExists = localFields.some(existing => existing.key === template.key);
+                    const _templateExists = localFields.some(existing => existing.key === template.key);
                     return (
                       <Chip
                         key={template.key}
                         mode="outlined"
-                        icon={template.icon}
+                        compact={true}
+                        textStyle={{ fontSize: 12 }}
+                        style={{
+                          marginRight: 8,
+                          marginBottom: 8,
+                          borderColor: (theme.colors as any).primary,
+                          backgroundColor: (theme.colors as any).background
+                        }}
                         onPress={() => handleAddFromTemplate(template)}
-                        disabled={templateExists || isSaving}
-                        style={[
-                          styles.templateChip,
-                          templateExists && styles.templateChipDisabled
-                        ]}
                         testID={`${testIds.TEMPLATE_CHIP}-${template.key}`}
-                        accessibilityLabel={t('customFields.template.accessibility', { 
-                          defaultValue: `Vorlage ${template.label} ${templateExists ? 'bereits hinzugefügt' : 'hinzufügen'}`,
-                          templateLabel: template.label,
-                          status: templateExists ? 'bereits hinzugefügt' : 'hinzufügen'
+                        accessibilityLabel={t('customFields.template.accessibility', {
+                          defaultValue: `Vorlage für ${template.label}`,
+                          templateLabel: template.label
                         })}
-                        accessibilityState={{ disabled: templateExists || isSaving }}
                       >
                         {template.label}
                       </Chip>
@@ -887,7 +961,7 @@ export const CustomFieldsEditScreen: React.FC<CustomFieldsEditScreenProps> = ({
                   onPress={() => setShowTemplates(false)}
                   compact
                   testID={testIds.SHOW_ALL_TEMPLATES_BUTTON}
-                  accessibilityLabel={t('customFields.templates.hide.accessibility', { 
+                  accessibilityLabel={t('customFields.templates.hideAccessibility', { 
                     defaultValue: 'Vorlagen ausblenden' 
                   })}
                 >
@@ -897,7 +971,7 @@ export const CustomFieldsEditScreen: React.FC<CustomFieldsEditScreenProps> = ({
               
               <View style={styles.allTemplatesContainer}>
                 {fieldTemplates.map((template) => {
-                  const templateExists = localFields.some(existing => existing.key === template.key);
+                  const _templateExists = localFields.some(existing => existing.key === template.key);
                   const fieldTypeLabel = DEFAULT_FIELD_TYPES.find((ft) => ft.type === template.type)?.label;
                   
                   return (
@@ -908,31 +982,31 @@ export const CustomFieldsEditScreen: React.FC<CustomFieldsEditScreenProps> = ({
                       left={(props) => (
                         <List.Icon 
                           {...props} 
-                          icon={template.icon || 'help'} 
-                          color={templateExists ? theme.colors.disabled : theme.colors.primary}
+                          icon="help" 
+                          color={_templateExists ? theme.colors.outline : theme.colors.primary}
                         />
                       )}
                       right={(props) => (
                         <List.Icon 
                           {...props} 
-                          icon={templateExists ? "check" : "plus"} 
-                          color={templateExists ? theme.colors.success : theme.colors.primary}
+                          icon={_templateExists ? "check" : "plus"} 
+                          color={_templateExists ? theme.colors.primary : theme.colors.primary}
                         />
                       )}
-                      onPress={() => !templateExists && handleAddFromTemplate(template)}
-                      disabled={templateExists}
+                      onPress={() => !_templateExists && handleAddFromTemplate(template)}
+                      disabled={_templateExists}
                       style={[
                         styles.templateListItem,
-                        templateExists && styles.templateItemDisabled
+                        _templateExists && styles.templateItemDisabled
                       ]}
                       testID={`${testIds.TEMPLATE_LIST_ITEM}-${template.key}`}
                       accessibilityLabel={t('customFields.template.list.accessibility', { 
-                        defaultValue: `${template.label}, ${fieldTypeLabel}, ${templateExists ? 'bereits hinzugefügt' : 'verfügbar'}`,
+                        defaultValue: `${template.label}, ${fieldTypeLabel}, ${_templateExists ? 'bereits hinzugefügt' : 'verfügbar'}`,
                         templateLabel: template.label,
                         fieldType: fieldTypeLabel,
-                        status: templateExists ? 'bereits hinzugefügt' : 'verfügbar'
+                        status: _templateExists ? 'bereits hinzugefügt' : 'verfügbar'
                       })}
-                      accessibilityState={{ disabled: templateExists }}
+                      accessibilityState={{ disabled: _templateExists }}
                     />
                   );
                 })}

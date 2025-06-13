@@ -1,325 +1,111 @@
 /**
- * NotificationAnalyticsWidget - Advanced Analytics for Notifications
- * Comprehensive notification analytics with charts, trends, and insights
+ * @fileoverview NotificationAnalyticsWidget Component - HOOK-CENTRIC UI Component
+ * 
+ * @description Pure UI component for notification analytics widget.
+ * NO BUSINESS LOGIC - all logic handled by useNotificationAnalytics hook.
+ * Follows HOOK-CENTRIC architecture with complete separation of concerns.
+ * 
+ * @module NotificationAnalyticsWidgetComponent
+ * @since 2.0.0 (HOOK-CENTRIC Refactor)
+ * @author ReactNativeSkeleton Enterprise Team
+ * @layer Presentation (Pure UI Component)
+ * @architecture HOOK-CENTRIC - Components only for UI rendering
  */
 
-import React, { useState, useMemo } from 'react';
-import {
-  View,
-  Dimensions,
-} from 'react-native';
+import React from 'react';
+import { View, StyleSheet } from 'react-native';
 import {
   Card,
   Title,
   Paragraph,
-  Surface,
   Chip,
+  Surface,
   ProgressBar,
   List,
-  Divider,
-  IconButton,
+  Badge,
+  Button,
 } from 'react-native-paper';
-import { useTranslation } from 'react-i18next';
-import { useTheme, createThemedStyles } from '../../../../core/theme/theme.system';
+import { useTheme } from '../../../../core/theme/theme.system';
+import { useNotificationAnalytics } from '../hooks/use-notification-analytics.hook';
 
-interface NotificationMetrics {
-  totalSent: number;
-  totalDelivered: number;
-  totalOpened: number;
-  totalClicked: number;
-  averageResponseTime: number; // minutes
-  engagementRate: number; // percentage
-  categoryBreakdown: {
-    [category: string]: {
-      sent: number;
-      opened: number;
-      clicked: number;
-    };
-  };
-  timeSeriesData: {
-    date: string;
-    sent: number;
-    opened: number;
-    clicked: number;
-  }[];
-  topicPerformance: {
-    topic: string;
-    subscribers: number;
-    delivered: number;
-    openRate: number;
-    clickRate: number;
-  }[];
-}
-
-interface AnalyticsPeriod {
-  label: string;
-  value: '24h' | '7d' | '30d' | '90d';
-}
-
-const analyticsPeriods: AnalyticsPeriod[] = [
-  { label: '24h', value: '24h' },
-  { label: '7 Tage', value: '7d' },
-  { label: '30 Tage', value: '30d' },
-  { label: '90 Tage', value: '90d' },
-];
-
-// Mock analytics data
-const mockMetrics: Record<string, NotificationMetrics> = {
-  '24h': {
-    totalSent: 156,
-    totalDelivered: 152,
-    totalOpened: 89,
-    totalClicked: 23,
-    averageResponseTime: 45,
-    engagementRate: 58.6,
-    categoryBreakdown: {
-      security: { sent: 12, opened: 11, clicked: 8 },
-      updates: { sent: 45, opened: 32, clicked: 12 },
-      maintenance: { sent: 8, opened: 6, clicked: 1 },
-      promotions: { sent: 67, opened: 28, clicked: 2 },
-      news: { sent: 24, opened: 12, clicked: 0 },
-    },
-    timeSeriesData: [
-      { date: '00:00', sent: 12, opened: 8, clicked: 2 },
-      { date: '06:00', sent: 23, opened: 15, clicked: 4 },
-      { date: '12:00', sent: 45, opened: 28, clicked: 8 },
-      { date: '18:00', sent: 76, opened: 38, clicked: 9 },
-    ],
-    topicPerformance: [
-      { topic: 'security-alerts', subscribers: 1250, delivered: 12, openRate: 91.7, clickRate: 66.7 },
-      { topic: 'app-updates', subscribers: 980, delivered: 45, openRate: 71.1, clickRate: 26.7 },
-      { topic: 'maintenance', subscribers: 890, delivered: 8, openRate: 75.0, clickRate: 12.5 },
-      { topic: 'news', subscribers: 756, delivered: 24, openRate: 50.0, clickRate: 0.0 },
-    ],
-  },
-  // Add more periods as needed
-};
+// =============================================================================
+// COMPONENT PROPS INTERFACE
+// =============================================================================
 
 interface NotificationAnalyticsWidgetProps {
   compact?: boolean;
   onViewDetails?: () => void;
 }
 
-const useStyles = createThemedStyles((theme) => {
-  const { width } = Dimensions.get('window');
-  
-  return {
-    container: {
-      marginBottom: theme.spacing[4],
-    },
-    compactContainer: {
-      marginBottom: theme.spacing[4],
-    },
-    header: {
-      marginBottom: theme.spacing[4],
-    },
-    title: {
-      fontSize: theme.typography.fontSizes.xl,
-      fontWeight: theme.typography.fontWeights.semibold,
-      marginBottom: theme.spacing[1],
-      color: theme.colors.text,
-    },
-    subtitle: {
-      fontSize: theme.typography.fontSizes.sm,
-      color: theme.colors.textSecondary,
-      lineHeight: 20,
-    },
-    compactHeader: {
-      flexDirection: 'row' as const,
-      justifyContent: 'space-between' as const,
-      alignItems: 'center' as const,
-      marginBottom: theme.spacing[4],
-    },
-    compactTitle: {
-      fontSize: theme.typography.fontSizes.lg,
-      fontWeight: theme.typography.fontWeights.semibold,
-      color: theme.colors.text,
-    },
-    
-    // Period Selector
-    periodSelector: {
-      flexDirection: 'row' as const,
-      marginBottom: theme.spacing[5],
-      gap: theme.spacing[2],
-    },
-    periodChip: {
-      flex: 1,
-    },
-    periodChipText: {
-      fontSize: theme.typography.fontSizes.xs,
-    },
-    
-    // Metrics Grid
-    metricsGrid: {
-      flexDirection: 'row' as const,
-      flexWrap: 'wrap' as const,
-      gap: theme.spacing[3],
-      marginBottom: theme.spacing[5],
-    },
-    metricCard: {
-      flex: 1,
-      minWidth: (width - 64) / 2 - 6,
-      padding: theme.spacing[4],
-      borderRadius: theme.borderRadius.md,
-      backgroundColor: theme.colors.surface,
-      ...theme.shadows.sm,
-    },
-    metricContent: {
-      alignItems: 'center' as const,
-    },
-    metricValue: {
-      fontSize: theme.typography.fontSizes['2xl'],
-      fontWeight: theme.typography.fontWeights.bold,
-      marginBottom: theme.spacing[1],
-      color: theme.colors.text,
-    },
-    metricLabel: {
-      fontSize: theme.typography.fontSizes.xs,
-      color: theme.colors.textSecondary,
-      textAlign: 'center' as const,
-    },
-    
-    // Category Performance
-    categoryPerformance: {
-      marginBottom: theme.spacing[5],
-    },
-    sectionTitle: {
-      fontSize: theme.typography.fontSizes.base,
-      fontWeight: theme.typography.fontWeights.semibold,
-      marginBottom: theme.spacing[3],
-      color: theme.colors.text,
-    },
-    categoryItem: {
-      marginBottom: theme.spacing[4],
-    },
-    categoryHeader: {
-      flexDirection: 'row' as const,
-      justifyContent: 'space-between' as const,
-      alignItems: 'center' as const,
-      marginBottom: theme.spacing[2],
-    },
-    categoryName: {
-      fontSize: theme.typography.fontSizes.sm,
-      fontWeight: theme.typography.fontWeights.medium,
-      color: theme.colors.text,
-    },
-    categoryRate: {
-      fontSize: theme.typography.fontSizes.sm,
-      fontWeight: theme.typography.fontWeights.semibold,
-    },
-    categoryProgress: {
-      height: 6,
-      borderRadius: theme.borderRadius.sm,
-      marginBottom: theme.spacing[1],
-    },
-    categoryStats: {
-      marginTop: theme.spacing[1],
-    },
-    categoryStatText: {
-      fontSize: theme.typography.fontSizes.xs,
-      color: theme.colors.textSecondary,
-    },
-    
-    // Topic Performance
-    topicPerformance: {
-      marginBottom: theme.spacing[5],
-    },
-    topicMetrics: {
-      alignItems: 'flex-end' as const,
-    },
-    topicChip: {
-      marginBottom: theme.spacing[1],
-    },
-    topicChipText: {
-      fontSize: theme.typography.fontSizes.xs,
-    },
-    
-    // Insights
-    insights: {
-      marginBottom: theme.spacing[5],
-    },
-    insightCard: {
-      marginBottom: theme.spacing[2],
-      borderRadius: theme.borderRadius.md,
-      backgroundColor: theme.colors.surface,
-      ...theme.shadows.sm,
-    },
-    
-    // Compact
-    compactInsight: {
-      marginTop: theme.spacing[3],
-      padding: theme.spacing[2],
-      backgroundColor: theme.colors.backgroundSecondary,
-      borderRadius: theme.borderRadius.sm,
-    },
-    compactInsightText: {
-      fontSize: theme.typography.fontSizes.xs,
-      textAlign: 'center' as const,
-      color: theme.colors.textSecondary,
-    },
-    
-    // Toggle
-    toggleContainer: {
-      alignItems: 'center' as const,
-      marginTop: theme.spacing[3],
-    },
-    
-    // Dividers
-    sectionDivider: {
-      marginVertical: theme.spacing[4],
-    },
-  };
-});
+// =============================================================================
+// HOOK-CENTRIC COMPONENT - PURE UI ONLY
+// =============================================================================
 
+/**
+ * NotificationAnalyticsWidget - Pure UI Component
+ * 
+ * @description HOOK-CENTRIC notification analytics widget:
+ * - ALL business logic in useNotificationAnalytics hook
+ * - Component only handles UI rendering and user interactions
+ * - Metrics display, charts, and analytics visualization only
+ * - Zero business logic, zero state management, zero calculations
+ */
 export const NotificationAnalyticsWidget: React.FC<NotificationAnalyticsWidgetProps> = ({
   compact = false,
   onViewDetails,
 }) => {
-  const { t } = useTranslation();
   const { theme } = useTheme();
   const styles = useStyles(theme);
-  const [selectedPeriod, setSelectedPeriod] = useState<AnalyticsPeriod['value']>('24h');
-  const [showDetails, setShowDetails] = useState(!compact);
 
-  const metrics = mockMetrics[selectedPeriod] || mockMetrics['24h'];
-
-  const analytics = useMemo(() => {
-    const deliveryRate = (metrics.totalDelivered / metrics.totalSent) * 100;
-    const openRate = (metrics.totalOpened / metrics.totalDelivered) * 100;
-    const clickRate = (metrics.totalClicked / metrics.totalOpened) * 100;
+  // 🎯 HOOK-CENTRIC - ALL BUSINESS LOGIC FROM HOOK
+  const {
+    // Server/Computed State
+    metrics,
+    analytics,
+    categoryPerformanceData,
+    topicPerformanceData,
+    analyticsPeriods,
     
-    const bestPerformingCategory = Object.entries(metrics.categoryBreakdown)
-      .map(([category, data]) => ({
-        category,
-        openRate: (data.opened / data.sent) * 100,
-        clickRate: (data.clicked / data.opened) * 100 || 0,
-      }))
-      .sort((a, b) => b.openRate - a.openRate)[0];
+    // UI State
+    selectedPeriod,
+    showDetails,
+    
+    // Actions
+    handlePeriodChange,
+    handleToggleDetails,
+    handleViewDetails,
+    
+    // UI Helpers
+    getPerformanceColor,
+    getPerformanceLabel,
+    
+    // Computed States
+    hasData,
+    isPerformanceGood,
+    
+    // UI Dependencies (already extracted from hook)
+    t,
+  } = useNotificationAnalytics({ compact, onViewDetails });
 
-    const topTopic = metrics.topicPerformance
-      .sort((a, b) => b.openRate - a.openRate)[0];
+  // =============================================================================
+  // UI EVENT HANDLERS - DELEGATE TO HOOK
+  // =============================================================================
 
-    return {
-      deliveryRate,
-      openRate,
-      clickRate,
-      bestPerformingCategory,
-      topTopic,
-      totalEngagement: metrics.totalOpened + metrics.totalClicked,
-    };
-  }, [metrics]);
-
-  const getPerformanceColor = (rate: number): string => {
-    if (rate >= 70) return theme.colors.success;
-    if (rate >= 50) return theme.colors.warning;
-    return theme.colors.error;
+  const handlePeriodSelect = (period: typeof selectedPeriod) => {
+    handlePeriodChange(period);
   };
 
-  const getPerformanceLabel = (rate: number): string => {
-    if (rate >= 70) return t('notifications:analytics.excellent');
-    if (rate >= 50) return t('notifications:analytics.good');
-    return t('notifications:analytics.needsImprovement');
+  const handleDetailsToggle = () => {
+    handleToggleDetails();
   };
+
+  const handleViewDetailsPress = () => {
+    handleViewDetails();
+  };
+
+  // =============================================================================
+  // UI RENDERING FUNCTIONS
+  // =============================================================================
 
   const renderPeriodSelector = () => (
     <View style={styles.periodSelector}>
@@ -328,9 +114,12 @@ export const NotificationAnalyticsWidget: React.FC<NotificationAnalyticsWidgetPr
           key={period.value}
           mode={selectedPeriod === period.value ? 'flat' : 'outlined'}
           selected={selectedPeriod === period.value}
-          onPress={() => setSelectedPeriod(period.value)}
+          onPress={() => handlePeriodSelect(period.value)}
           style={styles.periodChip}
           textStyle={styles.periodChipText}
+          accessibilityRole="button"
+          accessibilityLabel={`${t('notifications:analytics.selectPeriod')} ${period.label}`}
+          testID={`period-${period.value}`}
         >
           {period.label}
         </Chip>
@@ -401,34 +190,31 @@ export const NotificationAnalyticsWidget: React.FC<NotificationAnalyticsWidgetPr
         {t('notifications:analytics.categoryPerformance')}
       </Title>
       
-      {Object.entries(metrics.categoryBreakdown).map(([category, data]) => {
-        const openRate = (data.opened / data.sent) * 100;
-        return (
-          <View key={category} style={styles.categoryItem}>
-            <View style={styles.categoryHeader}>
-              <Paragraph style={styles.categoryName}>
-                {t(`notifications:categories.${category}`)}
-              </Paragraph>
-              <Paragraph style={[
-                styles.categoryRate,
-                { color: getPerformanceColor(openRate) }
-              ]}>
-                {openRate.toFixed(1)}%
-              </Paragraph>
-            </View>
-            <ProgressBar
-              progress={openRate / 100}
-              color={getPerformanceColor(openRate)}
-              style={styles.categoryProgress}
-            />
-            <View style={styles.categoryStats}>
-              <Paragraph style={styles.categoryStatText}>
-                {data.sent} {t('notifications:analytics.sent')} • {data.opened} {t('notifications:analytics.opened')} • {data.clicked} {t('notifications:analytics.clicked')}
-              </Paragraph>
-            </View>
+      {categoryPerformanceData.map(({ category, data, openRate, performanceColor }) => (
+        <View key={category} style={styles.categoryItem}>
+          <View style={styles.categoryHeader}>
+            <Paragraph style={styles.categoryName}>
+              {t(`notifications:categories.${category}`)}
+            </Paragraph>
+            <Paragraph style={[
+              styles.categoryRate,
+              { color: performanceColor }
+            ]}>
+              {openRate.toFixed(1)}%
+            </Paragraph>
           </View>
-        );
-      })}
+          <ProgressBar
+            progress={openRate / 100}
+            color={performanceColor}
+            style={styles.categoryProgress}
+          />
+          <View style={styles.categoryStats}>
+            <Paragraph style={styles.categoryStatText}>
+              {data.sent} {t('notifications:analytics.sent')} • {data.opened} {t('notifications:analytics.opened')} • {data.clicked} {t('notifications:analytics.clicked')}
+            </Paragraph>
+          </View>
+        </View>
+      ))}
     </View>
   );
 
@@ -438,7 +224,7 @@ export const NotificationAnalyticsWidget: React.FC<NotificationAnalyticsWidgetPr
         {t('notifications:analytics.topicPerformance')}
       </Title>
       
-      {metrics.topicPerformance.slice(0, compact ? 2 : 4).map((topic) => (
+      {topicPerformanceData.map((topic) => (
         <List.Item
           key={topic.topic}
           title={t(`notifications:topics.${topic.topic}`, { defaultValue: topic.topic })}
@@ -450,7 +236,7 @@ export const NotificationAnalyticsWidget: React.FC<NotificationAnalyticsWidgetPr
                 mode="outlined"
                 textStyle={[
                   styles.topicChipText,
-                  { color: getPerformanceColor(topic.openRate) }
+                  { color: topic.performanceColor }
                 ]}
                 style={styles.topicChip}
               >
@@ -458,71 +244,110 @@ export const NotificationAnalyticsWidget: React.FC<NotificationAnalyticsWidgetPr
               </Chip>
             </View>
           )}
+          accessibilityLabel={`${topic.topic}: ${topic.openRate.toFixed(1)}% open rate`}
+          testID={`topic-${topic.topic}`}
         />
       ))}
     </View>
   );
 
-  const renderInsights = () => (
-    <View style={styles.insights}>
-      <Title style={styles.sectionTitle}>
-        {t('notifications:analytics.insights')}
-      </Title>
-      
-      <Surface style={styles.insightCard}>
-        <List.Item
-          title={t('notifications:analytics.bestCategory')}
-          description={`${t(`notifications:categories.${analytics.bestPerformingCategory?.category}`)} (${analytics.bestPerformingCategory?.openRate.toFixed(1)}%)`}
-          left={props => <List.Icon {...props} icon="trophy" color="#FFD700" />}
-        />
-      </Surface>
+  const renderInsights = () => {
+    if (!hasData) return null;
 
-      <Surface style={styles.insightCard}>
-        <List.Item
-          title={t('notifications:analytics.topTopic')}
-          description={`${analytics.topTopic?.topic} (${analytics.topTopic?.openRate.toFixed(1)}% ${t('notifications:analytics.openRate')})`}
-          left={props => <List.Icon {...props} icon="star" color="#FF9800" />}
-        />
-      </Surface>
-
-      <Surface style={styles.insightCard}>
-        <List.Item
-          title={t('notifications:analytics.overallHealth')}
-          description={getPerformanceLabel(analytics.openRate)}
-          left={props => (
-            <List.Icon 
-              {...props} 
-              icon="heart" 
-              color={getPerformanceColor(analytics.openRate)} 
-            />
-          )}
-        />
-      </Surface>
-    </View>
-  );
-
-  if (compact) {
     return (
-      <Card style={styles.compactContainer}>
-        <Card.Content>
-          <View style={styles.compactHeader}>
-            <Title style={styles.compactTitle}>
-              {t('notifications:analytics.title')}
-            </Title>
-            {onViewDetails && (
-              <IconButton
-                icon="chevron-right"
-                size={20}
-                onPress={onViewDetails}
-              />
-            )}
+      <View style={styles.insights}>
+        <Title style={styles.sectionTitle}>
+          {t('notifications:analytics.insights')}
+        </Title>
+        
+        <View style={styles.insightItem}>
+          <View style={styles.insightHeader}>
+            <Badge
+              style={[
+                styles.insightBadge,
+                { backgroundColor: isPerformanceGood ? theme.colors.success : theme.colors.warning }
+              ]}
+            >
+              {getPerformanceLabel(analytics.openRate)}
+            </Badge>
           </View>
-          
-          {renderKeyMetrics()}
-          
-          <View style={styles.compactInsight}>
-            <Paragraph style={styles.compactInsightText}>
-              {t('notifications:analytics.overallPerformance')}: {getPerformanceLabel(analytics.openRate)}
+          <Paragraph style={styles.insightText}>
+            {isPerformanceGood 
+              ? t('notifications:analytics.insights.goodPerformance', { rate: analytics.openRate.toFixed(1) })
+              : t('notifications:analytics.insights.needsImprovement', { rate: analytics.openRate.toFixed(1) })
+            }
+          </Paragraph>
+        </View>
+
+        {analytics.bestPerformingCategory && (
+          <View style={styles.insightItem}>
+            <Paragraph style={styles.insightText}>
+              {t('notifications:analytics.insights.bestCategory', { 
+                category: t(`notifications:categories.${analytics.bestPerformingCategory.category}`),
+                rate: analytics.bestPerformingCategory.openRate.toFixed(1)
+              })}
+            </Paragraph>
+          </View>
+        )}
+
+        {analytics.topTopic && (
+          <View style={styles.insightItem}>
+            <Paragraph style={styles.insightText}>
+              {t('notifications:analytics.insights.topTopic', { 
+                topic: t(`notifications:topics.${analytics.topTopic.topic}`, { defaultValue: analytics.topTopic.topic }),
+                rate: analytics.topTopic.openRate.toFixed(1)
+              })}
+            </Paragraph>
+          </View>
+        )}
+      </View>
+    );
+  };
+
+  const renderActions = () => {
+    if (compact) return null;
+
+    return (
+      <View style={styles.actions}>
+        <Button 
+          mode="outlined" 
+          onPress={handleDetailsToggle}
+          style={styles.actionButton}
+          accessibilityLabel={showDetails ? t('notifications:analytics.hideDetails') : t('notifications:analytics.showDetails')}
+          testID="toggle-details-button"
+        >
+          {showDetails ? t('notifications:analytics.hideDetails') : t('notifications:analytics.showDetails')}
+        </Button>
+        
+        {onViewDetails && (
+          <Button 
+            mode="contained" 
+            onPress={handleViewDetailsPress}
+            style={styles.actionButton}
+            accessibilityLabel={t('notifications:analytics.viewFullReport')}
+            testID="view-details-button"
+          >
+            {t('notifications:analytics.viewFullReport')}
+          </Button>
+        )}
+      </View>
+    );
+  };
+
+  // =============================================================================
+  // MAIN RENDER
+  // =============================================================================
+
+  if (!hasData) {
+    return (
+      <Card style={styles.container}>
+        <Card.Content>
+          <View style={styles.emptyState}>
+            <Title style={styles.emptyTitle}>
+              {t('notifications:analytics.noData')}
+            </Title>
+            <Paragraph style={styles.emptyDescription}>
+              {t('notifications:analytics.noDataDescription')}
             </Paragraph>
           </View>
         </Card.Content>
@@ -531,15 +356,18 @@ export const NotificationAnalyticsWidget: React.FC<NotificationAnalyticsWidgetPr
   }
 
   return (
-    <Card style={styles.container}>
+    <Card style={styles.container} testID="notification-analytics-widget">
       <Card.Content>
         <View style={styles.header}>
           <Title style={styles.title}>
             {t('notifications:analytics.title')}
           </Title>
-          <Paragraph style={styles.subtitle}>
-            {t('notifications:analytics.subtitle')}
-          </Paragraph>
+          <Badge style={[
+            styles.performanceBadge,
+            { backgroundColor: isPerformanceGood ? theme.colors.success : theme.colors.warning }
+          ]}>
+            {getPerformanceLabel(analytics.openRate)}
+          </Badge>
         </View>
 
         {renderPeriodSelector()}
@@ -547,27 +375,180 @@ export const NotificationAnalyticsWidget: React.FC<NotificationAnalyticsWidgetPr
         
         {showDetails && (
           <>
-            <Divider style={styles.sectionDivider} />
             {renderCategoryPerformance()}
-            
-            <Divider style={styles.sectionDivider} />
             {renderTopicPerformance()}
-            
-            <Divider style={styles.sectionDivider} />
             {renderInsights()}
           </>
         )}
-
-        <View style={styles.toggleContainer}>
-          <Chip
-            mode="outlined"
-            icon={showDetails ? 'chevron-up' : 'chevron-down'}
-            onPress={() => setShowDetails(!showDetails)}
-          >
-            {showDetails ? t('common:showLess') : t('common:showMore')}
-          </Chip>
-        </View>
+        
+        {renderActions()}
       </Card.Content>
     </Card>
   );
-} 
+};
+
+// =============================================================================
+// STYLES
+// =============================================================================
+
+const useStyles = (theme: any) => StyleSheet.create({
+  container: {
+    margin: 16,
+    elevation: 4,
+  },
+  header: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 16,
+  },
+  title: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: theme.colors.onSurface,
+  },
+  performanceBadge: {
+    paddingHorizontal: 8,
+  },
+  periodSelector: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    marginBottom: 16,
+    gap: 8,
+  },
+  periodChip: {
+    marginRight: 8,
+    marginBottom: 8,
+  },
+  periodChipText: {
+    fontSize: 12,
+  },
+  metricsGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'space-between',
+    marginBottom: 16,
+  },
+  metricCard: {
+    width: '48%',
+    padding: 12,
+    marginBottom: 8,
+    borderRadius: 8,
+    elevation: 2,
+  },
+  metricContent: {
+    alignItems: 'center',
+  },
+  metricValue: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    color: theme.colors.primary,
+  },
+  metricLabel: {
+    fontSize: 12,
+    color: theme.colors.onSurface,
+    textAlign: 'center',
+    marginTop: 4,
+  },
+  sectionTitle: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: theme.colors.onSurface,
+    marginBottom: 12,
+  },
+  categoryPerformance: {
+    marginBottom: 16,
+  },
+  categoryItem: {
+    marginBottom: 12,
+    padding: 12,
+    backgroundColor: theme.colors.surface,
+    borderRadius: 8,
+  },
+  categoryHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 8,
+  },
+  categoryName: {
+    fontSize: 14,
+    fontWeight: '500',
+    color: theme.colors.onSurface,
+  },
+  categoryRate: {
+    fontSize: 14,
+    fontWeight: 'bold',
+  },
+  categoryProgress: {
+    height: 6,
+    borderRadius: 3,
+    marginBottom: 8,
+  },
+  categoryStats: {
+    marginTop: 4,
+  },
+  categoryStatText: {
+    fontSize: 11,
+    color: theme.colors.onSurface,
+    opacity: 0.7,
+  },
+  topicPerformance: {
+    marginBottom: 16,
+  },
+  topicMetrics: {
+    alignItems: 'flex-end',
+  },
+  topicChip: {
+    borderWidth: 1,
+  },
+  topicChipText: {
+    fontSize: 10,
+  },
+  insights: {
+    marginBottom: 16,
+  },
+  insightItem: {
+    marginBottom: 12,
+    padding: 12,
+    backgroundColor: theme.colors.surface,
+    borderRadius: 8,
+    borderLeftWidth: 4,
+    borderLeftColor: theme.colors.primary,
+  },
+  insightHeader: {
+    marginBottom: 8,
+  },
+  insightBadge: {
+    alignSelf: 'flex-start',
+  },
+  insightText: {
+    fontSize: 13,
+    color: theme.colors.onSurface,
+    lineHeight: 18,
+  },
+  actions: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginTop: 16,
+  },
+  actionButton: {
+    flex: 1,
+    marginHorizontal: 4,
+  },
+  emptyState: {
+    alignItems: 'center',
+    padding: 24,
+  },
+  emptyTitle: {
+    fontSize: 18,
+    color: theme.colors.onSurface,
+    marginBottom: 8,
+  },
+  emptyDescription: {
+    fontSize: 14,
+    color: theme.colors.onSurface,
+    opacity: 0.7,
+    textAlign: 'center',
+  },
+}); 

@@ -73,7 +73,7 @@
  * - Integrate Voice Assistant Error Reporting (Q1 2026)
  * 
  * @changelog
- * - v2.0.0: Complete Enterprise Error System Redesign
+ * - 2.0.0: Complete Enterprise Error System Redesign
  * - v1.5.0: Added I18n Support und Context Enhancement
  * - v1.2.0: Enhanced Error Hierarchy und Monitoring
  * - v1.0.0: Initial Domain Error Implementation

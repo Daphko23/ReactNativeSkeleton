@@ -1,268 +1,383 @@
 /**
- * useProfileForm Hook - Presentation Layer
- * Specialized hook for profile form management with validation
+ * @fileoverview Profile Form Hook - CHAMPION
+ * 
+ * 🏆 CHAMPION STANDARDS 2025:
+ * ✅ Single Responsibility: Profile form management only
+ * ✅ TanStack Query + Use Cases: Complete integration
+ * ✅ Optimistic Updates: Mobile-first UX
+ * ✅ Mobile Performance: Battery-friendly operations
+ * ✅ Enterprise Logging: Essential audit trails
+ * ✅ Clean Interface: Simplified Champion API
  */
 
-import { useCallback, useEffect } from 'react';
-import { useForm, UseFormReturn } from 'react-hook-form';
-import { useProfile } from './use-profile.hook';
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useForm } from 'react-hook-form';
 import { UserProfile } from '../../domain/entities/user-profile.entity';
+import { useAuth } from '@features/auth/presentation/hooks';
+import { LoggerFactory } from '@core/logging/logger.factory';
+import { LogCategory } from '@core/logging/logger.service.interface';
+import { 
+  useProfileQuery,
+  useUpdateProfileMutation 
+} from './use-profile-query.hook';
 
-// Form data interface
+// 🎯 ENTERPRISE: Use Cases Integration
+import { useProfileContainer } from '../../application/di/profile.container';
+import { ProfileValidationResult, ValidationContext } from '../../application/usecases/validate-profile-data.usecase';
+
+const logger = LoggerFactory.createServiceLogger('ProfileForm');
+
+// 🏆 CHAMPION INTERFACE: Simplified & Mobile-Optimized
 export interface ProfileFormData {
   firstName: string;
   lastName: string;
-  displayName: string;
-  bio?: string;
+  email: string;
+  bio: string;
+  phone?: string;
   location?: string;
   website?: string;
-  phone?: string;
-  // Professional fields
+  // 🎯 PROFESSIONAL FIELDS - Enterprise Extension
   company?: string;
   jobTitle?: string;
   industry?: string;
-  skills?: string[];
-  workLocation?: 'remote' | 'onsite' | 'hybrid';
-  // Social links
-  linkedIn?: string;
-  twitter?: string;
-  github?: string;
-  instagram?: string;
-  // Custom fields
-  customFields?: Record<string, any>;
+  workLocation?: string;
 }
 
 export interface UseProfileFormReturn {
-  // Form state and methods from react-hook-form
-  form: UseFormReturn<ProfileFormData>;
-  
-  // Custom methods
-  isLoading: boolean;
-  isUpdating: boolean;
-  isRefreshing: boolean;
+  // 🏆 Core Form State
+  formData: ProfileFormData;
   isDirty: boolean;
+  isValid: boolean;
   hasChanges: boolean;
   
-  // Actions
-  handleSave: () => Promise<boolean>;
-  handleReset: () => void;
-  handleCancel: () => void;
+  // 🏆 Champion Loading States
+  isLoading: boolean;
+  isSubmitting: boolean;
+  isValidating: boolean;
   
-  // Field helpers
-  addSkill: (skill: string) => void;
-  removeSkill: (index: number) => void;
-  updateCustomField: (key: string, value: any) => void;
+  // 🏆 Error Handling
+  error: string | null;
+  fieldErrors: Record<string, string>;
+  validationResult: ProfileValidationResult | null;
   
-  // Validation
-  validateField: (fieldName: keyof ProfileFormData) => Promise<boolean>;
-  getFieldError: (fieldName: keyof ProfileFormData) => string | undefined;
+  // 🏆 Champion Actions (Essential Only)
+  setValue: (field: keyof ProfileFormData, value: string) => void;
+  handleSubmit: () => Promise<boolean>;
+  reset: () => void;
+  validateField: (field: keyof ProfileFormData) => Promise<string | null>;
+  validateForm: () => Promise<ProfileValidationResult>;
+  
+  // 🏆 Mobile Performance Actions
+  optimisticUpdate: (field: keyof ProfileFormData, value: string) => void;
+  discardChanges: () => void;
 }
 
-export function useProfileForm(): UseProfileFormReturn {
-  const { 
-    profile, 
-    updateProfile, 
-    isLoading,
-    isUpdating,
-    isRefreshing
-  } = useProfile();
+/**
+ * 🏆 CHAMPION PROFILE FORM HOOK
+ * 
+ * ✅ CHAMPION PATTERNS:
+ * - Single Responsibility: Profile form only
+ * - Mobile Performance: Optimized for React Native
+ * - Enterprise Logging: Form interactions & validations
+ * - Clean Interface: Simplified form API
+ * - Optimistic Updates: Immediate UI feedback
+ */
+export const useProfileForm = (): UseProfileFormReturn => {
+  const { user } = useAuth();
+  const userId = user?.id || '';
 
-  // Initialize form with basic validation
-  const form = useForm<ProfileFormData>({
+  // 🔍 TANSTACK QUERY - Server State Only
+  const profileQuery = useProfileQuery(userId);
+  const updateMutation = useUpdateProfileMutation();
+
+  // 🎯 ENTERPRISE: Use Cases Integration
+  const container = useProfileContainer();
+  const validateProfileUseCase = container.getValidateProfileDataUseCase();
+
+  // 🏆 CHAMPION STATE: Validation Results
+  const [validationResult, setValidationResult] = useState<ProfileValidationResult | null>(null);
+  const [isValidating, setIsValidating] = useState(false);
+
+  // 📝 REACT HOOK FORM - Form Management
+  const {
+    watch,
+    setValue: setFormValue,
+    reset: resetForm,
+    formState: { errors, isDirty, isValid },
+  } = useForm<ProfileFormData>({
     mode: 'onChange',
     defaultValues: {
       firstName: '',
       lastName: '',
-      displayName: '',
+      email: '',
       bio: '',
+      phone: '',
       location: '',
       website: '',
-      phone: '',
+      // 🎯 PROFESSIONAL FIELDS - Default Values
       company: '',
       jobTitle: '',
       industry: '',
-      skills: [],
       workLocation: 'remote',
-      linkedIn: '',
-      twitter: '',
-      github: '',
-      instagram: '',
-      customFields: {},
-    },
+    }
   });
 
-  const { 
-    reset, 
-    watch, 
-    setValue, 
-    getValues, 
-    formState: { isDirty, errors }
-  } = form;
-
-  // Watch all form values to detect changes
-  watch();
-  const hasChanges = isDirty;
-
-  // Load profile data into form
+  // 🔄 SYNC PROFILE DATA TO FORM
   useEffect(() => {
-    if (profile) {
-      const formData: ProfileFormData = {
+    if (profileQuery.data) {
+      const profile = profileQuery.data;
+      
+      logger.info('Syncing profile data to form', LogCategory.BUSINESS, { 
+        userId, 
+        hasProfileData: !!profile 
+      });
+      
+      resetForm({
         firstName: profile.firstName || '',
         lastName: profile.lastName || '',
-        displayName: profile.displayName || '',
+        email: profile.email || '',
         bio: profile.bio || '',
+        phone: profile.phone || '',
         location: profile.location || '',
         website: profile.website || '',
-        phone: profile.phone || '',
+        // 🎯 PROFESSIONAL FIELDS - Form Sync
         company: profile.professional?.company || '',
         jobTitle: profile.professional?.jobTitle || '',
         industry: profile.professional?.industry || '',
-        skills: profile.professional?.skills || [],
         workLocation: profile.professional?.workLocation || 'remote',
-        linkedIn: profile.socialLinks?.linkedIn || '',
-        twitter: profile.socialLinks?.twitter || '',
-        github: profile.socialLinks?.github || '',
-        instagram: profile.socialLinks?.instagram || '',
-        customFields: profile.customFields || {},
-      };
-      
-      reset(formData);
+      });
     }
-  }, [profile, reset]);
+  }, [profileQuery.data, resetForm, userId]);
 
-  // Save form data
-  const handleSave = useCallback(async (): Promise<boolean> => {
-    const isFormValid = await form.trigger();
-    if (!isFormValid) {
-      return false;
-    }
+  // 🎯 CHAMPION COMPUTED STATES (Memoized for Performance)
+  const formData = watch();
+  
+  const isLoading = useMemo(() => 
+    profileQuery.isLoading
+  , [profileQuery.isLoading]);
 
-    const data = getValues();
+  const isSubmitting = useMemo(() => 
+    updateMutation.isPending
+  , [updateMutation.isPending]);
+
+  const error = useMemo(() => 
+    profileQuery.error?.message || updateMutation.error?.message || null
+  , [profileQuery.error, updateMutation.error]);
+
+  const fieldErrors = useMemo(() => {
+    const errorMap: Record<string, string> = {};
     
-    const profileUpdate: Partial<UserProfile> = {
-      firstName: data.firstName,
-      lastName: data.lastName,
-      displayName: data.displayName,
-      bio: data.bio,
-      location: data.location,
-      website: data.website,
-      phone: data.phone,
-      professional: {
-        ...profile?.professional,
-        company: data.company,
-        jobTitle: data.jobTitle,
-        industry: data.industry,
-        skills: data.skills,
-        workLocation: data.workLocation,
-      },
-      socialLinks: {
-        ...profile?.socialLinks,
-        linkedIn: data.linkedIn,
-        twitter: data.twitter,
-        github: data.github,
-        instagram: data.instagram,
-      },
-      customFields: data.customFields,
-    };
-
-    const success = await updateProfile(profileUpdate);
-
-    if (success) {
-      // Reset form dirty state after successful save
-      reset(data);
-    }
-
-    return success;
-  }, [form, getValues, updateProfile, profile, reset]);
-
-  // Reset form to original state
-  const handleReset = useCallback(() => {
-    if (profile) {
-      const formData: ProfileFormData = {
-        firstName: profile.firstName || '',
-        lastName: profile.lastName || '',
-        displayName: profile.displayName || '',
-        bio: profile.bio || '',
-        location: profile.location || '',
-        website: profile.website || '',
-        phone: profile.phone || '',
-        company: profile.professional?.company || '',
-        jobTitle: profile.professional?.jobTitle || '',
-        industry: profile.professional?.industry || '',
-        skills: profile.professional?.skills || [],
-        workLocation: profile.professional?.workLocation || 'remote',
-        linkedIn: profile.socialLinks?.linkedIn || '',
-        twitter: profile.socialLinks?.twitter || '',
-        github: profile.socialLinks?.github || '',
-        instagram: profile.socialLinks?.instagram || '',
-        customFields: profile.customFields || {},
-      };
-      
-      reset(formData);
-    }
-  }, [profile, reset]);
-
-  // Cancel editing
-  const handleCancel = useCallback(() => {
-    handleReset();
-  }, [handleReset]);
-
-  // Skills management
-  const addSkill = useCallback((skill: string) => {
-    const currentSkills = getValues('skills') || [];
-    if (!currentSkills.includes(skill) && skill.trim()) {
-      setValue('skills', [...currentSkills, skill.trim()], { shouldDirty: true });
-    }
-  }, [getValues, setValue]);
-
-  const removeSkill = useCallback((index: number) => {
-    const currentSkills = getValues('skills') || [];
-    const newSkills = currentSkills.filter((_, i) => i !== index);
-    setValue('skills', newSkills, { shouldDirty: true });
-  }, [getValues, setValue]);
-
-  // Custom fields management
-  const updateCustomField = useCallback((key: string, value: any) => {
-    const currentCustomFields = getValues('customFields') || {};
-    setValue('customFields', {
-      ...currentCustomFields,
-      [key]: value,
-    }, { shouldDirty: true });
-  }, [getValues, setValue]);
-
-  // Field validation
-  const validateField = useCallback(async (fieldName: keyof ProfileFormData): Promise<boolean> => {
-    try {
-      await form.trigger(fieldName);
-      return !errors[fieldName];
-    } catch {
-      return false;
-    }
-  }, [form, errors]);
-
-  // Get field error with proper type handling
-  const getFieldError = useCallback((fieldName: keyof ProfileFormData): string | undefined => {
-    const error = errors[fieldName];
-    if (error && typeof error === 'object' && 'message' in error) {
-      return error.message as string;
-    }
-    return undefined;
+    if (errors.firstName) errorMap.firstName = 'Vorname ist erforderlich';
+    if (errors.lastName) errorMap.lastName = 'Nachname ist erforderlich';
+    if (errors.email) errorMap.email = 'Gültige E-Mail-Adresse erforderlich';
+    if (errors.bio) errorMap.bio = 'Bio zu lang (max. 500 Zeichen)';
+    if (errors.website) errorMap.website = 'Ungültige Website-URL';
+    
+    return errorMap;
   }, [errors]);
 
+  const hasChanges = useMemo(() => isDirty, [isDirty]);
+
+  // 🎯 ENTERPRISE: Use Case Business Logic
+  const validateForm = useCallback(async (): Promise<ProfileValidationResult> => {
+    setIsValidating(true);
+    
+    logger.info('Validating profile form', LogCategory.BUSINESS, { userId });
+    
+    try {
+      const formValues = formData;
+      
+      // Convert form data to partial profile for validation
+      const profileData: Partial<UserProfile> = {
+        firstName: formValues.firstName,
+        lastName: formValues.lastName,
+        email: formValues.email,
+        bio: formValues.bio,
+        phone: formValues.phone,
+        location: formValues.location,
+        website: formValues.website,
+      };
+
+      // 🎯 USE CASE: Business Logic durch ValidateProfileDataUseCase
+      const validationContext: ValidationContext = {
+        userRole: 'user',
+        isNewProfile: !profileQuery.data,
+        strictMode: false,
+        gdprRequired: true
+      };
+
+      const result = await validateProfileUseCase.execute(profileData, validationContext);
+      
+      setValidationResult(result);
+      
+      logger.info('Profile form validation completed', LogCategory.BUSINESS, { 
+        userId, 
+        isValid: result.isValid,
+        errorCount: result.errors.length 
+      });
+      
+      return result;
+    } catch (error) {
+      logger.error('Profile form validation failed', LogCategory.BUSINESS, { userId }, error as Error);
+      
+      const failedResult: ProfileValidationResult = {
+        isValid: false,
+        errors: ['Validation failed'],
+        warnings: [],
+        suggestions: []
+      };
+      
+      setValidationResult(failedResult);
+      return failedResult;
+    } finally {
+      setIsValidating(false);
+    }
+  }, [formData, validateProfileUseCase, profileQuery.data, userId]);
+
+  // 🚀 CHAMPION ACTIONS
+  const setValue = useCallback((field: keyof ProfileFormData, value: string) => {
+    logger.info('Form field updated', LogCategory.BUSINESS, { userId, field, hasValue: !!value });
+    setFormValue(field, value, { shouldDirty: true, shouldValidate: true });
+  }, [setFormValue, userId]);
+
+  const optimisticUpdate = useCallback((field: keyof ProfileFormData, value: string) => {
+    logger.info('Optimistic form update', LogCategory.BUSINESS, { userId, field });
+    setFormValue(field, value, { shouldDirty: true });
+  }, [setFormValue, userId]);
+
+  const validateField = useCallback(async (field: keyof ProfileFormData): Promise<string | null> => {
+    const value = formData[field];
+    
+    // Basic client-side validation first
+    switch (field) {
+      case 'firstName':
+        return !value ? 'Vorname ist erforderlich' : null;
+      case 'lastName':
+        return !value ? 'Nachname ist erforderlich' : null;
+      case 'email': {
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        return !value ? 'E-Mail ist erforderlich' : 
+               !emailRegex.test(value) ? 'Ungültige E-Mail-Adresse' : null;
+      }
+      case 'bio':
+        return value && value.length > 500 ? 'Bio zu lang (max. 500 Zeichen)' : null;
+      case 'website': {
+        if (!value) return null;
+        try {
+          new URL(value);
+          return null;
+        } catch {
+          return 'Ungültige Website-URL';
+        }
+      }
+      default:
+        return null;
+    }
+  }, [formData]);
+
+  const handleSubmit = useCallback(async (): Promise<boolean> => {
+    if (!userId) {
+      logger.error('Form submit failed: User ID missing', LogCategory.BUSINESS, { userId });
+      throw new Error('User ID required for profile update');
+    }
+
+    logger.info('Profile form submission started', LogCategory.BUSINESS, { userId });
+    
+    try {
+      // 🎯 ENTERPRISE: Use Case Validation VOR dem Update
+      const validationResult = await validateForm();
+      
+      if (!validationResult.isValid) {
+        logger.warn('Form validation failed, blocking submission', LogCategory.BUSINESS, { 
+          userId, 
+          errors: validationResult.errors 
+        });
+        return false;
+      }
+
+      const formValues = formData;
+      
+      // 🎯 MAP FORM DATA TO PROFILE UPDATE
+      const updates: Partial<UserProfile> = {
+        firstName: formValues.firstName,
+        lastName: formValues.lastName,
+        email: formValues.email,
+        bio: formValues.bio,
+        phone: formValues.phone,
+        location: formValues.location,
+        website: formValues.website,
+        updatedAt: new Date(),
+      };
+
+      await updateMutation.mutateAsync({ userId, updates });
+      
+      // Reset form dirty state after successful update
+      resetForm(formValues, { keepValues: true, keepDirty: false });
+      
+      logger.info('Profile form submitted successfully', LogCategory.BUSINESS, { userId });
+      
+      return true;
+    } catch (error) {
+      logger.error('Profile form submission failed', LogCategory.BUSINESS, { userId }, error as Error);
+      return false;
+    }
+  }, [userId, updateMutation, formData, resetForm, validateForm]);
+
+  const reset = useCallback(() => {
+    logger.info('Resetting profile form', LogCategory.BUSINESS, { userId });
+    
+    if (profileQuery.data) {
+      const profile = profileQuery.data;
+      resetForm({
+        firstName: profile.firstName || '',
+        lastName: profile.lastName || '',
+        email: profile.email || '',
+        bio: profile.bio || '',
+        phone: profile.phone || '',
+        location: profile.location || '',
+        website: profile.website || '',
+        company: profile.professional?.company || '',
+        jobTitle: profile.professional?.jobTitle || '',
+        industry: profile.professional?.industry || '',
+        workLocation: profile.professional?.workLocation || 'remote',
+      });
+      
+      setValidationResult(null);
+    }
+  }, [profileQuery.data, resetForm, userId]);
+
+  const discardChanges = useCallback(() => {
+    logger.info('Discarding profile form changes', LogCategory.BUSINESS, { userId });
+    reset();
+  }, [reset, userId]);
+
+  // 🎯 CHAMPION RETURN INTERFACE
   return {
-    form,
-    isLoading,
-    isUpdating,
-    isRefreshing,
+    // 🏆 Core Form State
+    formData,
     isDirty,
+    isValid,
     hasChanges,
-    handleSave,
-    handleReset,
-    handleCancel,
-    addSkill,
-    removeSkill,
-    updateCustomField,
+    
+    // 🏆 Champion Loading States
+    isLoading,
+    isSubmitting,
+    isValidating,
+    
+    // 🏆 Error Handling
+    error,
+    fieldErrors,
+    validationResult,
+    
+    // 🏆 Champion Actions
+    setValue,
+    handleSubmit,
+    reset,
     validateField,
-    getFieldError,
+    validateForm,
+    
+    // 🏆 Mobile Performance Actions
+    optimisticUpdate,
+    discardChanges,
   };
-} 
+};

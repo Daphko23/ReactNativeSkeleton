@@ -6,364 +6,406 @@
 
 import { StyleSheet } from 'react-native';
 
-export const createCustomFieldsEditScreenStyles = (theme: any) => StyleSheet.create({
-  // Main Container
-  container: {
-    flex: 1,
-    backgroundColor: theme.colors.background,
-  },
-  
-  // Loading State
-  loadingContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: theme.colors.background,
-  },
-  
-  loadingText: {
-    marginTop: theme.spacing[4],
-    color: theme.colors.text,
-    fontSize: theme.typography.fontSizes.md,
-  },
+export const createCustomFieldsEditScreenStyles = (theme: any) => {
+  // Fallback spacing system (React Native Paper doesn't have theme.spacing)
+  const spacing = {
+    1: 4,
+    2: 8,
+    3: 12,
+    4: 16,
+    5: 20,
+    6: 24,
+    8: 32,
+  };
 
-  // Header Section
-  header: {
-    padding: theme.spacing[4],
-    paddingBottom: theme.spacing[3],
-  },
-
-  headerTitle: {
-    fontSize: theme.typography.fontSizes.xl,
-    fontWeight: theme.typography.fontWeights.bold,
-    color: theme.colors.text,
-    marginBottom: theme.spacing[2],
-  },
-
-  headerSubtitle: {
-    fontSize: theme.typography.fontSizes.md,
-    color: theme.colors.textSecondary,
-    lineHeight: theme.typography.lineHeights.relaxed,
-  },
-
-  // ScrollView Content
-  scrollView: {
-    flex: 1,
-  },
-
-  scrollContent: {
-    paddingHorizontal: theme.spacing[4],
-    paddingTop: theme.spacing[4],
-    paddingBottom: theme.spacing[8], // Normal bottom padding without FAB
-  },
-
-  // Section Cards
-  section: {
-    marginBottom: theme.spacing[4],
-    backgroundColor: theme.colors.surface,
-    borderRadius: theme.borderRadius.lg,
-    elevation: 2,
-    shadowColor: theme.colors.shadow,
-    shadowOffset: {
-      width: 0,
-      height: 2,
+  // Fallback typography (React Native Paper doesn't have theme.typography)
+  const typography = {
+    fontSizes: {
+      sm: 14,
+      md: 16,
+      lg: 18,
+      xl: 24,
     },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-  },
+    fontWeights: {
+      medium: '500' as const,
+      semibold: '600' as const,
+      bold: '700' as const,
+    },
+    lineHeights: {
+      normal: 1.4,
+      relaxed: 1.6,
+    }
+  };
 
-  sectionContent: {
-    padding: theme.spacing[4],
-  },
+  // Fallback border radius
+  const borderRadius = {
+    md: 8,
+    lg: 12,
+  };
 
-  sectionTitle: {
-    fontSize: theme.typography.fontSizes.lg,
-    fontWeight: theme.typography.fontWeights.semibold,
-    marginBottom: theme.spacing[3],
-    color: theme.colors.text,
-  },
+  // Safe color access with fallbacks
+  const colors = {
+    background: theme.colors?.background || '#FFFFFF',
+    surface: theme.colors?.surface || '#F5F5F5',
+    text: theme.colors?.onBackground || theme.colors?.text || '#000000',
+    textSecondary: theme.colors?.onSurfaceVariant || '#666666',
+    textTertiary: theme.colors?.outline || '#999999',
+    primary: theme.colors?.primary || '#6200EE',
+    error: theme.colors?.error || '#B00020',
+    border: theme.colors?.outline || '#E0E0E0',
+    backgroundSecondary: theme.colors?.surfaceVariant || '#F0F0F0',
+    shadow: theme.colors?.shadow || '#000000',
+    disabled: theme.colors?.onSurface || '#CCCCCC',
+    success: theme.colors?.tertiary || theme.colors?.primary || '#4CAF50',
+  };
 
-  // Templates Section
-  templatesHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: theme.spacing[3],
-  },
+  return StyleSheet.create({
+    // Main Container
+    container: {
+      flex: 1,
+      backgroundColor: colors.background,
+    },
+    
+    // Loading State
+    loadingContainer: {
+      flex: 1,
+      justifyContent: 'center',
+      alignItems: 'center',
+      backgroundColor: colors.background,
+    },
+    
+    loadingText: {
+      marginTop: spacing[4],
+      color: colors.text,
+      fontSize: typography.fontSizes.md,
+    },
 
-  templatesContainer: {
-    flexDirection: 'row',
-    gap: theme.spacing[2],
-    paddingRight: theme.spacing[4],
-  },
+    // Header Section
+    header: {
+      padding: spacing[4],
+      paddingBottom: spacing[3],
+    },
 
-  templateChip: {
-    marginBottom: theme.spacing[1],
-  },
+    headerTitle: {
+      fontSize: typography.fontSizes.xl,
+      fontWeight: typography.fontWeights.bold,
+      color: colors.text,
+      marginBottom: spacing[2],
+    },
 
-  templateChipDisabled: {
-    opacity: 0.5,
-  },
+    headerSubtitle: {
+      fontSize: typography.fontSizes.md,
+      color: colors.textSecondary,
+      lineHeight: typography.lineHeights.relaxed,
+    },
 
-  allTemplatesContainer: {
-    gap: theme.spacing[2],
-  },
+    // ScrollView Content
+    scrollView: {
+      flex: 1,
+    },
 
-  templateItemDisabled: {
-    opacity: 0.5,
-  },
+    scrollContent: {
+      paddingHorizontal: spacing[4],
+      paddingTop: spacing[4],
+      paddingBottom: spacing[8], // Normal bottom padding without FAB
+    },
 
-  templateListItem: {
-    paddingHorizontal: 0,
-    paddingVertical: theme.spacing[2],
-  },
+    // Section Cards
+    section: {
+      marginBottom: spacing[4],
+      backgroundColor: colors.surface,
+      borderRadius: borderRadius.lg,
+      elevation: 2,
+      shadowColor: colors.shadow,
+      shadowOffset: {
+        width: 0,
+        height: 2,
+      },
+      shadowOpacity: 0.1,
+      shadowRadius: 4,
+    },
 
-  // Fields Section
-  fieldsHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: theme.spacing[3],
-  },
+    sectionContent: {
+      padding: spacing[4],
+    },
 
-  fieldsCounter: {
-    fontSize: theme.typography.fontSizes.sm,
-    color: theme.colors.textSecondary,
-    fontWeight: theme.typography.fontWeights.medium,
-  },
+    sectionTitle: {
+      fontSize: typography.fontSizes.lg,
+      fontWeight: typography.fontWeights.semibold,
+      marginBottom: spacing[3],
+      color: colors.text,
+    },
 
-  // Empty State
-  emptyState: {
-    alignItems: 'center',
-    paddingVertical: theme.spacing[8],
-    paddingHorizontal: theme.spacing[4],
-  },
+    // Templates Section
+    templatesHeader: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      marginBottom: spacing[3],
+    },
 
-  emptyIcon: {
-    marginBottom: theme.spacing[4],
-  },
+    templatesContainer: {
+      flexDirection: 'row',
+      gap: spacing[2],
+      paddingRight: spacing[4],
+    },
 
-  emptyText: {
-    color: theme.colors.textSecondary,
-    textAlign: 'center',
-    fontSize: theme.typography.fontSizes.md,
-    lineHeight: theme.typography.lineHeights.relaxed,
-    marginBottom: theme.spacing[2],
-  },
+    templateChip: {
+      marginBottom: spacing[1],
+    },
 
-  emptySubtext: {
-    color: theme.colors.textTertiary,
-    textAlign: 'center',
-    fontSize: theme.typography.fontSizes.sm,
-    lineHeight: theme.typography.lineHeights.normal,
-  },
+    templateChipDisabled: {
+      opacity: 0.5,
+    },
 
-  // Field Items
-  fieldItem: {
-    marginBottom: theme.spacing[5],
-    backgroundColor: theme.colors.backgroundSecondary,
-    borderRadius: theme.borderRadius.md,
-    padding: theme.spacing[3],
-    borderWidth: 1,
-    borderColor: theme.colors.border,
-  },
+    allTemplatesContainer: {
+      gap: spacing[2],
+    },
 
-  fieldHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'flex-start',
-    marginBottom: theme.spacing[2],
-  },
+    templateItemDisabled: {
+      opacity: 0.5,
+    },
 
-  fieldInfo: {
-    flex: 1,
-    marginRight: theme.spacing[2],
-  },
+    templateListItem: {
+      paddingHorizontal: 0,
+      paddingVertical: spacing[2],
+    },
 
-  fieldLabel: {
-    fontSize: theme.typography.fontSizes.md,
-    fontWeight: theme.typography.fontWeights.semibold,
-    color: theme.colors.text,
-    marginBottom: theme.spacing[1],
-  },
+    // Fields Section
+    fieldsHeader: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      marginBottom: spacing[3],
+    },
 
-  fieldType: {
-    fontSize: theme.typography.fontSizes.sm,
-    color: theme.colors.textSecondary,
-    textTransform: 'capitalize',
-  },
+    fieldsCounter: {
+      fontSize: typography.fontSizes.sm,
+      color: colors.textSecondary,
+      fontWeight: typography.fontWeights.medium,
+    },
 
-  fieldDeleteButton: {
-    padding: theme.spacing[1],
-  },
+    // Empty State
+    emptyState: {
+      alignItems: 'center',
+      paddingVertical: spacing[8],
+      paddingHorizontal: spacing[4],
+    },
 
-  // Input Styling
-  fieldInput: {
-    backgroundColor: theme.colors.surface,
-    fontSize: theme.typography.fontSizes.md,
-  },
+    emptyIcon: {
+      marginBottom: spacing[4],
+    },
 
-  fieldInputError: {
-    borderColor: theme.colors.error,
-    borderWidth: 1,
-  },
+    emptyText: {
+      color: colors.textSecondary,
+      textAlign: 'center',
+      fontSize: typography.fontSizes.md,
+      lineHeight: typography.lineHeights.relaxed,
+      marginBottom: spacing[2],
+    },
 
-  fieldErrorText: {
-    fontSize: theme.typography.fontSizes.sm,
-    color: theme.colors.error,
-    marginTop: theme.spacing[1],
-  },
+    emptySubtext: {
+      color: colors.textTertiary,
+      textAlign: 'center',
+      fontSize: typography.fontSizes.sm,
+      lineHeight: typography.lineHeights.normal,
+    },
 
-  // Tips Section
-  tipsSection: {
-    backgroundColor: theme.colors.surfaceVariant || theme.colors.surface,
-  },
+    // Field Items
+    fieldItem: {
+      marginBottom: spacing[5],
+      backgroundColor: colors.backgroundSecondary,
+      borderRadius: borderRadius.md,
+      padding: spacing[3],
+      borderWidth: 1,
+      borderColor: colors.border,
+    },
 
-  tipItem: {
-    flexDirection: 'row',
-    marginBottom: theme.spacing[3],
-    paddingHorizontal: theme.spacing[2],
-    paddingVertical: theme.spacing[2],
-    minHeight: 40,
-  },
+    fieldHeader: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'flex-start',
+      marginBottom: spacing[2],
+    },
 
-  tipBullet: {
-    fontSize: 16,
-    color: theme.colors.primary,
-    marginRight: theme.spacing[3],
-    width: 20,
-    textAlign: 'center',
-    fontWeight: 'bold',
-  },
+    fieldInfo: {
+      flex: 1,
+      marginRight: spacing[2],
+    },
 
-  tipText: {
-    fontSize: theme.typography.fontSizes.sm,
-    color: theme.colors.text,
-    lineHeight: 20,
-    flex: 1,
-  },
+    fieldLabel: {
+      fontSize: typography.fontSizes.md,
+      fontWeight: typography.fontWeights.semibold,
+      color: colors.text,
+      marginBottom: spacing[1],
+    },
 
-  // Floating Action Button
-  fab: {
-    position: 'absolute',
-    margin: theme.spacing[4],
-    right: 0,
-    bottom: 0,
-    backgroundColor: theme.colors.primary,
-  },
+    fieldType: {
+      fontSize: typography.fontSizes.sm,
+      color: colors.textSecondary,
+      textTransform: 'capitalize',
+    },
 
-  fabDisabled: {
-    backgroundColor: theme.colors.disabled,
-  },
+    fieldDeleteButton: {
+      padding: spacing[1],
+    },
 
-  // Menu and Dialog
-  newFieldMenu: {
-    marginTop: theme.spacing[6],
-  },
+    // Input Styling
+    fieldInput: {
+      backgroundColor: colors.surface,
+      fontSize: typography.fontSizes.md,
+    },
 
-  menuItem: {
-    minHeight: 48,
-  },
+    fieldInputError: {
+      borderColor: colors.error,
+      borderWidth: 1,
+    },
 
-  menuItemIcon: {
-    marginRight: theme.spacing[2],
-  },
+    fieldErrorText: {
+      fontSize: typography.fontSizes.sm,
+      color: colors.error,
+      marginTop: spacing[1],
+    },
 
-  // Validation
-  validationContainer: {
-    marginTop: theme.spacing[1],
-  },
+    // Tips Section
+    tipsSection: {
+      backgroundColor: colors.backgroundSecondary,
+    },
 
-  validationSuccess: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
+    tipItem: {
+      flexDirection: 'row',
+      marginBottom: spacing[3],
+      paddingHorizontal: spacing[2],
+      paddingVertical: spacing[2],
+      minHeight: 40,
+    },
 
-  validationSuccessText: {
-    fontSize: theme.typography.fontSizes.sm,
-    color: theme.colors.success || theme.colors.primary,
-    marginLeft: theme.spacing[1],
-  },
+    tipBullet: {
+      fontSize: 16,
+      color: colors.primary,
+      marginRight: spacing[3],
+      width: 20,
+      textAlign: 'center',
+      fontWeight: 'bold',
+    },
 
-  // Progress and Stats
-  progressContainer: {
-    marginTop: theme.spacing[2],
-    padding: theme.spacing[3],
-    backgroundColor: theme.colors.backgroundSecondary,
-    borderRadius: theme.borderRadius.md,
-  },
+    tipText: {
+      fontSize: typography.fontSizes.sm,
+      color: colors.text,
+      lineHeight: 20,
+      flex: 1,
+    },
 
-  progressHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: theme.spacing[2],
-  },
+    // Floating Action Button
+    fab: {
+      position: 'absolute',
+      margin: spacing[4],
+      right: 0,
+      bottom: 0,
+      backgroundColor: colors.primary,
+    },
 
-  progressLabel: {
-    fontSize: theme.typography.fontSizes.sm,
-    color: theme.colors.textSecondary,
-  },
+    fabDisabled: {
+      backgroundColor: colors.disabled,
+    },
 
-  progressValue: {
-    fontSize: theme.typography.fontSizes.sm,
-    color: theme.colors.text,
-    fontWeight: theme.typography.fontWeights.medium,
-  },
+    // Menu and Dialog
+    newFieldMenu: {
+      marginTop: spacing[6],
+    },
 
-  progressBar: {
-    height: 4,
-    backgroundColor: theme.colors.border,
-    borderRadius: 2,
-    overflow: 'hidden',
-  },
+    menuItem: {
+      minHeight: 48,
+    },
 
-  progressFill: {
-    height: '100%',
-    backgroundColor: theme.colors.primary,
-    borderRadius: 2,
-  },
+    menuItemIcon: {
+      marginRight: spacing[2],
+    },
 
-  // Accessibility
-  screenReader: {
-    position: 'absolute',
-    left: -10000,
-    top: -10000,
-    width: 1,
-    height: 1,
-  },
+    // Validation
+    validationContainer: {
+      marginTop: spacing[1],
+    },
 
-  // Animation Support
-  fadeIn: {
-    opacity: 1,
-  },
+    validationSuccess: {
+      flexDirection: 'row',
+      alignItems: 'center',
+    },
 
-  fadeOut: {
-    opacity: 0.5,
-  },
+    validationSuccessText: {
+      fontSize: typography.fontSizes.sm,
+      color: colors.success,
+      marginLeft: spacing[1],
+    },
 
-  // Responsive adjustments
-  compactMode: {
-    paddingHorizontal: theme.spacing[2],
-  },
+    // Progress and Stats
+    progressContainer: {
+      marginTop: spacing[2],
+      padding: spacing[3],
+      backgroundColor: colors.backgroundSecondary,
+      borderRadius: borderRadius.md,
+    },
 
-  // Spacing
-  bottomSpacer: {
-    height: theme.spacing[8],
-  },
-});
+    progressHeader: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      marginBottom: spacing[2],
+    },
 
-// Export constants for consistency
-export const CUSTOM_FIELDS_EDIT_SPACING = {
-  sectionGap: 4,
-  contentPadding: 4,
-  fieldItemGap: 5,
-  fabBottomMargin: 20,
-} as const;
+    progressLabel: {
+      fontSize: typography.fontSizes.sm,
+      color: colors.textSecondary,
+    },
 
-export const CUSTOM_FIELDS_EDIT_ANIMATION = {
-  duration: 300,
-  easing: 'ease-in-out',
-  fadeInDuration: 200,
-  slideInDuration: 250,
-} as const; 
+    progressValue: {
+      fontSize: typography.fontSizes.sm,
+      color: colors.text,
+      fontWeight: typography.fontWeights.medium,
+    },
+
+    progressBar: {
+      height: 4,
+      backgroundColor: colors.border,
+      borderRadius: 2,
+      overflow: 'hidden',
+    },
+
+    progressFill: {
+      height: '100%',
+      backgroundColor: colors.primary,
+      borderRadius: 2,
+    },
+
+    // Accessibility
+    screenReader: {
+      position: 'absolute',
+      left: -10000,
+      top: -10000,
+      width: 1,
+      height: 1,
+    },
+
+    // Animation Support
+    fadeIn: {
+      opacity: 1,
+    },
+
+    fadeOut: {
+      opacity: 0.5,
+    },
+
+    // Responsive adjustments
+    compactMode: {
+      paddingHorizontal: spacing[2],
+    },
+
+    // Spacing
+    bottomSpacer: {
+      height: spacing[8],
+    },
+  });
+};
+
+
+ 

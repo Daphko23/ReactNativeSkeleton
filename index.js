@@ -9,6 +9,9 @@
 import 'react-native-get-random-values';
 import 'react-native-url-polyfill/auto';
 
+// Global Immer Configuration - MUST be loaded before any stores
+import './src/core/config/immer-config';
+
 // Globale Buffer Polyfill
 import { Buffer } from 'buffer';
 global.Buffer = Buffer;

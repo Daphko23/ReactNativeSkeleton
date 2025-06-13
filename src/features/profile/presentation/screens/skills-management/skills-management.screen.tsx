@@ -64,7 +64,8 @@ import {
 } from 'react-native-paper';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import { useSkillsManagement } from '../../hooks/use-skills-management.hook';
+import { useTheme } from 'react-native-paper';
+import { useTranslation } from 'react-i18next';
 import { createSkillsManagementScreenStyles } from './skills-management.screen.styles';
 import { LoadingOverlay } from '@shared/components/ui/loading-overlay.component';
 import { SearchBar } from '@shared/components/search/search-bar.component';
@@ -236,12 +237,9 @@ export const SkillsManagementScreen: React.FC<SkillsManagementScreenProps> = ({
   navigation, 
   testID 
 }) => {
-  const {
-    isLoading: _isLoading,
-    error: _error,
-    theme,
-    t,
-  } = useSkillsManagement();
+  // New infrastructure hooks
+  const theme = useTheme();
+  const { t } = useTranslation();
 
   // Real profile integration instead of mock data
   const { profile, updateProfile, isLoading, isUpdating } = useProfile();
@@ -571,12 +569,12 @@ export const SkillsManagementScreen: React.FC<SkillsManagementScreenProps> = ({
           icon="content-save"
           onPress={saveSkillsToProfile}
           disabled={!hasUnsavedChanges || isUpdating}
-          iconColor={hasUnsavedChanges && !isUpdating ? theme.colors.primary : theme.colors.disabled}
+          iconColor={hasUnsavedChanges && !isUpdating ? theme.colors.primary : theme.colors.onSurfaceDisabled}
           testID={SKILLS_TEST_IDS.SAVE_FAB}
         />
       ),
     });
-  }, [navigation, hasUnsavedChanges, isUpdating, theme.colors.primary, theme.colors.disabled, saveSkillsToProfile]);
+  }, [navigation, hasUnsavedChanges, isUpdating, theme.colors.primary, theme.colors.onSurfaceDisabled, saveSkillsToProfile]);
 
   // Loading State
   if (isLoading) {

@@ -13,7 +13,7 @@
 import {useEffect, useRef} from 'react';
 import {CommonActions, useNavigation} from '@react-navigation/native';
 import type {StackNavigationProp} from '@react-navigation/stack';
-import {useAuth} from '@features/auth/presentation/hooks/use-auth';
+import {useAuth} from '@features/auth/presentation/hooks';
 import type {RootStackParamList} from '@core/navigation/navigation.types';
 
 /**

@@ -37,3 +37,47 @@ export class ResultFactory {
     };
   }
 }
+
+/**
+ * Result-Klasse mit statischen Methoden (Use Case Pattern)
+ * Kompatibel mit Enterprise Use Cases
+ */
+export class Result {
+  public success: boolean;
+  public data?: any;
+  public error?: string;
+
+  constructor(success: boolean, data?: any, error?: string) {
+    this.success = success;
+    this.data = data;
+    this.error = error;
+  }
+
+  /**
+   * Erstellt ein erfolgreiches Result
+   */
+  static success<T>(data: T): Result {
+    return new Result(true, data);
+  }
+
+  /**
+   * Erstellt ein fehlgeschlagenes Result
+   */
+  static error(error: string): Result {
+    return new Result(false, undefined, error);
+  }
+
+  /**
+   * Prüft ob das Result erfolgreich ist
+   */
+  isSuccess(): boolean {
+    return this.success;
+  }
+
+  /**
+   * Prüft ob das Result fehlgeschlagen ist
+   */
+  isError(): boolean {
+    return !this.success;
+  }
+}

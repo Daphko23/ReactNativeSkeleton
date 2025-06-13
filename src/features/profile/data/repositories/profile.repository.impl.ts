@@ -5,7 +5,7 @@
  * ✅ NEW: GDPR Audit Integration for Enterprise Compliance
  */
 
-import type { UserProfile } from '../../domain/entities/user-profile.entity';
+import type { UserProfile, PrivacySettings } from '../../domain/entities/user-profile.entity';
 import {
   ProfileDataSource,
   type IProfileDataSource,
@@ -13,7 +13,13 @@ import {
   type ProfileHistoryRow as _ProfileHistoryRow,
   type ProfileVersionRow
 } from '../datasources/profile.datasource';
-import { gdprAuditService } from '../services/gdpr-audit.service';
+import { 
+  SupabasePrivacySettingsDataSource,
+  type IPrivacySettingsDataSource,
+  mapPrivacySettingsRowToDomain,
+  mapPrivacySettingsDomainToRow
+} from '../datasources/privacy-settings.datasource';
+import { gdprAuditService } from '@core/compliance/gdpr-audit.service';
 import { LoggerFactory } from '@core/logging/logger.factory';
 import { LogCategory } from '@core/logging/logger.service.interface';
 
@@ -70,7 +76,6 @@ export interface IProfileRepository {
   
   // Analytics & Statistics
   getProfileAnalytics(): Promise<ProfileAnalytics>;
-  getProfileCompletionRate(userId: string): Promise<number>;
   
   // Bulk Operations
   bulkUpdateProfiles(updates: Array<{ userId: string; data: Partial<UserProfile> }>): Promise<boolean>;
@@ -80,10 +85,12 @@ export interface IProfileRepository {
 export class ProfileRepositoryImpl implements IProfileRepository {
   private logger = LoggerFactory.createServiceLogger('ProfileRepository');
   private dataSource: IProfileDataSource;
+  private privacyDataSource: IPrivacySettingsDataSource;
   private cache: Map<string, any>;
   
-  constructor(dataSource?: IProfileDataSource) {
+  constructor(dataSource?: IProfileDataSource, privacyDataSource?: IPrivacySettingsDataSource) {
     this.dataSource = dataSource || new ProfileDataSource();
+    this.privacyDataSource = privacyDataSource || new SupabasePrivacySettingsDataSource();
     this.cache = new Map();
   }
 
@@ -117,11 +124,11 @@ export class ProfileRepositoryImpl implements IProfileRepository {
         industry: profileData.professional?.industry,
         skills: profileData.professional?.skills,
         work_location_preference: profileData.professional?.workLocation,
-        custom_fields: profileData.customFields,
         experience_years: profileData.professional?.experience === 'entry' ? 0 : 
                          profileData.professional?.experience === 'junior' ? 2 :
                          profileData.professional?.experience === 'mid' ? 5 :
                          profileData.professional?.experience === 'senior' ? 8 : undefined,
+        custom_fields: profileData.customFields,
       };
 
       const result = await this.dataSource.createProfile(dbProfile);
@@ -167,6 +174,62 @@ export class ProfileRepositoryImpl implements IProfileRepository {
 
       const profile = this.mapToUserProfile(result);
       
+      // 🔐 LOAD PRIVACY SETTINGS FROM SEPARATE TABLE
+      try {
+        const privacySettingsRow = await this.privacyDataSource.getPrivacySettings(userId);
+        if (privacySettingsRow) {
+          profile.privacySettings = mapPrivacySettingsRowToDomain(privacySettingsRow);
+        } else {
+          // Set default privacy settings if not provided
+          profile.privacySettings = {
+            profileVisibility: 'friends',
+            emailVisibility: 'private',
+            phoneVisibility: 'private',
+            locationVisibility: 'public',
+            socialLinksVisibility: 'public',
+            professionalInfoVisibility: 'public',
+            showOnlineStatus: true,
+            allowDirectMessages: true,
+            allowFriendRequests: true,
+            showLastActive: false,
+            searchVisibility: true,
+            directoryListing: true,
+            allowProfileViews: true,
+            allowAnalytics: true,
+            allowThirdPartySharing: false,
+            trackProfileViews: true,
+            emailNotifications: true,
+            pushNotifications: true,
+            marketingCommunications: false,
+            fieldPrivacy: {}
+          };
+        }
+      } catch {
+        this.logger.warn('Failed to load privacy settings, using defaults', LogCategory.BUSINESS, { userId });
+        profile.privacySettings = {
+          profileVisibility: 'friends',
+          emailVisibility: 'private',
+          phoneVisibility: 'private',
+          locationVisibility: 'public',
+          socialLinksVisibility: 'public',
+          professionalInfoVisibility: 'public',
+          showOnlineStatus: true,
+          allowDirectMessages: true,
+          allowFriendRequests: true,
+          showLastActive: false,
+          searchVisibility: true,
+          directoryListing: true,
+          allowProfileViews: true,
+          allowAnalytics: true,
+          allowThirdPartySharing: false,
+          trackProfileViews: true,
+          emailNotifications: true,
+          pushNotifications: true,
+          marketingCommunications: false,
+          fieldPrivacy: {}
+        };
+      }
+      
       // Cache for 10 minutes
       this.cache.set(cacheKey, profile);
       setTimeout(() => this.cache.delete(cacheKey), 10 * 60 * 1000);
@@ -186,7 +249,12 @@ export class ProfileRepositoryImpl implements IProfileRepository {
       // Get current profile for history tracking
       const _currentProfile = await this.getProfile(userId);
       
-      // Map domain updates to database updates
+      // 🔐 SEPARATE PRIVACY SETTINGS HANDLING
+      if (updates.privacySettings) {
+        await this.updatePrivacySettingsSeparately(userId, updates.privacySettings);
+      }
+      
+      // Map domain updates to database updates (WITHOUT privacy settings)
       const dbUpdates: Partial<UserProfileRow> = {
         first_name: updates.firstName,
         last_name: updates.lastName,
@@ -221,11 +289,6 @@ export class ProfileRepositoryImpl implements IProfileRepository {
       const result = await this.dataSource.updateProfile(userId, dbUpdates);
       const updatedProfile = this.mapToUserProfile(result);
       
-      // Track changes in history - temporarily disabled for stability
-      // if (currentProfile) {
-      //   await this.trackProfileChanges(currentProfile, updatedProfile);
-      // }
-      
       // Clear cache
       this.cache.delete(`profile:${userId}`);
       
@@ -235,6 +298,32 @@ export class ProfileRepositoryImpl implements IProfileRepository {
         userId,
         metadata: { operation: 'updateProfile', fieldsUpdated: Object.keys(updates) }
       }, error as Error);
+      throw error;
+    }
+  }
+
+  /**
+   * 🔐 UPDATE PRIVACY SETTINGS IN SEPARATE TABLE
+   */
+  private async updatePrivacySettingsSeparately(userId: string, privacySettings: PrivacySettings): Promise<void> {
+    try {
+      // Check if privacy settings exist
+      const existingSettings = await this.privacyDataSource.getPrivacySettings(userId);
+      
+      // Map domain to database format
+      const privacyData = mapPrivacySettingsDomainToRow(privacySettings);
+      
+      if (existingSettings) {
+        // Update existing settings
+        await this.privacyDataSource.updatePrivacySettings(userId, privacyData);
+      } else {
+        // Create new settings
+        await this.privacyDataSource.createPrivacySettings(userId, privacyData);
+      }
+      
+      this.logger.info('Privacy settings updated in separate table', LogCategory.BUSINESS, { userId });
+    } catch (error) {
+      this.logger.error('Failed to update privacy settings in separate table', LogCategory.BUSINESS, { userId }, error as Error);
       throw error;
     }
   }
@@ -417,28 +506,6 @@ export class ProfileRepositoryImpl implements IProfileRepository {
     }
   }
 
-  async getProfileCompletionRate(userId: string): Promise<number> {
-    try {
-      const profile = await this.getProfile(userId);
-      if (!profile) return 0;
-
-      const requiredFields = [
-        'firstName', 'lastName', 'email', 'phone', 
-        'dateOfBirth', 'bio', 'location'
-      ];
-      
-      const completedFields = requiredFields.filter(field => {
-        const value = (profile as any)[field];
-        return value !== null && value !== undefined && value !== '';
-      });
-
-      return (completedFields.length / requiredFields.length) * 100;
-    } catch (error) {
-      console.error('Error in getProfileCompletionRate:', error);
-      return 0;
-    }
-  }
-
   // =============================================
   // BULK OPERATIONS
   // =============================================
@@ -524,6 +591,7 @@ export class ProfileRepositoryImpl implements IProfileRepository {
                    data.experience_years === 12 ? 'lead' :
                    data.experience_years === 15 ? 'executive' : undefined
       },
+      privacySettings: data.privacy_settings as PrivacySettings | undefined,
       customFields: data.custom_fields,
       createdAt: data.created_at ? new Date(data.created_at) : new Date(),
       updatedAt: data.updated_at ? new Date(data.updated_at) : new Date(),

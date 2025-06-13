@@ -86,7 +86,7 @@ export class ImagePickerService implements IImagePickerService {
           const image: CropPickerImage = await Promise.race([
             ImagePicker.openPicker({
               mediaType: 'photo',
-              includeBase64: false,
+              includeBase64: false, // No base64 needed for cloud storage
               compressImageQuality: 0.8,
               maxWidth: options.width,
               maxHeight: options.height,
@@ -111,7 +111,7 @@ export class ImagePickerService implements IImagePickerService {
               launchImageLibrary(
                 {
                   mediaType: 'photo' as MediaType,
-                  includeBase64: false,
+                  includeBase64: false, // No base64 needed for cloud storage
                   maxWidth: options.width,
                   maxHeight: options.height,
                   quality: (options.quality || 0.8) as any,

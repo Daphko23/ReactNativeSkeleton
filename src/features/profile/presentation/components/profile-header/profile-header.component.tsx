@@ -173,10 +173,11 @@ const EnterpriseAvatar: React.FC<{
 
   // Reset states when avatar URL changes
   React.useEffect(() => {
-    if (avatarUrl && !imageError) {
+    if (avatarUrl) {
       setImageLoaded(false);
+      setImageError(false); // WICHTIG: Immer imageError zurücksetzen bei neuer URL
     }
-  }, [avatarUrl, imageError]);
+  }, [avatarUrl]);
 
   const handleImageLoad = React.useCallback(() => {
     setImageLoaded(true);

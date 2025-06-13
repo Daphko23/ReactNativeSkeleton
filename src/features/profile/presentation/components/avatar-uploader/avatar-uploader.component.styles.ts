@@ -21,6 +21,11 @@ export const createAvatarUploaderStyles = (theme: any) => StyleSheet.create({
     justifyContent: 'center',
     position: 'relative',
   },
+  avatarContainer: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    position: 'relative',
+  },
   avatar: {
     borderRadius: 50,
     backgroundColor: theme.colors.surfaceVariant,
@@ -28,6 +33,12 @@ export const createAvatarUploaderStyles = (theme: any) => StyleSheet.create({
     justifyContent: 'center',
     borderWidth: 2,
     borderColor: theme.colors.outline,
+  },
+  loadingContainer: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: theme.colors.surfaceVariant,
+    borderRadius: 50,
   },
   editIndicator: {
     position: 'absolute',
@@ -39,14 +50,29 @@ export const createAvatarUploaderStyles = (theme: any) => StyleSheet.create({
     justifyContent: 'center',
     borderWidth: 2,
     borderColor: theme.colors.surface,
+    bottom: 4,
+    right: 4,
   },
   editIcon: {
     fontSize: theme.typography.fontSizes.xs,
+    color: theme.colors.surface,
+  },
+  progressOverlay: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: 'rgba(0, 0, 0, 0.6)',
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderRadius: 50,
   },
   progressText: {
     fontSize: theme.typography.fontSizes.xs,
-    color: theme.colors.textSecondary,
+    color: theme.colors.surface,
     marginTop: theme.spacing[1],
+    fontWeight: 'bold',
   },
   errorText: {
     fontSize: theme.typography.fontSizes.xs,
@@ -85,6 +111,12 @@ export const createAvatarUploaderStyles = (theme: any) => StyleSheet.create({
     color: theme.colors.text,
     textAlign: 'center',
   },
+  destructiveButton: {
+    backgroundColor: theme.colors.errorContainer,
+  },
+  destructiveText: {
+    color: theme.colors.error,
+  },
   deleteButton: {
     backgroundColor: theme.colors.errorContainer,
   },
@@ -100,5 +132,36 @@ export const createAvatarUploaderStyles = (theme: any) => StyleSheet.create({
     color: theme.colors.textSecondary,
     textAlign: 'center',
     fontWeight: theme.typography.fontWeights.semibold,
+  },
+  uploadControls: {
+    marginTop: theme.spacing[4],
+    width: '100%',
+    alignItems: 'center',
+  },
+  uploadButton: {
+    backgroundColor: theme.colors.primary,
+    paddingVertical: theme.spacing[3],
+    paddingHorizontal: theme.spacing[6],
+    borderRadius: theme.borderRadius.md,
+    marginBottom: theme.spacing[2],
+    minWidth: 120,
+    alignItems: 'center',
+  },
+  uploadButtonText: {
+    color: theme.colors.surface,
+    fontSize: theme.typography.fontSizes.base,
+    fontWeight: theme.typography.fontWeights.semibold,
+  },
+  disabledButton: {
+    backgroundColor: theme.colors.outline,
+    opacity: 0.6,
+  },
+  cancelUploadButton: {
+    paddingVertical: theme.spacing[2],
+    paddingHorizontal: theme.spacing[4],
+  },
+  cancelUploadButtonText: {
+    color: theme.colors.textSecondary,
+    fontSize: theme.typography.fontSizes.sm,
   },
 }); 

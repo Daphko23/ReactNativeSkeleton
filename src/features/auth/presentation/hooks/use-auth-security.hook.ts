@@ -1,13 +1,9 @@
 /**
- * Auth Security Hook - Spezialisierte Security Features
+ * Auth Security Hook - Security Features für Enterprise Apps
  * 
- * @fileoverview Hook für erweiterte Sicherheitsfunktionen wie MFA, Biometric,
- * Suspicious Activity Detection und Session Management.
- * Teil der Hook-zentrierten Architektur für Enterprise Security.
- * 
+ * @description Hook für MFA, Biometric Auth, Security Monitoring
  * @version 2.1.0
  * @author ReactNativeSkeleton Enterprise Team
- * @layer Presentation/Hooks
  */
 
 import { useCallback, useState } from 'react';
@@ -117,35 +113,11 @@ export interface UseAuthSecurityReturn {
 }
 
 /**
- * @hook useAuthSecurity
- * @description Spezialisierter Hook für Enterprise Security Features
- * 
- * @features
- * - Multi-Factor Authentication (MFA)
- * - Biometric Authentication
- * - Suspicious Activity Detection
- * - Permission Management
- * - Session Management
- * - Security Monitoring
+ * useAuthSecurity Hook - Enterprise Security Features
  * 
  * @example
- * ```typescript
- * const { 
- *   enableMFA, 
- *   verifyMFA, 
- *   enableBiometric,
- *   checkSuspiciousActivity 
- * } = useAuthSecurity();
- * 
- * // Enable MFA
+ * const { enableMFA, verifyMFA, enableBiometric } = useAuthSecurity();
  * const mfaSetup = await enableMFA(MFAType.TOTP);
- * 
- * // Verify MFA
- * const isValid = await verifyMFA(challengeId, code);
- * 
- * // Check for suspicious activity
- * const securityStatus = await checkSuspiciousActivity();
- * ```
  */
 export const useAuthSecurity = (): UseAuthSecurityReturn => {
   // ==========================================
@@ -183,7 +155,6 @@ export const useAuthSecurity = (): UseAuthSecurityReturn => {
     clearError();
     
     try {
-      // Enterprise Implementation: Use Auth Container DI
       if (authContainer.isReady()) {
         const enableMFAUseCase = authContainer.enableMFAUseCase;
         const result = await enableMFAUseCase.execute({ type });

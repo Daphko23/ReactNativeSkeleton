@@ -1,0 +1,223 @@
+{
+  "translation": {
+    "common": {
+      "loading": "Loading...",
+      "loadingAccessibility": "Content is loading",
+      "save": "Save",
+      "cancel": "Cancel",
+      "delete": "Delete",
+      "edit": "Edit",
+      "close": "Close",
+      "back": "Back",
+      "next": "Next",
+      "previous": "Previous",
+      "submit": "Submit",
+      "confirm": "Confirm",
+      "yes": "Yes",
+      "no": "No",
+      "ok": "OK",
+      "error": "Error",
+      "success": "Success",
+      "warning": "Warning",
+      "info": "Information",
+      "retry": "Retry",
+      "refresh": "Refresh"
+    },
+    "errors": {
+      "title": "Error",
+      "generic": "An unexpected error occurred",
+      "network": "Network error",
+      "timeout": "Request timeout",
+      "unauthorized": "Unauthorized",
+      "forbidden": "Access denied",
+      "notFound": "Not found",
+      "validation": "Validation error"
+    },
+    "error": {
+      "boundaryScreen": {
+        "title": "Something went wrong",
+        "reload": "Reload App"
+      }
+    },
+    "profile": {
+      "title": "Profile",
+      "editScreen": {
+        "title": "Edit Profile",
+        "personalInfo": "Personal Information",
+        "firstName": "First Name",
+        "lastName": "Last Name",
+        "displayName": "Display Name",
+        "bio": "About Me",
+        "location": "Location",
+        "website": "Website",
+        "phone": "Phone",
+        "professionalInfo": "Professional Information",
+        "company": "Company",
+        "jobTitle": "Job Title",
+        "industry": "Industry",
+        "workLocationPreference": "Work Location Preference",
+        "remote": "Remote",
+        "onsite": "On-site",
+        "hybrid": "Hybrid",
+        "skills": "Skills",
+        "addSkill": "Add Skill",
+        "socialLinks": "Social Links",
+        "customFields": "Custom Fields",
+        "customFieldsNote": "Here you can add additional information about yourself.",
+        "notes": "Notes",
+        "notesPlaceholder": "Additional information about me...",
+        "hobbies": "Hobbies",
+        "hobbiesPlaceholder": "My hobbies and interests...",
+        "preferences": "Preferences",
+        "preferencesPlaceholder": "Personal preferences...",
+        "save": "Save",
+        "cancel": "Cancel",
+        "success": "Profile successfully updated",
+        "error": "Error updating profile"
+      },
+      "customFields": {
+        "saving": "Saving...",
+        "title": "Custom Fields",
+        "scroll": {
+          "accessibility": "Custom fields scrollable list"
+        },
+        "add": {
+          "button": "Add Field",
+          "description": "Add personalized fields",
+          "accessibility": "Add new custom field",
+          "hint": "Tap here to add a new field"
+        },
+        "current": {
+          "title": "Current Fields"
+        },
+        "templates": {
+          "title": "Templates",
+          "showAll": "Show All",
+          "showAllAccessibility": "Show all templates",
+          "scroll": {
+            "accessibility": "Templates scrollable list"
+          }
+        },
+        "template": {
+          "accessibility": "Select template"
+        },
+        "fields": {
+          "title": "Fields"
+        },
+        "field": {
+          "add": {
+            "accessibility": "Add field"
+          },
+          "remove": {
+            "accessibility": "Remove field"
+          },
+          "input": {
+            "accessibility": "Enter field value"
+          }
+        },
+        "fieldType": {
+          "accessibility": "Select field type"
+        },
+        "tips": {
+          "title": "Tips for Better Profiles",
+          "relevant": "Add relevant information",
+          "professional": "Stay professional",
+          "accurate": "Keep information accurate",
+          "templates": "Use templates for inspiration"
+        },
+        "save": {
+          "accessibility": "Save custom fields",
+          "hint": {
+            "disabled": "Add fields to save"
+          }
+        }
+      }
+    },
+    "auth": {
+      "loginScreen": {
+        "title": "Sign In",
+        "email": "Email",
+        "password": "Password",
+        "login": "Sign In",
+        "forgotPassword": "Forgot Password?",
+        "noAccount": "Don't have an account?",
+        "signup": "Sign Up",
+        "errors": {
+          "emailRequired": "Email is required",
+          "emailInvalid": "Invalid email address",
+          "passwordRequired": "Password is required"
+        }
+      },
+      "registerScreen": {
+        "title": "Sign Up",
+        "firstName": "First Name",
+        "lastName": "Last Name",
+        "email": "Email",
+        "password": "Password",
+        "confirmPassword": "Confirm Password",
+        "register": "Sign Up",
+        "hasAccount": "Already have an account?",
+        "login": "Sign In",
+        "errors": {
+          "firstNameRequired": "First name is required",
+          "lastNameRequired": "Last name is required",
+          "emailRequired": "Email is required",
+          "emailInvalid": "Invalid email address",
+          "passwordRequired": "Password is required",
+          "passwordsDoNotMatch": "Passwords do not match"
+        }
+      },
+      "mfaScreen": {
+        "title": "Two-Factor Authentication",
+        "subtitle": "Enter the code from your authenticator app",
+        "code": "Verification Code",
+        "verify": "Verify",
+        "errors": {
+          "title": "Verification Error"
+        }
+      },
+      "terms": {
+        "title": "Terms of Service",
+        "accept": "I accept the terms of service",
+        "privacy": "Privacy Policy",
+        "agree": "Agree"
+      },
+      "emailVerificationScreen": {
+        "title": "Verify Email",
+        "sent": "We've sent you an email",
+        "resend": "Resend Email",
+        "verified": "Email successfully verified"
+      },
+      "passwordStrengthScreen": {
+        "weak": "Weak",
+        "medium": "Medium",
+        "strong": "Strong"
+      },
+      "biometricScreen": {
+        "title": "Biometric Authentication",
+        "enable": "Enable Biometrics",
+        "touchId": "Use Touch ID",
+        "faceId": "Use Face ID"
+      },
+      "authNavigation": {
+        "login": "Sign In",
+        "register": "Sign Up",
+        "forgotPassword": "Forgot Password"
+      },
+      "oauthScreen": {
+        "title": "Social Login",
+        "google": "Sign in with Google",
+        "apple": "Sign in with Apple",
+        "facebook": "Sign in with Facebook"
+      },
+      "resetScreen": {
+        "title": "Reset Password",
+        "email": "Email Address",
+        "send": "Send Link",
+        "sent": "Link Sent",
+        "errorTitle": "Error",
+        "errorMessage": "Could not send link"
+      }
+    }
+  }
+} 

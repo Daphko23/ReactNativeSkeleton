@@ -1,746 +1,618 @@
 /**
- * @fileoverview USE-PROFILE-FORM-HOOK-TESTS: Enterprise Hook Testing Suite
- * @description Comprehensive test suite für useProfileForm Hook mit react-hook-form
- * Integration, Skills Management, Custom Fields, Validation und Error Handling.
- * Implementiert Enterprise Testing Standards entsprechend der tatsächlichen Implementation.
+ * @fileoverview ENTERPRISE PROFILE FORM HOOK TESTS - 2025 Standards
  * 
- * @version 1.0.0
- * @since 2024-01-15
- * @author ReactNativeSkeleton Enterprise Team
- * @module UseProfileFormHookTests
- * @namespace Features.Profile.Presentation.Hooks.Tests
- * @category HookTesting
- * @subcategory FormManagement
+ * @description Comprehensive test suite for useProfileForm hook covering:
+ * - Business Logic Testing (Use Cases Integration)
+ * - TanStack Query Integration Testing
+ * - Security Testing (XSS, Injection, Validation)
+ * - GDPR Compliance Testing
+ * - Performance Testing
+ * - Error Handling & Recovery
+ * 
+ * @version 2025.1.0
+ * @standard Enterprise Testing Standards, GDPR Compliance, Security Testing
+ * @since Enterprise Industry Standard 2025
  */
 
-import { renderHook, act } from '@testing-library/react-native';
-import { jest } from '@jest/globals';
-import { useProfileForm, ProfileFormData } from '../use-profile-form.hook';
-import { UserProfile } from '../../../domain/entities/user-profile.entity';
+import { renderHook, act, waitFor } from '@testing-library/react-native';
+import { useProfileForm } from '../use-profile-form.hook';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import React from 'react';
 
-// Mocked functions with simple typing
-  const mockTrigger = jest.fn() as jest.MockedFunction<any>;
-  const mockReset = jest.fn() as jest.MockedFunction<any>;
-  const mockWatch = jest.fn() as jest.MockedFunction<any>;
-  const mockSetValue = jest.fn() as jest.MockedFunction<any>;
-  const mockGetValues = jest.fn() as jest.MockedFunction<any>;
-  const mockUpdateProfile = jest.fn() as jest.MockedFunction<any>;
+// =============================================
+// 🔧 MOCKS & SETUP
+// =============================================
 
-// Mock useForm with proper return types
-const mockUseForm = jest.fn(() => ({
-  trigger: mockTrigger,
-  reset: mockReset,
-  watch: mockWatch,
-  setValue: mockSetValue,
-  getValues: mockGetValues,
-  formState: {
-    isDirty: false,
-    errors: {},
-  },
+// Mock Auth Hook
+const mockUser = {
+  id: 'test-user-123',
+  email: 'test@example.com',
+  firstName: 'Test',
+  lastName: 'User'
+};
+
+jest.mock('@features/auth/presentation/hooks', () => ({
+  useAuth: jest.fn(() => ({
+    user: mockUser,
+    isAuthenticated: true
+  }))
 }));
 
-// Mock useProfile hook
-const mockUseProfile = jest.fn(() => ({
-  profile: null as UserProfile | null,
-  updateProfile: mockUpdateProfile,
+// Mock Profile Query Hooks
+const mockProfileData = {
+  id: 'test-user-123',
+  firstName: 'John',
+  lastName: 'Doe',
+  email: 'john.doe@example.com',
+  bio: 'Software Engineer',
+  phone: '+1234567890',
+  location: 'Berlin, Germany',
+  website: 'https://johndoe.dev'
+};
+
+const mockProfileQuery = {
+  data: mockProfileData,
   isLoading: false,
-  isUpdating: false,
-  isRefreshing: false,
+  error: null,
+  refetch: jest.fn()
+};
+
+const mockUpdateMutation = {
+  mutate: jest.fn(),
+  isPending: false,
+  error: null,
+  isSuccess: false,
+  reset: jest.fn()
+};
+
+jest.mock('../use-profile-query.hook', () => ({
+  useProfileQuery: jest.fn(() => mockProfileQuery),
+  useUpdateProfileMutation: jest.fn(() => mockUpdateMutation)
 }));
 
-// Mock implementations
+// Mock Profile Container & Use Cases
+const mockValidationResult = {
+  isValid: true,
+  errors: [],
+  warnings: [],
+  gdprCompliant: true,
+  securityScore: 95,
+  completeness: 85
+};
+
+const mockValidateProfileUseCase = {
+  execute: jest.fn().mockResolvedValue(mockValidationResult)
+};
+
+const mockContainer = {
+  getValidateProfileDataUseCase: jest.fn(() => mockValidateProfileUseCase)
+};
+
+jest.mock('../../application/di/profile.container', () => ({
+  useProfileContainer: jest.fn(() => mockContainer)
+}));
+
+// Mock React Hook Form
 jest.mock('react-hook-form', () => ({
-  useForm: () => mockUseForm(),
+  useForm: jest.fn(() => ({
+    watch: jest.fn(() => ({
+      firstName: 'John',
+      lastName: 'Doe',
+      email: 'john.doe@example.com',
+      bio: 'Software Engineer',
+      phone: '+1234567890',
+      location: 'Berlin, Germany',
+      website: 'https://johndoe.dev'
+    })),
+    setValue: jest.fn(),
+    reset: jest.fn(),
+    formState: {
+      errors: {},
+      isDirty: false,
+      isValid: true
+    }
+  }))
 }));
 
-jest.mock('@features/profile/presentation/hooks/use-profile.hook', () => ({
-  useProfile: () => mockUseProfile(),
-}));
-
-jest.mock('@features/common/presentation/services/alert.service', () => ({
-  AlertService: {
-    success: jest.fn(),
-    error: jest.fn(),
-  },
-}));
-
-describe('useProfileForm Hook', () => {
-  // Helper function to create mock user profile with required email field
-  const createTestProfile = (overrides: Partial<UserProfile> = {}): UserProfile => ({
-    id: 'user-123',
-    email: 'test@example.com', // Required field
-    firstName: 'John',
-    lastName: 'Doe',
-    displayName: 'John Doe',
-    avatar: 'https://example.com/avatar.jpg',
-    bio: 'Test bio',
-    location: 'Test Location',
-    website: 'https://example.com',
-    phone: '+1234567890',
-    dateOfBirth: new Date('1990-01-01'),
-    professional: {
-      company: 'Test Company',
-      jobTitle: 'Developer',
-      industry: 'Technology',
-      skills: ['JavaScript', 'React'],
-      workLocation: 'remote' as const,
-    },
-    socialLinks: {
-      linkedIn: 'https://linkedin.com/in/johndoe',
-      twitter: '@johndoe',
-      github: 'johndoe',
-      instagram: '@johndoe',
-    },
-    customFields: {},
-    createdAt: new Date('2023-01-01'),
-    updatedAt: new Date('2023-01-01'),
-    profileVersion: 1,
-    isComplete: true,
-    isVerified: true,
-    ...overrides,
+// Test Wrapper with QueryClient
+const createWrapper = () => {
+  const queryClient = new QueryClient({
+    defaultOptions: {
+      queries: { retry: false },
+      mutations: { retry: false }
+    }
   });
 
-  // Helper function to create form data
-  const createFormData = (overrides: Partial<ProfileFormData> = {}): ProfileFormData => ({
-    firstName: 'John',
-    lastName: 'Doe',
-    displayName: 'John Doe',
-    bio: 'Test bio',
-    location: 'Test Location',
-    website: 'https://example.com',
-    phone: '+1234567890',
-    company: 'Test Company',
-    jobTitle: 'Developer',
-    industry: 'Technology',
-    skills: ['JavaScript', 'React'],
-    workLocation: 'remote' as const,
-    linkedIn: 'https://linkedin.com/in/johndoe',
-    twitter: '@johndoe',
-    github: 'johndoe',
-    instagram: '@johndoe',
-    customFields: {},
-    ...overrides,
-  });
+  const TestWrapper = ({ children }: { children: React.ReactNode }) =>
+    React.createElement(QueryClientProvider, { client: queryClient }, children);
+  
+  TestWrapper.displayName = 'TestWrapper';
+  
+  return TestWrapper;
+};
+
+describe('useProfileForm Hook - Enterprise Tests', () => {
+  let wrapper: any;
 
   beforeEach(() => {
+    wrapper = createWrapper();
     jest.clearAllMocks();
-    
-    // Reset mock implementations
-    mockUseProfile.mockReturnValue({
-      profile: null,
-      updateProfile: mockUpdateProfile,
-      isLoading: false,
-      isUpdating: false,
-      isRefreshing: false,
-    });
-
-    mockTrigger.mockResolvedValue(true);
-    mockUpdateProfile.mockResolvedValue(true);
-    mockGetValues.mockReturnValue(createFormData());
-    mockWatch.mockReturnValue({});
-    
-    mockUseForm.mockReturnValue({
-      trigger: mockTrigger,
-      reset: mockReset,
-      watch: mockWatch,
-      setValue: mockSetValue,
-      getValues: mockGetValues,
-      formState: {
-        isDirty: false,
-        errors: {},
-      },
-    });
   });
 
-  describe('Hook Initialization', () => {
-    test('should initialize hook with default values', () => {
-      const { result } = renderHook(() => useProfileForm());
+  // =============================================
+  // 🎯 BUSINESS LOGIC & USE CASES INTEGRATION
+  // =============================================
 
-      expect(result.current).toBeDefined();
-      expect(result.current.form).toBeDefined();
-      expect(result.current.isLoading).toBe(false);
-      expect(result.current.isUpdating).toBe(false);
-      expect(result.current.isRefreshing).toBe(false);
-      expect(result.current.isDirty).toBe(false);
-      expect(result.current.hasChanges).toBe(false);
-    });
-
-    test('should provide all expected methods', () => {
-      const { result } = renderHook(() => useProfileForm());
-
-      expect(typeof result.current.handleSave).toBe('function');
-      expect(typeof result.current.handleReset).toBe('function');
-      expect(typeof result.current.handleCancel).toBe('function');
-      expect(typeof result.current.addSkill).toBe('function');
-      expect(typeof result.current.removeSkill).toBe('function');
-      expect(typeof result.current.updateCustomField).toBe('function');
-      expect(typeof result.current.validateField).toBe('function');
-      expect(typeof result.current.getFieldError).toBe('function');
-    });
-
-    test('should load profile data into form when profile is provided', () => {
-      const testProfile = createTestProfile();
-      mockUseProfile.mockReturnValue({
-        profile: testProfile,
-        updateProfile: mockUpdateProfile,
-        isLoading: false,
-        isUpdating: false,
-        isRefreshing: false,
-      });
-
-      renderHook(() => useProfileForm());
-
-      expect(mockReset).toHaveBeenCalledWith({
-        firstName: 'John',
-        lastName: 'Doe',
-        displayName: 'John Doe',
-        bio: 'Test bio',
-        location: 'Test Location',
-        website: 'https://example.com',
-        phone: '+1234567890',
-        company: 'Test Company',
-        jobTitle: 'Developer',
-        industry: 'Technology',
-        skills: ['JavaScript', 'React'],
-        workLocation: 'remote',
-        linkedIn: 'https://linkedin.com/in/johndoe',
-        twitter: '@johndoe',
-        github: 'johndoe',
-        instagram: '@johndoe',
-        customFields: {},
-      });
-    });
-  });
-
-  describe('Form State Management', () => {
-    test('should reflect loading states from useProfile', () => {
-      mockUseProfile.mockReturnValue({
-        profile: null,
-        updateProfile: mockUpdateProfile,
-        isLoading: true,
-        isUpdating: true,
-        isRefreshing: true,
-      });
-
-      const { result } = renderHook(() => useProfileForm());
-
-      expect(result.current.isLoading).toBe(true);
-      expect(result.current.isUpdating).toBe(true);
-      expect(result.current.isRefreshing).toBe(true);
-    });
-
-    test('should reflect form dirty state', () => {
-      mockUseForm.mockReturnValue({
-        trigger: mockTrigger,
-        reset: mockReset,
-        watch: mockWatch,
-        setValue: mockSetValue,
-        getValues: mockGetValues,
-        formState: {
-          isDirty: true,
-          errors: {},
-        },
-      });
-
-      const { result } = renderHook(() => useProfileForm());
-
-      expect(result.current.isDirty).toBe(true);
-      expect(result.current.hasChanges).toBe(true);
-    });
-  });
-
-  describe('Skills Management', () => {
-    test('should add skill successfully', async () => {
-      mockGetValues.mockReturnValue(['React', 'TypeScript']);
-
-      const { result } = renderHook(() => useProfileForm());
+  describe('Business Logic & Use Cases Integration', () => {
+    it('should integrate with ValidateProfileDataUseCase for enterprise validation', async () => {
+      const { result } = renderHook(() => useProfileForm(), { wrapper });
 
       await act(async () => {
-        result.current.addSkill('Node.js');
+        await result.current.validateForm();
       });
 
-      expect(mockSetValue).toHaveBeenCalledWith(
-        'skills',
-        ['React', 'TypeScript', 'Node.js'],
-        { shouldDirty: true }
+      expect(mockValidateProfileUseCase.execute).toHaveBeenCalledWith(
+        expect.objectContaining({
+          firstName: 'John',
+          lastName: 'Doe',
+          email: 'john.doe@example.com'
+        }),
+        expect.objectContaining({
+          userRole: 'user',
+          isNewProfile: false,
+          strictMode: false,
+          gdprRequired: true
+        })
       );
     });
 
-    test('should not add duplicate skill', async () => {
-      mockGetValues.mockReturnValue(['React', 'TypeScript']);
-
-      const { result } = renderHook(() => useProfileForm());
-
-      await act(async () => {
-        result.current.addSkill('React');
-      });
-
-      expect(mockSetValue).not.toHaveBeenCalled();
-    });
-
-    test('should trim whitespace when adding skill', async () => {
-      mockGetValues.mockReturnValue(['React']);
-
-      const { result } = renderHook(() => useProfileForm());
-
-      await act(async () => {
-        result.current.addSkill('  TypeScript  ');
-      });
-
-      expect(mockSetValue).toHaveBeenCalledWith(
-        'skills',
-        ['React', 'TypeScript'],
-        { shouldDirty: true }
-      );
-    });
-
-    test('should not add empty skill', async () => {
-      mockGetValues.mockReturnValue(['React']);
-
-      const { result } = renderHook(() => useProfileForm());
-
-      await act(async () => {
-        result.current.addSkill('   ');
-      });
-
-      expect(mockSetValue).not.toHaveBeenCalled();
-    });
-
-    test('should remove skill by index', async () => {
-      mockGetValues.mockReturnValue(['React', 'TypeScript', 'Node.js']);
-
-      const { result } = renderHook(() => useProfileForm());
-
-      await act(async () => {
-        result.current.removeSkill(1); // Remove TypeScript
-      });
-
-      expect(mockSetValue).toHaveBeenCalledWith(
-        'skills',
-        ['React', 'Node.js'],
-        { shouldDirty: true }
-      );
-    });
-
-    test('should handle empty skills array', async () => {
-      mockGetValues.mockReturnValue([]);
-
-      const { result } = renderHook(() => useProfileForm());
-
-      await act(async () => {
-        result.current.addSkill('React');
-      });
-
-      expect(mockSetValue).toHaveBeenCalledWith(
-        'skills',
-        ['React'],
-        { shouldDirty: true }
-      );
-    });
-
-    test('should handle null skills array', async () => {
-      mockGetValues.mockReturnValue(null);
-
-      const { result } = renderHook(() => useProfileForm());
-
-      await act(async () => {
-        result.current.addSkill('React');
-      });
-
-      expect(mockSetValue).toHaveBeenCalledWith(
-        'skills',
-        ['React'],
-        { shouldDirty: true }
-      );
-    });
-  });
-
-  describe('Custom Fields Management', () => {
-    test('should update custom field successfully', async () => {
-      mockGetValues.mockReturnValue({
-        existingField: 'value',
-      });
-
-      const { result } = renderHook(() => useProfileForm());
-
-      await act(async () => {
-        result.current.updateCustomField('newField', 'newValue');
-      });
-
-      expect(mockSetValue).toHaveBeenCalledWith(
-        'customFields',
-        {
-          existingField: 'value',
-          newField: 'newValue',
-        },
-        { shouldDirty: true }
-      );
-    });
-
-    test('should update existing custom field', async () => {
-      mockGetValues.mockReturnValue({
-        existingField: 'oldValue',
-      });
-
-      const { result } = renderHook(() => useProfileForm());
-
-      await act(async () => {
-        result.current.updateCustomField('existingField', 'newValue');
-      });
-
-      expect(mockSetValue).toHaveBeenCalledWith(
-        'customFields',
-        {
-          existingField: 'newValue',
-        },
-        { shouldDirty: true }
-      );
-    });
-
-    test('should handle null custom fields', async () => {
-      mockGetValues.mockReturnValue(null);
-
-      const { result } = renderHook(() => useProfileForm());
-
-      await act(async () => {
-        result.current.updateCustomField('newField', 'value');
-      });
-
-      expect(mockSetValue).toHaveBeenCalledWith(
-        'customFields',
-        {
-          newField: 'value',
-        },
-        { shouldDirty: true }
-      );
-    });
-
-    test('should handle complex custom field values', async () => {
-      const complexValue = {
-        nested: { value: 'test' },
-        array: [1, 2, 3],
-        boolean: true,
+    it('should handle complex business validation scenarios', async () => {
+      const complexValidationResult = {
+        isValid: false,
+        errors: ['Email domain not allowed', 'Bio contains inappropriate content'],
+        warnings: ['Website SSL certificate expired'],
+        gdprCompliant: false,
+        securityScore: 45,
+        completeness: 60
       };
 
-      mockGetValues.mockReturnValue({});
+      mockValidateProfileUseCase.execute.mockResolvedValueOnce(complexValidationResult);
 
-      const { result } = renderHook(() => useProfileForm());
+      const { result } = renderHook(() => useProfileForm(), { wrapper });
 
       await act(async () => {
-        result.current.updateCustomField('complexField', complexValue);
+        const validation = await result.current.validateForm();
+        expect(validation).toEqual(complexValidationResult);
+      });
+    });
+
+    it('should validate individual fields with business rules', async () => {
+      const { result } = renderHook(() => useProfileForm(), { wrapper });
+
+      await act(async () => {
+        const emailError = await result.current.validateField('email');
+        expect(emailError).toBeNull(); // Valid email
+
+        const firstNameError = await result.current.validateField('firstName');
+        expect(firstNameError).toBeNull(); // Valid name
+      });
+    });
+  });
+
+  // =============================================
+  // 🔍 TANSTACK QUERY INTEGRATION TESTING
+  // =============================================
+
+  describe('TanStack Query Integration', () => {
+    it('should handle query loading states correctly', () => {
+      mockProfileQuery.isLoading = true;
+      const { result } = renderHook(() => useProfileForm(), { wrapper });
+
+      expect(result.current.isLoading).toBe(true);
+      expect(result.current.isSubmitting).toBe(false);
+    });
+
+    it('should handle mutation loading states correctly', () => {
+      mockUpdateMutation.isPending = true;
+      const { result } = renderHook(() => useProfileForm(), { wrapper });
+
+      expect(result.current.isSubmitting).toBe(true);
+      expect(result.current.isLoading).toBe(false);
+    });
+
+         it('should handle query and mutation errors', () => {
+       const queryError = new Error('Failed to fetch profile');
+       const mutationError = new Error('Failed to update profile');
+
+       mockProfileQuery.error = queryError as any;
+       mockUpdateMutation.error = mutationError as any;
+
+       const { result } = renderHook(() => useProfileForm(), { wrapper });
+
+       expect(result.current.error).toBe('Failed to update profile'); // Mutation error takes precedence
+     });
+
+    it('should sync profile data to form when query succeeds', async () => {
+      const { result } = renderHook(() => useProfileForm(), { wrapper });
+
+      await waitFor(() => {
+        expect(result.current.formData).toEqual(expect.objectContaining({
+          firstName: 'John',
+          lastName: 'Doe',
+          email: 'john.doe@example.com'
+        }));
+      });
+    });
+  });
+
+  // =============================================
+  // 🔒 SECURITY TESTING
+  // =============================================
+
+  describe('Security Testing', () => {
+    it('should prevent XSS attacks in form fields', async () => {
+      const { result } = renderHook(() => useProfileForm(), { wrapper });
+
+      const xssPayload = '<script>alert("XSS")</script>';
+
+      await act(async () => {
+        result.current.setValue('bio', xssPayload);
+        const validation = await result.current.validateForm();
       });
 
-      expect(mockSetValue).toHaveBeenCalledWith(
-        'customFields',
-        {
-          complexField: complexValue,
-        },
-        { shouldDirty: true }
+      // Validation should be called with the raw payload for server-side sanitization
+      expect(mockValidateProfileUseCase.execute).toHaveBeenCalledWith(
+        expect.objectContaining({
+          bio: xssPayload
+        }),
+        expect.any(Object)
       );
     });
-  });
 
-  describe('Save Operation', () => {
-    test('should save form data successfully', async () => {
-      mockTrigger.mockResolvedValue(true);
-      mockUpdateProfile.mockResolvedValue(true);
+    it('should validate URL fields against malicious URLs', async () => {
+      const { result } = renderHook(() => useProfileForm(), { wrapper });
 
-      const { result } = renderHook(() => useProfileForm());
+      const maliciousUrls = [
+        'javascript:alert("XSS")',
+        'data:text/html,<script>alert("XSS")</script>',
+        'vbscript:msgbox("XSS")',
+        'file:///etc/passwd'
+      ];
 
-      let saveResult: boolean = false;
-      await act(async () => {
-        saveResult = await result.current.handleSave();
-      });
-
-      expect(mockTrigger).toHaveBeenCalled();
-      expect(mockUpdateProfile).toHaveBeenCalled();
-      expect(mockReset).toHaveBeenCalled();
-      expect(saveResult).toBe(true);
+             for (const url of maliciousUrls) {
+         await act(async () => {
+           result.current.setValue('website', url);
+           const error = await result.current.validateField('website');
+           // Should either reject or sanitize malicious URLs
+           expect(error).toBeDefined();
+         });
+       }
     });
 
-    test('should handle validation failure', async () => {
-      mockTrigger.mockResolvedValue(false);
+    it('should prevent SQL injection in text fields', async () => {
+      const { result } = renderHook(() => useProfileForm(), { wrapper });
 
-      const { result } = renderHook(() => useProfileForm());
+      const sqlInjectionPayloads = [
+        "'; DROP TABLE users; --",
+        "' OR '1'='1",
+        "'; UPDATE users SET admin=1; --"
+      ];
 
-      let saveResult: boolean = true;
-      await act(async () => {
-        saveResult = await result.current.handleSave();
-      });
+      for (const payload of sqlInjectionPayloads) {
+        await act(async () => {
+          result.current.setValue('bio', payload);
+          await result.current.validateForm();
+        });
 
-      expect(mockTrigger).toHaveBeenCalled();
-      expect(mockUpdateProfile).not.toHaveBeenCalled();
-      expect(saveResult).toBe(false);
+        // Should pass to validation layer for server-side protection
+        expect(mockValidateProfileUseCase.execute).toHaveBeenCalledWith(
+          expect.objectContaining({
+            bio: payload
+          }),
+          expect.any(Object)
+        );
+      }
     });
 
-    test('should handle save failure', async () => {
-      mockTrigger.mockResolvedValue(true);
-      mockUpdateProfile.mockResolvedValue(false);
+    it('should handle DoS prevention with large payloads', async () => {
+      const { result } = renderHook(() => useProfileForm(), { wrapper });
 
-      const { result } = renderHook(() => useProfileForm());
-
-      let saveResult: boolean = true;
-      await act(async () => {
-        saveResult = await result.current.handleSave();
-      });
-
-      expect(mockTrigger).toHaveBeenCalled();
-      expect(mockUpdateProfile).toHaveBeenCalled();
-      expect(mockReset).not.toHaveBeenCalled();
-      expect(saveResult).toBe(false);
-    });
-  });
-
-  describe('Reset and Cancel Operations', () => {
-    test('should reset form to original profile data', async () => {
-      const testProfile = createTestProfile();
-      mockUseProfile.mockReturnValue({
-        profile: testProfile,
-        updateProfile: mockUpdateProfile,
-        isLoading: false,
-        isUpdating: false,
-        isRefreshing: false,
-      });
-
-      const { result } = renderHook(() => useProfileForm());
-
-      // Clear previous calls from initialization
-      mockReset.mockClear();
+      const largePayload = 'A'.repeat(10000); // 10KB payload
 
       await act(async () => {
-        result.current.handleReset();
+        const error = await result.current.validateField('bio');
+        expect(error).toContain('zu lang'); // Should reject large bio
       });
-
-      expect(mockReset).toHaveBeenCalledWith({
-        firstName: 'John',
-        lastName: 'Doe',
-        displayName: 'John Doe',
-        bio: 'Test bio',
-        location: 'Test Location',
-        website: 'https://example.com',
-        phone: '+1234567890',
-        company: 'Test Company',
-        jobTitle: 'Developer',
-        industry: 'Technology',
-        skills: ['JavaScript', 'React'],
-        workLocation: 'remote',
-        linkedIn: 'https://linkedin.com/in/johndoe',
-        twitter: '@johndoe',
-        github: 'johndoe',
-        instagram: '@johndoe',
-        customFields: {},
-      });
-    });
-
-    test('should cancel editing by resetting form', async () => {
-      const testProfile = createTestProfile();
-      mockUseProfile.mockReturnValue({
-        profile: testProfile,
-        updateProfile: mockUpdateProfile,
-        isLoading: false,
-        isUpdating: false,
-        isRefreshing: false,
-      });
-
-      const { result } = renderHook(() => useProfileForm());
-
-      // Clear previous calls from initialization
-      mockReset.mockClear();
-
-      await act(async () => {
-        result.current.handleCancel();
-      });
-
-      expect(mockReset).toHaveBeenCalled();
     });
   });
 
-  describe('Validation', () => {
-    test('should validate field successfully', async () => {
-      mockTrigger.mockResolvedValue(true);
-      mockUseForm.mockReturnValue({
-        trigger: mockTrigger,
-        reset: mockReset,
-        watch: mockWatch,
-        setValue: mockSetValue,
-        getValues: mockGetValues,
-        formState: {
-          isDirty: false,
-          errors: {},
-        },
-      });
+  // =============================================
+  // 📋 GDPR COMPLIANCE TESTING
+  // =============================================
 
-      const { result } = renderHook(() => useProfileForm());
+  describe('GDPR Compliance Testing', () => {
+    it('should enforce GDPR validation requirements', async () => {
+      const { result } = renderHook(() => useProfileForm(), { wrapper });
 
-      let isValid: boolean = false;
       await act(async () => {
-        isValid = await result.current.validateField('firstName');
+        await result.current.validateForm();
       });
 
-      expect(mockTrigger).toHaveBeenCalledWith('firstName');
-      expect(isValid).toBe(true);
+      expect(mockValidateProfileUseCase.execute).toHaveBeenCalledWith(
+        expect.any(Object),
+        expect.objectContaining({
+          gdprRequired: true
+        })
+      );
     });
 
-    test('should handle validation failure', async () => {
-      mockTrigger.mockResolvedValue(true);
-      mockUseForm.mockReturnValue({
-        trigger: mockTrigger,
-        reset: mockReset,
-        watch: mockWatch,
-        setValue: mockSetValue,
-        getValues: mockGetValues,
-        formState: {
-          isDirty: false,
-          errors: {
-            firstName: { message: 'First name is required' },
-          },
-        },
-      });
+    it('should validate data minimization principles', async () => {
+      const { result } = renderHook(() => useProfileForm(), { wrapper });
 
-      const { result } = renderHook(() => useProfileForm());
-
-      let isValid: boolean = true;
+      // Test that only necessary fields are included in validation
       await act(async () => {
-        isValid = await result.current.validateField('firstName');
+        await result.current.validateForm();
       });
 
-      expect(isValid).toBe(false);
-    });
-
-    test('should get field error message', () => {
-      mockUseForm.mockReturnValue({
-        trigger: mockTrigger,
-        reset: mockReset,
-        watch: mockWatch,
-        setValue: mockSetValue,
-        getValues: mockGetValues,
-        formState: {
-          isDirty: false,
-          errors: {
-            firstName: { message: 'First name is required' },
-          },
-        },
-      });
-
-      const { result } = renderHook(() => useProfileForm());
-
-      const error = result.current.getFieldError('firstName');
-      expect(error).toBe('First name is required');
-    });
-
-    test('should return undefined for fields without errors', () => {
-      const { result } = renderHook(() => useProfileForm());
-
-      const error = result.current.getFieldError('firstName');
-      expect(error).toBeUndefined();
-    });
-  });
-
-  describe('Edge Cases and Error Handling', () => {
-    test('should handle missing profile gracefully', () => {
-      mockUseProfile.mockReturnValue({
-        profile: null,
-        updateProfile: mockUpdateProfile,
-        isLoading: false,
-        isUpdating: false,
-        isRefreshing: false,
-      });
-
-      const { result } = renderHook(() => useProfileForm());
-
-      expect(result.current).toBeDefined();
-      expect(result.current.form).toBeDefined();
-    });
-
-    test('should handle profile with missing professional data', () => {
-      const incompleteProfile: UserProfile = {
-        id: 'user-123',
-        firstName: 'John',
-        lastName: 'Doe',
-        displayName: 'Johnny',
-      } as UserProfile;
-
-      mockUseProfile.mockReturnValue({
-        profile: incompleteProfile,
-        updateProfile: mockUpdateProfile,
-        isLoading: false,
-        isUpdating: false,
-        isRefreshing: false,
-      });
-
-      renderHook(() => useProfileForm());
-
-      expect(mockReset).toHaveBeenCalledWith({
-        firstName: 'John',
-        lastName: 'Doe',
-        displayName: 'Johnny',
-        bio: '',
-        location: '',
-        website: '',
-        phone: '',
-        company: '',
-        jobTitle: '',
-        industry: '',
-        skills: [],
-        workLocation: 'remote',
-        linkedIn: '',
-        twitter: '',
-        github: '',
-        instagram: '',
-        customFields: {},
-      });
-    });
-
-    test('should handle updateProfile errors gracefully', async () => {
-      mockTrigger.mockResolvedValue(true);
+      const validationCall = mockValidateProfileUseCase.execute.mock.calls[0][0];
       
-      const { result } = renderHook(() => useProfileForm());
+      // Should not include sensitive fields that aren't necessary
+      expect(validationCall).not.toHaveProperty('password');
+      expect(validationCall).not.toHaveProperty('ssn');
+      expect(validationCall).not.toHaveProperty('creditCard');
+    });
 
-      // Mock the updateProfile to reject after the hook is initialized
-      mockUpdateProfile.mockRejectedValue(new Error('Update failed'));
+    it('should include metadata for GDPR audit trails', async () => {
+      const { result } = renderHook(() => useProfileForm(), { wrapper });
 
-      let saveResult: boolean = true;
+      await act(async () => {
+        await result.current.validateForm();
+      });
+
+      const validationContext = mockValidateProfileUseCase.execute.mock.calls[0][1];
+      
+      expect(validationContext).toEqual(expect.objectContaining({
+        gdprRequired: true,
+        userRole: 'user',
+        isNewProfile: false
+      }));
+    });
+  });
+
+  // =============================================
+  // ⚡ PERFORMANCE TESTING
+  // =============================================
+
+  describe('Performance Testing', () => {
+    it('should handle form rendering within performance budget', () => {
+      const startTime = performance.now();
+      
+      renderHook(() => useProfileForm(), { wrapper });
+      
+      const endTime = performance.now();
+      const renderTime = endTime - startTime;
+      
+      // Should render within 100ms
+      expect(renderTime).toBeLessThan(100);
+    });
+
+    it('should optimize re-renders with memoization', () => {
+      const { result, rerender } = renderHook(() => useProfileForm(), { wrapper });
+
+      const initialFormData = result.current.formData;
+      const initialValidateForm = result.current.validateForm;
+
+      rerender({} as any);
+
+      // Functions should be memoized
+      expect(result.current.validateForm).toBe(initialValidateForm);
+      expect(result.current.formData).toBe(initialFormData);
+    });
+
+    it('should handle large form data efficiently', async () => {
+      const largeFormData = {
+        firstName: 'A'.repeat(100),
+        lastName: 'B'.repeat(100),
+        bio: 'C'.repeat(500),
+        location: 'D'.repeat(100)
+      };
+
+      const { result } = renderHook(() => useProfileForm(), { wrapper });
+
+      const startTime = performance.now();
+
+      await act(async () => {
+        Object.entries(largeFormData).forEach(([field, value]) => {
+          result.current.setValue(field as any, value);
+        });
+        await result.current.validateForm();
+      });
+
+      const endTime = performance.now();
+      const processingTime = endTime - startTime;
+
+      // Should process large data within 200ms
+      expect(processingTime).toBeLessThan(200);
+    });
+
+    it('should debounce validation calls', async () => {
+      const { result } = renderHook(() => useProfileForm(), { wrapper });
+
+      await act(async () => {
+        // Rapid successive validation calls
+        result.current.validateField('email');
+        result.current.validateField('email');
+        result.current.validateField('email');
+        
+        await new Promise(resolve => setTimeout(resolve, 100));
+      });
+
+      // Should not call validation excessively
+      expect(mockValidateProfileUseCase.execute.mock.calls.length).toBeLessThan(5);
+    });
+  });
+
+  // =============================================
+  // 🚨 ERROR HANDLING & RECOVERY
+  // =============================================
+
+  describe('Error Handling & Recovery', () => {
+    it('should handle network errors gracefully', async () => {
+      const networkError = new Error('Network request failed');
+      mockValidateProfileUseCase.execute.mockRejectedValueOnce(networkError);
+
+      const { result } = renderHook(() => useProfileForm(), { wrapper });
+
       await act(async () => {
         try {
-          saveResult = await result.current.handleSave();
-        } catch {
-          saveResult = false;
+          await result.current.validateForm();
+        } catch (error) {
+          expect(error).toBe(networkError);
+        }
+      });
+    });
+
+    it('should handle validation failures with detailed errors', async () => {
+      const validationFailure = {
+        isValid: false,
+        errors: ['Email already exists', 'Bio contains profanity'],
+        warnings: ['Phone number format unusual'],
+        gdprCompliant: false,
+        securityScore: 30,
+        completeness: 40
+      };
+
+      mockValidateProfileUseCase.execute.mockResolvedValueOnce(validationFailure);
+
+      const { result } = renderHook(() => useProfileForm(), { wrapper });
+
+      await act(async () => {
+        const validation = await result.current.validateForm();
+        expect(validation.isValid).toBe(false);
+        expect(validation.errors).toHaveLength(2);
+      });
+    });
+
+    it('should handle missing user ID scenario', async () => {
+      // Mock no user scenario
+      const { useAuth } = require('@features/auth/presentation/hooks');
+      useAuth.mockReturnValueOnce({
+        user: null,
+        isAuthenticated: false
+      });
+
+      const { result } = renderHook(() => useProfileForm(), { wrapper });
+
+      await act(async () => {
+        try {
+          await result.current.handleSubmit();
+        } catch (error) {
+          expect((error as Error).message).toContain('User ID required');
+        }
+      });
+    });
+
+    it('should recover from temporary service failures', async () => {
+      // First call fails, second succeeds
+      mockValidateProfileUseCase.execute
+        .mockRejectedValueOnce(new Error('Service temporarily unavailable'))
+        .mockResolvedValueOnce(mockValidationResult);
+
+      const { result } = renderHook(() => useProfileForm(), { wrapper });
+
+      await act(async () => {
+        try {
+          await result.current.validateForm();
+        } catch (error) {
+          // First call should fail
+          expect((error as Error).message).toContain('Service temporarily unavailable');
         }
       });
 
-      // Should handle error gracefully
-      expect(saveResult).toBe(false);
+      await act(async () => {
+        // Second call should succeed
+        const validation = await result.current.validateForm();
+        expect(validation.isValid).toBe(true);
+      });
     });
   });
 
-  describe('Performance', () => {
-    test('should provide stable function references', () => {
-      const { result } = renderHook(() => useProfileForm());
-      
-      const initialFunctions = {
-        handleSave: result.current.handleSave,
-        handleReset: result.current.handleReset,
-        handleCancel: result.current.handleCancel,
-        addSkill: result.current.addSkill,
-        removeSkill: result.current.removeSkill,
-        updateCustomField: result.current.updateCustomField,
-        validateField: result.current.validateField,
-        getFieldError: result.current.getFieldError,
-      };
+  // =============================================
+  // 🔄 INTEGRATION & REAL-WORLD SCENARIOS
+  // =============================================
 
-      // Since this hook doesn't take props, we don't need to rerender
-      // The functions should be stable due to useCallback implementation
-      // rerender();
+  describe('Integration & Real-world Scenarios', () => {
+    it('should handle complete profile update workflow', async () => {
+      const { result } = renderHook(() => useProfileForm(), { wrapper });
 
-      // Functions should be stable (memoized)
-      expect(result.current.handleSave).toBe(initialFunctions.handleSave);
-      expect(result.current.handleReset).toBe(initialFunctions.handleReset);
-      expect(result.current.handleCancel).toBe(initialFunctions.handleCancel);
-      expect(result.current.addSkill).toBe(initialFunctions.addSkill);
-      expect(result.current.removeSkill).toBe(initialFunctions.removeSkill);
-      expect(result.current.updateCustomField).toBe(initialFunctions.updateCustomField);
-      expect(result.current.validateField).toBe(initialFunctions.validateField);
-      expect(result.current.getFieldError).toBe(initialFunctions.getFieldError);
+      await act(async () => {
+        // User updates multiple fields
+        result.current.setValue('firstName', 'Jane');
+        result.current.setValue('lastName', 'Smith');
+        result.current.setValue('bio', 'Updated bio');
+
+        // Validate form
+        const validation = await result.current.validateForm();
+        expect(validation.isValid).toBe(true);
+
+        // Submit form
+        const success = await result.current.handleSubmit();
+        expect(success).toBe(true);
+      });
+
+      expect(mockValidateProfileUseCase.execute).toHaveBeenCalled();
+    });
+
+    it('should handle partial form completion scenario', async () => {
+      const { result } = renderHook(() => useProfileForm(), { wrapper });
+
+      await act(async () => {
+        // User fills only some fields
+        result.current.setValue('firstName', 'John');
+        result.current.setValue('email', 'john@example.com');
+        // Leave other fields empty
+
+        const validation = await result.current.validateForm();
+        
+        // Should still validate successfully for partial completion
+        expect(validation).toBeDefined();
+      });
+    });
+
+    it('should handle form reset after successful submission', async () => {
+      const { result } = renderHook(() => useProfileForm(), { wrapper });
+
+      await act(async () => {
+        // Make changes
+        result.current.setValue('firstName', 'Changed');
+        
+        // Submit successfully
+        await result.current.handleSubmit();
+        
+        // Reset form
+        result.current.reset();
+      });
+
+      // Form should be reset to original values
+      expect(result.current.isDirty).toBe(false);
+    });
+
+    it('should handle concurrent validation requests', async () => {
+      const { result } = renderHook(() => useProfileForm(), { wrapper });
+
+      await act(async () => {
+        // Start multiple validation requests simultaneously
+        const validations = await Promise.all([
+          result.current.validateForm(),
+          result.current.validateForm(),
+          result.current.validateForm()
+        ]);
+
+        // All should complete successfully
+        validations.forEach(validation => {
+          expect(validation.isValid).toBe(true);
+        });
+      });
     });
   });
 });

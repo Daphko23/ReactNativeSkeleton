@@ -1,0 +1,223 @@
+{
+  "translation": {
+    "common": {
+      "loading": "Lädt...",
+      "loadingAccessibility": "Inhalt wird geladen",
+      "save": "Speichern",
+      "cancel": "Abbrechen",
+      "delete": "Löschen",
+      "edit": "Bearbeiten",
+      "close": "Schließen",
+      "back": "Zurück",
+      "next": "Weiter",
+      "previous": "Zurück",
+      "submit": "Senden",
+      "confirm": "Bestätigen",
+      "yes": "Ja",
+      "no": "Nein",
+      "ok": "OK",
+      "error": "Fehler",
+      "success": "Erfolgreich",
+      "warning": "Warnung",
+      "info": "Information",
+      "retry": "Wiederholen",
+      "refresh": "Aktualisieren"
+    },
+    "errors": {
+      "title": "Fehler",
+      "generic": "Ein unerwarteter Fehler ist aufgetreten",
+      "network": "Netzwerkfehler",
+      "timeout": "Zeitüberschreitung",
+      "unauthorized": "Nicht autorisiert",
+      "forbidden": "Zugriff verweigert",
+      "notFound": "Nicht gefunden",
+      "validation": "Validierungsfehler"
+    },
+    "error": {
+      "boundaryScreen": {
+        "title": "Etwas ist schief gelaufen",
+        "reload": "App neu laden"
+      }
+    },
+    "profile": {
+      "title": "Profil",
+      "editScreen": {
+        "title": "Profil bearbeiten",
+        "personalInfo": "Persönliche Informationen",
+        "firstName": "Vorname",
+        "lastName": "Nachname",
+        "displayName": "Angezeigter Name",
+        "bio": "Über mich",
+        "location": "Standort",
+        "website": "Website",
+        "phone": "Telefon",
+        "professionalInfo": "Berufliche Informationen",
+        "company": "Unternehmen",
+        "jobTitle": "Jobtitel",
+        "industry": "Branche",
+        "workLocationPreference": "Arbeitsort-Präferenz",
+        "remote": "Remote",
+        "onsite": "Vor Ort",
+        "hybrid": "Hybrid",
+        "skills": "Fähigkeiten",
+        "addSkill": "Fähigkeit hinzufügen",
+        "socialLinks": "Soziale Netzwerke",
+        "customFields": "Benutzerdefinierte Felder",
+        "customFieldsNote": "Hier können Sie zusätzliche Informationen über sich selbst hinzufügen.",
+        "notes": "Notizen",
+        "notesPlaceholder": "Zusätzliche Informationen über mich...",
+        "hobbies": "Hobbys",
+        "hobbiesPlaceholder": "Meine Hobbys und Interessen...",
+        "preferences": "Präferenzen",
+        "preferencesPlaceholder": "Persönliche Präferenzen...",
+        "save": "Speichern",
+        "cancel": "Abbrechen",
+        "success": "Profil erfolgreich aktualisiert",
+        "error": "Fehler beim Aktualisieren des Profils"
+      },
+      "customFields": {
+        "saving": "Speichere...",
+        "title": "Benutzerdefinierte Felder",
+        "scroll": {
+          "accessibility": "Benutzerdefinierte Felder scrollbare Liste"
+        },
+        "add": {
+          "button": "Feld hinzufügen",
+          "description": "Fügen Sie personalisierte Felder hinzu",
+          "accessibility": "Neues benutzerdefiniertes Feld hinzufügen",
+          "hint": "Tippen Sie hier, um ein neues Feld hinzuzufügen"
+        },
+        "current": {
+          "title": "Aktuelle Felder"
+        },
+        "templates": {
+          "title": "Vorlagen",
+          "showAll": "Alle anzeigen",
+          "showAllAccessibility": "Alle Vorlagen anzeigen",
+          "scroll": {
+            "accessibility": "Vorlagen scrollbare Liste"
+          }
+        },
+        "template": {
+          "accessibility": "Vorlage auswählen"
+        },
+        "fields": {
+          "title": "Felder"
+        },
+        "field": {
+          "add": {
+            "accessibility": "Feld hinzufügen"
+          },
+          "remove": {
+            "accessibility": "Feld entfernen"
+          },
+          "input": {
+            "accessibility": "Feldwert eingeben"
+          }
+        },
+        "fieldType": {
+          "accessibility": "Feldtyp auswählen"
+        },
+        "tips": {
+          "title": "Tipps für bessere Profile",
+          "relevant": "Relevante Informationen hinzufügen",
+          "professional": "Professionell bleiben",
+          "accurate": "Informationen aktuell halten",
+          "templates": "Vorlagen für Inspiration nutzen"
+        },
+        "save": {
+          "accessibility": "Benutzerdefinierte Felder speichern",
+          "hint": {
+            "disabled": "Fügen Sie Felder hinzu, um zu speichern"
+          }
+        }
+      }
+    },
+    "auth": {
+      "loginScreen": {
+        "title": "Anmelden",
+        "email": "E-Mail",
+        "password": "Passwort",
+        "login": "Anmelden",
+        "forgotPassword": "Passwort vergessen?",
+        "noAccount": "Noch kein Konto?",
+        "signup": "Registrieren",
+        "errors": {
+          "emailRequired": "E-Mail ist erforderlich",
+          "emailInvalid": "Ungültige E-Mail-Adresse",
+          "passwordRequired": "Passwort ist erforderlich"
+        }
+      },
+      "registerScreen": {
+        "title": "Registrieren",
+        "firstName": "Vorname",
+        "lastName": "Nachname",
+        "email": "E-Mail",
+        "password": "Passwort",
+        "confirmPassword": "Passwort bestätigen",
+        "register": "Registrieren",
+        "hasAccount": "Bereits ein Konto?",
+        "login": "Anmelden",
+        "errors": {
+          "firstNameRequired": "Vorname ist erforderlich",
+          "lastNameRequired": "Nachname ist erforderlich",
+          "emailRequired": "E-Mail ist erforderlich",
+          "emailInvalid": "Ungültige E-Mail-Adresse",
+          "passwordRequired": "Passwort ist erforderlich",
+          "passwordsDoNotMatch": "Passwörter stimmen nicht überein"
+        }
+      },
+      "mfaScreen": {
+        "title": "Zwei-Faktor-Authentifizierung",
+        "subtitle": "Geben Sie den Code aus Ihrer Authenticator-App ein",
+        "code": "Bestätigungscode",
+        "verify": "Verifizieren",
+        "errors": {
+          "title": "Fehler bei der Verifizierung"
+        }
+      },
+      "terms": {
+        "title": "Nutzungsbedingungen",
+        "accept": "Ich akzeptiere die Nutzungsbedingungen",
+        "privacy": "Datenschutzrichtlinie",
+        "agree": "Zustimmen"
+      },
+      "emailVerificationScreen": {
+        "title": "E-Mail verifizieren",
+        "sent": "Wir haben Ihnen eine E-Mail gesendet",
+        "resend": "E-Mail erneut senden",
+        "verified": "E-Mail erfolgreich verifiziert"
+      },
+      "passwordStrengthScreen": {
+        "weak": "Schwach",
+        "medium": "Mittel",
+        "strong": "Stark"
+      },
+      "biometricScreen": {
+        "title": "Biometrische Authentifizierung",
+        "enable": "Biometrie aktivieren",
+        "touchId": "Touch ID verwenden",
+        "faceId": "Face ID verwenden"
+      },
+      "authNavigation": {
+        "login": "Anmelden",
+        "register": "Registrieren",
+        "forgotPassword": "Passwort vergessen"
+      },
+      "oauthScreen": {
+        "title": "Social Login",
+        "google": "Mit Google anmelden",
+        "apple": "Mit Apple anmelden",
+        "facebook": "Mit Facebook anmelden"
+      },
+      "resetScreen": {
+        "title": "Passwort zurücksetzen",
+        "email": "E-Mail-Adresse",
+        "send": "Link senden",
+        "sent": "Link gesendet",
+        "errorTitle": "Fehler",
+        "errorMessage": "Link konnte nicht gesendet werden"
+      }
+    }
+  }
+} 

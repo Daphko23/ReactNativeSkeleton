@@ -90,18 +90,37 @@ export interface ProfessionalInfo {
 export type ExperienceLevel = 'entry' | 'junior' | 'mid' | 'senior' | 'lead' | 'executive';
 
 export interface PrivacySettings {
+  // Profile Visibility Controls
   profileVisibility: 'public' | 'private' | 'friends' | 'custom';
   emailVisibility: 'public' | 'private' | 'friends';
   phoneVisibility: 'public' | 'private' | 'friends';
   locationVisibility: 'public' | 'private' | 'friends';
   socialLinksVisibility: 'public' | 'private' | 'friends';
   professionalInfoVisibility: 'public' | 'private' | 'friends';
-  showOnlineStatus: boolean;
+  
+  // Social Interaction Controls
   allowDirectMessages: boolean;
   allowFriendRequests: boolean;
+  
+  // Online Presence Controls
+  showOnlineStatus: boolean;
+  showLastActive: boolean;
+  
+  // Discovery & Search Controls
+  searchVisibility: boolean;
+  directoryListing: boolean;
+  allowProfileViews: boolean;
+  
+  // Analytics & Tracking Controls (GDPR Compliance)
+  allowAnalytics: boolean;
+  allowThirdPartySharing: boolean;
+  trackProfileViews: boolean;
+  
+  // Communication Preferences
   emailNotifications: boolean;
   pushNotifications: boolean;
   marketingCommunications: boolean;
+  
   // Field-level privacy (erweiterbar)
   fieldPrivacy?: Record<string, 'public' | 'private' | 'friends'>;
 }

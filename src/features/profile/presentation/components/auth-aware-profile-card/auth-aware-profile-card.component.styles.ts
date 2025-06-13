@@ -20,6 +20,14 @@ export const createAuthAwareProfileCardStyles = (theme: any) => StyleSheet.creat
     elevation: 4,
     backgroundColor: theme.colors.surface,
   },
+  
+  // Loading & Error States
+  loadingCard: {
+    marginVertical: theme.spacing[2],
+    marginHorizontal: theme.spacing[4],
+    elevation: 4,
+    backgroundColor: theme.colors.surface,
+  },
   loadingContent: {
     alignItems: 'center',
     paddingVertical: theme.spacing[8],
@@ -29,24 +37,160 @@ export const createAuthAwareProfileCardStyles = (theme: any) => StyleSheet.creat
     color: theme.colors.text,
   },
   
-  // Compact Variant
-  compactHeader: {
+  // Card Content
+  content: {
+    padding: theme.spacing[4],
+  },
+  header: {
     flexDirection: 'row',
     alignItems: 'center',
+    marginBottom: theme.spacing[4],
+  },
+  
+  // Avatar
+  avatar: {
+    marginRight: theme.spacing[4],
   },
   avatarContainer: {
     position: 'relative',
     marginRight: theme.spacing[4],
   },
+  
+  // User Info
+  userInfo: {
+    flex: 1,
+  },
+  userName: {
+    fontSize: theme.typography.fontSizes.lg,
+    fontWeight: theme.typography.fontWeights.semibold,
+    color: theme.colors.text,
+    marginBottom: theme.spacing[1],
+  },
+  userEmail: {
+    fontSize: theme.typography.fontSizes.sm,
+    color: theme.colors.textSecondary,
+    marginBottom: theme.spacing[2],
+  },
+  
+  // Security Badges
+  badgesContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: theme.spacing[2],
+  },
   securityBadge: {
-    position: 'absolute',
-    bottom: -4,
-    right: -4,
+    marginRight: theme.spacing[2],
   },
   securityBadgeLarge: {
     position: 'absolute',
     bottom: -6,
     right: -6,
+  },
+  securityText: {
+    fontSize: theme.typography.fontSizes.xs,
+    color: theme.colors.textSecondary,
+  },
+  
+  // Progress
+  progressContainer: {
+    marginVertical: theme.spacing[3],
+  },
+  progressLabel: {
+    fontSize: theme.typography.fontSizes.sm,
+    color: theme.colors.text,
+    marginBottom: theme.spacing[2],
+  },
+  progressBar: {
+    height: 6,
+    borderRadius: 3,
+  },
+  
+  // Actions
+  actionsContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    marginTop: theme.spacing[3],
+  },
+  actionButtons: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: theme.spacing[2],
+  },
+  actionButton: {
+    flex: 1,
+    minWidth: 120,
+  },
+  
+  // Enhanced Info
+  enhancedContainer: {
+    marginTop: theme.spacing[4],
+    paddingTop: theme.spacing[3],
+    borderTopWidth: 1,
+    borderTopColor: theme.colors.outline,
+  },
+  enhancedSurface: {
+    padding: theme.spacing[3],
+    marginTop: theme.spacing[2],
+    borderRadius: theme.borderRadius.md,
+  },
+  enhancedRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingVertical: theme.spacing[2],
+  },
+  
+  // Permissions
+  permissionsContainer: {
+    marginTop: theme.spacing[3],
+  },
+  permissionsTitle: {
+    fontSize: theme.typography.fontSizes.sm,
+    fontWeight: theme.typography.fontWeights.semibold,
+    color: theme.colors.text,
+    marginBottom: theme.spacing[2],
+  },
+  permissionsSection: {
+    marginBottom: theme.spacing[2],
+  },
+  permissionsHint: {
+    fontSize: theme.typography.fontSizes.xs,
+    color: theme.colors.textSecondary,
+    marginBottom: theme.spacing[3],
+    fontStyle: 'italic',
+  },
+  permissionsButton: {
+    alignSelf: 'flex-start',
+  },
+  permissionGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: theme.spacing[2],
+  },
+  permissionChip: {
+    marginRight: theme.spacing[1],
+    marginBottom: theme.spacing[1],
+  },
+  permissionChipText: {
+    fontSize: theme.typography.fontSizes.xs,
+  },
+  
+  // Variant-specific Cards
+  adminCard: {
+    borderLeftWidth: 4,
+    borderLeftColor: theme.colors.primary,
+  },
+  compactCard: {
+    marginVertical: theme.spacing[1],
+  },
+  detailedCard: {
+    marginVertical: theme.spacing[3],
+  },
+  
+  // Compact Variant
+  compactHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
   },
   compactInfo: {
     flex: 1,
@@ -124,7 +268,7 @@ export const createAuthAwareProfileCardStyles = (theme: any) => StyleSheet.creat
   
   // Sections
   divider: {
-    marginVertical: theme.spacing[4],
+    marginVertical: theme.spacing[2],
   },
   sectionTitle: {
     fontSize: theme.typography.fontSizes.base,
@@ -190,30 +334,6 @@ export const createAuthAwareProfileCardStyles = (theme: any) => StyleSheet.creat
   permissionSection: {
     marginBottom: theme.spacing[2],
   },
-  permissionsSection: {
-    marginBottom: theme.spacing[2],
-  },
-  permissionsHint: {
-    fontSize: theme.typography.fontSizes.xs,
-    color: theme.colors.textSecondary,
-    marginBottom: theme.spacing[3],
-    fontStyle: 'italic',
-  },
-  permissionsButton: {
-    alignSelf: 'flex-start',
-  },
-  permissionGrid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: theme.spacing[2],
-  },
-  permissionChip: {
-    marginRight: theme.spacing[1],
-    marginBottom: theme.spacing[1],
-  },
-  permissionChipText: {
-    fontSize: theme.typography.fontSizes.xs,
-  },
   
   // Activity Section
   activitySection: {
@@ -265,18 +385,9 @@ export const createAuthAwareProfileCardStyles = (theme: any) => StyleSheet.creat
     marginHorizontal: theme.spacing[1],
   },
   
-  // Actions
+  // Actions Section
   actionsSection: {
     marginTop: theme.spacing[2],
-  },
-  actionButtons: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: theme.spacing[2],
-  },
-  actionButton: {
-    flex: 1,
-    minWidth: 120,
   },
   
   // Error States

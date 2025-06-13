@@ -1,221 +1,173 @@
 /**
- * ProfileContainer - Application Layer DI Container
- * Handles dependency injection for the profile feature following Clean Architecture
+ * 🎯 PROFILE DI CONTAINER - React Native 2025 Enterprise Standards
+ * 
+ * ✅ OPTIMIZED: ProfileService eliminated - redundant pass-through layer removed
+ * ✅ VEREINFACHT: Einfaches Service Registry Pattern
+ * - Keine externen DI Dependencies
+ * - Clean Architecture Compliance
+ * - Testing Support
  */
 
-import { ProfileDataSource } from '../../data/datasources/profile.datasource';
-import { ProfileRepositoryImpl } from '../../data/repositories/profile.repository.impl';
-import { IProfileService, ProfileServiceOptions } from '../../domain/interfaces/profile-service.interface';
-import { ProfileServiceImpl } from '../../data/services/profile.service.impl';
 import { LoggerFactory } from '@core/logging/logger.factory';
 import { LogCategory } from '@core/logging/logger.service.interface';
 
-// Use Cases
-import { GetUserProfileUseCase } from '../usecases/get-user-profile.usecase';
-import { UpdateUserProfileUseCase } from '../usecases/update-user-profile.usecase';
-import { DeleteUserProfileUseCase } from '../usecases/delete-user-profile.usecase';
-import { UploadAvatarUseCase } from '../usecases/upload-avatar.usecase';
-import { DeleteAvatarUseCase } from '../usecases/delete-avatar.usecase';
-import { GetAvatarUrlUseCase } from '../usecases/get-avatar-url.usecase';
+// 🎯 USE CASES
+import { ValidateProfileDataUseCase } from '../usecases/validate-profile-data.usecase';
 import { UpdatePrivacySettingsUseCase } from '../usecases/update-privacy-settings.usecase';
-import { CalculateProfileCompletionUseCase } from '../usecases/calculate-profile-completion.usecase';
-import { AvatarContainer } from '../../data/factories/avatar.container';
+import { ProfileValidator } from '../validation/profile.schemas';
 
-import type { IProfileRepository } from '../../data/repositories/profile.repository.impl';
+// 🏪 REPOSITORIES & SERVICES
+import { ProfileRepositoryImpl } from '../../data/repositories/profile.repository.impl';
+import { AvatarService } from '../../data/services/avatar.service';
 
-class ProfileContainer {
+// 📊 CONFIGURATION
+export interface ProfileContainerConfig {
+  enableMockData?: boolean;
+  logLevel?: 'debug' | 'info' | 'warn' | 'error';
+}
+
+/**
+ * Profile DI Container - Service Registry Pattern
+ * OPTIMIZED: Direct Repository usage, no redundant Service layer
+ */
+export class ProfileContainer {
   private logger = LoggerFactory.createServiceLogger('ProfileContainer');
-  // Data Layer
-  private _profileDataSource: ProfileDataSource | null = null;
-  private _profileRepository: IProfileRepository | null = null;
-  private _profileService: IProfileService | null = null;
+  private _isReady = false;
+  private config: ProfileContainerConfig;
   
-  // Application Layer - Use Cases
-  private _getUserProfileUseCase: GetUserProfileUseCase | null = null;
-  private _updateUserProfileUseCase: UpdateUserProfileUseCase | null = null;
-  private _deleteUserProfileUseCase: DeleteUserProfileUseCase | null = null;
-  private _uploadAvatarUseCase: UploadAvatarUseCase | null = null;
-  private _deleteAvatarUseCase: DeleteAvatarUseCase | null = null;
-  private _getAvatarUrlUseCase: GetAvatarUrlUseCase | null = null;
-  private _updatePrivacySettingsUseCase: UpdatePrivacySettingsUseCase | null = null;
-  private _calculateProfileCompletionUseCase: CalculateProfileCompletionUseCase | null = null;
+  // 🏪 SERVICE INSTANCES
+  private _avatarService!: AvatarService;
+  
+  // 🎯 USE CASES
+  private _validateProfileDataUseCase!: ValidateProfileDataUseCase;
+  private _updatePrivacySettingsUseCase!: UpdatePrivacySettingsUseCase;
+  
+  // 🏭 REPOSITORIES
+  private _profileRepository!: ProfileRepositoryImpl;
 
-  // Configuration
-  private _options: ProfileServiceOptions = {};
-  private _isInitialized = false;
+  // Validation
+  private _profileValidator!: ProfileValidator;
 
-  // === DATA LAYER DEPENDENCIES ===
-
-  get profileDataSource(): ProfileDataSource {
-    if (!this._profileDataSource) {
-      this._profileDataSource = new ProfileDataSource();
-    }
-    return this._profileDataSource;
+  constructor(config: ProfileContainerConfig = {}) {
+    this.config = {
+      enableMockData: false,
+      logLevel: 'info',
+      ...config
+    };
   }
 
-  get profileRepository(): IProfileRepository {
-    if (!this._profileRepository) {
-      this._profileRepository = new ProfileRepositoryImpl(this.profileDataSource);
+  async initialize(): Promise<void> {
+    try {
+      this.logger.info('Initializing Profile Container', LogCategory.BUSINESS, {});
+      
+      // Initialize Repository (Direct usage - no Service layer)
+      this._profileRepository = new ProfileRepositoryImpl();
+      
+      // Initialize Services
+      this._avatarService = new AvatarService();
+      
+      // Initialize Use Cases with Repository
+      this._validateProfileDataUseCase = new ValidateProfileDataUseCase();
+      this._updatePrivacySettingsUseCase = new UpdatePrivacySettingsUseCase(this._profileRepository);
+      
+      // Initialize Validation
+      this._profileValidator = new ProfileValidator();
+      
+      this._isReady = true;
+      this.logger.info('Profile Container initialized successfully (optimized)', LogCategory.BUSINESS, {});
+    } catch (error) {
+      this.logger.error('Profile Container initialization failed', LogCategory.BUSINESS, {}, error as Error);
+      throw error;
     }
+  }
+
+  // 🏪 REPOSITORIES (Direct access - no Service layer)
+  getProfileRepository(): ProfileRepositoryImpl {
+    this.ensureReady();
     return this._profileRepository;
   }
 
-  get profileService(): IProfileService {
-    if (!this._profileService) {
-      this._profileService = new ProfileServiceImpl(this.profileRepository, this._options);
-    }
-    return this._profileService;
+  // 🎯 USE CASES
+  getValidateProfileDataUseCase(): ValidateProfileDataUseCase {
+    this.ensureReady();
+    return this._validateProfileDataUseCase;
   }
 
-  // === APPLICATION LAYER DEPENDENCIES - USE CASES ===
-
-  get getUserProfileUseCase(): GetUserProfileUseCase {
-    if (!this._getUserProfileUseCase) {
-      this._getUserProfileUseCase = new GetUserProfileUseCase(this.profileService);
-    }
-    return this._getUserProfileUseCase;
-  }
-
-  get updateUserProfileUseCase(): UpdateUserProfileUseCase {
-    if (!this._updateUserProfileUseCase) {
-      this._updateUserProfileUseCase = new UpdateUserProfileUseCase(this.profileService);
-    }
-    return this._updateUserProfileUseCase;
-  }
-
-  get deleteUserProfileUseCase(): DeleteUserProfileUseCase {
-    if (!this._deleteUserProfileUseCase) {
-      this._deleteUserProfileUseCase = new DeleteUserProfileUseCase(this.profileService);
-    }
-    return this._deleteUserProfileUseCase;
-  }
-
-  get uploadAvatarUseCase(): UploadAvatarUseCase {
-    if (!this._uploadAvatarUseCase) {
-      this._uploadAvatarUseCase = new UploadAvatarUseCase(this.profileService);
-    }
-    return this._uploadAvatarUseCase;
-  }
-
-  get deleteAvatarUseCase(): DeleteAvatarUseCase {
-    if (!this._deleteAvatarUseCase) {
-      this._deleteAvatarUseCase = new DeleteAvatarUseCase(
-        AvatarContainer.getAvatarService(),
-        this.profileService
-      );
-    }
-    return this._deleteAvatarUseCase;
-  }
-
-  get getAvatarUrlUseCase(): GetAvatarUrlUseCase {
-    if (!this._getAvatarUrlUseCase) {
-      this._getAvatarUrlUseCase = new GetAvatarUrlUseCase();
-    }
-    return this._getAvatarUrlUseCase;
-  }
-
-  get updatePrivacySettingsUseCase(): UpdatePrivacySettingsUseCase {
-    if (!this._updatePrivacySettingsUseCase) {
-      this._updatePrivacySettingsUseCase = new UpdatePrivacySettingsUseCase(this.profileService);
-    }
+  getUpdatePrivacySettingsUseCase(): UpdatePrivacySettingsUseCase {
+    this.ensureReady();
     return this._updatePrivacySettingsUseCase;
   }
 
-  get calculateProfileCompletionUseCase(): CalculateProfileCompletionUseCase {
-    if (!this._calculateProfileCompletionUseCase) {
-      this._calculateProfileCompletionUseCase = new CalculateProfileCompletionUseCase();
-    }
-    return this._calculateProfileCompletionUseCase;
+  // 🏭 SERVICES
+  getAvatarService(): AvatarService {
+    this.ensureReady();
+    return this._avatarService;
   }
 
-  // === CONFIGURATION & LIFECYCLE ===
+  getProfileValidator(): ProfileValidator {
+    this.ensureReady();
+    return this._profileValidator;
+  }
 
-  async initialize(options: ProfileServiceOptions = {}): Promise<void> {
-    if (this._isInitialized) {
+  // 🎯 PUBLIC GETTERS
+  isReady(): boolean {
+    return this._isReady;
+  }
+
+  getConfig(): ProfileContainerConfig {
+    return { ...this.config };
+  }
+
+  async reset(): Promise<void> {
+    this._isReady = false;
+    await this.initialize();
+  }
+
+  setMockService(serviceName: string, mockInstance: any): void {
+    if (!this._isReady) {
+      this.logger.warn('Container not initialized for mocking', LogCategory.BUSINESS);
       return;
     }
-
-    this._options = {
-      enableRealTimeSync: true,
-      enableVersioning: true,
-      enableAnalytics: false,
-      maxVersions: 50,
-      compressionLevel: 5,
-      ...options,
-    };
-
-    // Initialize service if needed
-    const service = this.profileService;
-    if ('initialize' in service) {
-      await (service as any).initialize();
-    }
     
-    this._isInitialized = true;
-    this.logger.info('ProfileContainer initialized', LogCategory.INFRASTRUCTURE, {
-      metadata: { options: this._options }
-    });
+    switch (serviceName) {
+      case 'profileRepository':
+        this._profileRepository = mockInstance;
+        break;
+      case 'avatarService':
+        this._avatarService = mockInstance;
+        break;
+      case 'updatePrivacySettingsUseCase':
+        this._updatePrivacySettingsUseCase = mockInstance;
+        break;
+      default:
+        this.logger.warn(`Unknown service for mocking: ${serviceName}`, LogCategory.BUSINESS);
+    }
   }
 
-  isReady(): boolean {
-    return this._isInitialized;
-  }
-
-  getOptions(): ProfileServiceOptions {
-    return { ...this._options };
-  }
-
-  // === TESTING UTILITIES ===
-
-  /**
-   * For testing - allow injection of mock services
-   */
-  setProfileService(service: IProfileService): void {
-    this._profileService = service;
-    // Reset use cases to use new service
-    this._getUserProfileUseCase = null;
-    this._updateUserProfileUseCase = null;
-    this._deleteUserProfileUseCase = null;
-    this._uploadAvatarUseCase = null;
-    this._deleteAvatarUseCase = null;
-    this._getAvatarUrlUseCase = null;
-    this._updatePrivacySettingsUseCase = null;
-    this._calculateProfileCompletionUseCase = null;
-  }
-
-  /**
-   * For testing - allow injection of mock repository
-   */
-  setProfileRepository(repository: IProfileRepository): void {
-    this._profileRepository = repository;
-  }
-
-  /**
-   * For testing - allow injection of mock data source
-   */
-  setProfileDataSource(dataSource: ProfileDataSource): void {
-    this._profileDataSource = dataSource;
-    // Reset repository to use new data source
-    this._profileRepository = null;
-  }
-
-  /**
-   * Reset all dependencies (for testing)
-   */
-  reset(): void {
-    this._profileDataSource = null;
-    this._profileRepository = null;
-    this._profileService = null;
-    this._getUserProfileUseCase = null;
-    this._updateUserProfileUseCase = null;
-    this._deleteUserProfileUseCase = null;
-    this._uploadAvatarUseCase = null;
-    this._deleteAvatarUseCase = null;
-    this._getAvatarUrlUseCase = null;
-    this._updatePrivacySettingsUseCase = null;
-    this._calculateProfileCompletionUseCase = null;
-    this._isInitialized = false;
-    this._options = {};
+  private ensureReady(): void {
+    if (!this._isReady) {
+      throw new Error('ProfileContainer is not initialized. Call initialize() first.');
+    }
   }
 }
 
-export const profileContainer = new ProfileContainer(); 
+// 🏭 SINGLETON INSTANCE
+export const profileContainer = new ProfileContainer();
+
+// 🎯 CONVENIENCE HOOK
+export function useProfileContainer(): ProfileContainer {
+  return profileContainer;
+}
+
+// 🧪 TESTING UTILITIES
+export const resetProfileContainerForTesting = () => {
+  profileContainer.reset();
+};
+
+export const setMockProfileRepository = (mockRepository: any) => {
+  profileContainer.setMockService('profileRepository', mockRepository);
+};
+
+export const setMockUpdatePrivacySettingsUseCase = (mockUseCase: any) => {
+  profileContainer.setMockService('updatePrivacySettingsUseCase', mockUseCase);
+}; 

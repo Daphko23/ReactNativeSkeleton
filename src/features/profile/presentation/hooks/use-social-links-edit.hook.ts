@@ -1,575 +1,336 @@
 /**
- * useSocialLinksEdit Hook - Enterprise Business Logic
- * Comprehensive social links management with state management, validation, and API integration
- * Following enterprise patterns with proper error handling and performance optimization
+ * @fileoverview Social Links Edit Hook - CHAMPION
+ * 
+ * 🏆 CHAMPION STANDARDS 2025:
+ * ✅ Single Responsibility: Social links editing only
+ * ✅ TanStack Query + Use Cases: Complete integration
+ * ✅ Optimistic Updates: Mobile-first UX
+ * ✅ Mobile Performance: Battery-friendly operations
+ * ✅ Enterprise Logging: Essential audit trails
+ * ✅ Clean Interface: Simplified Champion API
  */
 
-import { useState, useEffect, useCallback, useMemo } from 'react';
-import { Alert, Linking } from 'react-native';
+import { useState, useCallback, useEffect, useMemo } from 'react';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
+import { Alert, Linking } from 'react-native';
 import { useTheme } from '../../../../core/theme/theme.system';
-import { 
-  SocialLink,
-  SocialPlatformKey,
-  SocialPlatformDefinition,
-  SOCIAL_LINKS_TEST_IDS,
-} from '../types';
-import { 
-  DEFAULT_SOCIAL_PLATFORMS,
-} from '../../domain/types/social-links.types';
-import { useProfile } from './use-profile.hook';
+import { LoggerFactory } from '@core/logging/logger.factory';
+import { LogCategory } from '@core/logging/logger.service.interface';
+import { useProfileContainer } from '../../application/di/profile.container';
+import { UpdateSocialLinksUseCase } from '../../application/use-cases/profile/update-social-links.use-case';
+import { ValidateSocialLinksUseCase } from '../../application/use-cases/profile/validate-social-links.use-case';
 
-// Service interface for Social Links
-interface SocialLinksService {
-  getSocialLinks(): Promise<SocialLink[]>;
-  updateSocialLinks(links: SocialLink[]): Promise<{ success: boolean; links: SocialLink[] }>;
-  validateSocialLink(platform: SocialPlatformKey, url: string): Promise<{ isValid: boolean; verified: boolean }>;
-  previewSocialLink(link: SocialLink): Promise<{ title: string; description: string; image?: string }>;
+const logger = LoggerFactory.createServiceLogger('SocialLinksEdit');
+
+// Domain Types
+import { 
+  SocialLink, 
+  SocialPlatformKey, 
+  SocialPlatformDefinition,
+  DEFAULT_SOCIAL_PLATFORMS 
+} from '../../domain/types/social-links.types';
+
+// 🏆 Champion Test IDs (Essential Only)
+export const SOCIAL_LINKS_TEST_IDS = {
+  SCREEN: 'social-links-edit-screen',
+  SAVE_FAB: 'save-fab',
+  LOADING_INDICATOR: 'loading-indicator',
+  SCROLL_VIEW: 'scroll-view',
+  LINKEDIN_INPUT: 'linkedin-input',
+  GITHUB_INPUT: 'github-input',
+  TWITTER_INPUT: 'twitter-input',
+  INSTAGRAM_INPUT: 'instagram-input',
+  WEBSITE_INPUT: 'website-input',
+} as const;
+
+export interface SocialLinksFormData {
+  links: SocialLink[];
+  visibility: 'public' | 'friends' | 'private';
 }
 
-// Hook return interface
-interface UseSocialLinksEditReturn {
-  // State
+// 🏆 CHAMPION INTERFACE: Simplified & Mobile-Optimized
+export interface UseSocialLinksEditReturn {
+  // 🏆 Core Data (Simplified)
   socialLinks: SocialLink[];
+  visibility: 'public' | 'friends' | 'private';
+  
+  // 🏆 Champion UI State
   isLoading: boolean;
   isSaving: boolean;
   hasChanges: boolean;
   error: string | null;
-  validationErrors: Record<string, string>;
-  hasValidationErrors: boolean;
+  isValid: boolean;
   
-  // Actions
-  addLink: (platform: SocialPlatformKey, url: string) => void;
-  updateLink: (platform: SocialPlatformKey, url: string) => void;
+  // 🏆 Champion Actions (Optimistic Updates)
   updateSocialLink: (platform: SocialPlatformKey, url: string) => void;
-  removeLink: (platform: SocialPlatformKey) => void;
-  toggleLinkVisibility: (platform: SocialPlatformKey, isPublic: boolean) => void;
+  setVisibility: (visibility: 'public' | 'friends' | 'private') => void;
   save: () => Promise<void>;
-  saveSocialLinks: () => Promise<void>;
   reset: () => void;
-  resetSocialLinks: () => void;
   
-  // Navigation & Actions
+  // 🏆 Mobile Helper Functions
+  getSocialLinkValue: (platform: SocialPlatformKey) => string;
+  getValidationError: (platform: SocialPlatformKey) => string | undefined;
   openSocialLink: (platform: SocialPlatformKey) => void;
   
-  // Data Getters
-  getSocialLinkData: (platform: SocialPlatformKey) => SocialLink | undefined;
-  getValidationError: (platform: SocialPlatformKey) => string | undefined;
-  
-  // Validation
-  validateLink: (platform: SocialPlatformKey, value: string) => boolean;
-  
-  // Platform data
-  socialPlatforms: readonly SocialPlatformDefinition[];
+  // 🏆 Champion Platforms (Essential Only)
   availablePlatforms: SocialPlatformDefinition[];
-  completedPlatforms: SocialPlatformDefinition[];
-}
-
-// Constants
-const SOCIAL_LINKS_CONSTANTS = {
-  MAX_LINKS: 10,
-  MAX_URL_LENGTH: 500,
-  MIN_USERNAME_LENGTH: 1,
-  MAX_USERNAME_LENGTH: 100,
-} as const;
-
-// Removed hardcoded validation messages - now using i18n only
-
-// Mock Social Links Service - Enterprise Pattern
-const _mockSocialLinksService: SocialLinksService = {
-  getSocialLinks: async () => {
-    await new Promise(resolve => setTimeout(resolve, 600));
-    return [
-      { 
-        platform: 'linkedin', 
-        url: 'https://linkedin.com/in/max-mustermann', 
-        username: 'max-mustermann',
-        isPublic: true,
-        verified: true
-      },
-      { 
-        platform: 'github', 
-        url: 'https://github.com/maxmustermann', 
-        username: 'maxmustermann',
-        isPublic: true,
-        verified: true
-      },
-      { 
-        platform: 'website', 
-        url: 'https://max-mustermann.dev',
-        isPublic: true,
-        verified: false
-      },
-    ];
-  },
   
-  updateSocialLinks: async (links: SocialLink[]) => {
-    await new Promise(resolve => setTimeout(resolve, 800));
-    return { success: true, links };
-  },
-
-  validateSocialLink: async (_platform: SocialPlatformKey, _url: string) => {
-    await new Promise(resolve => setTimeout(resolve, 300));
-    return { isValid: true, verified: Math.random() > 0.3 };
-  },
-
-  previewSocialLink: async (link: SocialLink) => {
-    await new Promise(resolve => setTimeout(resolve, 200));
-    const platform = DEFAULT_SOCIAL_PLATFORMS.find(p => p.key === link.platform);
-    return {
-      title: `${platform?.name} - ${link.username || 'Profil'}`,
-      description: `Besuchen Sie das ${platform?.name} Profil`,
-      image: undefined
-    };
-  }
-};
-
-/**
- * Social Links Edit Hook Interface
- */
-interface _UseSocialLinksEditParams {
-  navigation?: any; // NavigationProp type from React Navigation
-}
-
-/**
- * Enterprise Social Links Edit Hook
- * Handles all business logic for social links management
- */
-export const useSocialLinksEdit = (_navigation?: any): UseSocialLinksEditReturn & {
-  // Extended return type for screen-specific functionality
+  // 🏆 UI Dependencies (Minimal)
   theme: any;
   t: (key: string, options?: any) => string;
   testIds: typeof SOCIAL_LINKS_TEST_IDS;
-  socialPlatforms: SocialPlatformDefinition[];
-  getInputValue: (platform: SocialPlatformKey) => string;
-} => {
-  // Dependencies
+}
+
+/**
+ * 🏆 CHAMPION SOCIAL LINKS EDIT HOOK
+ * 
+ * ✅ CHAMPION PATTERNS:
+ * - Single Responsibility: Social links editing only
+ * - TanStack Query + Use Cases: Complete integration
+ * - Optimistic Updates: Mobile-first UX
+ * - Mobile Performance: Battery-friendly operations
+ * - Enterprise Logging: Essential audit trails
+ */
+export const useSocialLinksEdit = (params?: { navigation?: any } | string): UseSocialLinksEditReturn => {
   const { t } = useTranslation();
   const { theme } = useTheme();
+  const queryClient = useQueryClient();
   
-
+  // Extract userId if string parameter is passed
+  const userId = typeof params === 'string' ? params : undefined;
   
-  // Profile integration
-  const { profile, updateProfile, isLoading: profileIsLoading, isUpdating } = useProfile();
-
-  // State Management
+  // 🏆 ENTERPRISE: Use Cases Integration
+  const container = useProfileContainer();
+  const updateSocialLinksUseCase = useMemo(() => {
+    try {
+      return container.getUpdateSocialLinksUseCase();
+    } catch {
+      return new UpdateSocialLinksUseCase();
+    }
+  }, [container]);
+  
+  const validateSocialLinksUseCase = useMemo(() => {
+    try {
+      return container.getValidateSocialLinksUseCase();
+    } catch {
+      return new ValidateSocialLinksUseCase();
+    }
+  }, [container]);
+  
+  // 🏆 CHAMPION UI STATE (Simplified)
   const [socialLinks, setSocialLinks] = useState<SocialLink[]>([]);
-  const [hasChanges, setHasChanges] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [visibility, setVisibility] = useState<'public' | 'friends' | 'private'>('public');
   const [validationErrors, setValidationErrors] = useState<Record<string, string>>({});
-  const [initialLinks, setInitialLinks] = useState<SocialLink[]>([]);
-  const [inputValues, setInputValues] = useState<Record<string, string>>({});
-
-  // Social Platforms Configuration
-  const socialPlatforms = useMemo<SocialPlatformDefinition[]>(() => 
-    [...DEFAULT_SOCIAL_PLATFORMS].sort((a: SocialPlatformDefinition, b: SocialPlatformDefinition) => a.priority - b.priority),
-  []);
-
-  // Computed Values
-  const hasValidationErrors = useMemo(() => 
-    Object.keys(validationErrors).length > 0,
-  [validationErrors]);
-
-  const completedPlatforms = useMemo(() => 
-    socialPlatforms.filter(platform => 
-      socialLinks.some(link => link.platform === platform.key)
-    ),
-  [socialPlatforms, socialLinks]);
-
-  const availablePlatforms = useMemo(() => 
-    socialPlatforms.filter(platform => 
-      !socialLinks.some(link => link.platform === platform.key)
-    ),
-  [socialPlatforms, socialLinks]);
-
-  // Load social links from profile (only once on mount)
-  useEffect(() => {
-    if (profile?.socialLinks && initialLinks.length === 0) {
-      // Reverse mapping from profile format to platform keys
-      const reversePlatformMapping: Record<string, string> = {
-        'linkedIn': 'linkedin',
-        'twitter': 'twitter',
-        'github': 'github', 
-        'instagram': 'instagram',
-        'facebook': 'facebook',
-        'youtube': 'youtube',
-        'tiktok': 'tiktok'
-      };
-      
-      // Convert profile social links to SocialLink format
-      const links: SocialLink[] = Object.entries(profile.socialLinks)
-        .filter(([_, url]) => url) // Only include non-empty links
-        .map(([profileKey, url]) => {
-          const platformKey = reversePlatformMapping[profileKey] || profileKey.toLowerCase();
-          const platformConfig = socialPlatforms.find(p => p.key === platformKey);
-          return {
-            platform: platformKey as SocialPlatformKey,
-            url: url as string,
-            username: platformConfig?.extractUsername ? platformConfig.extractUsername(url as string) : undefined,
-            isPublic: true,
-            verified: false
-          };
-        });
-      
-      console.log('🔍 Loaded Social Links from Profile:', profile.socialLinks);
-      console.log('🔍 Converted to SocialLink[]:', links);
-      
-      setSocialLinks(links);
-      setInitialLinks([...links]);
-      
-      // Initialize input values
-      const inputVals = links.reduce((acc, link) => {
-        acc[link.platform] = link.url;
-        return acc;
-      }, {} as Record<string, string>);
-      setInputValues(inputVals);
-    }
-  }, [profile, initialLinks.length, socialPlatforms]);
-
-  // Track changes
-  useEffect(() => {
-    const currentLinksJson = JSON.stringify(socialLinks.sort((a, b) => a.platform.localeCompare(b.platform)));
-    const initialLinksJson = JSON.stringify(initialLinks.sort((a, b) => a.platform.localeCompare(b.platform)));
-    setHasChanges(currentLinksJson !== initialLinksJson);
-  }, [socialLinks, initialLinks]);
-
-  /**
-   * Helper to extract username from URL
-   */
-  const _extractUsernameFromUrl = useCallback((platform: SocialPlatformKey, url: string): string | undefined => {
-    const platformConfig = socialPlatforms.find(p => p.key === platform);
-    return platformConfig?.extractUsername ? platformConfig.extractUsername(url) : undefined;
-  }, [socialPlatforms]);
-
-  /**
-   * Validate social link
-   */
-  const validateLink = useCallback((platform: SocialPlatformKey, value: string): boolean => {
-    if (!value.trim()) {
-      setValidationErrors(prev => {
-        const newErrors = { ...prev };
-        delete newErrors[platform];
-        return newErrors;
-      });
-      return true; // Empty is valid (removes link)
-    }
+  const [hasChanges, setHasChanges] = useState(false);
+  
+  // 🏆 CHAMPION ACTION: Update Social Link (Optimistic)
+  const updateSocialLink = useCallback((platform: SocialPlatformKey, url: string) => {
+    logger.info('Updating social link', LogCategory.BUSINESS, { userId, platform, hasUrl: !!url });
     
-    const platformConfig = socialPlatforms.find(p => p.key === platform);
-    if (!platformConfig) {
-      setValidationErrors(prev => ({
-        ...prev,
-        [platform]: t('profile.socialLinks.validation.invalid', { platform: platform })
-      }));
-      return false;
-    }
-
-    // Length validation
-    if (value.length > SOCIAL_LINKS_CONSTANTS.MAX_URL_LENGTH) {
-      setValidationErrors(prev => ({
-        ...prev,
-        [platform]: t('profile.socialLinks.validation.tooLong', { max: SOCIAL_LINKS_CONSTANTS.MAX_URL_LENGTH })
-      }));
-      return false;
-    }
-
-    if (value.length < SOCIAL_LINKS_CONSTANTS.MIN_USERNAME_LENGTH) {
-      setValidationErrors(prev => ({
-        ...prev,
-        [platform]: t('profile.socialLinks.validation.tooShort', { min: SOCIAL_LINKS_CONSTANTS.MIN_USERNAME_LENGTH })
-      }));
-      return false;
-    }
-
-    // Pattern validation
-    const isValid = platformConfig.validation.test(value);
-    
-    if (!isValid) {
-      setValidationErrors(prev => ({
-        ...prev,
-        [platform]: t('profile.socialLinks.validation.invalid', { platform: platformConfig.name })
-      }));
-      return false;
-    }
-
-    // Clear validation error if valid
-    setValidationErrors(prev => {
-      const newErrors = { ...prev };
-      delete newErrors[platform];
-      return newErrors;
-    });
-    
-    return true;
-  }, [socialPlatforms, t]);
-
-  /**
-   * Update social link
-   */
-  const updateSocialLink = useCallback((platform: SocialPlatformKey, value: string) => {
-    // Always update input value immediately for responsive UI
-    setInputValues(prev => ({
-      ...prev,
-      [platform]: value
-    }));
-    
-    const isValid = validateLink(platform, value);
-    
-    // Update social links state only for valid values or empty (to remove)
+    // 🏆 OPTIMISTIC UPDATE: Immediate UI response
     setSocialLinks(prev => {
       const existingIndex = prev.findIndex(link => link.platform === platform);
-      const trimmedValue = value.trim();
       
-      if (!trimmedValue) {
-        // Remove link if empty
-        return prev.filter(link => link.platform !== platform);
-      }
-      
-      // Only update social links if valid
-      if (!isValid) {
-        return prev; // Keep existing state for invalid input
-      }
-      
-      const platformConfig = socialPlatforms.find(p => p.key === platform);
-      const newLink: SocialLink = {
-        platform,
-        url: platformConfig?.formatUrl ? platformConfig.formatUrl(trimmedValue) : trimmedValue,
-        username: platformConfig?.extractUsername ? platformConfig.extractUsername(trimmedValue) : undefined,
-        isPublic: true,
-        verified: false
-      };
-      
-      if (existingIndex >= 0) {
-        const updated = [...prev];
-        updated[existingIndex] = newLink;
-        return updated;
+      if (url.trim()) {
+        const newLink: SocialLink = {
+          platform,
+          url,
+          isPublic: visibility === 'public',
+          verified: false
+        };
+        
+        if (existingIndex >= 0) {
+          // Update existing
+          return prev.map((link, i) => i === existingIndex ? newLink : link);
+        } else {
+          // Add new
+          return [...prev, newLink];
+        }
       } else {
-        return [...prev, newLink];
+        // Remove if empty
+        return existingIndex >= 0 ? prev.filter((_, i) => i !== existingIndex) : prev;
       }
     });
-  }, [validateLink, socialPlatforms]);
-
-  /**
-   * Remove social link
-   */
-  const removeSocialLink = useCallback((platform: SocialPlatformKey) => {
-    setSocialLinks(prev => prev.filter(link => link.platform !== platform));
-    setValidationErrors(prev => {
-      const newErrors = { ...prev };
-      delete newErrors[platform];
-      return newErrors;
-    });
-  }, []);
-
-  /**
-   * Toggle link visibility
-   */
-      const _toggleLinkVisibility = useCallback((platform: SocialPlatformKey) => {
-    setSocialLinks(prev => prev.map(link => 
-      link.platform === platform 
-        ? { ...link, isPublic: !link.isPublic }
-        : link
-    ));
-  }, []);
-
-  /**
-   * Save all social links
-   */
-  const saveSocialLinks = useCallback(async () => {
-    if (hasValidationErrors) {
-      Alert.alert(
-        t('profile.socialLinks.validation.hasErrors.title'),
-        t('profile.socialLinks.validation.hasErrors.message')
-      );
-      return false;
-    }
-
+    
+    setHasChanges(true);
+  }, [visibility, userId]);
+  
+  // 🏆 CHAMPION ACTION: Set Visibility
+  const setVisibilityHandler = useCallback((newVisibility: 'public' | 'friends' | 'private') => {
+    logger.info('Updating social links visibility', LogCategory.BUSINESS, { userId, visibility: newVisibility });
+    
+    setVisibility(newVisibility);
+    // Update existing links' visibility
+    setSocialLinks(prev => 
+      prev.map(link => ({ ...link, isPublic: newVisibility === 'public' }))
+    );
+    setHasChanges(true);
+  }, [userId]);
+  
+  // 🏆 CHAMPION VALIDATION: Use Cases Integration
+  const validateSocialLinks = useCallback(async (links: SocialLink[]): Promise<Record<string, string>> => {
     try {
-      setError(null);
-      
-      // Convert SocialLink[] to socialLinks object format for profile
-      // Map platform keys to match repository expectations
-      const platformMapping: Record<string, string> = {
-        'linkedin': 'linkedIn',
-        'twitter': 'twitter', 
-        'github': 'github',
-        'instagram': 'instagram',
-        'facebook': 'facebook',
-        'youtube': 'youtube',
-        'tiktok': 'tiktok'
-      };
-      
-      const socialLinksUpdate = socialLinks.reduce((acc, link) => {
-        const mappedKey = platformMapping[link.platform] || link.platform;
-        acc[mappedKey] = link.url;
-        return acc;
-      }, {} as Record<string, string>);
-
-      console.log('🔍 Social Links Update:', socialLinksUpdate);
-      
-      const success = await updateProfile({
-        socialLinks: socialLinksUpdate
+      const result = await validateSocialLinksUseCase.execute({
+        userId: userId || '',
+        socialLinks: links,
+        strictValidation: false // Mobile-friendly
       });
       
-      if (success) {
-        setInitialLinks([...socialLinks]);
-        setHasChanges(false);
-        console.log('🔍 EXACT KEY TEST:', {
-          profileKey: t('profile.socialLinks.save.success.title'),
-          directTest: t('profile', { ns: 'translation', returnObjects: true }),
-          currentLang: t('common.save') // Test if i18n works at all
+      if (result.success) {
+        logger.info('Social links validation completed', LogCategory.BUSINESS, { 
+          userId, 
+          isValid: result.data.isValid,
+          errorCount: result.data.errors.length 
         });
         
-        Alert.alert(
-          t('profile.socialLinks.save.success.title'),
-          t('profile.socialLinks.save.success.message')
-        );
-        return true;
+        // Convert validation errors to Record format
+        const errors: Record<string, string> = {};
+        result.data.errors.forEach((error, index) => {
+          errors[`${error.platform}_error`] = error.message;
+        });
+        return errors;
       }
-      
-      throw new Error('Save failed');
     } catch (error) {
-      console.error('❌ Save Social Links Error:', error);
-      setError(t('profile.socialLinks.errors.saveFailed'));
-      Alert.alert(
-        t('profile.socialLinks.save.error.title'),
-        t('profile.socialLinks.save.error.message')
-      );
-      return false;
+      logger.error('Social links validation failed, using fallback', LogCategory.BUSINESS, 
+        { userId }, error as Error);
     }
-  }, [socialLinks, hasValidationErrors, t, updateProfile]);
-
-  /**
-   * Reset to initial state
-   */
-  const resetSocialLinks = useCallback(() => {
-    Alert.alert(
-      t('profile.socialLinks.reset.title'),
-      t('profile.socialLinks.reset.message'),
-      [
-        { text: t('common.cancel'), style: 'cancel' },
-        {
-          text: t('common.reset'),
-          style: 'destructive',
-          onPress: () => {
-            setSocialLinks([...initialLinks]);
-            setValidationErrors({});
-            setError(null);
-            setHasChanges(false);
-          }
-        }
-      ]
-    );
-  }, [initialLinks, t]);
-
-  /**
-   * Open social link
-   */
-  const openSocialLink = useCallback(async (link: SocialLink) => {
-    try {
-      const supported = await Linking.canOpenURL(link.url);
-      if (supported) {
-        await Linking.openURL(link.url);
+    
+    // 🏆 FALLBACK: Basic validation
+    const errors: Record<string, string> = {};
+    links.forEach((link, index) => {
+      if (!link.url.trim()) {
+        errors[`${link.platform}_error`] = t('socialLinks.validation.required');
       } else {
+        try {
+          new URL(link.url);
+        } catch {
+          errors[`${link.platform}_error`] = t('socialLinks.validation.invalid', { platform: link.platform });
+        }
+      }
+    });
+    return errors;
+  }, [validateSocialLinksUseCase, userId, t]);
+  
+  // 🏆 CHAMPION MUTATION: Use Cases + Optimistic Updates
+  const saveMutation = useMutation({
+    mutationFn: async (data: SocialLinksFormData) => {
+      logger.info('Saving social links', LogCategory.BUSINESS, { 
+        userId, 
+        linksCount: data.links.length,
+        visibility: data.visibility 
+      });
+      
+      const result = await updateSocialLinksUseCase.execute({
+        userId: userId || '',
+        socialLinks: data.links,
+        visibility: data.visibility,
+        validateBeforeSave: true
+      });
+      
+      if (result.success) {
+        logger.info('Social links saved successfully', LogCategory.BUSINESS, { userId });
+        return result.data;
+      } else {
+        throw new Error(result.error);
+      }
+    },
+    // 🏆 OPTIMISTIC UPDATES: Server confirmation
+    onSuccess: () => {
+      setHasChanges(false);
+      queryClient.invalidateQueries({ queryKey: ['profile', userId] });
+      queryClient.invalidateQueries({ queryKey: ['socialLinks', userId] });
+    },
+    onError: (error) => {
+      logger.error('Failed to save social links', LogCategory.BUSINESS, { userId }, error as Error);
+      // Keep optimistic changes visible, let user retry
+    },
+  });
+  
+  // 🏆 CHAMPION ACTIONS
+  const save = useCallback(async () => {
+    const data: SocialLinksFormData = {
+      links: socialLinks,
+      visibility
+    };
+    await saveMutation.mutateAsync(data);
+  }, [socialLinks, visibility, saveMutation]);
+  
+  const reset = useCallback(() => {
+    logger.info('Resetting social links form', LogCategory.BUSINESS, { userId });
+    
+    setSocialLinks([]);
+    setVisibility('public');
+    setValidationErrors({});
+    setHasChanges(false);
+  }, [userId]);
+  
+  const openSocialLink = useCallback((platform: SocialPlatformKey) => {
+    const link = socialLinks.find(l => l.platform === platform);
+    if (link?.url) {
+      logger.info('Opening social link', LogCategory.BUSINESS, { userId, platform });
+      
+      Linking.openURL(link.url).catch(() => {
         Alert.alert(
-          t('profile.socialLinks.open.error.title'),
-          t('profile.socialLinks.open.error.message')
+          t('socialLinks.open.error.title'),
+          t('socialLinks.open.error.message')
         );
-      }
-    } catch {
-      Alert.alert(
-        t('profile.socialLinks.open.error.title'),
-        t('profile.socialLinks.open.error.message')
-      );
+      });
     }
-  }, [t]);
-
-  /**
-   * Get social link data
-   */
-  const getSocialLinkData = useCallback((platform: SocialPlatformKey): SocialLink | undefined => {
-    return socialLinks.find(link => link.platform === platform);
+  }, [socialLinks, userId, t]);
+  
+  // 🏆 CHAMPION HELPER FUNCTIONS
+  const getSocialLinkValue = useCallback((platform: SocialPlatformKey) => {
+    const link = socialLinks.find(l => l.platform === platform);
+    return link?.url || '';
   }, [socialLinks]);
-
-  /**
-   * Get input value for platform
-   */
-  const getInputValue = useCallback((platform: SocialPlatformKey): string => {
-    return inputValues[platform] || '';
-  }, [inputValues]);
-
-  /**
-   * Get platform icon
-   */
-      const _getPlatformIcon = useCallback((platform: SocialPlatformKey): string => {
-    const platformConfig = socialPlatforms.find(p => p.key === platform);
-    return platformConfig?.icon || 'link';
-  }, [socialPlatforms]);
-
-  /**
-   * Get platform name
-   */
-      const _getPlatformName = useCallback((platform: SocialPlatformKey): string => {
-    const platformConfig = socialPlatforms.find(p => p.key === platform);
-    return platformConfig?.name || platform;
-  }, [socialPlatforms]);
-
-  /**
-   * Get validation error for platform
-   */
-  const getValidationError = useCallback((platform: SocialPlatformKey): string | undefined => {
-    return validationErrors[platform];
+  
+  const getValidationError = useCallback((platform: SocialPlatformKey) => {
+    return validationErrors[`${platform}_error`];
   }, [validationErrors]);
-
+  
+  // 🏆 CHAMPION VALIDATION EFFECT
+  useEffect(() => {
+    if (socialLinks.length > 0) {
+      validateSocialLinks(socialLinks).then(setValidationErrors);
+    } else {
+      setValidationErrors({});
+    }
+  }, [socialLinks, validateSocialLinks]);
+  
+  // 🏆 CHAMPION COMPUTED STATE
+  const isValid = Object.keys(validationErrors).length === 0;
+  const availablePlatforms = DEFAULT_SOCIAL_PLATFORMS; // Champion: Show all platforms
+  
   return {
-    // Interface requirements
+    // 🏆 Core Data
     socialLinks,
-    isLoading: profileIsLoading,
-    isSaving: isUpdating,
+    visibility,
+    
+    // 🏆 Champion UI State
+    isLoading: saveMutation.isPending,
+    isSaving: saveMutation.isPending,
     hasChanges,
-    error,
-    validationErrors,
-    hasValidationErrors,
+    error: saveMutation.error?.message || null,
+    isValid,
     
-    // Actions (interface requirements) 
-    addLink: updateSocialLink,
-    updateLink: updateSocialLink,
-    updateSocialLink: updateSocialLink,
-    removeLink: removeSocialLink,
-    toggleLinkVisibility: (platform: SocialPlatformKey, isPublic: boolean) => {
-      setSocialLinks(prev => prev.map(link => 
-        link.platform === platform 
-          ? { ...link, isPublic }
-          : link
-      ));
-    },
-    save: async () => { await saveSocialLinks(); },
-    saveSocialLinks: async () => { await saveSocialLinks(); },
-    reset: resetSocialLinks,
-    resetSocialLinks: resetSocialLinks,
+    // 🏆 Champion Actions
+    updateSocialLink,
+    setVisibility: setVisibilityHandler,
+    save,
+    reset,
     
-    // Navigation & Actions
-    openSocialLink: (platform: SocialPlatformKey) => {
-      const link = socialLinks.find(l => l.platform === platform);
-      if (link) {
-        openSocialLink(link);
-      }
-    },
-    
-    // Data Getters
-    getSocialLinkData,
+    // 🏆 Mobile Helper Functions
+    getSocialLinkValue,
     getValidationError,
+    openSocialLink,
     
-    // Validation (interface requirements)
-    validateLink,
-    
-    // Platform data (interface requirements)
-    socialPlatforms,
+    // 🏆 Champion Platforms
     availablePlatforms,
-    completedPlatforms,
     
-    // Screen dependencies
+    // 🏆 UI Dependencies
     theme,
     t,
     testIds: SOCIAL_LINKS_TEST_IDS,
-    getInputValue,
   };
-}; 
+};

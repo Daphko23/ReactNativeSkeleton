@@ -141,6 +141,46 @@ export interface SupabaseConfig {
    * @performance Affects latency for users
    */
   region?: string;
+
+  /**
+   * Storage configuration for file management
+   * 
+   * Configuration for Supabase Storage buckets and file operations
+   * including avatar storage, document management, and media files.
+   * 
+   * @type {StorageConfig}
+   * @optional
+   * @since 2.0.0
+   */
+  storage?: {
+    /**
+     * Avatar storage bucket configuration
+     */
+    avatars?: {
+      bucket: string;
+      maxFileSize: number;
+      allowedTypes: string[];
+      cacheControl?: string;
+    };
+  };
+}
+
+/**
+ * Storage Configuration Interface
+ * 
+ * Defines configuration for Supabase Storage buckets and file operations
+ * with type-safe bucket management and validation rules.
+ * 
+ * @interface StorageConfig
+ * @since 2.0.0
+ */
+export interface StorageConfig {
+  avatars: {
+    bucket: string;
+    maxFileSize: number;
+    allowedTypes: string[];
+    cacheControl?: string;
+  };
 }
 
 /**
@@ -228,6 +268,48 @@ const supabaseConfig: SupabaseConfig = {
   
   // Regional deployment configuration
   region: process.env.EXPO_PUBLIC_SUPABASE_REGION || 'us-east-1',
+
+  // Storage configuration
+  storage: {
+    avatars: {
+      bucket: process.env.EXPO_PUBLIC_SUPABASE_AVATAR_BUCKET || 'avatars',
+      maxFileSize: parseInt(process.env.EXPO_PUBLIC_SUPABASE_AVATAR_MAX_SIZE || '5242880'), // 5MB default
+      allowedTypes: (process.env.EXPO_PUBLIC_SUPABASE_AVATAR_ALLOWED_TYPES || 'image/jpeg,image/png,image/webp,image/gif').split(','),
+      cacheControl: process.env.EXPO_PUBLIC_SUPABASE_AVATAR_CACHE_CONTROL || '3600',
+    },
+  },
+};
+
+/**
+ * Avatar Storage Configuration Export
+ * 
+ * Centralized avatar storage configuration for use across services.
+ * Provides type-safe access to avatar bucket settings and validation rules.
+ * 
+ * @constant avatarStorageConfig
+ * @since 2.0.0
+ * @readonly
+ * 
+ * @example
+ * Using avatar storage configuration:
+ * ```tsx
+ * import { avatarStorageConfig } from '@/core/config/supabase.config';
+ * 
+ * // Validate file size
+ * const isValidSize = fileSize <= avatarStorageConfig.maxFileSize;
+ * 
+ * // Check file type
+ * const isValidType = avatarStorageConfig.allowedTypes.includes(fileType);
+ * 
+ * // Get bucket name
+ * const bucketName = avatarStorageConfig.bucket;
+ * ```
+ */
+export const avatarStorageConfig = supabaseConfig.storage?.avatars || {
+  bucket: 'avatars',
+  maxFileSize: 5 * 1024 * 1024, // 5MB
+  allowedTypes: ['image/jpeg', 'image/png', 'image/webp', 'image/gif'],
+  cacheControl: '3600',
 };
 
 /**

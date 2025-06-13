@@ -571,11 +571,11 @@ export const SocialLinksEditScreen: React.FC<SocialLinksEditScreenProps> = ({
     
     // Actions
     updateSocialLink,
-    saveSocialLinks,
+    save,
     openSocialLink,
     getSocialLinkData,
     getValidationError,
-    resetSocialLinks,
+    reset,
     
     // UI Dependencies
     theme,
@@ -583,6 +583,7 @@ export const SocialLinksEditScreen: React.FC<SocialLinksEditScreenProps> = ({
     testIds: _testIds,
     socialPlatforms,
     getInputValue,
+    updateSocialLinkByPlatform,
   } = useSocialLinksEdit({ navigation });
 
   // Styling
@@ -594,14 +595,14 @@ export const SocialLinksEditScreen: React.FC<SocialLinksEditScreenProps> = ({
       headerRight: () => (
         <IconButton
           icon="content-save"
-          onPress={saveSocialLinks}
+          onPress={save}
           disabled={!hasChanges || hasValidationErrors || isSaving}
           iconColor={hasChanges && !hasValidationErrors && !isSaving ? theme.colors.primary : theme.colors.disabled}
           testID={SOCIAL_LINKS_TEST_IDS.SAVE_FAB}
         />
       ),
     });
-  }, [navigation, saveSocialLinks, hasChanges, hasValidationErrors, isSaving, theme.colors.primary, theme.colors.disabled]);
+  }, [navigation, save, hasChanges, hasValidationErrors, isSaving, theme.colors.primary, theme.colors.disabled]);
 
   // Loading State
   if (isLoading) {
@@ -686,7 +687,7 @@ export const SocialLinksEditScreen: React.FC<SocialLinksEditScreenProps> = ({
                   key={platform.key}
                   platform={platform}
                   value={currentValue}
-                  onValueChange={(value) => updateSocialLink(platform.key, value)}
+                  onValueChange={(value) => updateSocialLinkByPlatform(platform.key as any, value)}
                   onPreview={() => existingLink && openSocialLink(platform.key)}
                   isValid={isValid}
                   isDisabled={isSaving}
@@ -732,7 +733,7 @@ export const SocialLinksEditScreen: React.FC<SocialLinksEditScreenProps> = ({
         {hasChanges && (
           <PrimaryButton
             label={t('profile.socialLinksScreen.actions.reset')}
-            onPress={resetSocialLinks}
+            onPress={reset}
           />
         )}
 

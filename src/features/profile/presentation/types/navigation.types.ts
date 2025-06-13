@@ -34,71 +34,59 @@ export interface BaseProfileScreenProps {
 }
 
 /**
- * Privacy Settings screen props
+ * Generic screen props type for all profile screens
  * 
- * @description Type-safe props for the Privacy Settings screen component.
+ * @description Unified type for all profile screen components.
+ * Replaces individual screen prop types for better maintainability.
  * 
- * @typedef {BaseProfileScreenProps} PrivacySettingsScreenProps
+ * @template T - Additional props specific to the screen
+ * @typedef {BaseProfileScreenProps & T} ProfileScreenProps
+ * @since 2.0.0
+ */
+export type ProfileScreenProps<T = object> = BaseProfileScreenProps & T;
+
+// =============================================================================
+// LEGACY TYPES - Deprecated but kept for backwards compatibility
+// =============================================================================
+
+/**
+ * @deprecated Use ProfileScreenProps instead
  * @since 1.0.0
  */
 export type PrivacySettingsScreenProps = BaseProfileScreenProps;
 
 /**
- * Custom Fields Edit screen props
- * 
- * @description Type-safe props for the Custom Fields Edit screen component.
- * 
- * @typedef {BaseProfileScreenProps} CustomFieldsEditScreenProps
+ * @deprecated Use ProfileScreenProps instead
  * @since 1.0.0
  */
 export type CustomFieldsEditScreenProps = BaseProfileScreenProps;
 
 /**
- * Account Settings screen props
- * 
- * @description Type-safe props for the Account Settings screen component.
- * 
- * @typedef {BaseProfileScreenProps} AccountSettingsScreenProps
+ * @deprecated Use ProfileScreenProps instead
  * @since 1.0.0
  */
 export type AccountSettingsScreenProps = BaseProfileScreenProps;
 
 /**
- * Social Links Edit screen props
- * 
- * @description Type-safe props for the Social Links Edit screen component.
- * 
- * @typedef {BaseProfileScreenProps} SocialLinksEditScreenProps
+ * @deprecated Use ProfileScreenProps instead
  * @since 1.0.0
  */
 export type SocialLinksEditScreenProps = BaseProfileScreenProps;
 
 /**
- * Profile Edit screen props
- * 
- * @description Type-safe props for the Profile Edit screen component.
- * 
- * @typedef {BaseProfileScreenProps} ProfileEditScreenProps
+ * @deprecated Use ProfileScreenProps instead
  * @since 1.0.0
  */
 export type ProfileEditScreenProps = BaseProfileScreenProps;
 
 /**
- * Avatar Upload screen props
- * 
- * @description Type-safe props for the Avatar Upload screen component.
- * 
- * @typedef {BaseProfileScreenProps} AvatarUploadScreenProps
+ * @deprecated Use ProfileScreenProps instead
  * @since 1.0.0
  */
 export type AvatarUploadScreenProps = BaseProfileScreenProps;
 
 /**
- * Skills Management screen props
- * 
- * @description Type-safe props for the Skills Management screen component.
- * 
- * @typedef {BaseProfileScreenProps} SkillsManagementScreenProps
+ * @deprecated Use ProfileScreenProps instead
  * @since 1.0.0
  */
 export type SkillsManagementScreenProps = BaseProfileScreenProps;

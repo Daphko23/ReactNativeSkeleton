@@ -38,7 +38,7 @@ import { PrimaryButton } from '@shared/components/buttons/primary-button.compone
 import { FormTextInput } from '@shared/components/form-text-input/form-text-input.component';
 import { FormErrorText } from '@shared/components/form-text-input/form-text-error.component';
 import { createPasswordResetScreenStyles } from './password-reset.screen.styles';
-import { useAuth } from '@features/auth/presentation/hooks/use-auth';
+import { useAuthPassword } from '@features/auth/presentation/hooks';
 import { useTranslation } from 'react-i18next';
 import { withGuestGuard } from '@shared/hoc/with-guest.guard';
 import { useTheme } from '@core/theme/theme.system';
@@ -83,7 +83,7 @@ interface TouchedFields {
  * - Professional UI design
  */
 const PasswordResetScreen = () => {
-  const { resetPassword, isLoading, error, clearError, enterprise: _enterprise } = useAuth();
+  const { resetPassword, isLoading, error, clearError } = useAuthPassword();
   const { t } = useTranslation();
   const navigation = useNavigation<NativeStackNavigationProp<AuthStackParamList>>();
   const { theme } = useTheme();
@@ -272,7 +272,7 @@ const PasswordResetScreen = () => {
           </Text>
         )}
 
-        <FormErrorText errorMessage={error} />
+        <FormErrorText errorMessage={error || ''} />
 
         <PrimaryButton
           label={t('auth.resetScreen.button') || 'Passwort zurücksetzen'}

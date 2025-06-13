@@ -39,6 +39,7 @@ export interface UserProfileRow {
   show_email?: boolean;
   show_phone?: boolean;
   show_social_links?: boolean;
+  privacy_settings?: Record<string, any>;
   custom_fields?: Record<string, any>;
   created_at?: string;
   updated_at?: string;

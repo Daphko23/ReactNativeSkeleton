@@ -63,9 +63,6 @@ export interface ProfileNavigationProps {
   /** Navigate to privacy settings screen */
   navigateToPrivacySettings: () => void;
   
-  /** Navigate to profile avatar demo screen */
-  navigateToProfileAvatarDemo: () => void;
-  
   /** Navigate to skills management screen */
   navigateToSkillsManagement: () => void;
   
@@ -110,7 +107,6 @@ export interface ProfileNavigationProps {
  * **Navigation Sections:**
  * - **Account Section**: Account settings, privacy settings
  * - **Profile Section**: Custom fields, skills management, social links
- * - **Advanced Section**: Avatar demo and experimental features
  * 
  * **Performance Features:**
  * - Memoized component with optimized re-rendering
@@ -143,7 +139,6 @@ export interface ProfileNavigationProps {
  *   navigateToCustomFieldsEdit={() => navigation.navigate('CustomFieldsEdit')}
  *   navigateToSkillsManagement={() => navigation.navigate('SkillsManagement')}
  *   navigateToSocialLinksEdit={() => navigation.navigate('SocialLinksEdit')}
- *   navigateToProfileAvatarDemo={() => navigation.navigate('AvatarDemo')}
  *   theme={theme}
  *   t={t}
  *   testIds={PROFILE_CONSTANTS.TEST_IDS}
@@ -166,7 +161,6 @@ export const ProfileNavigation: React.FC<ProfileNavigationProps> = React.memo(({
   navigateToAccountSettings,
   navigateToCustomFieldsEdit,
   navigateToPrivacySettings,
-  navigateToProfileAvatarDemo,
   navigateToSkillsManagement,
   navigateToSocialLinksEdit,
   theme,
@@ -234,20 +228,6 @@ export const ProfileNavigation: React.FC<ProfileNavigationProps> = React.memo(({
     },
   ], [navigateToCustomFieldsEdit, navigateToSkillsManagement, navigateToSocialLinksEdit, t, testIds, isLoading]);
 
-  // Advanced Section Actions
-  const advancedActions: ActionItem[] = React.useMemo(() => [
-    {
-      id: 'avatarDemo',
-      label: t('profile.mainScreen.avatarDemo'),
-      description: t('profile.mainScreen.avatarDemoHint'),
-      icon: 'account-box-multiple',
-      testID: `${testIds.NAVIGATION_SECTION}_avatar_demo`,
-      disabled: isLoading,
-      accessibilityLabel: t('profile.mainScreen.avatarDemoLabel'),
-      accessibilityHint: t('profile.mainScreen.avatarDemoHint'),
-    },
-  ], [navigateToProfileAvatarDemo, t, testIds, isLoading]);
-
   // Handler for all navigation actions
   const handleNavigationAction = (actionId: string) => {
     switch (actionId) {
@@ -265,9 +245,6 @@ export const ProfileNavigation: React.FC<ProfileNavigationProps> = React.memo(({
         break;
       case 'socialLinks':
         navigateToSocialLinksEdit();
-        break;
-      case 'avatarDemo':
-        navigateToProfileAvatarDemo();
         break;
       default:
         console.warn('Unknown navigation action:', actionId);
@@ -299,18 +276,6 @@ export const ProfileNavigation: React.FC<ProfileNavigationProps> = React.memo(({
         onActionPress={handleNavigationAction}
         theme={theme}
         testID={`${testIds.NAVIGATION_SECTION}_profile`}
-        compact={true}
-      />
-
-      <Divider style={styles.divider} />
-
-      {/* Advanced Section */}
-      <ActionCard
-        title={t('profile.mainScreen.advancedSection')}
-        actions={advancedActions}
-        onActionPress={handleNavigationAction}
-        theme={theme}
-        testID={`${testIds.NAVIGATION_SECTION}_advanced`}
         compact={true}
       />
     </View>

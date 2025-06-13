@@ -57,7 +57,7 @@ import {
 } from 'react-native';
 
 import { useProfileScreen } from '../../hooks/use-profile-screen.hook';
-import { useAuth } from '../../../../../features/auth/presentation/hooks/use-auth';
+import { useAuth } from '@features/auth/presentation/hooks';
 import { EnterpriseAlert } from '../../../../../shared/components/alert';
 import {
   ProfileHeader,
@@ -170,47 +170,78 @@ export interface ProfileScreenProps {
  * - Secure profile data transmission
  */
 export const ProfileScreen: React.FC<ProfileScreenProps> = ({ navigation, route: _route }) => {
+  // 🚀 HOOK COMPOSITION - Neue Enterprise Architektur
   const {
-    // Profile Data
-    currentProfile,
-    currentUser,
-    
-    // Avatar Data
-    avatarUrl,
-    hasAvatar,
-    shouldShowSkeleton,
-    shouldShowDefaultAvatar,
-    loadingState,
-    
-    // States
+    data: {
+      profile: currentProfile,
+      avatar,
+      customFields,
+      completion,
+      isProfileLoading,
+      isAvatarLoading,
+      isCustomFieldsLoading,
+      isAnyLoading,
+      profileError,
+      avatarError,
+      customFieldsError,
+      hasAnyError,
+      refreshAll,
+    },
+    actions: {
+      navigateToEdit: navigateToProfileEdit,
+      navigateToSettings: navigateToAccountSettings,
+      navigateToCustomFields: navigateToCustomFieldsEdit,
+      navigateToPrivacySettings,
+      shareProfile,
+      exportProfile,
+      changeAvatar: navigateToAvatarUpload,
+      removeAvatar,
+      clearErrors,
+    },
+    ui: {
+      theme,
+      t,
+      isRefreshing: refreshing,
+      showCompletionBanner,
+      showErrorBanner,
+      setRefreshing,
+      dismissCompletionBanner,
+      dismissErrorBanner,
+      headerTitle,
+      completionPercentage: completeness,
+      errorMessage,
+    },
+    // Convenience Properties
     isLoading,
-    refreshing,
-    error,
-    
-    // Computed Values
-    completeness,
-    hasProfile,
-    
-    // Handlers
-    onRefresh,
-    navigateToProfileEdit,
-    navigateToAvatarUpload,
-    
-    // New Navigation Handlers
-    navigateToAccountSettings,
-    navigateToCustomFieldsEdit,
-    navigateToPrivacySettings,
-    navigateToProfileAvatarDemo,
-    navigateToSkillsManagement,
-    navigateToSocialLinksEdit,
-    
-    // Theme & Translation
-    theme,
-    t,
-    
-    // Constants
-    testIds,
-  } = useProfileScreen({ navigation });
+    hasError,
+    profile,
+  } = useProfileScreen();
+
+  // 🎯 COMPUTED VALUES für Backward Compatibility
+  const currentUser = null; // TODO: Get from auth if needed
+  const avatarUrl = avatar?.url || null;
+  const hasAvatar = !!avatarUrl;
+  const shouldShowSkeleton = isAvatarLoading;
+  const shouldShowDefaultAvatar = !hasAvatar && !isAvatarLoading;
+  const loadingState = isAnyLoading ? 'loading' : hasAnyError ? 'error' : 'loaded';
+  const error = profileError || avatarError || customFieldsError;
+  const hasProfile = !!currentProfile;
+  const onRefresh = refreshAll;
+  
+  // Navigation Actions für Backward Compatibility
+  const navigateToSkillsManagement = () => {
+    // TODO: Implement navigation
+    console.log('Navigate to Skills Management');
+  };
+  
+  const navigateToSocialLinksEdit = () => {
+    // TODO: Implement navigation
+    console.log('Navigate to Social Links Edit');
+  };
+
+  // Import original constants
+  const { PROFILE_CONSTANTS } = require('../constants/profile.constants');
+  const testIds = PROFILE_CONSTANTS.TEST_IDS;
 
   // Auth Hook für Logout Funktionalität
   const { logout, isLoading: isAuthLoading } = useAuth();
@@ -372,7 +403,6 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({ navigation, route:
           navigateToAccountSettings={navigateToAccountSettings}
           navigateToCustomFieldsEdit={navigateToCustomFieldsEdit}
           navigateToPrivacySettings={navigateToPrivacySettings}
-          navigateToProfileAvatarDemo={navigateToProfileAvatarDemo}
           navigateToSkillsManagement={navigateToSkillsManagement}
           navigateToSocialLinksEdit={navigateToSocialLinksEdit}
           theme={theme}

@@ -25,9 +25,6 @@ import { useTheme } from '../theme/theme.system';
 import { ProfileNavigator } from '@features/profile/presentation/navigation/profile.navigator';
 import { NotificationCenterScreen } from '@features/notifications/presentation/screens/notification-center.screen';
 import { CreditNavigator } from '@features/credits/presentation/navigation/credit.navigator';
-import { ThemeDemoScreen } from '@features/profile/presentation/screens/theme-demo/theme-demo.screen';
-import ProfileComplianceDemoScreen from '@features/profile/presentation/screens/profile-compliance-demo/profile-compliance-demo.screen';
-import { AuthGDPRDemoScreen } from '@features/auth/presentation/screens/auth-gdpr-demo.screen';
 
 /**
  * Tab navigator instance for bottom navigation.
@@ -478,54 +475,6 @@ const HomeNavigator: React.FC = () => {
       <HomeStack.Screen 
         name="HomeMain" 
         component={HomeScreen} 
-      />
-      <HomeStack.Screen 
-        name="ThemeDemo" 
-        component={ThemeDemoScreen}
-        options={{
-          headerShown: true,
-          title: 'Theme Demo',
-          headerBackTitle: 'Zurück',
-          headerStyle: {
-            backgroundColor: theme.colors.surface,
-          },
-          headerTintColor: theme.colors.text,
-          headerTitleStyle: {
-            color: theme.colors.text,
-          },
-        }}
-      />
-      <HomeStack.Screen 
-        name="ProfileCompliance" 
-        component={ProfileComplianceDemoScreen}
-        options={{
-          headerShown: true,
-          title: 'Enterprise Compliance',
-          headerBackTitle: 'Zurück',
-          headerStyle: {
-            backgroundColor: theme.colors.surface,
-          },
-          headerTintColor: theme.colors.text,
-          headerTitleStyle: {
-            color: theme.colors.text,
-          },
-        }}
-      />
-      <HomeStack.Screen 
-        name="AuthGDPRDemo" 
-        component={AuthGDPRDemoScreen}
-        options={{
-          headerShown: true,
-          title: 'Auth GDPR Demo',
-          headerBackTitle: 'Zurück',
-          headerStyle: {
-            backgroundColor: theme.colors.surface,
-          },
-          headerTintColor: theme.colors.text,
-          headerTitleStyle: {
-            color: theme.colors.text,
-          },
-        }}
       />
     </HomeStack.Navigator>
   );

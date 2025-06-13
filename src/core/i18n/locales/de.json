@@ -88,7 +88,10 @@
       "errors": {
         "generic": "Ein unbekannter Fehler bei der Anmeldung ist aufgetreten.",
         "invalidCredentials": "Ungültige Anmeldedaten. Bitte versuchen Sie es erneut.",
-        "userNotFound": "Benutzer wurde nicht gefunden. Bitte überprüfen Sie Ihre Angaben."
+        "userNotFound": "Benutzer wurde nicht gefunden. Bitte überprüfen Sie Ihre Angaben.",
+        "emailRequired": "E-Mail ist erforderlich",
+        "emailInvalid": "Ungültige E-Mail-Adresse",
+        "passwordRequired": "Passwort ist erforderlich"
       },
       "orText": "oder",
       "passwordLabel": "Passwort",
@@ -109,6 +112,7 @@
         "verifying": "Wird verifiziert..."
       },
       "errors": {
+        "title": "MFA-Fehler",
         "codeRequired": "Bitte geben Sie den Verifizierungscode ein.",
         "invalidMethod": "Ungültige MFA-Methode gewählt.",
         "setupFailed": "MFA Setup fehlgeschlagen. Bitte versuchen Sie es erneut.",
@@ -189,7 +193,9 @@
         "strong": "Stark",
         "very_strong": "Sehr stark",
         "very_weak": "Sehr schwach",
-        "weak": "Schwach"
+        "weak": "Schwach",
+        "fair": "Angemessen",
+        "good": "Gut"
       },
       "title": "Passwort-Stärke"
     },
@@ -328,6 +334,8 @@
       "emailLabel": "E-Mail",
       "emailSentMessage": "Wir haben eine E-Mail an Ihre Adresse gesendet. Folgen Sie den Anweisungen in der E-Mail, um Ihr Passwort zurückzusetzen.",
       "emailSentTitle": "E-Mail gesendet!",
+      "errorTitle": "Fehler beim Zurücksetzen",
+      "errorMessage": "Es gab ein Problem beim Zurücksetzen Ihres Passworts. Bitte versuchen Sie es erneut.",
       "errors": {
         "errorMessage": "Passwort-Reset konnte nicht gestartet werden. Bitte versuchen Sie es erneut.",
         "errorTitle": "Fehler"
@@ -362,6 +370,15 @@
     "securityScreen": {
       "navigationMessage": "Navigiere zu den Sicherheitseinstellungen",
       "title": "Sicherheitseinstellungen"
+    },
+    "passwordChangeScreen": {
+      "title": "Passwort ändern"
+    },
+    "accountDeletionScreen": {
+      "title": "Konto löschen"
+    },
+    "demoScreen": {
+      "title": "Demo"
     },
     "terms": {
       "acceptPrivacy": "Ich akzeptiere die Datenschutzerklärung",
@@ -468,6 +485,7 @@
     "error": "Fehler",
     "loading": "Lädt...",
     "loadingError": "Fehler beim Laden der Daten",
+    "loadingAccessibility": "Inhalt wird geladen",
     "ok": "OK",
     "reset": "Zurücksetzen",
     "retry": "Erneut versuchen",
@@ -806,9 +824,85 @@
       "templates": {
         "showAll": "Alle anzeigen",
         "showLess": "Weniger anzeigen",
-        "title": "Feld-Vorlagen"
+        "title": "Feld-Vorlagen",
+        "all": "Alle Vorlagen",
+        "hide": "Ausblenden",
+        "showAll.accessibility": "Alle Vorlagen anzeigen",
+        "hide.accessibility": "Vorlagen ausblenden",
+        "scroll.accessibility": "Vorlagen horizontal durchblättern"
       },
       "title": "Benutzerdefinierte Felder"
+    },
+    "customFields": {
+      "save": {
+        "accessibility": "Änderungen speichern",
+        "hint": {
+          "enabled": "Doppeltippen um Änderungen zu speichern",
+          "disabled": "Keine Änderungen zum Speichern vorhanden"
+        }
+      },
+      "saving": "Speichert...",
+      "scroll": {
+        "accessibility": "Benutzerdefinierte Felder bearbeiten"
+      },
+      "title": "Benutzerdefinierte Felder",
+      "add": {
+        "button": "Feld hinzufügen",
+        "description": "Neues benutzerdefiniertes Feld erstellen",
+        "accessibility": "Neues Feld hinzufügen",
+        "hint": "Öffnet Menü zur Feldtyp-Auswahl"
+      },
+      "current": {
+        "title": "Aktuelle Felder"
+      },
+      "templates": {
+        "title": "Vorlagen",
+        "showAll": {
+          "accessibility": "Alle Vorlagen anzeigen"
+        },
+        "showAll": "Alle anzeigen",
+        "scroll": {
+          "accessibility": "Vorlagen horizontal durchblättern"
+        }
+      },
+      "template": {
+        "accessibility": "Vorlage {{templateLabel}} {{status}}",
+        "type": "Typ",
+        "list": {
+          "accessibility": "{{templateLabel}}, {{fieldType}}, {{status}}"
+        }
+      },
+      "fields": {
+        "title": "Felder bearbeiten"
+      },
+      "field": {
+        "add": {
+          "accessibility": "Neues Feld hinzufügen",
+          "hint": "Öffnet Menü zur Auswahl des Feldtyps"
+        },
+        "remove": {
+          "accessibility": "Feld {{fieldLabel}} löschen",
+          "hint": "Doppeltippen um das Feld dauerhaft zu entfernen"
+        },
+        "input": {
+          "accessibility": "Wert für {{fieldLabel}}"
+        }
+      },
+      "fieldType": {
+        "accessibility": "{{fieldType}} Feld hinzufügen"
+      },
+      "tips": {
+        "title": "Tipps & Hinweise",
+        "relevant": "Fügen Sie nur relevante und beruflich wichtige Informationen hinzu",
+        "professional": "Verwenden Sie professionelle und klare Formulierungen",
+        "accurate": "Halten Sie Ihre Informationen stets aktuell und korrekt",
+        "templates": "Nutzen Sie Vorlagen als Inspiration für häufig verwendete Felder"
+      },
+      "validation": {
+        "error": {
+          "accessibility": "Validierungsfehler"
+        }
+      }
     },
     "editScreen": {
       "accessDenied": "Zugriff verweigert",
@@ -1163,6 +1257,12 @@
       "cancel": "Abbrechen",
       "errorTitle": "Logout-Fehler",
       "errorMessage": "Beim Ausloggen ist ein Fehler aufgetreten. Bitte versuchen Sie es erneut."
+    },
+    "privacyVisibility": "Privatsphäre",
+    "deleteAccount": {
+      "title": "Account löschen",
+      "message": "Diese Aktion kann nicht rückgängig gemacht werden.",
+      "itemName": "Ihr Account"
     }
   },
   "shared": {
@@ -1257,6 +1357,47 @@
         "enabled": "Speichert alle Änderungen an Ihren Datenschutz-Einstellungen",
         "disabled": "Keine Änderungen zum Speichern vorhanden"
       }
+    },
+    "deleteAccount": {
+      "title": "Account löschen",
+      "message": "Diese Aktion kann nicht rückgängig gemacht werden.",
+      "itemName": "Ihr Account"
+    },
+    "socialInteraction": {
+      "title": "Soziale Interaktion",
+      "description": "Kontrollieren Sie, wie andere mit Ihnen interagieren können",
+      "allowFriendRequests": "Freundschaftsanfragen zulassen",
+      "allowFriendRequests.description": "Andere können Ihnen Freundschaftsanfragen senden",
+      "allowDirectMessages": "Direktnachrichten zulassen",
+      "allowDirectMessages.description": "Andere können Ihnen private Nachrichten senden"
+    },
+    "onlinePresence": {
+      "title": "Online-Präsenz",
+      "description": "Kontrollieren Sie Ihre Sichtbarkeit und Aktivitätsanzeige",
+      "showOnlineStatus": "Online-Status anzeigen",
+      "showOnlineStatus.description": "Anderen zeigen, wenn Sie online sind",
+      "showLastActive": "Letzte Aktivität anzeigen",
+      "showLastActive.description": "Anderen zeigen, wann Sie zuletzt aktiv waren"
+    },
+    "discoverySearch": {
+      "title": "Auffindbarkeit & Suche",
+      "description": "Kontrollieren Sie, wie andere Sie finden können",
+      "searchVisibility": "In Suche sichtbar",
+      "searchVisibility.description": "Ihr Profil kann in Suchergebnissen gefunden werden",
+      "directoryListing": "Im Verzeichnis aufgelistet",
+      "directoryListing.description": "Ihr Profil erscheint in öffentlichen Verzeichnissen",
+      "allowProfileViews": "Profil-Ansichten erlauben",
+      "allowProfileViews.description": "Andere können Ihr vollständiges Profil ansehen"
+    },
+    "analyticsTracking": {
+      "title": "Analytics & Tracking (GDPR)",
+      "description": "Datenschutz-konforme Datenverarbeitung und -analyse",
+      "allowAnalytics": "Analytics zulassen",
+      "allowAnalytics.description": "Anonyme Nutzungsstatistiken zur Verbesserung der App",
+      "trackProfileViews": "Profil-Besuche verfolgen",
+      "trackProfileViews.description": "Statistiken über Ihre Profil-Aufrufe sammeln",
+      "allowThirdPartySharing": "Drittanbieter-Sharing",
+      "allowThirdPartySharing.description": "Daten mit vertrauenswürdigen Partnern teilen (GDPR Art. 6)"
     }
   },
   "settings": {
@@ -1291,9 +1432,7 @@
       "manageDevices": "Geräte verwalten",
       "mfa": "Zwei-Faktor-Authentifizierung",
       "neverLoggedIn": "Nie angemeldet",
-      "title": "Sicherheit",
-      "twoFactor": "Zwei-Faktor-Authentifizierung",
-      "twoFactorDesc": "Zusätzliche Sicherheitsebene hinzufügen"
+      "title": "Sicherheit"
     },
     "supportScreen": {
       "community": "Community",
@@ -1405,6 +1544,103 @@
       "verified": "Erfolgreich verifiziert",
       "methodAdded": "Neue Methode hinzugefügt",
       "methodRemoved": "Methode entfernt"
+    }
+  },
+  "errors": {
+    "title": "Fehler"
+  },
+  "error": {
+    "boundaryScreen": {
+      "title": "Anwendungsfehler",
+      "reload": "App neu laden"
+    },
+    "auth": {
+      "biometric": {
+        "failed": "Biometrische Authentifizierung fehlgeschlagen.",
+        "notAvailable": "Biometrische Authentifizierung ist auf diesem Gerät nicht verfügbar oder nicht eingerichtet.",
+        "enableFailed": "Biometrische Authentifizierung konnte nicht aktiviert werden. Bitte versuchen Sie es erneut.",
+        "disableFailed": "Deaktivierung fehlgeschlagen.",
+        "testFailed": "Biometrische Authentifizierung fehlgeschlagen.",
+        "userNotAuthenticated": "Sie müssen angemeldet sein, um biometrische Authentifizierung zu aktivieren.",
+        "notEnabled": "Biometrische Authentifizierung ist nicht aktiviert."
+      },
+      "mfa": {
+        "setupFailed": "MFA Setup fehlgeschlagen. Bitte versuchen Sie es erneut.",
+        "verificationFailed": "Verifizierung fehlgeschlagen. Bitte versuchen Sie es erneut.",
+        "codeRequired": "Bitte geben Sie den Verifizierungscode ein.",
+        "invalidMethod": "Ungültige MFA-Methode gewählt."
+      }
+    }
+  },
+  "customFields": {
+    "saving": "Speichert...",
+    "scroll": {
+      "accessibility": "Benutzerdefinierte Felder bearbeiten"
+    },
+    "title": "Benutzerdefinierte Felder",
+    "add": {
+      "button": "Feld hinzufügen",
+      "description": "Neues benutzerdefiniertes Feld erstellen",
+      "accessibility": "Neues Feld hinzufügen",
+      "hint": "Öffnet Menü zur Feldtyp-Auswahl"
+    },
+    "current": {
+      "title": "Aktuelle Felder"
+    },
+    "templates": {
+      "title": "Vorlagen",
+      "showAll": "Alle anzeigen",
+      "showAllAccessibility": "Alle Vorlagen anzeigen",
+      "all": "Alle Vorlagen",
+      "hide": "Ausblenden",
+      "hideAccessibility": "Vorlagen ausblenden",
+      "scroll": {
+        "accessibility": "Vorlagen horizontal durchblättern"
+      }
+    },
+    "template": {
+      "accessibility": "Vorlage {{templateLabel}} {{status}}",
+      "type": "Typ",
+      "list": {
+        "accessibility": "{{templateLabel}}, {{fieldType}}, {{status}}"
+      }
+    },
+    "fields": {
+      "title": "Felder bearbeiten"
+    },
+    "field": {
+      "add": {
+        "accessibility": "Neues Feld hinzufügen",
+        "hint": "Öffnet Menü zur Auswahl des Feldtyps"
+      },
+      "remove": {
+        "accessibility": "Feld {{name}} löschen",
+        "hint": "Doppeltippen um das Feld dauerhaft zu entfernen"
+      },
+      "input": {
+        "accessibility": "Wert für {{name}}"
+      }
+    },
+    "fieldType": {
+      "accessibility": "{{type}} Feld hinzufügen"
+    },
+    "tips": {
+      "title": "Tipps & Hinweise",
+      "relevant": "Fügen Sie nur relevante und beruflich wichtige Informationen hinzu",
+      "professional": "Verwenden Sie professionelle und klare Formulierungen",
+      "accurate": "Halten Sie Ihre Informationen stets aktuell und korrekt",
+      "templates": "Nutzen Sie Vorlagen als Inspiration für häufig verwendete Felder"
+    },
+    "save": {
+      "accessibility": "Änderungen speichern",
+      "hint": {
+        "disabled": "Keine Änderungen zum Speichern vorhanden"
+      }
+    },
+    "validation": {
+      "error": {
+        "accessibility": "Validierungsfehler"
+      }
     }
   }
 }

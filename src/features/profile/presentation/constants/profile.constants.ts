@@ -113,7 +113,6 @@ export const PROFILE_CONSTANTS = {
     ACCOUNT_SETTINGS_CLICKED: 'account_settings_clicked',
     CUSTOM_FIELDS_CLICKED: 'custom_fields_clicked',
     PRIVACY_SETTINGS_CLICKED: 'privacy_settings_clicked',
-    AVATAR_DEMO_CLICKED: 'avatar_demo_clicked',
     PROFILE_HISTORY_CLICKED: 'profile_history_clicked',
     SKILLS_MANAGEMENT_CLICKED: 'skills_management_clicked',
     SOCIAL_LINKS_CLICKED: 'social_links_clicked',

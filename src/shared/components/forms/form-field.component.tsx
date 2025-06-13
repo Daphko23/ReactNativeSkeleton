@@ -264,6 +264,26 @@ export interface FormFieldProps {
    * @example "email-input-field"
    */
   testID?: string;
+
+  /**
+   * Accessibility label for screen readers.
+   * Provides descriptive text for assistive technologies.
+   * 
+   * @type {string}
+   * @optional
+   * @example "Email address input field"
+   */
+  accessibilityLabel?: string;
+
+  /**
+   * Accessibility hint for additional context.
+   * Provides usage instructions for screen readers.
+   * 
+   * @type {string}
+   * @optional
+   * @example "Enter your email address to receive notifications"
+   */
+  accessibilityHint?: string;
 }
 
 /**
@@ -573,7 +593,9 @@ export const FormField = memo<FormFieldProps>(({
   required = false,
   helperText,
   style,
-  testID
+  testID,
+  accessibilityLabel,
+  accessibilityHint
 }) => {
   const { theme } = useTheme();
   const styles = createStyles(theme);
@@ -605,6 +627,8 @@ export const FormField = memo<FormFieldProps>(({
       secureTextEntry,
       maxLength,
       testID,
+      accessibilityLabel,
+      accessibilityHint,
     };
 
     if (numberOfLines) {
@@ -629,7 +653,8 @@ export const FormField = memo<FormFieldProps>(({
   }, [
     displayLabel, value, onChangeText, onBlur, error, disabled, styles.input, 
     style, placeholder, multiline, numberOfLines, keyboardType, autoCapitalize, 
-    autoCorrect, secureTextEntry, maxLength, leftIcon, rightIcon, onRightIconPress, testID
+    autoCorrect, secureTextEntry, maxLength, leftIcon, rightIcon, onRightIconPress, 
+    testID, accessibilityLabel, accessibilityHint
   ]);
 
   return (

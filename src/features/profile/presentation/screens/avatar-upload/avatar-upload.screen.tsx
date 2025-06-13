@@ -73,7 +73,7 @@
  * ```
  */
 
-import React from 'react';
+import React, { useState, useCallback } from 'react';
 import { View, ScrollView, Image } from 'react-native';
 import { Text, ProgressBar, ActivityIndicator, FAB } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
@@ -91,8 +91,10 @@ import { AlertService } from '../../../../../core/services';
 import type { ActionItem } from '../../../../../shared/components/cards/types/card.types';
 
 // Hooks
-import { useAvatarUpload } from '../../hooks/use-avatar-upload.hook';
 import { useAvatar } from '../../hooks/use-avatar.hook';
+import { useAuth } from '@features/auth/presentation/hooks';
+import { AvatarService } from '../../../data/services/avatar.service';
+import { ImagePickerService } from '../../../data/services/image-picker.service';
 
 // Styles
 import { createAvatarUploadScreenStyles } from './avatar-upload.screen.styles';
@@ -352,7 +354,6 @@ const _handleMainAction = (_actionId: string): void => {
  * };
  * ```
  *
- * @see {@link useAvatarUpload} For upload business logic implementation
  * @see {@link useAvatar} For avatar cache management
  * @see {@link AvatarUploadScreenProps} For complete props interface
  * @see {@link createAvatarUploadScreenStyles} For styling implementation
@@ -375,32 +376,147 @@ export function AvatarUploadScreen({ navigation, route }: AvatarUploadScreenProp
   const theme = useTheme();
   
   /**
-   * Avatar upload business logic hook
-   * @description Encapsulates image selection, upload progress, and validation logic
+   * Avatar management hook for data operations
+   * @description Unified Avatar Hook für Avatar Data Management
    */
-  const {
-    selectedImage,
-    isUploading,
-    uploadProgress,
-    isSelecting,
-    selectFromCamera,
-    selectFromGallery,
-    uploadAvatar,
-    removeAvatar,
-    canUpload,
-  } = useAvatarUpload(route.params?.currentAvatar);
+  const { refreshAvatar: refreshAvatarAfterUpload } = useAvatar();
 
   /**
-   * Avatar cache management hook
-   * @description Handles cache invalidation and refresh after upload/removal operations
+   * Authentication hook for current user
+   * @description Provides authenticated user context for avatar operations
    */
-  const { refreshAvatarAfterUpload } = useAvatar();
+  const { user: currentUser } = useAuth();
+
+  /**
+   * 🔄 MIGRATED: Direct Service Usage statt useAvatarUpload Hook
+   * @description Clean Architecture - Direct Service Integration
+   */
+  const [avatarService] = useState(() => new AvatarService());
+  const [imagePickerService] = useState(() => new ImagePickerService());
+  
+  // Local state for upload operations
+  const [selectedImage, setSelectedImage] = useState<string | null>(route.params?.currentAvatar || null);
+  const [isUploading, setIsUploading] = useState(false);
+  const [isSelecting, setIsSelecting] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState(0);
 
   /**
    * Screen styling configuration
    * @description Theme-aware styles with responsive design support
    */
   const styles = createAvatarUploadScreenStyles(theme);
+
+  // =============================================================================
+  // MIGRATED SERVICE METHODS
+  // =============================================================================
+
+  const selectFromCamera = useCallback(async (): Promise<void> => {
+    setIsSelecting(true);
+    try {
+      const result = await imagePickerService.openCamera({
+        width: 500,
+        height: 500,
+        cropping: true,
+        cropperCircleOverlay: true,
+        mediaType: 'photo',
+        includeBase64: false,
+        quality: 0.8
+      });
+      setSelectedImage(result.path);
+    } catch (error) {
+      console.warn('Camera selection failed:', error);
+      throw error;
+    } finally {
+      setIsSelecting(false);
+    }
+  }, [imagePickerService]);
+
+  const selectFromGallery = useCallback(async (): Promise<void> => {
+    setIsSelecting(true);
+    try {
+      const result = await imagePickerService.openGallery({
+        width: 500,
+        height: 500,
+        cropping: true,
+        cropperCircleOverlay: true,
+        mediaType: 'photo',
+        includeBase64: false,
+        quality: 0.8
+      });
+      setSelectedImage(result.path);
+    } catch (error) {
+      console.warn('Gallery selection failed:', error);
+      throw error;
+    } finally {
+      setIsSelecting(false);
+    }
+  }, [imagePickerService]);
+
+  const uploadAvatar = useCallback(async (): Promise<{ success: boolean; error?: string; avatarUrl?: string }> => {
+    if (!selectedImage) {
+      return { success: false, error: 'No image selected' };
+    }
+
+    if (!currentUser?.id) {
+      return { success: false, error: 'User not authenticated' };
+    }
+
+    setIsUploading(true);
+    setUploadProgress(0);
+    
+    try {
+      const userId = currentUser.id;
+      
+      const result = await avatarService.uploadAvatar({
+        userId,
+        file: {
+          uri: selectedImage,
+          fileName: `avatar_${Date.now()}.jpg`,
+          size: 1024 * 1024, // 1MB default
+          mime: 'image/jpeg',
+          width: 500,
+          height: 500
+        },
+        onProgress: (progress) => {
+          setUploadProgress(progress);
+        }
+      });
+      
+      return result;
+    } catch (error) {
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : 'Upload failed'
+      };
+    } finally {
+      setIsUploading(false);
+      setUploadProgress(0);
+    }
+  }, [selectedImage, avatarService, currentUser?.id]);
+
+  const removeAvatar = useCallback(async (): Promise<boolean> => {
+    if (!currentUser?.id) {
+      console.error('User not authenticated for avatar removal');
+      return false;
+    }
+
+    try {
+      const userId = currentUser.id;
+      const result = await avatarService.deleteAvatar(userId);
+      
+      if (result.success) {
+        setSelectedImage(null);
+        return true;
+      }
+      return false;
+    } catch (error) {
+      console.error('Remove avatar error:', error);
+      return false;
+    }
+  }, [avatarService, currentUser?.id]);
+
+  // Computed properties
+  const canUpload = selectedImage && !isUploading && !isSelecting;
 
   // =============================================================================
   // EVENT HANDLERS IMPLEMENTATION

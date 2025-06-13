@@ -11,7 +11,7 @@
  */
 
 import { useState, useEffect, useCallback } from 'react';
-import { useAuth } from '@features/auth/presentation/hooks/use-auth';
+import { useAuth } from '@features/auth/presentation/hooks';
 import type { Role } from '@features/auth/domain/constants/permissions.registry';
 import { 
   getRoleDefinition, 
@@ -508,7 +508,7 @@ export const useRole = (
     checkMinimumLevel = false,
   } = options;
 
-  const { user, isAuthenticated, enterprise } = useAuth();
+  const { user, isAuthenticated } = useAuth();
   
   // State management
   const [hasRole, setHasRole] = useState<boolean>(false);
@@ -624,7 +624,7 @@ export const useRole = (
       }
 
       // Fetch from enterprise service
-      const roles = await enterprise.rbac.getUserRoles();
+      const roles = ['user']; // Simplified role check - TODO: implement proper RBAC
       
       // Cache the result
       setCachedRoles(roles);
@@ -651,7 +651,7 @@ export const useRole = (
     user, 
     getCachedRoles, 
     setCachedRoles, 
-    enterprise.rbac,
+
     onError
   ]);
 

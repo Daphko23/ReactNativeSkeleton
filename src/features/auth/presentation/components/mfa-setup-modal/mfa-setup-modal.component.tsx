@@ -18,7 +18,7 @@ import {
   Image,
   Alert,
 } from 'react-native';
-import {useAuthStore} from '../../store/auth.store';
+import {useAuthSecurity} from '../../hooks';
 // import { EnterpriseAlert } from '../../../../shared/components/enterprise-alert/enterprise-alert.component';
 // import { AlertType } from '../../../../shared/types/alert.types';
 import { useAuthTranslations } from '../../../../../core/i18n/hooks';
@@ -46,7 +46,7 @@ export const MFASetupModal: React.FC<MFASetupModalProps> = ({
   const [isLoading, setIsLoading] = useState(false);
   const authT = useAuthTranslations();
 
-  const {enableMFA} = useAuthStore();
+  const {enableMFA} = useAuthSecurity();
 
   const handleMethodSelect = (method: MFAMethod) => {
     setSelectedMethod(method);
@@ -62,10 +62,9 @@ export const MFASetupModal: React.FC<MFASetupModalProps> = ({
         return;
       }
 
-      const result = await enableMFA(
-        selectedMethod, // Now only 'totp' | 'sms'
-        selectedMethod === 'sms' ? phoneNumber : undefined
-      );
+      // Convert string to MFAType enum
+      const mfaType = selectedMethod === 'totp' ? 'totp' : 'sms';
+      const result = await enableMFA(mfaType as any);
 
       if (selectedMethod === 'totp' && result.qrCode) {
         setQrCode(result.qrCode);

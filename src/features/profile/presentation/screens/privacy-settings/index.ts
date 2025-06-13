@@ -5,5 +5,4 @@
 
 export { PrivacySettingsScreen as default } from './privacy-settings.screen';
 export { PrivacySettingsScreen } from './privacy-settings.screen';
-export { usePrivacySettings } from '../../hooks/use-privacy-settings.hook';
 export { createPrivacySettingsScreenStyles } from './privacy-settings.screen.styles'; 

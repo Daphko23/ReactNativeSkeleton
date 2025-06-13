@@ -12,8 +12,10 @@
 
 import React, { useEffect, useState, type ReactNode } from 'react';
 import { View, ActivityIndicator, StyleSheet } from 'react-native';
-import { useAuthStore } from '@features/auth/presentation/store/auth.store';
+import { useAuth } from '@features/auth/presentation/hooks';
+
 import { authContainer } from '@features/auth/application/di/auth.container';
+import { profileContainer } from '@features/profile/application/di/profile.container';
 import { ConsoleLogger } from '@core/logging/console.logger';
 
 // Import Environment entfernt - aktuell nicht verwendet
@@ -249,7 +251,7 @@ interface AppInitializerProps {
 export const AppInitializer = ({
   children,
 }: AppInitializerProps): React.JSX.Element => {
-  const { initializeSession } = useAuthStore();
+  const { checkAuthStatus, getCurrentUser } = useAuth();
   const [isReady, setIsReady] = useState(false);
 
   useEffect(() => {
@@ -298,9 +300,17 @@ export const AppInitializer = ({
 
         console.log('✅ Auth services initialized');
 
-        // 2. Use the store's initializeSession method instead of manual state setting
-        console.log('🔍 Initializing session through auth store...');
-        await initializeSession();
+        // 2. Initialize Profile Container DI
+        await profileContainer.initialize();
+        console.log('✅ Profile container initialized');
+
+        // 3. Initialize session through auth hooks (check existing auth status)
+        console.log('🔍 Initializing session through auth hooks...');
+        const isAuthenticated = await checkAuthStatus();
+        if (isAuthenticated) {
+          const user = await getCurrentUser(); // Populate user data if authenticated
+          console.log('✅ User session initialized:', user?.id ? 'authenticated' : 'anonymous');
+        }
 
         console.log('✅ App initialization completed successfully');
         setIsReady(true);
@@ -311,7 +321,7 @@ export const AppInitializer = ({
     };
 
     initializeApp();
-  }, [initializeSession]);
+  }, [checkAuthStatus, getCurrentUser]);
 
   useEffect(() => {
     /**

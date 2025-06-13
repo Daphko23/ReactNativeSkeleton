@@ -26,7 +26,6 @@ import { AvatarUploadScreen } from '../screens/avatar-upload';
 import { SkillsManagementScreen } from '../screens/skills-management';
 import { SocialLinksEditScreen } from '../screens/social-links-edit';
 import { CustomFieldsEditScreen } from '../screens/custom-fields-edit';
-import { ProfileAvatarDemoScreen } from '../screens/profile-avatar-demo/profile-avatar-demo.screen';
 
 
 /**
@@ -59,7 +58,6 @@ export type ProfileStackParamList = {
   ProfileEdit: undefined;
   PrivacySettings: undefined;
   AccountSettings: undefined;
-  ProfileAvatarDemo: undefined;
   AvatarUpload: {
     currentAvatar?: string;
   };
@@ -209,16 +207,6 @@ export function ProfileNavigator(): React.JSX.Element {
           title: t('profile.customFieldsScreen.title'),
         }}
       />
-
-      {/* Profile Avatar Demo Screen */}
-      <Stack.Screen
-        name="ProfileAvatarDemo"
-        component={ProfileAvatarDemoScreen}
-        options={{
-          title: t('profile.avatarDemoScreen.title'),
-        }}
-      />
-
 
     </Stack.Navigator>
   );
@@ -396,25 +384,6 @@ export const profileNavigationHelpers = {
    */
   navigateToCustomFieldsEdit: (navigation: any): void => {
     navigation.navigate('CustomFieldsEdit');
-  },
-
-  /**
-   * Navigate to profile avatar demo screen
-   * 
-   * @description Navigates to the avatar demo screen where users can preview
-   * different avatar styles and configurations.
-   * 
-   * @param {any} navigation - React Navigation instance
-   * 
-   * @example
-   * ```tsx
-   * profileNavigationHelpers.navigateToProfileAvatarDemo(navigation);
-   * ```
-   * 
-   * @since 1.0.0
-   */
-  navigateToProfileAvatarDemo: (navigation: any): void => {
-    navigation.navigate('ProfileAvatarDemo');
   },
 };
 

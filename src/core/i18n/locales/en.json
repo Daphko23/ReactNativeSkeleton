@@ -12,6 +12,7 @@
     "retry": "Retry",
     "unexpectedError": "An unexpected error occurred",
     "loadingError": "Error loading data",
+    "loadingAccessibility": "Content is loading",
     "alert": {
       "titles": {
         "error": "Error",
@@ -1185,6 +1186,86 @@
       "decline": "Decline",
       "viewFull": "View Full Terms",
       "download": "Download as PDF"
+    }
+  },
+  "errors": {
+    "title": "Error"
+  },
+  "error": {
+    "boundaryScreen": {
+      "title": "Application Error",
+      "reload": "Reload App"
+    }
+  },
+  "customFields": {
+    "saving": "Saving...",
+    "scroll": {
+      "accessibility": "Edit custom fields"
+    },
+    "title": "Custom Fields",
+    "add": {
+      "button": "Add Field",
+      "description": "Create new custom field",
+      "accessibility": "Add new field",
+      "hint": "Opens menu for field type selection"
+    },
+    "current": {
+      "title": "Current Fields"
+    },
+    "templates": {
+      "title": "Templates",
+      "showAll": "Show all",
+      "showAllAccessibility": "Show all templates",
+      "all": "All Templates", 
+      "hide": "Hide",
+      "hideAccessibility": "Hide templates",
+      "scroll": {
+        "accessibility": "Scroll templates horizontally"
+      }
+    },
+    "template": {
+      "accessibility": "Template {{templateLabel}} {{status}}",
+      "type": "Type",
+      "list": {
+        "accessibility": "{{templateLabel}}, {{fieldType}}, {{status}}"
+      }
+    },
+    "fields": {
+      "title": "Edit Fields"
+    },
+    "field": {
+      "add": {
+        "accessibility": "Add new field",
+        "hint": "Opens menu to select field type"
+      },
+      "remove": {
+        "accessibility": "Delete {{name}} field",
+        "hint": "Double tap to permanently remove this field"
+      },
+      "input": {
+        "accessibility": "Value for {{name}}"
+      }
+    },
+    "fieldType": {
+      "accessibility": "Add {{type}} field"
+    },
+    "tips": {
+      "title": "Tips & Guidelines",
+      "relevant": "Add only relevant and professionally important information",
+      "professional": "Use professional and clear wording",
+      "accurate": "Keep your information up-to-date and accurate",
+      "templates": "Use templates as inspiration for commonly used fields"
+    },
+    "save": {
+      "accessibility": "Save changes",
+      "hint": {
+        "disabled": "No changes to save"
+      }
+    },
+    "validation": {
+      "error": {
+        "accessibility": "Validation error"
+      }
     }
   }
 }

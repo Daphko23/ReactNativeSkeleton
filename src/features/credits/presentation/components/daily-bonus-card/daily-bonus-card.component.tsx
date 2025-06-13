@@ -1,15 +1,54 @@
-import React, { useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Alert } from 'react-native';
+/**
+ * @fileoverview Daily Bonus Card Component - HOOK-CENTRIC UI Component
+ * 
+ * @description Pure UI component for daily bonus card display.
+ * NO BUSINESS LOGIC - all logic handled by useDailyBonusCard hook.
+ * Follows HOOK-CENTRIC architecture with complete separation of concerns.
+ * 
+ * @module DailyBonusCardComponent  
+ * @since 2.0.0 (HOOK-CENTRIC Refactor)
+ * @author ReactNativeSkeleton Enterprise Team
+ * @layer Presentation (Pure UI Component)
+ * @architecture HOOK-CENTRIC - Components only for UI rendering
+ */
+
+import React from 'react';
+import {
+  View,
+  Text,
+  StyleSheet,
+  TouchableOpacity
+} from 'react-native';
 import { useTranslation } from 'react-i18next';
-import { useDailyBonus } from '../../hooks/use-daily-bonus.hook';
+import { useDailyBonusCard } from '../../hooks/use-daily-bonus-card.hook';
+
+// =============================================================================
+// TYPES
+// =============================================================================
 
 interface DailyBonusCardProps {
   style?: any;
 }
 
+// =============================================================================
+// HOOK-CENTRIC COMPONENT - PURE UI ONLY
+// =============================================================================
+
+/**
+ * DailyBonusCard - Pure UI Component
+ * 
+ * @description HOOK-CENTRIC daily bonus card:
+ * - ALL business logic in useDailyBonusCard hook
+ * - Component only handles UI rendering and user interactions
+ * - Bonus claiming logic in hook
+ * - Zero business logic, zero state management, zero service calls
+ */
 export const DailyBonusCard: React.FC<DailyBonusCardProps> = ({ style }) => {
   const { t } = useTranslation();
+  
+  // 🎯 HOOK-CENTRIC - ALL BUSINESS LOGIC FROM HOOK
   const {
+    // Server State
     canClaim,
     isLoading,
     currentStreak,
@@ -17,110 +56,181 @@ export const DailyBonusCard: React.FC<DailyBonusCardProps> = ({ style }) => {
     potentialBonusAmount,
     hasActiveStreak,
     isMaxStreak,
-    claimBonus,
-    error
-  } = useDailyBonus();
+    
+    // UI State
+    isClaiming,
+    
+    // Actions
+    handleClaimBonus,
+    
+    // Visual Styling
+    getStreakBadgeColor,
+    getStreakEmoji,
+    streakBadgeData,
+    
+    // Computed States
+    canInteract,
+    showStreakBadge,
+    bonusDescription,
+    waitingDescription,
+    claimButtonText,
+    isClaimButtonDisabled,
+    
+    // Error Handling
+    displayError,
+  } = useDailyBonusCard();
 
-  const [isClaiming, setIsClaiming] = useState(false);
+  // =============================================================================
+  // UI RENDERING FUNCTIONS
+  // =============================================================================
 
-  const handleClaimBonus = async () => {
-    if (!canClaim || isClaiming) return;
-
-    setIsClaiming(true);
-    try {
-      const result = await claimBonus();
+  const renderHeader = () => (
+    <View style={styles.header}>
+      <Text 
+        style={styles.title}
+        accessibilityRole="header"
+        testID="daily-bonus-title"
+      >
+        Täglicher Bonus
+      </Text>
       
-      Alert.alert(
-        '🎉 Bonus erhalten!',
-        `Du hast ${result.bonusAmount} Credits erhalten!\nAktuelle Serie: ${result.streak} Tage`,
-        [{ text: 'Super!', style: 'default' }]
-      );
-    } catch (error) {
-      Alert.alert(
-        'Fehler',
-        error instanceof Error ? error.message : 'Bonus konnte nicht eingelöst werden',
-        [{ text: 'OK', style: 'default' }]
-      );
-    } finally {
-      setIsClaiming(false);
-    }
-  };
-
-  const getStreakBadgeColor = () => {
-    if (isMaxStreak) return '#ffd700'; // Gold
-    if (hasActiveStreak) return '#28a745'; // Green
-    return '#6c757d'; // Gray
-  };
-
-  const getStreakEmoji = () => {
-    if (isMaxStreak) return '🔥';
-    if (hasActiveStreak) return '⚡';
-    return '📅';
-  };
-
-  return (
-    <View style={[styles.container, style]}>
-      <View style={styles.header}>
-        <Text style={styles.title}>Täglicher Bonus</Text>
-        
-        {currentStreak > 0 && (
-          <View style={[styles.streakBadge, { backgroundColor: getStreakBadgeColor() }]}>
-            <Text style={styles.streakEmoji}>{getStreakEmoji()}</Text>
-            <Text style={styles.streakText}>{currentStreak}</Text>
-          </View>
-        )}
-      </View>
-
-      <View style={styles.content}>
-        {canClaim ? (
-          <>
-            <Text style={styles.bonusAmount}>+{potentialBonusAmount} ⭐</Text>
-            <Text style={styles.bonusDescription}>
-              {hasActiveStreak 
-                ? `Serie-Bonus! Tag ${currentStreak + 1}` 
-                : 'Dein täglicher Bonus wartet!'
-              }
-            </Text>
-            
-            <TouchableOpacity
-              style={[styles.claimButton, isClaiming && styles.claimButtonDisabled]}
-              onPress={handleClaimBonus}
-              disabled={isClaiming || isLoading}
-            >
-              <Text style={styles.claimButtonText}>
-                {isClaiming ? 'Wird eingelöst...' : 'Bonus holen 🎁'}
-              </Text>
-            </TouchableOpacity>
-          </>
-        ) : (
-          <>
-            <Text style={styles.waitingTitle}>Nächster Bonus in:</Text>
-            <Text style={styles.countdown}>{timeUntilNext || 'Berechnung...'}</Text>
-            <Text style={styles.waitingDescription}>
-              Komm täglich zurück für Bonus-Credits!
-            </Text>
-            
-            {hasActiveStreak && (
-              <Text style={styles.streakKeepGoing}>
-                🔥 Halte deine {currentStreak}-Tage Serie aufrecht!
-              </Text>
-            )}
-          </>
-        )}
-      </View>
-
-      {error && (
-        <View style={styles.errorContainer}>
-          <Text style={styles.errorText}>{error}</Text>
+      {showStreakBadge && (
+        <View 
+          style={[styles.streakBadge, { backgroundColor: streakBadgeData.color }]}
+          accessibilityRole="text"
+          accessibilityLabel={`Aktuelle Serie: ${currentStreak} Tage`}
+          testID="streak-badge"
+        >
+          <Text style={styles.streakEmoji}>{streakBadgeData.emoji}</Text>
+          <Text style={styles.streakText}>{streakBadgeData.text}</Text>
         </View>
       )}
+    </View>
+  );
 
-      <Text style={styles.description}>
+  const renderClaimableBonus = () => (
+    <>
+      <Text 
+        style={styles.bonusAmount}
+        accessibilityRole="text"
+        accessibilityLabel={`Bonus: ${potentialBonusAmount} Credits`}
+        testID="bonus-amount"
+      >
+        +{potentialBonusAmount} ⭐
+      </Text>
+      
+      <Text 
+        style={styles.bonusDescription}
+        accessibilityRole="text"
+        testID="bonus-description"
+      >
+        {bonusDescription}
+      </Text>
+      
+      <TouchableOpacity
+        style={[styles.claimButton, isClaimButtonDisabled && styles.claimButtonDisabled]}
+        onPress={handleClaimBonus}
+        disabled={isClaimButtonDisabled}
+        accessibilityRole="button"
+        accessibilityLabel={claimButtonText}
+        accessibilityState={{ disabled: isClaimButtonDisabled }}
+        testID="claim-bonus-button"
+      >
+        <Text style={styles.claimButtonText}>
+          {claimButtonText}
+        </Text>
+      </TouchableOpacity>
+    </>
+  );
+
+  const renderWaitingState = () => (
+    <>
+      <Text 
+        style={styles.waitingTitle}
+        accessibilityRole="text"
+        testID="waiting-title"
+      >
+        Nächster Bonus in:
+      </Text>
+      
+      <Text 
+        style={styles.countdown}
+        accessibilityRole="text"
+        accessibilityLabel={`Nächster Bonus in ${timeUntilNext || 'Berechnung läuft'}`}
+        testID="countdown"
+      >
+        {timeUntilNext || 'Berechnung...'}
+      </Text>
+      
+      <Text 
+        style={styles.waitingDescription}
+        accessibilityRole="text"
+        testID="waiting-description"
+      >
+        Komm täglich zurück für Bonus-Credits!
+      </Text>
+      
+      {hasActiveStreak && (
+        <Text 
+          style={styles.streakKeepGoing}
+          accessibilityRole="text"
+          accessibilityLabel={`Halte deine ${currentStreak} Tage Serie aufrecht`}
+          testID="streak-motivation"
+        >
+          🔥 Halte deine {currentStreak}-Tage Serie aufrecht!
+        </Text>
+      )}
+    </>
+  );
+
+  const renderError = () => {
+    if (!displayError) return null;
+
+    return (
+      <View style={styles.errorContainer}>
+        <Text 
+          style={styles.errorText}
+          accessibilityRole="alert"
+          testID="error-message"
+        >
+          {displayError}
+        </Text>
+      </View>
+    );
+  };
+
+  // =============================================================================
+  // MAIN RENDER
+  // =============================================================================
+
+  return (
+    <View 
+      style={[styles.container, style]}
+      accessibilityLabel="Täglicher Bonus Karte"
+      testID="daily-bonus-card"
+    >
+      {renderHeader()}
+
+      <View style={styles.content}>
+        {canClaim ? renderClaimableBonus() : renderWaitingState()}
+      </View>
+
+      {renderError()}
+
+      <Text 
+        style={styles.description}
+        accessibilityRole="text"
+        testID="bonus-description-footer"
+      >
         {t('dailyBonusMessage')}
       </Text>
     </View>
   );
 };
+
+// =============================================================================
+// STYLES
+// =============================================================================
 
 const styles = StyleSheet.create({
   container: {

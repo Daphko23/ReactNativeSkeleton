@@ -13,7 +13,7 @@
 import React from 'react';
 import {NavigationContainer, LinkingOptions, DefaultTheme, DarkTheme} from '@react-navigation/native';
 import {createNativeStackNavigator} from '@react-navigation/native-stack';
-import {useAuthStore} from '@features/auth/presentation/store/auth.store';
+import {useAuth} from '@features/auth/presentation/hooks';
 import {AuthNavigator} from '@features/auth/presentation/navigation/auth.navigator';
 import MainTabNavigator from './main-tabs';
 import {RootStackParamList} from './navigation.types';
@@ -280,7 +280,7 @@ interface AppNavigatorProps {
  * @todo Add navigation performance monitoring
  */
 export default function AppNavigator({linking}: AppNavigatorProps): React.ReactElement {
-  const isAuthenticated = useAuthStore(state => state.isAuthenticated);
+  const { isAuthenticated } = useAuth();
   const { theme, isDark } = useTheme();
 
   /**

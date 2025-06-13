@@ -28,7 +28,6 @@ import RegisterScreen from '@features/auth/presentation/screens/register/registe
 import PasswordResetScreen from '@features/auth/presentation/screens/password-reset/password-reset.screen';
 import PasswordChangeScreen from '@features/auth/presentation/screens/password-change/password-change.screen';
 import SecuritySettingsScreen from '@features/auth/presentation/screens/security-settings/security-settings.screen';
-import AuthHooksCompleteDemoScreen from '@features/auth/presentation/screens/demo/auth-hooks-complete-demo.screen';
 import EmailVerificationScreen from '@features/auth/presentation/screens/email-verification/email-verification.screen';
 import AccountDeletionScreen from '@features/auth/presentation/screens/account-deletion/account-deletion.screen';
 import {AuthStackParamList} from '@core/navigation/navigation.types';
@@ -80,7 +79,7 @@ export const AuthNavigator = () => {
         name="Login" 
         component={LoginScreen}
         options={{
-          title: t('auth.navigation.login') || 'Anmelden',
+          title: t('auth.loginScreen.title') || 'Anmelden',
           headerShown: false
         }}
       />
@@ -89,7 +88,7 @@ export const AuthNavigator = () => {
         name="Register" 
         component={RegisterScreen}
         options={{
-          title: t('auth.navigation.register') || 'Registrieren',
+          title: t('auth.registerScreen.title') || 'Registrieren',
           headerShown: false
         }}
       />
@@ -98,7 +97,7 @@ export const AuthNavigator = () => {
         name="PasswordReset" 
         component={PasswordResetScreen}
         options={{
-          title: t('auth.navigation.passwordReset') || 'Passwort zurücksetzen',
+          title: t('auth.resetScreen.title') || 'Passwort zurücksetzen',
           headerShown: false
         }}
       />
@@ -107,7 +106,7 @@ export const AuthNavigator = () => {
         name="PasswordChange" 
         component={PasswordChangeScreen}
         options={{
-          title: t('auth.navigation.passwordChange') || 'Passwort ändern',
+          title: t('auth.passwordChangeScreen.title') || 'Passwort ändern',
           headerShown: true,
           presentation: 'modal'
         }}
@@ -117,7 +116,7 @@ export const AuthNavigator = () => {
         name="EmailVerification" 
         component={EmailVerificationScreen}
         options={{
-          title: t('auth.navigation.emailVerification') || 'Email bestätigen',
+          title: t('auth.emailVerificationScreen.title') || 'Email bestätigen',
           headerShown: true
         }}
       />
@@ -126,7 +125,7 @@ export const AuthNavigator = () => {
         name="AccountDeletion" 
         component={AccountDeletionScreen}
         options={{
-          title: t('auth.navigation.accountDeletion') || 'Konto löschen',
+          title: t('auth.accountDeletionScreen.title') || 'Konto löschen',
           headerShown: true,
           presentation: 'modal'
         }}
@@ -137,18 +136,7 @@ export const AuthNavigator = () => {
         name="SecuritySettings" 
         component={SecuritySettingsScreen}
         options={{
-          title: t('auth.navigation.securitySettings') || 'Sicherheitseinstellungen',
-          headerShown: true,
-          presentation: 'modal'
-        }}
-      />
-      
-      {/* Development/Demo Screens */}
-      <Stack.Screen 
-        name="AuthDemo" 
-        component={AuthHooksCompleteDemoScreen}
-        options={{
-          title: t('auth.navigation.authDemo') || 'Auth Demo',
+          title: t('auth.securityScreen.title') || 'Sicherheitseinstellungen',
           headerShown: true,
           presentation: 'modal'
         }}

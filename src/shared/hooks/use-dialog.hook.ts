@@ -1,13 +1,9 @@
 /**
- * @fileoverview USE-DIALOG-HOOK: Dialog State Management Hook
- * @description Custom React hook for managing dialog state with type safety and comprehensive dialog operations
+ * useDialog Hook - Dialog State Management
+ * 
+ * @description React hook for managing dialog state with type safety
  * @version 1.0.0
- * @since 1.0.0
  * @author ReactNativeSkeleton Enterprise Team
- * @module Shared.Hooks
- * @namespace Shared.Hooks.UseDialog
- * @category Hooks
- * @subcategory UI
  */
 
 import React from 'react';
@@ -15,229 +11,68 @@ import { DialogType } from '../components/dialogs';
 
 /**
  * Dialog State Interface
- * 
- * Defines the complete state structure for dialog management including
- * visibility, type, content, actions, and loading states.
- * 
  * @interface DialogState
- * @since 1.0.0
- * @version 1.0.0
- * @category Types
- * @subcategory Dialog
- * 
- * @example
- * ```tsx
- * const dialogState: DialogState = {
- *   visible: true,
- *   type: 'delete',
- *   title: 'Delete Item',
- *   content: 'Are you sure?',
- *   onConfirm: () => console.log('Confirmed'),
- *   confirmLoading: false
- * };
- * ```
  */
 export interface DialogState {
-  /**
-   * Whether the dialog is currently visible.
-   * 
-   * @type {boolean}
-   * @required
-   * @example true
-   */
+  /** Whether the dialog is currently visible */
   visible: boolean;
-
-  /**
-   * The type of dialog to display.
-   * 
-   * @type {DialogType}
-   * @required
-   * @example 'delete'
-   * @example 'warning'
-   * @example 'info'
-   */
+  /** The type of dialog to display */
   type: DialogType;
-
-  /**
-   * The dialog title text.
-   * 
-   * @type {string}
-   * @required
-   * @example "Delete Item"
-   * @example "Save Changes"
-   */
+  /** The dialog title text */
   title: string;
-
-  /**
-   * The main dialog content/message.
-   * 
-   * @type {string}
-   * @required
-   * @example "Are you sure you want to delete this item?"
-   */
+  /** The main dialog content/message */
   content: string;
-
-  /**
-   * Callback function executed when user confirms.
-   * 
-   * @type {() => void}
-   * @optional
-   * @example () => deleteItem()
-   */
+  /** Callback function executed when user confirms */
   onConfirm?: () => void;
-
-  /**
-   * Callback function executed when user dismisses.
-   * 
-   * @type {() => void}
-   * @optional
-   * @example () => discardChanges()
-   */
+  /** Callback function executed when user dismisses */
   onDismiss?: () => void;
-
-  /**
-   * Whether the confirm action is currently loading.
-   * 
-   * @type {boolean}
-   * @optional
-   * @example true
-   * @usage Shows loading spinner on confirm button
-   */
+  /** Whether the confirm action is currently loading */
   confirmLoading?: boolean;
-
-  /**
-   * Name of the item being acted upon (for delete dialogs).
-   * 
-   * @type {string}
-   * @optional
-   * @example "User Profile"
-   * @example "Document.pdf"
-   */
+  /** Name of the item being acted upon (for delete dialogs) */
   itemName?: string;
-
-  /**
-   * Custom icon identifier for the dialog.
-   * 
-   * @type {string}
-   * @optional
-   * @example "custom-warning"
-   * @example "upload-success"
-   */
+  /** Custom icon identifier for the dialog */
   customIcon?: string;
 }
 
 /**
  * Dialog Hook Return Interface
- * 
- * Defines the complete API surface of the useDialog hook with all available
- * methods for dialog management and state access.
- * 
  * @interface UseDialogReturn
- * @since 1.0.0
- * @version 1.0.0
- * @category Types
- * @subcategory Hooks
- * 
- * @example
- * ```tsx
- * const { 
- *   showDeleteDialog, 
- *   showSaveDialog, 
- *   dismissDialog 
- * }: UseDialogReturn = useDialog();
- * ```
  */
 export interface UseDialogReturn {
-  /**
-   * Current dialog state containing all dialog information.
-   * 
-   * @type {DialogState}
-   * @readonly
-   * @example dialogState.visible
-   * @example dialogState.title
-   */
+  /** Current dialog state */
   dialogState: DialogState;
-
-  /**
-   * Show a delete confirmation dialog.
-   * 
-   * @type {(options: { title?: string; content?: string; itemName?: string; onConfirm: () => void; }) => void}
-   * @param {object} options - Delete dialog configuration
-   * @param {string} [options.title] - Custom dialog title
-   * @param {string} [options.content] - Custom dialog content
-   * @param {string} [options.itemName] - Name of item being deleted
-   * @param {() => void} options.onConfirm - Callback when deletion is confirmed
-   * @example showDeleteDialog({ itemName: 'User Profile', onConfirm: deleteUser })
-   */
+  
+  /** Show a delete confirmation dialog */
   showDeleteDialog: (options: {
     title?: string;
     content?: string;
     itemName?: string;
     onConfirm: () => void;
   }) => void;
-
-  /**
-   * Show a save/discard changes dialog.
-   * 
-   * @type {(options: { title?: string; content?: string; onSave: () => void; onDiscard?: () => void; }) => void}
-   * @param {object} options - Save dialog configuration
-   * @param {string} [options.title] - Custom dialog title
-   * @param {string} [options.content] - Custom dialog content
-   * @param {() => void} options.onSave - Callback when save is confirmed
-   * @param {() => void} [options.onDiscard] - Callback when discard is selected
-   * @example showSaveDialog({ onSave: saveChanges, onDiscard: discardChanges })
-   */
+  
+  /** Show a save/discard changes dialog */
   showSaveDialog: (options: {
     title?: string;
     content?: string;
     onSave: () => void;
     onDiscard?: () => void;
   }) => void;
-
-  /**
-   * Show a warning dialog.
-   * 
-   * @type {(options: { title?: string; content: string; onContinue?: () => void; }) => void}
-   * @param {object} options - Warning dialog configuration
-   * @param {string} [options.title] - Custom dialog title
-   * @param {string} options.content - Warning message content
-   * @param {() => void} [options.onContinue] - Callback when continue is selected
-   * @example showWarningDialog({ content: 'This action cannot be undone', onContinue: proceedWithAction })
-   */
+  
+  /** Show a warning dialog */
   showWarningDialog: (options: {
     title?: string;
     content: string;
     onContinue?: () => void;
   }) => void;
-
-  /**
-   * Show an information dialog.
-   * 
-   * @type {(options: { title?: string; content: string; onAction?: () => void; }) => void}
-   * @param {object} options - Info dialog configuration
-   * @param {string} [options.title] - Custom dialog title
-   * @param {string} options.content - Information message content
-   * @param {() => void} [options.onAction] - Optional callback for action button
-   * @example showInfoDialog({ content: 'Profile updated successfully', onAction: goToProfile })
-   */
+  
+  /** Show an information dialog */
   showInfoDialog: (options: {
     title?: string;
     content: string;
     onAction?: () => void;
   }) => void;
-
-  /**
-   * Show a custom dialog with specified type and content.
-   * 
-   * @type {(options: { type: DialogType; title: string; content: string; customIcon?: string; onConfirm?: () => void; }) => void}
-   * @param {object} options - Custom dialog configuration
-   * @param {DialogType} options.type - Dialog type
-   * @param {string} options.title - Dialog title
-   * @param {string} options.content - Dialog content
-   * @param {string} [options.customIcon] - Custom icon identifier
-   * @param {() => void} [options.onConfirm] - Callback when confirmed
-   * @example showCustomDialog({ type: 'success', title: 'Upload Complete', content: 'File uploaded successfully' })
-   */
+  
+  /** Show a custom dialog with specified type and content */
   showCustomDialog: (options: {
     type: DialogType;
     title: string;
@@ -245,31 +80,14 @@ export interface UseDialogReturn {
     customIcon?: string;
     onConfirm?: () => void;
   }) => void;
-
-  /**
-   * Set the loading state for the confirm button.
-   * 
-   * @type {(loading: boolean) => void}
-   * @param {boolean} loading - Whether confirm action is loading
-   * @example setConfirmLoading(true)
-   */
+  
+  /** Set the loading state for the confirm button */
   setConfirmLoading: (loading: boolean) => void;
-
-  /**
-   * Dismiss/hide the currently visible dialog.
-   * 
-   * @type {() => void}
-   * @example dismissDialog()
-   */
+  
+  /** Dismiss/hide the currently visible dialog */
   dismissDialog: () => void;
-
-  /**
-   * Whether any dialog is currently visible.
-   * 
-   * @type {boolean}
-   * @readonly
-   * @example if (isVisible) blockBackgroundInteraction()
-   */
+  
+  /** Whether any dialog is currently visible */
   isVisible: boolean;
 }
 

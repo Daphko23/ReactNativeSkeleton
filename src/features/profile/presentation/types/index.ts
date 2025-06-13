@@ -278,6 +278,7 @@ export interface ProfileFormData {
   bio?: string;
   
   // Contact Information
+  email?: string;
   location?: string;
   website?: string;
   phone?: string;
