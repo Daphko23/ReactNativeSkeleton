@@ -165,6 +165,9 @@ import {
   ILoggerService, 
   LogCategory 
 } from '../../../../core/logging/logger.service.interface';
+import { LoggerFactory } from '@core/logging/logger.factory';
+
+const logger = LoggerFactory.createServiceLogger('PasswordPolicyService');
 
 /**
  * @class PasswordPolicyServiceImpl
@@ -518,7 +521,10 @@ export class PasswordPolicyServiceImpl implements IPasswordPolicyService {
 
       return false;
     } catch (error) {
-      console.error('[PasswordPolicyService] Password history check failed:', error);
+      logger.error('Password history check failed', LogCategory.SECURITY, {
+  userId,
+  action: 'password_history_check'
+}, error as Error);
       return false; // Fail safe - don't block password changes on history check errors
     }
   }

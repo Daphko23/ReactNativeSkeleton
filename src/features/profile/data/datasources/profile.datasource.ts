@@ -4,6 +4,10 @@
  */
 
 import { supabase } from '@core/config/supabase.config';
+import { LoggerFactory } from '@core/logging/logger.factory';
+import { LogCategory } from '@core/logging/logger.service.interface';
+
+const logger = LoggerFactory.createServiceLogger('ProfileDataSource');
 
 // Database row interfaces (matching Supabase schema)
 export interface UserProfileRow {
@@ -103,7 +107,7 @@ export interface IProfileDataSource {
 }
 
 export class ProfileDataSource implements IProfileDataSource {
-  private logger = console; // Simple console logging for now
+  // Enterprise logger injected via DI
 
   // =============================================
   // PROFILE CRUD
@@ -111,7 +115,7 @@ export class ProfileDataSource implements IProfileDataSource {
 
   async createProfile(profile: Omit<UserProfileRow, 'created_at' | 'updated_at'>): Promise<UserProfileRow> {
     try {
-      this.logger.debug('Creating profile in database', { userId: profile.user_id });
+      logger.info('Creating profile in database', LogCategory.BUSINESS, { userId: profile.user_id });
 
       const { data, error } = await supabase
         .from('user_profiles')
@@ -120,21 +124,21 @@ export class ProfileDataSource implements IProfileDataSource {
         .single();
 
       if (error) {
-        this.logger.error('Failed to create profile', error.message);
+        logger.error('Failed to create profile', LogCategory.BUSINESS, { userId: profile.user_id }, new Error(error.message));
         throw new Error(`Database error: ${error.message}`);
       }
 
-      this.logger.info('Profile created successfully', { userId: data.user_id });
+      logger.info('Profile created successfully', LogCategory.BUSINESS, { userId: data.user_id });
       return data;
     } catch (error) {
-      this.logger.error('Error in createProfile', error);
+      logger.error('Error in createProfile', LogCategory.BUSINESS, { userId: profile.user_id }, error as Error);
       throw error;
     }
   }
 
   async getProfileByUserId(userId: string): Promise<UserProfileRow | null> {
     try {
-      this.logger.debug('Fetching profile by user ID', { userId });
+      logger.info('Fetching profile by user ID', LogCategory.BUSINESS, { userId });
 
       const { data, error } = await supabase
         .from('user_profiles')
@@ -144,10 +148,10 @@ export class ProfileDataSource implements IProfileDataSource {
 
       if (error) {
         if (error.code === 'PGRST116') { // Not found
-          this.logger.debug('Profile not found', { userId });
+          logger.info('Profile not found', LogCategory.BUSINESS, { userId });
           return null;
         }
-        this.logger.error('Failed to fetch profile', error.message);
+        logger.error('Failed to fetch profile', LogCategory.BUSINESS, { userId }, new Error(error.message));
         throw new Error(`Database error: ${error.message}`);
       }
 
@@ -156,21 +160,25 @@ export class ProfileDataSource implements IProfileDataSource {
         const { data: authUser, error: authError } = await supabase.auth.admin.getUserById(userId);
         if (!authError && authUser?.user?.email) {
           data.email = authUser.user.email;
-          console.log('🔧 Profile DataSource: Added missing email from auth.users:', authUser.user.email);
+          logger.info('Added missing email from auth users', LogCategory.BUSINESS, {
+            userId,
+            email: authUser.user.email,
+            source: 'auth.users'
+          });
         }
       }
 
-      this.logger.debug('Profile fetched successfully', { userId });
+      logger.info('Profile fetched successfully', LogCategory.BUSINESS, { userId });
       return data;
     } catch (error) {
-      this.logger.error('Error in getProfileByUserId', error);
+      logger.error('Error in getProfileByUserId', LogCategory.BUSINESS, { userId }, error as Error);
       throw error;
     }
   }
 
   async updateProfile(userId: string, updates: Partial<UserProfileRow>): Promise<UserProfileRow> {
     try {
-      this.logger.debug('Updating profile in database', { userId, updates });
+      logger.info('Updating profile in database', LogCategory.BUSINESS, { userId, updateFields: Object.keys(updates) });
 
       const { data, error } = await supabase
         .from('user_profiles')
@@ -183,21 +191,21 @@ export class ProfileDataSource implements IProfileDataSource {
         .single();
 
       if (error) {
-        this.logger.error('Failed to update profile', error.message);
+        logger.error('Failed to update profile', LogCategory.BUSINESS, { userId }, new Error(error.message));
         throw new Error(`Database error: ${error.message}`);
       }
 
-      this.logger.info('Profile updated successfully', { userId });
+      logger.info('Profile updated successfully', LogCategory.BUSINESS, { userId });
       return data;
     } catch (error) {
-      this.logger.error('Error in updateProfile', error);
+      logger.error('Error in updateProfile', LogCategory.BUSINESS, { userId }, error as Error);
       throw error;
     }
   }
 
   async deleteProfile(userId: string): Promise<boolean> {
     try {
-      this.logger.debug('Deleting profile', { userId });
+      logger.info('Deleting profile', LogCategory.BUSINESS, { userId });
 
       const { error } = await supabase
         .from('user_profiles')
@@ -205,14 +213,14 @@ export class ProfileDataSource implements IProfileDataSource {
         .eq('user_id', userId);
 
       if (error) {
-        this.logger.error('Failed to delete profile', error.message);
+        logger.error('Failed to delete profile', LogCategory.BUSINESS, { userId }, new Error(error.message));
         return false;
       }
 
-      this.logger.info('Profile deleted successfully', { userId });
+      logger.info('Profile deleted successfully', LogCategory.BUSINESS, { userId });
       return true;
     } catch (error) {
-      this.logger.error('Error in deleteProfile', error);
+      logger.error('Error in deleteProfile', LogCategory.BUSINESS, { userId }, error as Error);
       return false;
     }
   }

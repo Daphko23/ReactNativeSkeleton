@@ -217,7 +217,13 @@ export class AppInitializer {
     }
 
     try {
-      console.log('🚀 Initializing ReactNativeSkeleton Enterprise App...');
+      this.logger.info('Initializing ReactNativeSkeleton Enterprise App', undefined, {
+        metadata: {
+          appName: 'ReactNativeSkeleton',
+          version: '2.0.0',
+          platform: 'react-native'
+        }
+      });
 
       // Step 1: Load Configuration
       this.config = {
@@ -225,14 +231,16 @@ export class AppInitializer {
         ...customConfig
       };
 
-      console.log('🔧 Application Configuration:', {
-        appName: this.config.appName,
-        version: this.config.version,
-        environment: this.config.environment,
-        debug: this.config.debug,
-        enableSentry: this.config.enableSentry,
-        enableLogging: this.config.enableLogging,
-        buildNumber: this.config.buildNumber,
+      this.logger.info('Application Configuration loaded', undefined, {
+        metadata: {
+          appName: this.config.appName,
+          version: this.config.version,
+          environment: this.config.environment,
+          debug: this.config.debug,
+          enableSentry: this.config.enableSentry,
+          enableLogging: this.config.enableLogging,
+          buildNumber: this.config.buildNumber
+        }
       });
 
       // Step 2: Initialize Logging System
@@ -268,12 +276,21 @@ export class AppInitializer {
         }
       });
 
-      console.log('✅ ReactNativeSkeleton Enterprise App ready!');
+      this.logger.info('ReactNativeSkeleton Enterprise App ready', undefined, {
+        metadata: {
+          initializationComplete: true,
+          allServicesInitialized: true
+        }
+      });
 
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Unknown initialization error';
       
-      console.error('❌ Failed to initialize ReactNativeSkeleton Enterprise App:', errorMessage);
+      this.logger.error('Failed to initialize ReactNativeSkeleton Enterprise App', undefined, {
+        metadata: {
+          errorMessage
+        }
+      }, error as Error);
       
       if (this.config?.enableLogging) {
         this.logger.error('Application initialization failed', undefined, undefined, error as Error);
@@ -290,14 +307,22 @@ export class AppInitializer {
    */
   private static async initializeLogging(): Promise<void> {
     try {
-      console.log('🔧 Initializing logging system...');
+      this.logger.info('Initializing logging system', undefined, {
+        metadata: {
+          step: 'logging_init'
+        }
+      });
       
       // Logger factory automatically selects appropriate logger
       // based on environment, so we just need to ensure it's ready
       const testLogger = LoggerFactory.createLogger();
       testLogger.info('Logging system initialized successfully');
       
-      console.log('✅ Logging system ready');
+      this.logger.info('Logging system ready', undefined, {
+        metadata: {
+          step: 'logging_complete'
+        }
+      });
     } catch (error) {
       throw new Error(`Logging initialization failed: ${error}`);
     }
@@ -310,18 +335,31 @@ export class AppInitializer {
    */
   private static async initializeMonitoring(): Promise<void> {
     try {
-      console.log('🔧 Initializing Sentry monitoring...');
+      this.logger.info('Initializing Sentry monitoring', undefined, {
+        metadata: {
+          step: 'sentry_init'
+        }
+      });
       
       // Initialize Sentry
       initializeSentry();
       
       // Test integration in development
       if (this.config.debug && this.config.environment === 'development') {
-        console.log('🧪 Testing Sentry integration...');
+        this.logger.info('Testing Sentry integration', undefined, {
+          metadata: {
+            step: 'sentry_test',
+            environment: 'development'
+          }
+        });
         testSentryIntegration();
       }
       
-      console.log('✅ Sentry monitoring ready');
+      this.logger.info('Sentry monitoring ready', undefined, {
+        metadata: {
+          step: 'sentry_complete'
+        }
+      });
     } catch (error) {
       throw new Error(`Monitoring initialization failed: ${error}`);
     }
@@ -334,12 +372,20 @@ export class AppInitializer {
    */
   private static async initializePerformanceMonitoring(): Promise<void> {
     try {
-      console.log('🔧 Initializing performance monitoring...');
+      this.logger.info('Initializing performance monitoring', undefined, {
+        metadata: {
+          step: 'performance_init'
+        }
+      });
       
       // Performance monitoring is already included in Sentry configuration
       // Additional performance monitoring setup can be added here if needed
       
-      console.log('✅ Performance monitoring ready');
+      this.logger.info('Performance monitoring ready', undefined, {
+        metadata: {
+          step: 'performance_complete'
+        }
+      });
     } catch (error) {
       throw new Error(`Performance monitoring initialization failed: ${error}`);
     }
@@ -352,7 +398,11 @@ export class AppInitializer {
    */
   private static async validateServices(): Promise<void> {
     try {
-      console.log('🔧 Validating services...');
+      this.logger.info('Validating services', undefined, {
+        metadata: {
+          step: 'service_validation'
+        }
+      });
       
       const validationResults = {
         logging: this.validateLogging(),
@@ -368,7 +418,12 @@ export class AppInitializer {
         throw new Error(`Service validation failed for: ${failedServices.join(', ')}`);
       }
       
-      console.log('✅ All services validated successfully');
+      this.logger.info('All services validated successfully', undefined, {
+        metadata: {
+          step: 'validation_complete',
+          servicesValidated: ['logging', 'monitoring', 'performance']
+        }
+      });
     } catch (error) {
       throw new Error(`Service validation failed: ${error}`);
     }
@@ -386,7 +441,11 @@ export class AppInitializer {
       testLogger.info('Logging validation test');
       return true;
     } catch (error) {
-      console.error('Logging validation failed:', error);
+      this.logger.error('Logging validation failed', undefined, {
+        metadata: {
+          step: 'logging_validation'
+        }
+      }, error as Error);
       return false;
     }
   }
@@ -402,7 +461,11 @@ export class AppInitializer {
       const sentryConfig = getSentryConfig();
       return !!sentryConfig.dsn;
     } catch (error) {
-      console.error('Monitoring validation failed:', error);
+      this.logger.error('Monitoring validation failed', undefined, {
+        metadata: {
+          step: 'monitoring_validation'
+        }
+      }, error as Error);
       return false;
     }
   }
@@ -418,7 +481,11 @@ export class AppInitializer {
       // Performance monitoring validation logic
       return true;
     } catch (error) {
-      console.error('Performance monitoring validation failed:', error);
+      this.logger.error('Performance monitoring validation failed', undefined, {
+        metadata: {
+          step: 'performance_validation'
+        }
+      }, error as Error);
       return false;
     }
   }

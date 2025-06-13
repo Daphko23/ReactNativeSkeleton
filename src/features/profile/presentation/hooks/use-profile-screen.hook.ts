@@ -232,8 +232,11 @@ export const useProfileScreen = (navigation?: any): UseProfileScreenReturn => {
     logger.info('Initiating avatar change', LogCategory.BUSINESS, { userId });
     // Use existing avatar hook's upload functionality
     // This would typically open an image picker
-    console.log('Avatar picker would be shown here');
-  }, [userId]);
+    logger.info('Avatar picker action would be triggered', LogCategory.BUSINESS, {
+      userId,
+      currentAvatarUrl: avatarQuery.avatarUrl
+    });
+  }, [userId, avatarQuery.avatarUrl]);
 
   const removeAvatar = useCallback(async () => {
     await removeAvatarMutation.mutateAsync();

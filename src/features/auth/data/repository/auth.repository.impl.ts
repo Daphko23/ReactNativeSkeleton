@@ -815,13 +815,19 @@ export class AuthRepositoryImpl implements AuthRepository {
         userAgent: 'React Native App',
       });
 
-      console.log(
-        '[AuthRepository] Biometric authentication successful for user:',
-        userDto.id
-      );
+      this.logger.info('Biometric authentication successful', LogCategory.SECURITY, {
+        service: 'AuthRepository',
+        metadata: {
+          userId: userDto.id,
+          biometricMethod: 'fingerprint_or_face'
+        }
+      });
       return this.mapDtoToEntity(userDto);
     } catch (error) {
-      console.error('[AuthRepository] Biometric authentication error:', error);
+      this.logger.error('Biometric authentication failed', LogCategory.SECURITY, {
+        service: 'AuthRepository',
+        metadata: {}
+      }, error as Error);
       throw error;
     }
   }
@@ -860,12 +866,18 @@ export class AuthRepositoryImpl implements AuthRepository {
         userAgent: 'React Native App',
       });
 
-      console.log(
-        '[AuthRepository] Biometric authentication disabled for user:',
-        userDto.id
-      );
+      this.logger.info('Biometric authentication disabled successfully', LogCategory.SECURITY, {
+        service: 'AuthRepository',
+        metadata: {
+          userId: userDto.id,
+          action: 'disable_biometric'
+        }
+      });
     } catch (error) {
-      console.error('[AuthRepository] Disable biometric error:', error);
+      this.logger.error('Failed to disable biometric authentication', LogCategory.SECURITY, {
+        service: 'AuthRepository',
+        metadata: {}
+      }, error as Error);
       throw error;
     }
   }
@@ -988,7 +1000,10 @@ export class AuthRepositoryImpl implements AuthRepository {
 
       return this.mapDtoToEntity(userDto);
     } catch (error) {
-      console.error('[AuthRepository] Apple OAuth error:', error);
+      this.logger.error('Apple OAuth authentication failed', LogCategory.SECURITY, {
+        service: 'AuthRepository',
+        metadata: { provider: 'apple' }
+      }, error as Error);
       throw error;
     }
   }
@@ -1054,7 +1069,10 @@ export class AuthRepositoryImpl implements AuthRepository {
 
       return this.mapDtoToEntity(userDto);
     } catch (error) {
-      console.error('[AuthRepository] Microsoft OAuth error:', error);
+      this.logger.error('Microsoft OAuth authentication failed', LogCategory.SECURITY, {
+        service: 'AuthRepository',
+        metadata: { provider: 'microsoft' }
+      }, error as Error);
       throw error;
     }
   }
@@ -1092,11 +1110,18 @@ export class AuthRepositoryImpl implements AuthRepository {
         userAgent: 'React Native App',
       });
 
-      console.log(
-        `[AuthRepository] OAuth provider ${provider} linked successfully`
-      );
+      this.logger.info('OAuth provider linked successfully', LogCategory.SECURITY, {
+        service: 'AuthRepository',
+        metadata: {
+          provider,
+          action: 'oauth_link'
+        }
+      });
     } catch (error) {
-      console.error('[AuthRepository] Link OAuth provider error:', error);
+      this.logger.error('Failed to link OAuth provider', LogCategory.SECURITY, {
+        service: 'AuthRepository',
+        metadata: { provider }
+      }, error as Error);
       throw error;
     }
   }
@@ -1134,11 +1159,18 @@ export class AuthRepositoryImpl implements AuthRepository {
         userAgent: 'React Native App',
       });
 
-      console.log(
-        `[AuthRepository] OAuth provider ${provider} unlinked successfully`
-      );
+      this.logger.info('OAuth provider unlinked successfully', LogCategory.SECURITY, {
+        service: 'AuthRepository',
+        metadata: {
+          provider,
+          action: 'oauth_unlink'
+        }
+      });
     } catch (error) {
-      console.error('[AuthRepository] Unlink OAuth provider error:', error);
+      this.logger.error('Failed to unlink OAuth provider', LogCategory.SECURITY, {
+        service: 'AuthRepository',
+        metadata: { provider }
+      }, error as Error);
       throw error;
     }
   }
@@ -1169,12 +1201,26 @@ export class AuthRepositoryImpl implements AuthRepository {
 
   async assignRole(userId: string, role: string): Promise<void> {
     // TODO: Implement with Supabase user metadata
-    console.log(`Assigning role ${role} to user ${userId}`);
+    this.logger.info('Assigning role to user', LogCategory.SECURITY, {
+      service: 'AuthRepository',
+      metadata: {
+        userId,
+        role,
+        action: 'assign_role'
+      }
+    });
   }
 
   async removeRole(userId: string, role: string): Promise<void> {
     // TODO: Implement with Supabase user metadata
-    console.log(`Removing role ${role} from user ${userId}`);
+    this.logger.info('Removing role from user', LogCategory.SECURITY, {
+      service: 'AuthRepository',
+      metadata: {
+        userId,
+        role,
+        action: 'remove_role'
+      }
+    });
   }
 
   // ==========================================
@@ -1247,7 +1293,10 @@ export class AuthRepositoryImpl implements AuthRepository {
         isActive: true
       }];
     } catch (error) {
-      console.error('[AuthRepository] Get active sessions error:', error);
+      this.logger.error('Failed to get active sessions', LogCategory.SECURITY, {
+        service: 'AuthRepository',
+        metadata: {}
+      }, error as Error);
       return [];
     }
   }
@@ -1262,9 +1311,15 @@ export class AuthRepositoryImpl implements AuthRepository {
 
       // For other sessions, you'd need a custom implementation
       // with session tracking in your database
-      console.warn('Terminating other sessions not implemented yet');
+      this.logger.warn('Terminating other sessions not implemented yet', LogCategory.BUSINESS, {
+        service: 'AuthRepository',
+        metadata: { sessionId }
+      });
     } catch (error) {
-      console.error('[AuthRepository] Terminate session error:', error);
+      this.logger.error('Failed to terminate session', LogCategory.SECURITY, {
+        service: 'AuthRepository',
+        metadata: { sessionId }
+      }, error as Error);
       throw error;
     }
   }
@@ -1276,19 +1331,28 @@ export class AuthRepositoryImpl implements AuthRepository {
       // 2. Mark them as terminated
       // 3. Invalidate their tokens
 
-      console.warn('Terminate all other sessions not fully implemented yet');
+      this.logger.warn('Terminate all other sessions not fully implemented', LogCategory.BUSINESS, {
+        service: 'AuthRepository',
+        metadata: {}
+      });
 
       // For now, just refresh the current session
       await supabase.auth.refreshSession();
     } catch (error) {
-      console.error('[AuthRepository] Terminate all sessions error:', error);
+      this.logger.error('Failed to terminate all sessions', LogCategory.SECURITY, {
+        service: 'AuthRepository',
+        metadata: {}
+      }, error as Error);
       throw error;
     }
   }
 
   async refreshSession(): Promise<void> {
     // TODO: Implement session refresh
-    console.log('Refreshing session');
+    this.logger.info('Refreshing authentication session', LogCategory.SECURITY, {
+      service: 'AuthRepository',
+      metadata: { action: 'refresh_session' }
+    });
   }
 
   async setSessionTimeout(minutes: number): Promise<void> {
@@ -1300,7 +1364,10 @@ export class AuthRepositoryImpl implements AuthRepository {
         },
       });
     } catch (error) {
-      console.error('[AuthRepository] Set session timeout error:', error);
+      this.logger.error('Failed to set session timeout', LogCategory.SECURITY, {
+        service: 'AuthRepository',
+        metadata: { timeoutMinutes: minutes }
+      }, error as Error);
       throw error;
     }
   }
@@ -1325,11 +1392,20 @@ export class AuthRepositoryImpl implements AuthRepository {
       });
 
       if (error) {
-        console.error('[AuthRepository] Log security event error:', error);
+        this.logger.error('Failed to log security event', LogCategory.SECURITY, {
+        service: 'AuthRepository',
+        metadata: {
+          eventType: event.type,
+          eventId: event.id
+        }
+      }, error as Error);
         // Don't throw - security logging should not break the flow
       }
     } catch (error) {
-      console.error('[AuthRepository] Log security event error:', error);
+      this.logger.error('Failed to log security event to audit system', LogCategory.SECURITY, {
+      service: 'AuthRepository',
+      metadata: {}
+    }, error as Error);
       // Don't throw - security logging should not break the flow
     }
   }
@@ -1388,7 +1464,10 @@ export class AuthRepositoryImpl implements AuthRepository {
 
       return alerts;
     } catch (error) {
-      console.error('[AuthRepository] Check suspicious activity error:', error);
+      this.logger.error('Failed to check suspicious activity', LogCategory.SECURITY, {
+        service: 'AuthRepository',
+        metadata: {}
+      }, error as Error);
       return [];
     }
   }
@@ -1409,7 +1488,10 @@ export class AuthRepositoryImpl implements AuthRepository {
 
       return data || [];
     } catch (error) {
-      console.error('[AuthRepository] Get security events error:', error);
+      this.logger.error('Failed to get security events', LogCategory.SECURITY, {
+        service: 'AuthRepository',
+        metadata: { limit }
+      }, error as Error);
       return [];
     }
   }
@@ -1420,12 +1502,23 @@ export class AuthRepositoryImpl implements AuthRepository {
 
   async enableSSO(provider: string, config: any): Promise<void> {
     // TODO: Implement SSO integration
-    console.log(`Enabling SSO for provider: ${provider}`, config);
+    this.logger.info('Enabling SSO for provider', LogCategory.SECURITY, {
+      service: 'AuthRepository',
+      metadata: {
+        provider,
+        configKeys: Object.keys(config || {})
+      }
+    });
   }
 
   async syncWithLDAP(config: any): Promise<void> {
     // TODO: Implement LDAP synchronization
-    console.log('Syncing with LDAP', config);
+    this.logger.info('Syncing with LDAP directory', LogCategory.SECURITY, {
+      service: 'AuthRepository',
+      metadata: {
+        configKeys: Object.keys(config || {})
+      }
+    });
   }
 
   async exportAuditLog(_startDate: Date, _endDate: Date): Promise<string> {

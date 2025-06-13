@@ -390,7 +390,10 @@ class ErrorMonitoringService {
     try {
       // Skip initialization in development to avoid polyfill issues
       if (__DEV__) {
-        console.log('Error monitoring skipped in development mode');
+        this.logger.info('Error monitoring skipped in development mode', LogCategory.BUSINESS, {
+  service: 'ErrorMonitoring',
+  environment: 'development'
+});
         this.isInitialized = true;
         return;
       }
@@ -453,7 +456,11 @@ class ErrorMonitoringService {
       Sentry.setTag('sessionId', this.sessionId);
 
       this.isInitialized = true;
-      console.log('Error monitoring initialized successfully');
+      this.logger.info('Error monitoring initialized successfully', LogCategory.BUSINESS, {
+  service: 'ErrorMonitoring',
+  sentryEnabled: true,
+  crashlyticsEnabled: false
+});
       
       // Track initialization
       this.trackEvent('monitoring.initialized', {
@@ -462,7 +469,9 @@ class ErrorMonitoringService {
       });
       
     } catch (error) {
-      console.error('Failed to initialize error monitoring:', error);
+      this.logger.error('Failed to initialize error monitoring', LogCategory.BUSINESS, {
+  service: 'ErrorMonitoring'
+}, error as Error);
       // Mark as initialized even if failed to prevent repeated attempts
       this.isInitialized = true;
     }
@@ -474,7 +483,9 @@ class ErrorMonitoringService {
 
   captureError(error: Error, context?: ErrorContext): void {
     if (!this.isInitialized) {
-      console.error('Error monitoring not initialized:', error);
+      this.logger.error('Error monitoring not initialized', LogCategory.BUSINESS, {
+  service: 'ErrorMonitoring'
+}, error as Error);
       return;
     }
 
@@ -511,7 +522,11 @@ class ErrorMonitoringService {
 
   captureMessage(message: string, level: 'debug' | 'info' | 'warning' | 'error' = 'info', context?: ErrorContext): void {
     if (!this.isInitialized) {
-      console.log(`[${level}] ${message}`);
+      this.logger.info('Error monitoring log entry', LogCategory.BUSINESS, {
+  service: 'ErrorMonitoring',
+  level,
+  message
+});
       return;
     }
 

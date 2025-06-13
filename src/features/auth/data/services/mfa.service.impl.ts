@@ -161,6 +161,9 @@ import {
   ILoggerService, 
   LogCategory 
 } from '../../../../core/logging/logger.service.interface';
+import { LoggerFactory } from '@core/logging/logger.factory';
+
+const logger = LoggerFactory.createServiceLogger('MFAService');
 
 /**
  * @class MFAServiceImpl
@@ -397,7 +400,11 @@ export class MFAServiceImpl implements IMFAService {
           verified: true,
         };
       } else {
-        console.warn(`[MFAServiceImpl] TOTP verification failed for user: ${userId}`);
+        logger.warn('TOTP verification failed', LogCategory.SECURITY, {
+        userId,
+        mfaType: 'totp',
+        action: 'verification_failed'
+      });
         await this.incrementFailedAttempts(userId, 'totp');
         
         const attempts = await this.getVerificationAttempts(userId);
@@ -431,7 +438,10 @@ export class MFAServiceImpl implements IMFAService {
         };
       }
     } catch (error) {
-      console.error('[MFAServiceImpl] TOTP verification error:', error);
+      logger.error('TOTP verification error', LogCategory.SECURITY, {
+        userId,
+        mfaType: 'totp'
+      }, error as Error);
       this.logger.error('TOTP verification error', LogCategory.SECURITY, {
         userId,
         service: 'MFAService'
@@ -469,13 +479,20 @@ export class MFAServiceImpl implements IMFAService {
         };
       }
       
-      console.log(`[MFAServiceImpl] SMS setup successful for user: ${userId}`);
+      logger.info('SMS MFA setup successful', LogCategory.SECURITY, {
+        userId,
+        mfaType: 'sms',
+        action: 'setup'
+      });
       
       return {
         success: true,
       };
     } catch (error) {
-      console.error('[MFAServiceImpl] SMS setup error:', error);
+      logger.error('SMS MFA setup failed', LogCategory.SECURITY, {
+        userId,
+        mfaType: 'sms'
+      }, error as Error);
       return {
         success: false,
         error: error instanceof Error ? error.message : 'SMS setup failed',
@@ -497,13 +514,20 @@ export class MFAServiceImpl implements IMFAService {
   async sendSMSCode(userId: string): Promise<{success: boolean; error?: string}> {
     try {
       // Simulate SMS sending
-      console.log(`[MFAServiceImpl] SMS code sent to user: ${userId}`);
+      logger.info('SMS verification code sent', LogCategory.SECURITY, {
+        userId,
+        mfaType: 'sms',
+        action: 'send_code'
+      });
       
       return {
         success: true,
       };
     } catch (error) {
-      console.error('[MFAServiceImpl] SMS sending error:', error);
+      logger.error('Failed to send SMS verification code', LogCategory.SECURITY, {
+        userId,
+        mfaType: 'sms'
+      }, error as Error);
       return {
         success: false,
         error: error instanceof Error ? error.message : 'SMS sending failed',
@@ -529,7 +553,11 @@ export class MFAServiceImpl implements IMFAService {
       const isValid = /^\d{6}$/.test(code);
       
       if (isValid) {
-        console.log(`[MFAServiceImpl] SMS verification successful for user: ${userId}`);
+        logger.info('SMS verification successful', LogCategory.SECURITY, {
+        userId,
+        mfaType: 'sms',
+        action: 'verify'
+      });
         return {
           success: true,
           verified: true,
@@ -542,7 +570,11 @@ export class MFAServiceImpl implements IMFAService {
         };
       }
     } catch (error) {
-      console.error('[MFAServiceImpl] SMS verification error:', error);
+      logger.error('SMS verification failed', LogCategory.SECURITY, {
+        userId,
+        mfaType: 'sms',
+        verificationCode: '***masked***'
+      }, error as Error);
       return {
         success: false,
         verified: false,
@@ -584,10 +616,15 @@ export class MFAServiceImpl implements IMFAService {
         },
       ];
       
-      console.log(`[MFAServiceImpl] Retrieved ${methods.length} MFA methods for user: ${userId}`);
+      logger.info('Retrieved MFA methods for user', LogCategory.SECURITY, {
+        userId,
+        methodsCount: methods.length
+      });
       return methods;
     } catch (error) {
-      console.error('[MFAServiceImpl] Get MFA methods error:', error);
+      logger.error('Failed to get MFA methods', LogCategory.SECURITY, {
+        userId
+      }, error as Error);
       return [];
     }
   }
@@ -606,13 +643,20 @@ export class MFAServiceImpl implements IMFAService {
    */
   async disableMFA(userId: string, methodId: string): Promise<{success: boolean; error?: string}> {
     try {
-      console.log(`[MFAServiceImpl] MFA method ${methodId} disabled for user: ${userId}`);
+      logger.info('MFA method disabled successfully', LogCategory.SECURITY, {
+        userId,
+        methodId,
+        action: 'disable_mfa'
+      });
       
       return {
         success: true,
       };
     } catch (error) {
-      console.error('[MFAServiceImpl] Disable MFA error:', error);
+      logger.error('Failed to disable MFA method', LogCategory.SECURITY, {
+        userId,
+        methodId
+      }, error as Error);
       return {
         success: false,
         error: error instanceof Error ? error.message : 'MFA disable failed',
@@ -639,10 +683,16 @@ export class MFAServiceImpl implements IMFAService {
         codes.push(this.generateSecureCode(8));
       }
       
-      console.log(`[MFAServiceImpl] Generated ${codes.length} backup codes for user: ${userId}`);
+      logger.info('Backup codes generated successfully', LogCategory.SECURITY, {
+        userId,
+        codesCount: codes.length,
+        action: 'generate_backup_codes'
+      });
       return codes;
     } catch (error) {
-      console.error('[MFAServiceImpl] Backup codes generation error:', error);
+      logger.error('Failed to generate backup codes', LogCategory.SECURITY, {
+        userId
+      }, error as Error);
       return [];
     }
   }
@@ -665,7 +715,10 @@ export class MFAServiceImpl implements IMFAService {
       const isValid = /^[A-Z0-9]{8}$/.test(code);
       
       if (isValid) {
-        console.log(`[MFAServiceImpl] Backup code verification successful for user: ${userId}`);
+        logger.info('Backup code verification successful', LogCategory.SECURITY, {
+        userId,
+        action: 'verify_backup_code'
+      });
         return {
           success: true,
           verified: true,
@@ -678,7 +731,10 @@ export class MFAServiceImpl implements IMFAService {
         };
       }
     } catch (error) {
-      console.error('[MFAServiceImpl] Backup code verification error:', error);
+      logger.error('Backup code verification failed', LogCategory.SECURITY, {
+        userId,
+        backupCode: '***masked***'
+      }, error as Error);
       return {
         success: false,
         verified: false,

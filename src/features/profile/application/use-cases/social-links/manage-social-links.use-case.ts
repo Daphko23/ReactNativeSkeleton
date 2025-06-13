@@ -9,6 +9,11 @@
  * - Enterprise Audit Logging
  */
 
+import { LoggerFactory } from '@core/logging/logger.factory';
+import { LogCategory } from '@core/logging/logger.service.interface';
+
+const logger = LoggerFactory.createServiceLogger('SocialLinksUseCase');
+
 // Domain Types
 import { 
   SocialLink, 
@@ -48,12 +53,26 @@ interface AuditLogService {
 class SimpleAuditLogService implements AuditLogService {
   async logActivity(entry: AuditLogEntry): Promise<string> {
     const logId = `audit_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-    console.log(`[AUDIT] ${logId}:`, entry);
+    
+    logger.info('Social links audit entry created', LogCategory.BUSINESS, {
+      auditLogId: logId,
+      userId: entry.userId,
+      action: entry.action,
+      entityType: entry.entityType,
+      timestamp: entry.timestamp,
+      gdprCompliance: entry.gdprCompliance
+    });
+    
     return logId;
   }
 
   async logError(entry: { userId: string; action: string; error: string; timestamp: Date }): Promise<void> {
-    console.error(`[AUDIT ERROR]:`, entry);
+    logger.error('Social links audit error', LogCategory.BUSINESS, {
+      userId: entry.userId,
+      action: entry.action,
+      error: entry.error,
+      timestamp: entry.timestamp
+    });
   }
 }
 

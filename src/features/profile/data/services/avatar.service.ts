@@ -11,6 +11,10 @@
 import { avatarDIContainer } from '@core/di/avatar-di.container';
 import { IAvatarRepository } from '@features/profile/domain/interfaces/avatar-repository.interface';
 import { ImagePickerResult, IAvatarService, AvatarUploadOptions, AvatarUploadResult } from '../../domain/interfaces/avatar.interface';
+import { LoggerFactory } from '@core/logging/logger.factory';
+import { LogCategory } from '@core/logging/logger.service.interface';
+
+const logger = LoggerFactory.createServiceLogger('AvatarService');
 
 /**
  * Avatar Service - React Native 2025 Enterprise Standards
@@ -82,7 +86,9 @@ export class AvatarService implements IAvatarService {
   constructor() {
     // Repository über Dependency Injection Container
     this.avatarRepository = avatarDIContainer.getAvatarRepository();
-    console.log('AvatarService: Initialized with Repository Pattern');
+    logger.info('Avatar Service initialized with Repository Pattern', LogCategory.BUSINESS, {
+      repositoryType: 'DI Container Injected'
+    });
   }
 
   /**
@@ -116,7 +122,14 @@ export class AvatarService implements IAvatarService {
    */
   async uploadAvatar(options: AvatarUploadOptions): Promise<AvatarUploadResult> {
     try {
-      console.log('AvatarService: Starting avatar upload via Repository');
+      const correlationId = `upload_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+      
+      logger.info('Starting avatar upload via Repository', LogCategory.BUSINESS, {
+        correlationId,
+        userId: options.userId,
+        fileSize: options.file?.size,
+        fileName: options.file?.fileName
+      });
 
       // Service Layer Business Logic: Validate options
       if (!options.userId) {
@@ -150,16 +163,27 @@ export class AvatarService implements IAvatarService {
 
       // Service Layer: Add service-specific logging and context
       if (result.success) {
-        console.log('AvatarService: Avatar upload completed successfully');
-        console.log('AvatarService: Avatar URL:', result.avatarUrl);
+        logger.info('Avatar upload completed successfully', LogCategory.BUSINESS, {
+          correlationId,
+          userId: options.userId,
+          avatarUrl: result.avatarUrl,
+          fileSize: options.file?.size
+        });
       } else {
-        console.error('AvatarService: Upload failed:', result.error);
+        logger.error('Avatar upload failed', LogCategory.BUSINESS, {
+          correlationId,
+          userId: options.userId,
+          error: result.error
+        });
       }
 
       return result;
 
     } catch (error) {
-      console.error('AvatarService: Upload exception:', error);
+      logger.error('Avatar upload exception occurred', LogCategory.BUSINESS, {
+        correlationId,
+        userId: options.userId
+      }, error as Error);
       return {
         success: false,
         error: error instanceof Error ? error.message : 'Avatar upload failed'
@@ -187,7 +211,12 @@ export class AvatarService implements IAvatarService {
    */
   async deleteAvatar(userId?: string): Promise<{ success: boolean; error?: string }> {
     try {
-      console.log('AvatarService: Starting avatar deletion via Repository');
+      const correlationId = `delete_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+      
+      logger.info('Starting avatar deletion via Repository', LogCategory.BUSINESS, {
+        correlationId,
+        userId
+      });
 
       // Service Layer Business Logic: Validate user ID
       if (!userId) {
@@ -202,15 +231,25 @@ export class AvatarService implements IAvatarService {
 
       // Service Layer: Add service-specific logging
       if (result.success) {
-        console.log('AvatarService: Avatar deletion completed successfully');
+        logger.info('Avatar deletion completed successfully', LogCategory.BUSINESS, {
+          correlationId,
+          userId
+        });
       } else {
-        console.error('AvatarService: Deletion failed:', result.error);
+        logger.error('Avatar deletion failed', LogCategory.BUSINESS, {
+          correlationId,
+          userId,
+          error: result.error
+        });
       }
 
       return result;
 
     } catch (error) {
-      console.error('AvatarService: Delete exception:', error);
+      logger.error('Avatar deletion exception occurred', LogCategory.BUSINESS, {
+        correlationId,
+        userId
+      }, error as Error);
       return {
         success: false,
         error: error instanceof Error ? error.message : 'Avatar deletion failed'
@@ -236,11 +275,18 @@ export class AvatarService implements IAvatarService {
    */
   async getAvatarUrl(userId: string): Promise<string | null> {
     try {
-      console.log('AvatarService: Getting avatar URL via Repository for user:', userId);
+      const correlationId = `getUrl_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+      
+      logger.info('Getting avatar URL via Repository', LogCategory.BUSINESS, {
+        correlationId,
+        userId
+      });
 
       // Service Layer Business Logic: Validate user ID
       if (!userId) {
-        console.warn('AvatarService: No user ID provided, returning default avatar');
+        logger.warn('No user ID provided for avatar URL, returning default', LogCategory.BUSINESS, {
+          correlationId
+        });
         return this.getDefaultAvatarUrl();
       }
 
@@ -249,15 +295,26 @@ export class AvatarService implements IAvatarService {
 
       // Service Layer: Implement fallback logic for default avatars
       if (avatarUrl) {
-        console.log('AvatarService: Found custom avatar for user:', userId);
+        logger.info('Found custom avatar for user', LogCategory.BUSINESS, {
+          correlationId,
+          userId,
+          hasCustomAvatar: true
+        });
         return avatarUrl;
       } else {
-        console.log('AvatarService: No custom avatar found, returning default avatar');
+        logger.info('No custom avatar found, returning default', LogCategory.BUSINESS, {
+          correlationId,
+          userId,
+          hasCustomAvatar: false
+        });
         return this.getDefaultAvatarUrl();
       }
 
     } catch (error) {
-      console.error('AvatarService: Error getting avatar URL:', error);
+      logger.error('Error getting avatar URL', LogCategory.BUSINESS, {
+        correlationId,
+        userId
+      }, error as Error);
       return this.getDefaultAvatarUrl();
     }
   }
@@ -283,7 +340,7 @@ export class AvatarService implements IAvatarService {
   validateAvatar(imageResult: ImagePickerResult): boolean {
     try {
       if (!imageResult) {
-        console.warn('AvatarService: No image selected for validation');
+        logger.warn('No image selected for avatar validation', LogCategory.BUSINESS);
         return false;
       }
 
@@ -300,15 +357,24 @@ export class AvatarService implements IAvatarService {
 
       // Service Layer: Log validation results
       if (validation.valid) {
-        console.log('AvatarService: Avatar validation passed');
+        logger.info('Avatar validation passed', LogCategory.BUSINESS, {
+          fileName: repositoryFile.fileName,
+          fileSize: repositoryFile.size,
+          mimeType: repositoryFile.mime
+        });
       } else {
-        console.warn('AvatarService: Avatar validation failed:', validation.errors);
+        logger.warn('Avatar validation failed', LogCategory.BUSINESS, {
+          fileName: repositoryFile.fileName,
+          fileSize: repositoryFile.size,
+          mimeType: repositoryFile.mime,
+          errors: validation.errors
+        });
       }
 
       return validation.valid;
 
     } catch (error) {
-      console.error('AvatarService: Validation exception:', error);
+      logger.error('Avatar validation exception occurred', LogCategory.BUSINESS, {}, error as Error);
       return false;
     }
   }
@@ -331,7 +397,9 @@ export class AvatarService implements IAvatarService {
   getDefaultAvatarUrl(): string {
     // Service Layer: Default Avatar Logic (UI/UX specific)
     const defaultAvatarUrl = 'https://ui-avatars.com/api/?name=User&background=6366f1&color=ffffff&size=200';
-    console.log('AvatarService: Using default avatar URL');
+    logger.info('Using default avatar URL', LogCategory.BUSINESS, {
+      defaultUrl: defaultAvatarUrl
+    });
     return defaultAvatarUrl;
   }
 
@@ -363,11 +431,18 @@ export class AvatarService implements IAvatarService {
       const encodedName = encodeURIComponent(cleanName);
       const initialsUrl = `https://ui-avatars.com/api/?name=${encodedName}&background=6366f1&color=ffffff&size=${size}&font-size=0.33`;
       
-      console.log('AvatarService: Generated initials avatar for:', cleanName);
+      logger.info('Generated initials avatar', LogCategory.BUSINESS, {
+        userName: cleanName,
+        avatarSize: size,
+        initialsUrl
+      });
       return initialsUrl;
 
     } catch (error) {
-      console.error('AvatarService: Error generating initials avatar:', error);
+      logger.error('Error generating initials avatar', LogCategory.BUSINESS, {
+        userName: name,
+        avatarSize: size
+      }, error as Error);
       return this.getDefaultAvatarUrl();
     }
   }
@@ -394,7 +469,10 @@ export class AvatarService implements IAvatarService {
    * ```
    */
   validateAvatarFile(file: { name: string; size: number; type: string; uri: string }): { valid: boolean; errors: string[] } {
-    console.warn('AvatarService.validateAvatarFile() is deprecated. Use Repository.validateFile() instead.');
+    logger.warn('validateAvatarFile() method is deprecated', LogCategory.BUSINESS, {
+      deprecatedMethod: 'validateAvatarFile',
+      recommendedMethod: 'Repository.validateFile'
+    });
     
     // Delegate to Repository for validation
     const repositoryFile = {
@@ -426,7 +504,11 @@ export class AvatarService implements IAvatarService {
    */
   async checkStorageHealth(): Promise<{ healthy: boolean; error?: string }> {
     try {
-      console.log('AvatarService: Checking storage health via Repository');
+      const correlationId = `health_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+      
+      logger.info('Checking storage health via Repository', LogCategory.BUSINESS, {
+        correlationId
+      });
 
       // Delegate to Repository for health check
       const isHealthy = await this.avatarRepository.isStorageHealthy();
@@ -438,15 +520,23 @@ export class AvatarService implements IAvatarService {
       };
 
       if (healthResult.healthy) {
-        console.log('AvatarService: Storage health check passed');
+        logger.info('Storage health check passed', LogCategory.BUSINESS, {
+          correlationId,
+          healthy: true
+        });
       } else {
-        console.warn('AvatarService: Storage health check failed');
+        logger.warn('Storage health check failed', LogCategory.BUSINESS, {
+          correlationId,
+          healthy: false
+        });
       }
 
       return healthResult;
 
     } catch (error) {
-      console.error('AvatarService: Health check exception:', error);
+      logger.error('Storage health check exception occurred', LogCategory.BUSINESS, {
+        correlationId
+      }, error as Error);
       return {
         healthy: false,
         error: error instanceof Error ? error.message : 'Health check failed'

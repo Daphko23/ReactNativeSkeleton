@@ -8,6 +8,11 @@
  * - Export Audit Logging
  */
 
+import { LoggerFactory } from '@core/logging/logger.factory';
+import { LogCategory } from '@core/logging/logger.service.interface';
+
+const logger = LoggerFactory.createServiceLogger('ExportProfileUseCase');
+
 // Core Types
 export type Result<T, E> = 
   | { success: true; data: T }
@@ -279,7 +284,12 @@ export class ExportProfileUseCase {
     };
 
     // TODO: Store in database
-    console.log('Export record stored:', exportId);
+    logger.info('Profile export record stored', LogCategory.BUSINESS, {
+        exportId,
+        userId: request.userId,
+        exportFormat: request.exportFormat,
+        deliveryMethod: request.deliveryMethod
+      });
 
     return exportResponse;
   }
@@ -289,7 +299,11 @@ export class ExportProfileUseCase {
    */
   private async sendExportEmail(recipientEmail: string, exportResponse: ExportProfileResponse): Promise<void> {
     // TODO: Implement email service
-    console.log('Export email sent to:', recipientEmail);
+    logger.info('Profile export email sent', LogCategory.BUSINESS, {
+        exportId: exportResponse.exportId,
+        recipientEmail,
+        deliveryMethod: 'email'
+      });
   }
 
   /**
@@ -297,7 +311,11 @@ export class ExportProfileUseCase {
    */
   private async auditExportActivity(userId: string, exportResponse: ExportProfileResponse): Promise<void> {
     // TODO: Implement audit logging for GDPR compliance
-    console.log('Export activity audited:', { userId, exportId: exportResponse.exportId });
+    logger.info('Profile export activity audited', LogCategory.BUSINESS, {
+        userId,
+        exportId: exportResponse.exportId,
+        auditCompleted: true
+      });
   }
 
   // 🎯 HELPER METHODS

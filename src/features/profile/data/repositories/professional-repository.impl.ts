@@ -65,6 +65,11 @@ import {
   NetworkAnalysis 
 } from '../../domain/entities/professional-network.entity';
 
+import { LoggerFactory } from '@core/logging/logger.factory';
+import { LogCategory } from '@core/logging/logger.service.interface';
+
+const logger = LoggerFactory.createServiceLogger('ProfessionalRepository');
+
 // =============================================================================
 // CACHE MANAGER INTERFACE
 // =============================================================================
@@ -609,7 +614,10 @@ export class ProfessionalRepositoryImpl implements IProfessionalRepository {
     };
 
     // Record metrics to monitoring system
-    console.log(`[Metrics] ${operation}: ${JSON.stringify(metrics)}`);
+    logger.info('Professional metrics recorded', LogCategory.BUSINESS, {
+    operation,
+    metrics
+    });
   }
 
   // =============================================================================

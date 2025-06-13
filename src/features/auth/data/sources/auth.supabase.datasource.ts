@@ -19,6 +19,10 @@ import {AuthDatasource} from '@features/auth/domain/interfaces/auth.datasource.i
 import {AuthUserDto} from '@features/auth/application/dtos/auth-user.dto';
 import {SupabaseAuthErrorMapper} from '../mappers/supabase-auth-error.mapper';
 import type {AuthChangeEvent, Session, User} from '@supabase/supabase-js';
+import { LoggerFactory } from '@core/logging/logger.factory';
+import { LogCategory } from '@core/logging/logger.service.interface';
+
+const logger = LoggerFactory.createServiceLogger('AuthSupabaseDataSource');
 
 /**
  * Supabase-specific implementation of the authentication data source.
@@ -118,45 +122,45 @@ export class AuthSupabaseDatasource implements AuthDatasource {
     email: string,
     password: string
   ): Promise<void> {
-    console.log('[AuthSupabaseDatasource] Attempting to register user:', email);
+    const correlationId = `register_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+    
+    logger.info('Attempting user registration', LogCategory.BUSINESS, {
+      correlationId,
+      email,
+      hasPassword: !!password
+    });
 
     const {data, error} = await supabase.auth.signUp({
       email,
       password,
     });
 
-    console.log('[AuthSupabaseDatasource] Registration response:', {
-      data: data
-        ? {
-            user: data.user
-              ? {
-                  id: data.user.id,
-                  email: data.user.email,
-                  email_confirmed_at: data.user.email_confirmed_at,
-                }
-              : null,
-            session: data.session ? 'session exists' : 'no session',
-          }
-        : null,
-      error: error
-        ? {
-            message: error.message,
-            status: error.status,
-          }
-        : null,
+    logger.info('User registration response received', LogCategory.BUSINESS, {
+      correlationId,
+      hasUser: !!data?.user,
+      hasSession: !!data?.session,
+      userEmail: data?.user?.email,
+      emailConfirmed: !!data?.user?.email_confirmed_at,
+      errorStatus: error?.status || null
     });
 
     if (error) {
-      console.error('[AuthSupabaseDatasource] Registration failed:', error);
+      logger.error('User registration failed', LogCategory.BUSINESS, {
+        correlationId,
+        email,
+        errorCode: error.status,
+        errorMessage: error.message
+      }, error);
       throw SupabaseAuthErrorMapper.map(error);
     }
 
     // Check if email confirmation is required
     if (data.user && !data.user.email_confirmed_at && !data.session) {
-      console.log(
-        '[AuthSupabaseDatasource] Email confirmation required for:',
-        email
-      );
+      logger.info('Email confirmation required for user registration', LogCategory.BUSINESS, {
+        correlationId,
+        email,
+        requiresConfirmation: true
+      });
       // This is normal for Supabase - user needs to confirm email
       // We should not throw an error here, just log it
     }
@@ -234,12 +238,14 @@ export class AuthSupabaseDatasource implements AuthDatasource {
       const { data: { session }, error: sessionError } = await supabase.auth.getSession();
       
       if (sessionError) {
-        console.warn('[AuthSupabaseDatasource] Failed to get session:', sessionError.message);
+        logger.warn('Failed to get authentication session', LogCategory.BUSINESS, {
+          sessionError: sessionError.message
+        });
         return null;
       }
 
       if (!session) {
-        console.log('[AuthSupabaseDatasource] No active session found');
+        logger.info('No active session found during user retrieval', LogCategory.BUSINESS);
         return null;
       }
 
@@ -250,19 +256,25 @@ export class AuthSupabaseDatasource implements AuthDatasource {
       } = await supabase.auth.getUser();
 
       if (error) {
-        console.warn('[AuthSupabaseDatasource] Failed to get current user:', error.message);
+        logger.warn('Failed to get current user from session', LogCategory.BUSINESS, {
+          errorMessage: error.message
+        });
         return null;
       }
 
       if (!user) {
-        console.log('[AuthSupabaseDatasource] No user found in session');
+        logger.info('No user found in active session', LogCategory.BUSINESS);
         return null;
       }
 
-      console.log('[AuthSupabaseDatasource] Current user retrieved:', user.email);
+      logger.info('Current user retrieved successfully', LogCategory.BUSINESS, {
+        userEmail: user.email,
+        userId: user.id,
+        emailVerified: !!user.email_confirmed_at
+      });
       return this.mapSupabaseUserToDto(user);
     } catch (error) {
-      console.error('[AuthSupabaseDatasource] Unexpected error getting current user:', error);
+      logger.error('Unexpected error retrieving current user', LogCategory.BUSINESS, {}, error as Error);
       return null;
     }
   }

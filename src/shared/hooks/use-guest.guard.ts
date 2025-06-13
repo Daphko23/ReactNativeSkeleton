@@ -375,31 +375,41 @@ export const useGuestGuard = (config?: GuestGuardConfig): UseGuestGuardReturn =>
 
   // Log auth state changes
   useEffect(() => {
-    console.log(
-      '[useGuestGuard] AUTH STATE CHANGE:',
-      'isAuthenticated:', isAuthenticated,
-      'isLoading:', authLoading,
-      'user:', user?.email || 'null',
-      'hasRedirected:', hasRedirected.current
-    );
+    logger.info('Auth state change detected', LogCategory.BUSINESS, {
+      service: 'GuestGuard',
+      isAuthenticated,
+      isLoading: authLoading,
+      hasUser: !!user,
+      userEmail: user?.email ? '***@***.***' : null, // Masked for privacy
+      hasRedirected: hasRedirected.current
+    });
   }, [isAuthenticated, authLoading, user]);
 
   useEffect(() => {
-    console.log(
-      '[useGuestGuard] NAVIGATION EFFECT:',
-      'isAuthenticated:', isAuthenticated,
-      'isLoading:', authLoading,
-      'user:', user?.email || 'null',
-      'hasRedirected:', hasRedirected.current
-    );
+    logger.info('Navigation effect triggered', LogCategory.BUSINESS, {
+      service: 'GuestGuard',
+      isAuthenticated,
+      isLoading: authLoading,
+      hasUser: !!user,
+      userEmail: user?.email ? '***@***.***' : null, // Masked for privacy
+      hasRedirected: hasRedirected.current
+    });
     
     if (isAuthenticated && !authLoading && !hasRedirected.current) {
       hasRedirected.current = true;
-      console.log('[useGuestGuard] REDIRECTING to Main → HomeTab');
+      
+      logger.info('Redirecting authenticated user to main app', LogCategory.BUSINESS, {
+        service: 'GuestGuard',
+        destination: 'Main -> HomeTab'
+      });
       
       // Use setTimeout to ensure navigation stack is ready
       setTimeout(() => {
-        console.log('[useGuestGuard] EXECUTING navigation.dispatch');
+        logger.info('Executing navigation dispatch', LogCategory.BUSINESS, {
+          service: 'GuestGuard',
+          action: 'CommonActions.reset'
+        });
+        
         try {
           navigation.dispatch(
             CommonActions.reset({
@@ -407,16 +417,25 @@ export const useGuestGuard = (config?: GuestGuardConfig): UseGuestGuardReturn =>
               routes: [{name: 'Main', params: {screen: 'HomeTab'}}],
             })
           );
-          console.log('[useGuestGuard] Navigation dispatch SUCCESSFUL');
+          
+          logger.info('Navigation dispatch successful', LogCategory.BUSINESS, {
+            service: 'GuestGuard',
+            result: 'success'
+          });
         } catch (error) {
-          console.error('[useGuestGuard] Navigation dispatch FAILED:', error);
+          logger.error('Navigation dispatch failed', LogCategory.BUSINESS, {
+            service: 'GuestGuard'
+          }, error as Error);
         }
       }, 100);
     }
     
     // Reset redirect flag when user logs out
     if (!isAuthenticated && !authLoading) {
-      console.log('[useGuestGuard] Resetting hasRedirected flag');
+      logger.info('Resetting redirect flag on logout', LogCategory.BUSINESS, {
+        service: 'GuestGuard',
+        action: 'reset_flag'
+      });
       hasRedirected.current = false;
     }
   }, [isAuthenticated, authLoading, user, navigation]);

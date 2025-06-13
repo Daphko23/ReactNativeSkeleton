@@ -6,6 +6,10 @@
 import { IAvatarService, IImagePickerService } from '../../domain/interfaces/avatar.interface';
 import { AvatarService } from '../services/avatar.service';
 import { ImagePickerService } from '../services/image-picker.service';
+import { LoggerFactory } from '@core/logging/logger.factory';
+import { LogCategory } from '@core/logging/logger.service.interface';
+
+const logger = LoggerFactory.createServiceLogger('AvatarContainer');
 
 /**
  * Avatar Services Container
@@ -45,9 +49,12 @@ export class AvatarContainer {
       const _avatarService = this.getAvatarService();
       // Note: initializeBucket method removed as it's not part of the interface
 
-      console.log('Avatar services initialized successfully');
+      logger.info('Avatar services initialized successfully', LogCategory.BUSINESS, {
+        serviceName: 'AvatarContainer',
+        components: ['AvatarService', 'ImagePickerService']
+      });
     } catch (error) {
-      console.error('Failed to initialize avatar services:', error);
+      logger.error('Failed to initialize avatar services', LogCategory.BUSINESS, {}, error as Error);
     }
   }
 
@@ -72,7 +79,9 @@ export class AvatarContainer {
       }
       return true; // Assume valid if validation not available
     } catch (error) {
-      console.error('Failed to validate avatar URL:', error);
+      logger.error('Failed to validate avatar URL', LogCategory.BUSINESS, {
+        testUrl: url
+      }, error as Error);
       return false;
     }
   }
@@ -86,24 +95,40 @@ export class AvatarContainer {
       const avatarService = this.getAvatarService();
       const defaultUrl = avatarService.getDefaultAvatarUrl();
       
-      console.log('AvatarContainer: Testing connectivity with URL:', defaultUrl);
+      const correlationId = `connectivity_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+      
+      logger.info('Testing avatar storage connectivity', LogCategory.BUSINESS, {
+        correlationId,
+        testUrl: defaultUrl
+      });
       
       // Test basic URL accessibility
       const response = await fetch(defaultUrl, { method: 'HEAD' });
       const isAccessible = response.ok;
       
       if (isAccessible) {
-        console.log('AvatarContainer: Connectivity test passed');
+        logger.info('Avatar storage connectivity test passed', LogCategory.BUSINESS, {
+          correlationId,
+          testUrl: defaultUrl,
+          responseStatus: response.status
+        });
         return { success: true };
       } else {
-        console.warn('AvatarContainer: Connectivity test failed with status:', response.status);
+        logger.warn('Avatar storage connectivity test failed', LogCategory.BUSINESS, {
+          correlationId,
+          testUrl: defaultUrl,
+          responseStatus: response.status
+        });
         return {
           success: false,
           error: `Default avatar URL returned status ${response.status}`
         };
       }
     } catch (error: any) {
-      console.error('AvatarContainer: Connectivity test failed with exception:', error);
+      logger.error('Avatar storage connectivity test exception', LogCategory.BUSINESS, {
+        correlationId,
+        testUrl: defaultUrl
+      }, error as Error);
       return {
         success: false,
         error: error?.message || 'Connectivity test failed'

@@ -497,7 +497,7 @@ export const useErrorHandler = (): UseErrorHandlerReturn => {
 
     // In production, this would report to error monitoring service
     // For now, we just log it with high priority
-    console.error('[CRITICAL ERROR]', {
+    logger.error('Critical error reported to monitoring', LogCategory.BUSINESS, {
       correlationId,
       error,
       timestamp: new Date().toISOString(),

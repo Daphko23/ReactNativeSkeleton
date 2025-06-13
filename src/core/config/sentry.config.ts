@@ -11,6 +11,10 @@
  */
 
 import * as Sentry from '@sentry/react-native';
+import { LoggerFactory } from '../logging/logger.factory';
+import { LogCategory } from '../logging/logger.service.interface';
+
+const logger = LoggerFactory.createServiceLogger('SentryConfig');
 
 /**
  * Sentry Configuration Interface
@@ -208,7 +212,10 @@ export function initializeSentry(): void {
   
   // Skip initialization if no DSN (development/test)
   if (!config.dsn) {
-    console.log('🔧 Sentry: Skipping initialization (no DSN configured for current environment)');
+    logger.info('Sentry initialization skipped - no DSN configured', LogCategory.BUSINESS, {
+      service: 'SentryConfig',
+      environment: config.environment
+    });
     return;
   }
 
@@ -255,7 +262,10 @@ export function initializeSentry(): void {
 
         // Log error locally in development
         if (config.debug && hint.originalException) {
-          console.error('🚨 Sentry Error:', hint.originalException);
+          logger.error('Sentry Error captured in beforeSend', LogCategory.BUSINESS, {
+            service: 'SentryConfig',
+            errorType: 'beforeSend'
+          }, hint.originalException as Error);
         }
 
         return event;
@@ -301,17 +311,19 @@ export function initializeSentry(): void {
       id: 'anonymous', // Will be updated when user logs in
     });
 
-    console.log(`✅ Sentry initialized successfully for environment: ${config.environment}`);
-    console.log(`🔧 Sentry configuration:`, {
+    logger.info('Sentry initialized successfully', LogCategory.BUSINESS, {
+      service: 'SentryConfig',
       environment: config.environment,
       sampleRate: config.sampleRate,
       tracesSampleRate: config.tracesSampleRate,
       profilesSampleRate: config.profilesSampleRate,
-      debug: config.debug,
+      debug: config.debug
     });
 
   } catch (error) {
-    console.error('❌ Failed to initialize Sentry:', error);
+    logger.error('Failed to initialize Sentry', LogCategory.BUSINESS, {
+      service: 'SentryConfig'
+    }, error as Error);
   }
 }
 
@@ -341,9 +353,15 @@ export function updateSentryUser(userId: string, userRole?: string): void {
 
     Sentry.setTag('user_role', userRole || 'unknown');
     
-    console.log(`🔧 Sentry user context updated: ${userId}`);
+    logger.info('Sentry user context updated', LogCategory.BUSINESS, {
+      service: 'SentryConfig',
+      userId,
+      hasRole: !!userRole
+    });
   } catch (error) {
-    console.error('❌ Failed to update Sentry user context:', error);
+    logger.error('Failed to update Sentry user context', LogCategory.BUSINESS, {
+      service: 'SentryConfig'
+    }, error as Error);
   }
 }
 
@@ -365,9 +383,13 @@ export function clearSentryUser(): void {
     Sentry.setUser({ id: 'anonymous' });
     Sentry.setTag('user_role', null);
     
-    console.log('🔧 Sentry user context cleared');
+    logger.info('Sentry user context cleared', LogCategory.BUSINESS, {
+      service: 'SentryConfig'
+    });
   } catch (error) {
-    console.error('❌ Failed to clear Sentry user context:', error);
+    logger.error('Failed to clear Sentry user context', LogCategory.BUSINESS, {
+      service: 'SentryConfig'
+    }, error as Error);
   }
 }
 
@@ -389,15 +411,22 @@ export function testSentryIntegration(): void {
   const environment = getCurrentEnvironment();
   
   if (environment !== 'development') {
-    console.log('🚫 Sentry test only available in development environment');
+    logger.warn('Sentry test only available in development environment', LogCategory.BUSINESS, {
+      service: 'SentryConfig',
+      currentEnvironment: environment
+    });
     return;
   }
 
   try {
     Sentry.captureMessage('🧪 Sentry integration test - This is a test message', 'info');
-    console.log('✅ Sentry test message sent successfully');
+    logger.info('Sentry test message sent successfully', LogCategory.BUSINESS, {
+      service: 'SentryConfig'
+    });
   } catch (error) {
-    console.error('❌ Sentry test failed:', error);
+    logger.error('Sentry test failed', LogCategory.BUSINESS, {
+      service: 'SentryConfig'
+    }, error as Error);
   }
 }
 

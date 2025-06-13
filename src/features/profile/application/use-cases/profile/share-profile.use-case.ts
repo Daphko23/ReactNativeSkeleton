@@ -8,6 +8,11 @@
  * - GDPR Compliance für Data Sharing
  */
 
+import { LoggerFactory } from '@core/logging/logger.factory';
+import { LogCategory } from '@core/logging/logger.service.interface';
+
+const logger = LoggerFactory.createServiceLogger('ShareProfileUseCase');
+
 // Core Types
 export type Result<T, E> = 
   | { success: true; data: T }
@@ -189,7 +194,12 @@ export class ShareProfileUseCase {
     // - Enable share analytics
     // - Allow share revocation
     
-    console.log('Share record stored:', shareResponse.shareId);
+    logger.info('Profile share record stored', LogCategory.BUSINESS, {
+      shareId: shareResponse.shareId,
+      shareType: shareResponse.shareFormat,
+      privacyLevel: shareResponse.privacyLevel,
+      expiresAt: shareResponse.expiresAt
+    });
   }
 
   /**
@@ -205,7 +215,12 @@ export class ShareProfileUseCase {
     // - Include custom message
     // - Add expiration notice
     
-    console.log('Share notification sent to:', recipientEmail);
+    logger.info('Profile share notification sent', LogCategory.BUSINESS, {
+      shareId: shareResponse.shareId,
+      recipientEmail,
+      notificationMethod: 'email',
+      hasCustomMessage: !!customMessage
+    });
   }
 
   /**
@@ -217,6 +232,12 @@ export class ShareProfileUseCase {
     // - Track share analytics
     // - Monitor privacy compliance
     
-    console.log('Profile share audited:', { userId, shareId: shareResponse.shareId });
+    logger.info('Profile share activity audited', LogCategory.BUSINESS, {
+      userId,
+      shareId: shareResponse.shareId,
+      shareType: shareResponse.shareFormat,
+      privacyLevel: shareResponse.privacyLevel,
+      auditCompleted: true
+    });
   }
 } 

@@ -13,6 +13,10 @@
 import * as Sentry from '@sentry/react-native';
 import Config from 'react-native-config';
 import DeviceInfo from 'react-native-device-info';
+import { LoggerFactory } from '../logging/logger.factory';
+import { LogCategory } from '../logging/logger.service.interface';
+
+const logger = LoggerFactory.createServiceLogger('SentryMonitoring');
 
 /**
  * 🔍 Enterprise Sentry Configuration für Auth Feature
@@ -923,9 +927,15 @@ class SentryService {
       await this.setUserContext();
 
       this.isInitialized = true;
-      console.log('✅ Sentry initialized successfully with Auth optimization');
+      logger.info('Sentry initialized successfully with Auth optimization', LogCategory.BUSINESS, {
+  service: 'Sentry',
+  authOptimization: true,
+  profileIntegration: true
+});
     } catch (error) {
-      console.error('❌ Failed to initialize Sentry:', error);
+      logger.error('Failed to initialize Sentry', LogCategory.BUSINESS, {
+  service: 'Sentry'
+}, error as Error);
     }
   }
 
@@ -1419,7 +1429,11 @@ class SentryService {
    */
   startAuthTransaction(name: string, op: string): any {
     // TODO: Update to new Sentry v4+ transaction API
-    console.log('Auth transaction started:', name, op);
+    logger.info('Auth transaction started', LogCategory.BUSINESS, {
+  service: 'Sentry',
+  transactionName: name,
+  operation: op
+});
     return null;
   }
 
@@ -1428,7 +1442,11 @@ class SentryService {
    */
   startTransaction(name: string, op: string): any {
     // TODO: Update to new Sentry v4+ transaction API
-    console.log('Transaction started:', name, op);
+    logger.info('Transaction started', LogCategory.BUSINESS, {
+  service: 'Sentry',
+  transactionName: name,
+  operation: op
+});
     return null;
   }
 

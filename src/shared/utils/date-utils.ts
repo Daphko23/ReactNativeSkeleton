@@ -10,6 +10,11 @@
  * @subcategory Date
  */
 
+import { LoggerFactory } from '@core/logging/logger.factory';
+import { LogCategory } from '@core/logging/logger.service.interface';
+
+const logger = LoggerFactory.createServiceLogger('DateUtils');
+
 /**
  * Formats a date string into German date format (dd.mm.yyyy).
  * Provides safe date formatting with comprehensive error handling and validation.
@@ -214,7 +219,11 @@ export const formatDate = (dateString: string): string => {
     // Return formatted German date
     return `${day}.${month}.${year}`;
   } catch (error) {
-    console.error('Fehler bei der Datumsformatierung:', error);
+    logger.error('Date formatting error', LogCategory.BUSINESS, {
+      service: 'DateUtils',
+      function: 'formatDate',
+      inputDate: dateString
+    }, error as Error);
     return '';
   }
 };
@@ -393,7 +402,11 @@ export const formatDateWithTime = (dateString: string): string => {
     // Return formatted German date with time
     return `${day}.${month}.${year}, ${hours}:${minutes}`;
   } catch (error) {
-    console.error('Fehler bei der Datumsformatierung mit Zeit:', error);
+    logger.error('Date with time formatting error', LogCategory.BUSINESS, {
+      service: 'DateUtils',
+      function: 'formatDateWithTime',
+      inputDate: dateString
+    }, error as Error);
     return '';
   }
 };

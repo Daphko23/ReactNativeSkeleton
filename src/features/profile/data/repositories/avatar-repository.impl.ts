@@ -20,6 +20,11 @@ import {
   AvatarUploadOptions
 } from '@features/profile/domain/interfaces/avatar-datasource.interface';
 
+import { LoggerFactory } from '@core/logging/logger.factory';
+import { LogCategory } from '@core/logging/logger.service.interface';
+
+const logger = LoggerFactory.createServiceLogger('AvatarRepository');
+
 /**
  * Avatar Repository Implementation
  * 
@@ -156,15 +161,29 @@ export class AvatarRepositoryImpl implements IAvatarRepository {
 
       // Business Logic: Add repository-level context to results
       if (result.success) {
-        console.log(`AvatarRepository: Successfully uploaded avatar for user ${userId}`);
+        const correlationId = `upload_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+        logger.info('Avatar upload successful', LogCategory.BUSINESS, {
+          correlationId,
+          userId,
+          avatarUrl: result.data?.publicUrl || 'unknown',
+          fileSize: file.size,
+          fileName: file.fileName
+        });
       } else {
-        console.error(`AvatarRepository: Upload failed for user ${userId}:`, result.error);
+        logger.error('Avatar upload failed', LogCategory.BUSINESS, {
+          correlationId,
+          userId,
+          error: result.error
+        });
       }
 
       return result;
 
     } catch (error) {
-      console.error('AvatarRepository: Upload exception:', error);
+      logger.error('Avatar upload exception occurred', LogCategory.BUSINESS, {
+        correlationId,
+        userId
+      }, error as Error);
       return {
         success: false,
         error: error instanceof Error ? error.message : 'Avatar upload failed'
@@ -206,15 +225,26 @@ export class AvatarRepositoryImpl implements IAvatarRepository {
 
       // Business Logic: Add repository-level context to results
       if (result.success) {
-        console.log(`AvatarRepository: Successfully deleted avatar for user ${userId}`);
+        const correlationId = `delete_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+        logger.info('Avatar deletion successful', LogCategory.BUSINESS, {
+          correlationId,
+          userId
+        });
       } else {
-        console.error(`AvatarRepository: Deletion failed for user ${userId}:`, result.error);
+        logger.error('Avatar deletion failed', LogCategory.BUSINESS, {
+          correlationId,
+          userId,
+          error: result.error
+        });
       }
 
       return result;
 
     } catch (error) {
-      console.error('AvatarRepository: Delete exception:', error);
+      logger.error('Avatar deletion exception occurred', LogCategory.BUSINESS, {
+        correlationId,
+        userId
+      }, error as Error);
       return {
         success: false,
         error: error instanceof Error ? error.message : 'Avatar deletion failed'
@@ -246,7 +276,9 @@ export class AvatarRepositoryImpl implements IAvatarRepository {
     try {
       // Business Logic: Validate user ID
       if (!userId || userId.trim().length === 0) {
-        console.warn('AvatarRepository: Invalid user ID provided for avatar URL retrieval');
+        logger.warn('Invalid user ID provided for avatar URL retrieval', LogCategory.BUSINESS, {
+          providedUserId: userId
+        });
         return null;
       }
 
@@ -255,15 +287,26 @@ export class AvatarRepositoryImpl implements IAvatarRepository {
 
       // Business Logic: Add repository-level logging
       if (avatarUrl) {
-        console.log(`AvatarRepository: Found avatar for user ${userId}`);
+        const correlationId = `getUrl_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+        logger.info('Avatar found for user', LogCategory.BUSINESS, {
+          correlationId,
+          userId,
+          avatarUrl
+        });
       } else {
-        console.log(`AvatarRepository: No avatar found for user ${userId}`);
+        logger.info('No avatar found for user', LogCategory.BUSINESS, {
+          correlationId,
+          userId
+        });
       }
 
       return avatarUrl;
 
     } catch (error) {
-      console.error('AvatarRepository: Error getting avatar URL:', error);
+      logger.error('Error getting avatar URL', LogCategory.BUSINESS, {
+        correlationId,
+        userId
+      }, error as Error);
       return null;
     }
   }
@@ -296,15 +339,25 @@ export class AvatarRepositoryImpl implements IAvatarRepository {
       const isHealthy = healthResult.healthy;
 
       if (isHealthy) {
-        console.log('AvatarRepository: Storage is healthy');
+        const correlationId = `health_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+        logger.info('Avatar storage health check passed', LogCategory.BUSINESS, {
+          correlationId,
+          healthy: true
+        });
       } else {
-        console.warn('AvatarRepository: Storage health check failed:', healthResult.error);
+        logger.warn('Avatar storage health check failed', LogCategory.BUSINESS, {
+          correlationId,
+          healthy: false,
+          error: healthResult.error
+        });
       }
 
       return isHealthy;
 
     } catch (error) {
-      console.error('AvatarRepository: Health check exception:', error);
+      logger.error('Avatar storage health check exception', LogCategory.BUSINESS, {
+        correlationId
+      }, error as Error);
       return false;
     }
   }
@@ -369,9 +422,18 @@ export class AvatarRepositoryImpl implements IAvatarRepository {
       const isValid = errors.length === 0;
 
       if (isValid) {
-        console.log('AvatarRepository: File validation passed');
+        logger.info('Avatar file validation passed', LogCategory.BUSINESS, {
+          fileName: file.fileName,
+          fileSize: file.size,
+          mimeType: file.mime
+        });
       } else {
-        console.warn('AvatarRepository: File validation failed:', errors);
+        logger.warn('Avatar file validation failed', LogCategory.BUSINESS, {
+          fileName: file.fileName,
+          fileSize: file.size,
+          mimeType: file.mime,
+          errors
+        });
       }
 
       return {
@@ -380,7 +442,10 @@ export class AvatarRepositoryImpl implements IAvatarRepository {
       };
 
     } catch (error) {
-      console.error('AvatarRepository: Validation exception:', error);
+      logger.error('Avatar file validation exception', LogCategory.BUSINESS, {
+        fileName: file?.fileName,
+        fileSize: file?.size
+      }, error as Error);
       return {
         valid: false,
         errors: ['File validation failed due to internal error']

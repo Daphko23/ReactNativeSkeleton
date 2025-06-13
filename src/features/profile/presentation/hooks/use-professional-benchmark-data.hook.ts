@@ -33,23 +33,12 @@
 import { useCallback, useMemo } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
+import { LoggerFactory } from '@core/logging/logger.factory';
+import { LogCategory } from '@core/logging/logger.service.interface';
 
-// =============================================================================
-// 🏆 CHAMPION LOGGING (Simplified)
-// =============================================================================
+const logger = LoggerFactory.createServiceLogger('ProfessionalBenchmarkDataHook');
 
-const LogCategory = {
-  BUSINESS: 'business' as const
-};
 
-const logger = {
-  info: (message: string, category: string, context?: any) => {
-    console.log(`[${category}] ${message}`, context);
-  },
-  error: (message: string, category: string, context?: any, error?: Error) => {
-    console.error(`[${category}] ${message}`, context, error);
-  }
-};
 
 // =============================================================================
 // 🏆 CHAMPION INTERFACES (Essential Only)

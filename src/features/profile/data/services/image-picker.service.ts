@@ -6,6 +6,8 @@
 import ImagePicker, { Image as CropPickerImage } from 'react-native-image-crop-picker';
 import { launchImageLibrary, ImagePickerResponse, MediaType } from 'react-native-image-picker';
 import { PermissionsAndroid, Platform } from 'react-native';
+import { LoggerFactory } from '@core/logging/logger.factory';
+import { LogCategory } from '@core/logging/logger.service.interface';
 import { 
   IImagePickerService, 
   ImagePickerOptions, 
@@ -13,15 +15,31 @@ import {
   AVATAR_CONSTANTS 
 } from '../../domain/interfaces/avatar.interface';
 
+const logger = LoggerFactory.createServiceLogger('ImagePickerService');
+
 export class ImagePickerService implements IImagePickerService {
   
   async openCamera(options: ImagePickerOptions): Promise<ImagePickerResult> {
+    const correlationId = `camera_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+    
+    logger.info('Opening camera for image capture', LogCategory.BUSINESS, {
+      correlationId,
+      options: {
+        width: options.width,
+        height: options.height,
+        cropping: options.cropping,
+        mediaType: options.mediaType
+      }
+    });
+
     try {
       // Check and request camera permission
       const hasPermission = await this.checkCameraPermission();
       if (!hasPermission) {
+        logger.warn('Camera permission not granted, requesting', LogCategory.SECURITY, { correlationId });
         const granted = await this.requestCameraPermission();
         if (!granted) {
+          logger.error('Camera permission denied by user', LogCategory.SECURITY, { correlationId });
           throw new Error('Camera permission denied');
         }
       }
@@ -45,8 +63,20 @@ export class ImagePickerService implements IImagePickerService {
         enableRotationGesture: true,
       });
 
-      return this.mapToImagePickerResult(image);
+      const result = this.mapToImagePickerResult(image);
+      
+      logger.info('Camera image capture successful', LogCategory.BUSINESS, {
+        correlationId,
+        imagePath: image.path,
+        imageSize: image.size,
+        imageWidth: image.width,
+        imageHeight: image.height
+      });
+
+      return result;
     } catch (error: any) {
+      logger.error('Camera image capture failed', LogCategory.BUSINESS, { correlationId }, error);
+      
       if (error?.code === 'E_PICKER_CANCELLED') {
         throw new Error('User cancelled image selection');
       }
@@ -60,28 +90,45 @@ export class ImagePickerService implements IImagePickerService {
   }
 
   async openGallery(options: ImagePickerOptions): Promise<ImagePickerResult> {
-    console.log('📱 ImagePickerService.openGallery: Starting with options:', options);
+    const correlationId = `gallery_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+    
+    logger.info('Opening gallery for image selection', LogCategory.BUSINESS, {
+      correlationId,
+      platform: Platform.OS,
+      options: {
+        width: options.width,
+        height: options.height,
+        cropping: options.cropping,
+        mediaType: options.mediaType
+      }
+    });
     
     try {
-      console.log('📱 ImagePickerService.openGallery: Checking storage permission...');
+      logger.info('Checking storage permission', LogCategory.SECURITY, { correlationId });
       // Check and request storage permission
       const hasPermission = await this.checkStoragePermission();
-      console.log('📱 ImagePickerService.openGallery: Has permission:', hasPermission);
+      logger.info('Storage permission status', LogCategory.SECURITY, { 
+        correlationId, 
+        hasPermission 
+      });
       
       if (!hasPermission) {
-        console.log('📱 ImagePickerService.openGallery: Requesting storage permission...');
+        logger.warn('Storage permission not granted, requesting', LogCategory.SECURITY, { correlationId });
         const granted = await this.requestStoragePermission();
-        console.log('📱 ImagePickerService.openGallery: Permission granted:', granted);
+        logger.info('Storage permission request result', LogCategory.SECURITY, { 
+          correlationId, 
+          granted 
+        });
         
         if (!granted) {
-          console.log('📱 ImagePickerService.openGallery: Permission denied, throwing error');
+          logger.error('Storage permission denied by user', LogCategory.SECURITY, { correlationId });
           throw new Error('Storage permission denied');
         }
       }
 
       // Versuche zunächst ohne Cropping für bessere Kompatibilität
       if (Platform.OS === 'ios') {
-        console.log('📱 ImagePickerService.openGallery: Trying simple iOS approach without cropping...');
+        logger.info('Attempting iOS simple approach without cropping', LogCategory.BUSINESS, { correlationId });
         try {
           const image: CropPickerImage = await Promise.race([
             ImagePicker.openPicker({
@@ -96,16 +143,28 @@ export class ImagePickerService implements IImagePickerService {
             )
           ]);
           
-          console.log('📱 ImagePickerService.openGallery: Image picked successfully (simple mode):', image.path);
+          logger.info('iOS simple image selection successful', LogCategory.BUSINESS, {
+            correlationId,
+            imagePath: image.path,
+            imageSize: image.size
+          });
+          
           const result = this.mapToImagePickerResult(image);
-          console.log('📱 ImagePickerService.openGallery: Mapped result:', result);
+          logger.info('iOS simple result mapped successfully', LogCategory.BUSINESS, {
+            correlationId,
+            resultPath: result.path,
+            resultSize: result.size
+          });
           return result;
         } catch (simpleError: any) {
-          console.log('📱 ImagePickerService.openGallery: Simple mode failed, trying react-native-image-picker fallback...', simpleError);
+          logger.warn('iOS simple mode failed, trying fallback', LogCategory.BUSINESS, { 
+            correlationId,
+            error: simpleError.message 
+          });
           
           // Fallback zu react-native-image-picker für iOS
           try {
-            console.log('📱 ImagePickerService.openGallery: Using react-native-image-picker as fallback...');
+            logger.info('Using react-native-image-picker as iOS fallback', LogCategory.BUSINESS, { correlationId });
             
             const result = await new Promise<ImagePickerResult>((resolve, reject) => {
               launchImageLibrary(
@@ -118,23 +177,35 @@ export class ImagePickerService implements IImagePickerService {
                   selectionLimit: 1,
                 },
                 (response: ImagePickerResponse) => {
-                  console.log('📱 ImagePickerService.openGallery: react-native-image-picker response:', response);
+                  logger.info('react-native-image-picker response received', LogCategory.BUSINESS, {
+                    correlationId,
+                    didCancel: response.didCancel,
+                    hasAssets: !!response.assets?.length,
+                    hasError: !!response.errorMessage
+                  });
                   
                   if (response.didCancel) {
-                    console.log('📱 ImagePickerService.openGallery: User cancelled (fallback)');
+                    logger.info('User cancelled image selection (fallback)', LogCategory.BUSINESS, { correlationId });
                     reject(new Error('User cancelled image selection'));
                     return;
                   }
                   
                   if (response.errorMessage) {
-                    console.log('📱 ImagePickerService.openGallery: Error (fallback):', response.errorMessage);
+                    logger.error('react-native-image-picker error', LogCategory.BUSINESS, { 
+                      correlationId,
+                      errorMessage: response.errorMessage 
+                    });
                     reject(new Error(response.errorMessage));
                     return;
                   }
                   
                   if (response.assets && response.assets.length > 0) {
                     const asset = response.assets[0];
-                    console.log('📱 ImagePickerService.openGallery: Asset selected (fallback):', asset.uri);
+                    logger.info('Asset selected via fallback', LogCategory.BUSINESS, {
+                      correlationId,
+                      assetUri: asset.uri,
+                      assetSize: asset.fileSize
+                    });
                     
                     resolve({
                       path: asset.uri || '',
@@ -151,16 +222,23 @@ export class ImagePickerService implements IImagePickerService {
               );
             });
             
-            console.log('📱 ImagePickerService.openGallery: Fallback successful:', result);
+            logger.info('iOS fallback image selection successful', LogCategory.BUSINESS, {
+              correlationId,
+              resultPath: result.path,
+              resultSize: result.size
+            });
             return result;
           } catch (fallbackError: any) {
-            console.log('📱 ImagePickerService.openGallery: Fallback also failed:', fallbackError);
+            logger.error('iOS fallback also failed', LogCategory.BUSINESS, { 
+              correlationId,
+              fallbackError: fallbackError.message 
+            });
             // Weiter zur ursprünglichen Methode
           }
         }
       }
 
-      console.log('📱 ImagePickerService.openGallery: Opening picker with ImagePicker.openPicker...');
+      logger.info('Using standard ImagePicker.openPicker method', LogCategory.BUSINESS, { correlationId });
       
       // Timeout für hängende Picker-Calls
       const pickerPromise = ImagePicker.openPicker({
@@ -192,31 +270,47 @@ export class ImagePickerService implements IImagePickerService {
 
       const timeoutPromise = new Promise<never>((_, reject) => 
         setTimeout(() => {
-          console.log('📱 ImagePickerService.openGallery: Timeout after 30 seconds');
+          logger.warn('Image picker timeout reached (30 seconds)', LogCategory.BUSINESS, { correlationId });
           reject(new Error('Image picker timeout - please try again'));
         }, 30000)
       );
 
       const image: CropPickerImage = await Promise.race([pickerPromise, timeoutPromise]);
 
-      console.log('📱 ImagePickerService.openGallery: Image picked successfully:', image.path);
+      logger.info('Standard image picker selection successful', LogCategory.BUSINESS, {
+        correlationId,
+        imagePath: image.path,
+        imageSize: image.size,
+        imageWidth: image.width,
+        imageHeight: image.height
+      });
+      
       const result = this.mapToImagePickerResult(image);
-      console.log('📱 ImagePickerService.openGallery: Mapped result:', result);
+      logger.info('Gallery image selection completed successfully', LogCategory.BUSINESS, {
+        correlationId,
+        resultPath: result.path,
+        resultSize: result.size,
+        resultMime: result.mime
+      });
       return result;
     } catch (error: any) {
-      console.log('📱 ImagePickerService.openGallery: Error caught:', error);
+      logger.error('Gallery image selection failed', LogCategory.BUSINESS, { correlationId }, error);
       
       if (error?.code === 'E_PICKER_CANCELLED') {
-        console.log('📱 ImagePickerService.openGallery: User cancelled');
+        logger.info('User cancelled gallery image selection', LogCategory.BUSINESS, { correlationId });
         throw new Error('User cancelled image selection');
       }
       
       if (error?.code === 'E_NO_LIBRARY_PERMISSION') {
-        console.log('📱 ImagePickerService.openGallery: No library permission');
+        logger.error('Gallery permission required but not granted', LogCategory.SECURITY, { correlationId });
         throw new Error('Gallery permission required');
       }
       
-      console.log('📱 ImagePickerService.openGallery: Unknown error, re-throwing');
+      logger.error('Unknown gallery error occurred', LogCategory.BUSINESS, { 
+        correlationId,
+        errorCode: error?.code,
+        errorMessage: error?.message 
+      });
       throw new Error(`Gallery error: ${error?.message || 'Unknown error'}`);
     }
   }
@@ -336,7 +430,7 @@ export class ImagePickerService implements IImagePickerService {
       await ImagePicker.clean();
     } catch (error) {
       // Ignore cleanup errors
-      console.warn('Failed to cleanup temp files:', error);
+      logger.warn('Failed to cleanup temp files:', error);
     }
   }
 }

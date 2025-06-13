@@ -8,6 +8,11 @@
  * - GDPR Data Removal Support
  */
 
+import { LoggerFactory } from '@core/logging/logger.factory';
+import { LogCategory } from '@core/logging/logger.service.interface';
+
+const logger = LoggerFactory.createServiceLogger('DeleteAvatarUseCase');
+
 // Core Types
 export type Result<T, E> = 
   | { success: true; data: T }
@@ -182,13 +187,22 @@ export class DeleteAvatarUseCase {
       // Simulate audit log storage
       await this.simulateAsyncOperation(200);
       
-      console.log('[AUDIT] Avatar deletion logged:', auditEntry);
+      logger.info('Avatar deletion audit logged', LogCategory.BUSINESS, {
+        auditEntryId: auditEntry.id,
+        userId,
+        action: auditEntry.action,
+        timestamp: auditEntry.timestamp,
+        preservedBackup: auditEntry.data.preservedBackup
+      });
       
       return auditLogId;
 
     } catch (error) {
       // Audit logging failure should not fail the main operation
-      console.error('[AUDIT] Failed to create audit log:', error);
+      logger.error('Failed to create avatar deletion audit log', LogCategory.BUSINESS, {
+        userId,
+        reason
+      }, error as Error);
       return `audit_failed_${Date.now()}`;
     }
   }
