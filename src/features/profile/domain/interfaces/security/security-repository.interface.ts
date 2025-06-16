@@ -11,7 +11,7 @@ import {
   SecurityProfile, 
   SecurityAction, 
   SecurityAssessment,
-  SecurityActionType,
+  SecurityActionType as _SecurityActionType,
   DeviceInfo,
   SessionInfo,
   MFAMethod,

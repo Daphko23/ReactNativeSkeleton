@@ -181,11 +181,11 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({ navigation, route:
   const {
     profile: currentProfile,
     avatar,
-    customFields,
-    completion,
-    isProfileLoading,
+    customFields: _customFields,
+    completion: _completion,
+    isProfileLoading: _isProfileLoading,
     isAvatarLoading,
-    isCustomFieldsLoading,
+    isCustomFieldsLoading: _isCustomFieldsLoading,
     isAnyLoading,
     profileError,
     avatarError,
@@ -201,22 +201,22 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({ navigation, route:
     navigateToPrivacySettings,
     navigateToSkillsManagement,
     navigateToSocialLinksEdit,
-    shareProfile,
-    exportProfile,
+    shareProfile: _shareProfile,
+    exportProfile: _exportProfile,
     changeAvatar: navigateToAvatarUpload,
-    removeAvatar,
-    clearErrors,
+    removeAvatar: _removeAvatar,
+    clearErrors: _clearErrors,
   } = actions;
 
   const {
     theme,
     t,
-    headerTitle,
+    headerTitle: _headerTitle,
     completionPercentage: completeness,
-    showCompletionBanner,
-    dismissCompletionBanner,
-    isSharing,
-    isExporting,
+    showCompletionBanner: _showCompletionBanner,
+    dismissCompletionBanner: _dismissCompletionBanner,
+    isSharing: _isSharing,
+    isExporting: _isExporting,
     isRefreshing: refreshing,
   } = ui;
 
@@ -239,7 +239,7 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({ navigation, route:
   
   // 🏆 CHAMPION: Backward Compatibility Aliases
   const isLoading = isAnyLoading;
-  const hasError = hasAnyError;
+  const _hasError = hasAnyError;
   
   // 🚨 ENTFERNT: Navigation Actions kommen jetzt aus Hook
   // const navigateToSkillsManagement = () => {

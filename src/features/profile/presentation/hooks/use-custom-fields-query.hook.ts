@@ -35,7 +35,7 @@ import {
   type CustomField,
   type CustomFieldTemplate,
   type UpdateCustomFieldsInput,
-  type ValidationResult
+  type ValidationResult as _ValidationResult
 } from '../../application/use-cases/custom-fields/manage-custom-fields.use-case';
 
 // 🔧 QUERY KEYS
@@ -189,7 +189,7 @@ export const useUpdateCustomFieldsMutation = () => {
         } else {
           throw new Error(result.error);
         }
-      } catch (error) {
+      } catch {
         // 🏆 CHAMPION: Fallback to Profile Store if Use Case fails
         logger.info('Use Case failed, falling back to Profile Store (Champion)', LogCategory.BUSINESS, { userId: user.id });
         
@@ -354,7 +354,7 @@ export const useCustomFieldsManager = (userId?: string) => {
     templatesQuery.refetch();
   };
 
-  const fieldsData = useMemo(() => {
+  const _fieldsData = useMemo(() => {
     return customFields;
   }, [customFields]);
 

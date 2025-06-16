@@ -90,7 +90,7 @@ export const useSkillsManagement = (): UseSkillsManagementReturn => {
   const userId = user?.id || '';
 
   // 🎯 ENTERPRISE: Use Cases Integration
-  const container = useProfileContainer();
+  const _container = useProfileContainer();
   const manageSkillsUseCase = useMemo(() => new ManageSkillsUseCase(), []);
   
   // 🏆 CHAMPION QUERY: Skills Data

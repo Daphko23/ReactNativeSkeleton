@@ -10,7 +10,7 @@
 
 import { 
   UIPreferences,
-  ExpandedSections,
+  ExpandedSections as _ExpandedSections,
   IUIPreferencesRepository 
 } from '../../../domain/interfaces/ui-preferences-repository.interface';
 import { LoggerFactory } from '@core/logging/logger.factory';

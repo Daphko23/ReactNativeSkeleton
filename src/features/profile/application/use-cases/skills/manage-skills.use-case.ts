@@ -291,7 +291,7 @@ export class ManageSkillsUseCase {
   /**
    * Group Skills by Category
    */
-  private groupSkillsByCategory(skills: Skill[], includeInactive: boolean): SkillCategory[] {
+  private groupSkillsByCategory(skills: Skill[], _includeInactive: boolean): SkillCategory[] {
     const categoryMap = new Map<string, Skill[]>();
 
     // Group skills by category

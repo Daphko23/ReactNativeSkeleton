@@ -10,7 +10,7 @@
  * ✅ Clean Interface: Simplified Champion API
  */
 
-import { useState, useCallback, useMemo } from 'react';
+import { useState, useCallback, useMemo as _useMemo } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Alert } from 'react-native';
 import { useTranslation } from 'react-i18next';
@@ -20,7 +20,7 @@ import { useAuth } from '../../../auth/presentation/hooks/use-auth.hook';
 
 // 🏆 ENTERPRISE ARCHITECTURE
 import { avatarDIContainer } from '../../data/di/avatar-di.container';
-import { UploadAvatarUseCase } from '../../application/usecases/upload-avatar.usecase';
+import { UploadAvatarUseCase as _UploadAvatarUseCase } from '../../application/usecases/upload-avatar.usecase';
 
 const logger = LoggerFactory.createServiceLogger('Avatar');
 

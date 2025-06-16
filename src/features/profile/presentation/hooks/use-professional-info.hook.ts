@@ -146,7 +146,7 @@ const professionalQueryKeys = {
  */
 export const useProfessionalInfo = ({
   userId,
-  enableAnalytics = false
+  enableAnalytics: _enableAnalytics = false
 }: UseProfessionalInfoProps): UseProfessionalInfoReturn => {
   
   const { t } = useTranslation();

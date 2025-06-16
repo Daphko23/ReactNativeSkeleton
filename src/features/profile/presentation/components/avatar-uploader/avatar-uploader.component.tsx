@@ -61,7 +61,7 @@ export const AvatarUploader: React.FC<AvatarUploaderProps> = ({
   editable = true,
   showUploadProgress = true,
   onUploadSuccess,
-  onUploadError,
+  onUploadError: _onUploadError,
   style,
 }) => {
   const { theme } = useTheme();
@@ -201,13 +201,9 @@ export const AvatarUploader: React.FC<AvatarUploaderProps> = ({
             accessibilityLabel={t('avatar.gallery.accessibility')}
             testID="gallery-select-button"
           >
-            {false ? (
-              <ActivityIndicator size="small" color={theme.colors.primary} />
-            ) : (
-              <Text style={styles.actionButtonText}>
-                📷 {t('avatar.gallery.title')}
-              </Text>
-            )}
+            <Text style={styles.actionButtonText}>
+              📷 {t('avatar.gallery.title')}
+            </Text>
           </TouchableOpacity>
 
           <TouchableOpacity
@@ -218,13 +214,9 @@ export const AvatarUploader: React.FC<AvatarUploaderProps> = ({
             accessibilityLabel={t('avatar.camera.accessibility')}
             testID="camera-select-button"
           >
-            {false ? (
-              <ActivityIndicator size="small" color={theme.colors.primary} />
-            ) : (
-              <Text style={styles.actionButtonText}>
-                📸 {t('avatar.camera.title')}
-              </Text>
-            )}
+            <Text style={styles.actionButtonText}>
+              📸 {t('avatar.camera.title')}
+            </Text>
           </TouchableOpacity>
 
           {hasAvatar && (

@@ -26,7 +26,7 @@ import {
   useQuery, 
   useMutation, 
   useQueryClient,
-  UseQueryResult,
+  UseQueryResult as _UseQueryResult,
   UseMutationResult
 } from '@tanstack/react-query';
 import { UserProfile, PrivacySettings } from '../../domain/entities/user-profile.entity';
@@ -38,14 +38,14 @@ import { LogCategory } from '@core/logging/logger.service.interface';
 // 🎯 ENTERPRISE USE CASES INTEGRATION
 import { 
   ManageProfileQueryUseCase,
-  type QueryScope,
-  type QueryContext,
-  type ProfileQueryInput,
-  type QueryAnalytics
+  type QueryScope as _QueryScope,
+  type QueryContext as _QueryContext,
+  type ProfileQueryInput as _ProfileQueryInput,
+  type QueryAnalytics as _QueryAnalytics
 } from '../../application/use-cases/query/manage-profile-query.use-case';
 
 // 🏆 CHAMPION: Simplified DI Container Integration (Mobile-First)
-const manageProfileQueryUseCase = new ManageProfileQueryUseCase();
+const _manageProfileQueryUseCase = new ManageProfileQueryUseCase();
 const profileRepository = new ProfileRepositoryImpl();
 
 const logger = LoggerFactory.createServiceLogger('ProfileQueryChampion');
@@ -115,7 +115,7 @@ export function useProfileQuery(
  */
 export function usePrivacySettingsQuery(
   userId: string,
-  options: ChampionQueryOptions = {}
+  _options: ChampionQueryOptions = {}
 ): ChampionQueryResult<PrivacySettings | null> {
   return useQuery({
     queryKey: ['profile', 'privacy', userId, 'champion'],

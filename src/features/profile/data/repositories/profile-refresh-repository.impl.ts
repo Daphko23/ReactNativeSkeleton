@@ -40,8 +40,8 @@ import {
 } from '../../domain/repositories/profile-refresh-repository.interface';
 
 // Entities
-import { RefreshAnalyticsEntity } from '../../domain/entities/refresh/refresh-analytics.entity';
-import { RefreshHealthEntity } from '../../domain/entities/refresh/refresh-health.entity';
+import { RefreshAnalyticsEntity as _RefreshAnalyticsEntity } from '../../domain/entities/refresh/refresh-analytics.entity';
+import { RefreshHealthEntity as _RefreshHealthEntity } from '../../domain/entities/refresh/refresh-health.entity';
 
 const logger = LoggerFactory.createServiceLogger('ProfileRefreshRepository');
 
@@ -472,7 +472,7 @@ export class ProfileRefreshRepositoryImpl implements ProfileRefreshRepositoryInt
         }
       }
       
-      const duration = Date.now() - startTime;
+      const _duration = Date.now() - startTime;
       logger.info('Cache warming completed', LogCategory.BUSINESS, {
         metadata: { userCount: userIds.length }
       });
@@ -636,7 +636,7 @@ export class ProfileRefreshRepositoryImpl implements ProfileRefreshRepositoryInt
   // SERVICE LIFECYCLE MANAGEMENT
   // =============================================================================
 
-  async initialize(config: any): Promise<Result<void>> {
+  async initialize(_config: any): Promise<Result<void>> {
     try {
       logger.info('Initializing ProfileRefreshRepository', LogCategory.BUSINESS, { 
         metadata: { config: 'initialized' }
@@ -704,17 +704,17 @@ export class ProfileRefreshRepositoryImpl implements ProfileRefreshRepositoryInt
   // PLACEHOLDER METHODS - To be implemented in next phases
   // =============================================================================
 
-  async getUserBehaviorInsights(userId: string): Promise<Result<BehaviorInsights>> {
+  async getUserBehaviorInsights(_userId: string): Promise<Result<BehaviorInsights>> {
     // Placeholder - will be implemented with ML capabilities
     return Result.error('Not yet implemented');
   }
 
-  async getBusinessMetrics(timeframe: TimeFrame): Promise<Result<BusinessImpactMetrics>> {
+  async getBusinessMetrics(_timeframe: TimeFrame): Promise<Result<BusinessImpactMetrics>> {
     // Placeholder - will be implemented with business intelligence
     return Result.error('Not yet implemented');
   }
 
-  async generatePredictiveInsights(userId: string): Promise<Result<BehaviorInsights>> {
+  async generatePredictiveInsights(_userId: string): Promise<Result<BehaviorInsights>> {
     // Placeholder - will be implemented with predictive analytics
     return Result.error('Not yet implemented');
   }
@@ -723,7 +723,7 @@ export class ProfileRefreshRepositoryImpl implements ProfileRefreshRepositoryInt
     return Result.success(this.serviceHealth);
   }
 
-  async getPerformanceTrends(timeframe: TimeFrame): Promise<Result<any[]>> {
+  async getPerformanceTrends(_timeframe: TimeFrame): Promise<Result<any[]>> {
     return Result.error('Not yet implemented');
   }
 
@@ -739,43 +739,43 @@ export class ProfileRefreshRepositoryImpl implements ProfileRefreshRepositoryInt
     return Result.error('Not yet implemented');
   }
 
-  async exportUserData(userId: string, format?: 'json' | 'csv' | 'xml'): Promise<Result<UserDataExport>> {
+  async exportUserData(_userId: string, _format?: 'json' | 'csv' | 'xml'): Promise<Result<UserDataExport>> {
     return Result.error('Not yet implemented');
   }
 
-  async deleteUserData(userId: string, verificationToken: string): Promise<Result<void>> {
+  async deleteUserData(_userId: string, _verificationToken: string): Promise<Result<void>> {
     return Result.error('Not yet implemented');
   }
 
-  async generateComplianceReport(timeframe: TimeFrame): Promise<Result<any>> {
+  async generateComplianceReport(_timeframe: TimeFrame): Promise<Result<any>> {
     return Result.error('Not yet implemented');
   }
 
-  async getActiveExperiment(userId: string, experimentType: string): Promise<Result<ExperimentConfig | null>> {
+  async getActiveExperiment(_userId: string, _experimentType: string): Promise<Result<ExperimentConfig | null>> {
     return Result.error('Not yet implemented');
   }
 
-  async trackExperimentMetrics(experimentId: string, userId: string, metrics: any): Promise<Result<void>> {
+  async trackExperimentMetrics(_experimentId: string, _userId: string, _metrics: any): Promise<Result<void>> {
     return Result.error('Not yet implemented');
   }
 
-  async getExperimentResults(experimentId: string): Promise<Result<ExperimentResults>> {
+  async getExperimentResults(_experimentId: string): Promise<Result<ExperimentResults>> {
     return Result.error('Not yet implemented');
   }
 
-  async getFeatureFlag(flagName: string, userId?: string): Promise<Result<boolean>> {
+  async getFeatureFlag(_flagName: string, _userId?: string): Promise<Result<boolean>> {
     return Result.error('Not yet implemented');
   }
 
-  async searchRefreshEvents(criteria: any, pagination?: any): Promise<Result<RefreshEvent[]>> {
+  async searchRefreshEvents(_criteria: any, _pagination?: any): Promise<Result<RefreshEvent[]>> {
     return Result.error('Not yet implemented');
   }
 
-  async generateBIReport(reportType: string, parameters: any): Promise<Result<any>> {
+  async generateBIReport(_reportType: string, _parameters: any): Promise<Result<any>> {
     return Result.error('Not yet implemented');
   }
 
-  async getDashboardData(dashboardId: string): Promise<Result<any>> {
+  async getDashboardData(_dashboardId: string): Promise<Result<any>> {
     return Result.error('Not yet implemented');
   }
 
@@ -783,7 +783,7 @@ export class ProfileRefreshRepositoryImpl implements ProfileRefreshRepositoryInt
   // PRIVATE HELPER METHODS FOR PERFORMANCE METRICS
   // =============================================================================
 
-  private recordOperationMetrics(operation: string, duration: number, success: boolean): void {
+  private recordOperationMetrics(operation: string, duration: number, _success: boolean): void {
     // Helper method for internal performance tracking
     const perfMetrics: PerformanceMetrics = {
       startTime: Date.now() - duration,

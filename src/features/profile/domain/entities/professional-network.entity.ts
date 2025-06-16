@@ -667,20 +667,20 @@ export class ProfessionalNetwork {
   /**
    * Creates a personalized networking strategy
    */
-  createNetworkingStrategy(goals: NetworkingGoal[], timeframe: number): NetworkingStrategy {
+  createNetworkingStrategy(goals: NetworkingGoal[], _timeframe: number): NetworkingStrategy {
     const strategyId = `strategy_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
     
     const strategy: NetworkingStrategy = {
       id: strategyId,
-      title: `${timeframe}-Month Networking Strategy`,
+      title: `${_timeframe}-Month Networking Strategy`,
       goals,
-      targetConnections: this.calculateTargetConnections(goals, timeframe),
-      timeframe,
+      targetConnections: this.calculateTargetConnections(goals, _timeframe),
+      timeframe: _timeframe,
       focusAreas: this.identifyFocusAreas(goals),
       tactics: this.generateNetworkingTactics(goals),
-      milestones: this.createMilestones(timeframe),
-      budget: this.estimateBudget(timeframe),
-      timeInvestment: this.estimateTimeInvestment(timeframe),
+      milestones: this.createMilestones(_timeframe),
+      budget: this.estimateBudget(_timeframe),
+      timeInvestment: this.estimateTimeInvestment(_timeframe),
       successMetrics: this.createSuccessMetrics(goals),
       createdDate: new Date(),
       lastUpdated: new Date(),
@@ -955,7 +955,7 @@ export class ProfessionalNetwork {
     return timeframe * 500; // $500 per month for events, travel, etc.
   }
 
-  private estimateTimeInvestment(timeframe: number): number {
+  private estimateTimeInvestment(_timeframe: number): number {
     return 15; // 15 hours per month
   }
 
@@ -973,7 +973,7 @@ export class ProfessionalNetwork {
     return baseMetrics;
   }
 
-  private calculateTargetRelevance(targetAudience: string): number {
+  private calculateTargetRelevance(_targetAudience: string): number {
     // Mock calculation based on current network
     return Math.floor(Math.random() * 40) + 60; // 60-100% relevance
   }
@@ -1069,6 +1069,11 @@ export class ProfessionalNetwork {
     if (data.lastAnalysisDate) network._lastAnalysisDate = new Date(data.lastAnalysisDate);
     
     return network;
+  }
+
+  calculateNetworkROI(_timeframe: string = '1-year'): number {
+    // Mock implementation - return 0 for now
+    return 0;
   }
 }
 

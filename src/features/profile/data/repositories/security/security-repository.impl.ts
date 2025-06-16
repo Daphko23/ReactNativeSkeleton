@@ -17,8 +17,8 @@ import {
   DeviceInfo,
   SessionInfo,
   MFAMethod,
-  SecurityLevel,
-  ThreatLevel
+  SecurityLevel as _SecurityLevel,
+  ThreatLevel as _ThreatLevel
 } from '../../../domain/entities/security/security-profile.entity';
 import {
   SecurityThreat,
@@ -614,7 +614,7 @@ export class SecurityRepositoryImpl implements ISecurityRepository {
   /**
    * 🔄 UPDATE SESSION ACTIVITY
    */
-  async updateSessionActivity(sessionId: string): Promise<Result<void>> {
+  async updateSessionActivity(_sessionId: string): Promise<Result<void>> {
     try {
       // In real implementation: update session last activity timestamp
       return Result.success(undefined);
@@ -651,7 +651,7 @@ export class SecurityRepositoryImpl implements ISecurityRepository {
     }
   }
 
-  async removeMFAMethod(userId: string, methodId: string): Promise<Result<void>> {
+  async removeMFAMethod(_userId: string, _methodId: string): Promise<Result<void>> {
     try {
       return Result.success(undefined);
     } catch (error) {
@@ -659,7 +659,7 @@ export class SecurityRepositoryImpl implements ISecurityRepository {
     }
   }
 
-  async verifyMFAMethod(userId: string, methodId: string, code: string): Promise<Result<boolean>> {
+  async verifyMFAMethod(_userId: string, _methodId: string, code: string): Promise<Result<boolean>> {
     try {
       // Mock verification - in real implementation would verify TOTP/SMS code
       return Result.success(code.length === 6);
@@ -668,7 +668,7 @@ export class SecurityRepositoryImpl implements ISecurityRepository {
     }
   }
 
-  async generateBackupCodes(userId: string): Promise<Result<string[]>> {
+  async generateBackupCodes(_userId: string): Promise<Result<string[]>> {
     try {
       const codes = Array.from({ length: 10 }, () => 
         Math.random().toString(36).substring(2, 10).toUpperCase()
@@ -701,7 +701,7 @@ export class SecurityRepositoryImpl implements ISecurityRepository {
     }
   }
 
-  async resolveSecurityThreat(userId: string, threatId: string, resolution: string): Promise<Result<void>> {
+  async resolveSecurityThreat(_userId: string, _threatId: string, _resolution: string): Promise<Result<void>> {
     try {
       return Result.success(undefined);
     } catch (error) {
@@ -749,7 +749,7 @@ export class SecurityRepositoryImpl implements ISecurityRepository {
     }
   }
 
-  async updatePrivacyConsent(userId: string, consents: PrivacyConsent): Promise<Result<void>> {
+  async updatePrivacyConsent(_userId: string, _consents: PrivacyConsent): Promise<Result<void>> {
     try {
       return Result.success(undefined);
     } catch (error) {
@@ -1067,7 +1067,7 @@ export class SecurityRepositoryImpl implements ISecurityRepository {
   }
 
   // Mock data generators - simplified for brevity
-  private generateMockDevices(userId: string): DeviceInfo[] {
+  private generateMockDevices(_userId: string): DeviceInfo[] {
     return [{
       id: 'device_1',
       name: 'iPhone 15 Pro',
@@ -1092,7 +1092,7 @@ export class SecurityRepositoryImpl implements ISecurityRepository {
     }];
   }
 
-  private generateMockSessions(userId: string): SessionInfo[] {
+  private generateMockSessions(_userId: string): SessionInfo[] {
     return [{
       id: 'session_1',
       deviceId: 'device_1',
@@ -1111,11 +1111,11 @@ export class SecurityRepositoryImpl implements ISecurityRepository {
     }];
   }
 
-  private generateMockMFAMethods(userId: string): MFAMethod[] {
+  private generateMockMFAMethods(_userId: string): MFAMethod[] {
     return [];
   }
 
-  private generateMockThreats(userId: string): SecurityThreat[] {
+  private generateMockThreats(_userId: string): SecurityThreat[] {
     return [];
   }
 
@@ -1145,10 +1145,10 @@ export class SecurityRepositoryImpl implements ISecurityRepository {
   }
 
   private generateMockAuditLog(
-    userId: string,
-    fromDate: Date,
-    toDate: Date,
-    eventTypes?: SecurityEventType[]
+    _userId: string,
+    _fromDate: Date,
+    _toDate: Date,
+    _eventTypes?: SecurityEventType[]
   ): SecurityAuditEntry[] {
     return [];
   }

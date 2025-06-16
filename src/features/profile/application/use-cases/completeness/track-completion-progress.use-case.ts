@@ -362,7 +362,7 @@ export class TrackCompletionProgressUseCase {
   private calculateCompletionVelocity(analytics: CompletionAnalytics): number {
     // Calculate average completion rate change over the last 7 days
     const now = Date.now();
-    const sevenDaysAgo = now - (7 * 24 * 60 * 60 * 1000);
+    const _sevenDaysAgo = now - (7 * 24 * 60 * 60 * 1000);
     
     // Simple velocity calculation (would be more sophisticated in real implementation)
     const sessionCount = analytics.sessionMetrics.calculationsPerSession || 1;
@@ -385,7 +385,7 @@ export class TrackCompletionProgressUseCase {
 
   private analyzeUserBehaviorPattern(
     analytics: CompletionAnalytics,
-    request: TrackProgressRequest
+    _request: TrackProgressRequest
   ): 'focused' | 'exploratory' | 'systematic' | 'sporadic' {
     
     const behaviorInsights = analytics.userBehaviorInsights;
@@ -487,7 +487,7 @@ export class TrackCompletionProgressUseCase {
 
   private determineUserSegment(
     analytics: CompletionAnalytics,
-    request: TrackProgressRequest
+    _request: TrackProgressRequest
   ): 'power_user' | 'casual_user' | 'new_user' | 'returning_user' {
     
     const totalCalculations = analytics.totalCalculations;
@@ -516,7 +516,7 @@ export class TrackCompletionProgressUseCase {
 
   private assessChurnRisk(
     analytics: CompletionAnalytics,
-    request: TrackProgressRequest
+    _request: TrackProgressRequest
   ): 'low' | 'medium' | 'high' {
     
     const daysSinceLastSession = (Date.now() - analytics.sessionMetrics.lastSessionTime) / (1000 * 60 * 60 * 24);
@@ -648,7 +648,7 @@ export class TrackCompletionProgressUseCase {
 
   private updateSessionMetrics(
     currentMetrics: CompletionAnalytics['sessionMetrics'],
-    request: TrackProgressRequest
+    _request: TrackProgressRequest
   ): CompletionAnalytics['sessionMetrics'] {
     
     const now = Date.now();

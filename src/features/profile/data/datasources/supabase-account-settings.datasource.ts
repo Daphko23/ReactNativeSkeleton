@@ -13,32 +13,32 @@ import {
  * Implementiert das IAccountSettingsDataSource Interface für Clean Architecture.
  */
 export class SupabaseAccountSettingsDataSource implements IAccountSettingsDataSource {
-  async getAccountSettings(userId: string): Promise<AccountSettings> {
+  async getAccountSettings(_userId: string): Promise<AccountSettings> {
     // TODO: Supabase Query für Account Settings
     throw new Error('Not implemented: getAccountSettings');
   }
 
-  async updateAccountSettings(userId: string, settings: Partial<AccountSettings>): Promise<AccountSettings> {
+  async updateAccountSettings(_userId: string, _settings: Partial<AccountSettings>): Promise<AccountSettings> {
     // TODO: Supabase Update Query
     throw new Error('Not implemented: updateAccountSettings');
   }
 
-  async getPrivacySettings(userId: string): Promise<PrivacySettings> {
+  async getPrivacySettings(_userId: string): Promise<PrivacySettings> {
     // TODO: Supabase Query für Privacy Settings
     throw new Error('Not implemented: getPrivacySettings');
   }
 
-  async updatePrivacySettings(userId: string, settings: Partial<PrivacySettings>): Promise<PrivacySettings> {
+  async updatePrivacySettings(_userId: string, _settings: Partial<PrivacySettings>): Promise<PrivacySettings> {
     // TODO: Supabase Update Query für Privacy Settings
     throw new Error('Not implemented: updatePrivacySettings');
   }
 
-  async getNotificationSettings(userId: string): Promise<NotificationSettings> {
+  async getNotificationSettings(_userId: string): Promise<NotificationSettings> {
     // TODO: Supabase Query für Notification Settings
     throw new Error('Not implemented: getNotificationSettings');
   }
 
-  async updateNotificationSettings(userId: string, settings: Partial<NotificationSettings>): Promise<NotificationSettings> {
+  async updateNotificationSettings(_userId: string, _settings: Partial<NotificationSettings>): Promise<NotificationSettings> {
     // TODO: Supabase Update Query für Notification Settings
     throw new Error('Not implemented: updateNotificationSettings');
   }

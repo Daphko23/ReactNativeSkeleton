@@ -5,7 +5,7 @@
  * @version 1.0.0 (Working Implementation)
  */
 
-import { renderHook } from '@testing-library/react-native';
+import { renderHook as _renderHook } from '@testing-library/react-native';
 
 // Simple Mock für useAuth
 jest.mock('@features/auth/presentation/hooks', () => ({

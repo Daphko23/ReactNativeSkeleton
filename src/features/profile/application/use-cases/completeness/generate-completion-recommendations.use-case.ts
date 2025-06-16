@@ -495,7 +495,7 @@ export class GenerateCompletionRecommendationsUseCase {
   private applyAbTestModifications(
     recommendations: CompletionRecommendation[],
     variant: string,
-    request: GenerateRecommendationsRequest
+    _request: GenerateRecommendationsRequest
   ): CompletionRecommendation[] {
     
     switch (variant) {
@@ -583,7 +583,7 @@ export class GenerateCompletionRecommendationsUseCase {
 
   private calculateRecommendationBusinessImpact(
     recommendation: CompletionRecommendation,
-    profile: UserProfile
+    _profile: UserProfile
   ): CompletionRecommendation['businessImpact'] {
     
     // 📊 FIELD-SPECIFIC BUSINESS IMPACT

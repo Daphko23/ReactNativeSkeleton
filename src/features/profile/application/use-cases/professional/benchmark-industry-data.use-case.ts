@@ -396,7 +396,7 @@ export class BenchmarkIndustryDataUseCase {
     industryBenchmark: IndustryBenchmark,
     currentSalary: number,
     currentTotalComp: number,
-    input: BenchmarkInput
+    _input: BenchmarkInput
   ): Promise<BenchmarkOutput['salaryAnalysis']> {
     // Get compensation analysis
     const compensationAnalysis = industryBenchmark.analyzeCompensation(
@@ -444,7 +444,7 @@ export class BenchmarkIndustryDataUseCase {
     industryBenchmark: IndustryBenchmark,
     positioning: CompetitivePositioning,
     insights: IndustryInsight[],
-    careerGoals: string[]
+    _careerGoals: string[]
   ): Promise<BenchmarkOutput['actionPlan']> {
     const immediateActions = [];
     const skillDevelopment = [];

@@ -14,7 +14,7 @@ import {
   SecurityProfile,
   SecurityAction,
   SecurityAssessment,
-  SecurityActionType,
+  SecurityActionType as _SecurityActionType,
   DeviceInfo,
   SessionInfo,
   MFAMethod,
@@ -461,15 +461,16 @@ export class ManageSecurityEnterpriseUseCase {
     const deviceId = request.parameters?.deviceId as string;
 
     switch (deviceAction) {
-      case 'LIST':
+      case 'LIST': {
         const devicesResult = await this.securityRepository.getUserDevices(request.userId);
         return {
           success: devicesResult.success,
           data: devicesResult.success ? { devices: devicesResult.data } : undefined,
           error: devicesResult.success ? undefined : devicesResult.error
         };
+      }
 
-      case 'TRUST':
+      case 'TRUST': {
         if (!deviceId) {
           return { success: false, error: 'Device ID is required' };
         }
@@ -478,8 +479,9 @@ export class ManageSecurityEnterpriseUseCase {
           success: trustResult.success,
           error: trustResult.success ? undefined : trustResult.error
         };
+      }
 
-      case 'REVOKE':
+      case 'REVOKE': {
         if (!deviceId) {
           return { success: false, error: 'Device ID is required' };
         }
@@ -488,8 +490,9 @@ export class ManageSecurityEnterpriseUseCase {
           success: revokeResult.success,
           error: revokeResult.success ? undefined : revokeResult.error
         };
+      }
 
-      case 'REMOVE':
+      case 'REMOVE': {
         if (!deviceId) {
           return { success: false, error: 'Device ID is required' };
         }
@@ -498,6 +501,7 @@ export class ManageSecurityEnterpriseUseCase {
           success: removeResult.success,
           error: removeResult.success ? undefined : removeResult.error
         };
+      }
 
       default:
         return { success: false, error: `Unsupported device action: ${deviceAction}` };
@@ -512,15 +516,16 @@ export class ManageSecurityEnterpriseUseCase {
     const sessionId = request.parameters?.sessionId as string;
 
     switch (sessionAction) {
-      case 'LIST':
+      case 'LIST': {
         const sessionsResult = await this.securityRepository.getActiveSessions(request.userId);
         return {
           success: sessionsResult.success,
           data: sessionsResult.success ? { sessions: sessionsResult.data } : undefined,
           error: sessionsResult.success ? undefined : sessionsResult.error
         };
+      }
 
-      case 'TERMINATE':
+      case 'TERMINATE': {
         if (!sessionId) {
           return { success: false, error: 'Session ID is required' };
         }
@@ -529,8 +534,9 @@ export class ManageSecurityEnterpriseUseCase {
           success: terminateResult.success,
           error: terminateResult.success ? undefined : terminateResult.error
         };
+      }
 
-      case 'TERMINATE_ALL':
+      case 'TERMINATE_ALL': {
         const terminateAllResult = await this.securityRepository.terminateAllSessions(
           request.userId,
           request.parameters?.exceptCurrent as boolean
@@ -539,6 +545,7 @@ export class ManageSecurityEnterpriseUseCase {
           success: terminateAllResult.success,
           error: terminateAllResult.success ? undefined : terminateAllResult.error
         };
+      }
 
       default:
         return { success: false, error: `Unsupported session action: ${sessionAction}` };
@@ -552,15 +559,16 @@ export class ManageSecurityEnterpriseUseCase {
     const mfaAction = request.parameters?.mfaAction as string;
 
     switch (mfaAction) {
-      case 'LIST':
+      case 'LIST': {
         const mfaResult = await this.securityRepository.getMFAMethods(request.userId);
         return {
           success: mfaResult.success,
           data: mfaResult.success ? { mfaMethods: mfaResult.data } : undefined,
           error: mfaResult.success ? undefined : mfaResult.error
         };
+      }
 
-      case 'ADD':
+      case 'ADD': {
         const method = request.parameters?.method as Omit<MFAMethod, 'id' | 'createdAt'>;
         if (!method) {
           return { success: false, error: 'MFA method is required' };
@@ -571,8 +579,9 @@ export class ManageSecurityEnterpriseUseCase {
           data: addResult.success ? { mfaMethods: addResult.data ? [addResult.data] : [] } : undefined,
           error: addResult.success ? undefined : addResult.error
         };
+      }
 
-      case 'REMOVE':
+      case 'REMOVE': {
         const methodId = request.parameters?.methodId as string;
         if (!methodId) {
           return { success: false, error: 'Method ID is required' };
@@ -582,8 +591,9 @@ export class ManageSecurityEnterpriseUseCase {
           success: removeResult.success,
           error: removeResult.success ? undefined : removeResult.error
         };
+      }
 
-      case 'VERIFY':
+      case 'VERIFY': {
         const verifyMethodId = request.parameters?.methodId as string;
         const code = request.parameters?.code as string;
         if (!verifyMethodId || !code) {
@@ -594,6 +604,7 @@ export class ManageSecurityEnterpriseUseCase {
           success: !!(verifyResult.success && verifyResult.data),
           error: verifyResult.success && verifyResult.data ? undefined : 'Verification failed'
         };
+      }
 
       default:
         return { success: false, error: `Unsupported MFA action: ${mfaAction}` };

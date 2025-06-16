@@ -9,13 +9,13 @@ import {
   ProfessionalProfile,
   ProfessionalStatus,
   ExperienceLevel,
-  WorkLocation,
+  WorkLocation as _WorkLocation,
   IndustryCategory,
   ProfessionalContact,
   WorkPreferences,
   EmploymentHistory,
-  ProfessionalSummary,
-  ProfessionalMetrics,
+  ProfessionalSummary as _ProfessionalSummary,
+  ProfessionalMetrics as _ProfessionalMetrics,
   ProfessionalGoals
 } from '../../../domain/entities/professional-profile.entity';
 
@@ -408,10 +408,10 @@ export class OptimizeProfessionalProfileUseCase {
   private async generateRecommendations(
     profile: ProfessionalProfile,
     analysis: any,
-    targetRole?: string,
-    targetIndustry?: IndustryCategory,
-    careerObjectives?: string[],
-    constraints?: OptimizeProfileInput['constraints']
+    _targetRole?: string,
+    _targetIndustry?: IndustryCategory,
+    _careerObjectives?: string[],
+    _constraints?: OptimizeProfileInput['constraints']
   ): Promise<OptimizeProfileOutput['recommendations']> {
     const recommendations = [];
 
@@ -562,8 +562,8 @@ export class OptimizeProfessionalProfileUseCase {
   private async identifyGaps(
     profile: ProfessionalProfile,
     targetRole?: string,
-    targetIndustry?: IndustryCategory,
-    careerObjectives?: string[]
+    _targetIndustry?: IndustryCategory,
+    _careerObjectives?: string[]
   ): Promise<OptimizeProfileOutput['gaps']> {
     const profileGaps = [];
     const skillGaps = [];
@@ -621,7 +621,7 @@ export class OptimizeProfessionalProfileUseCase {
     recommendations: OptimizeProfileOutput['recommendations'],
     constraints?: OptimizeProfileInput['constraints']
   ): Promise<OptimizeProfileOutput['optimizationPlan']> {
-    const timeAvailable = constraints?.timeAvailable || 10; // hours per week
+    const _timeAvailable = constraints?.timeAvailable || 10; // hours per week
     const budget = constraints?.budget || 1000;
 
     // Categorize recommendations by timeline
@@ -668,7 +668,7 @@ export class OptimizeProfessionalProfileUseCase {
   private async defineSuccessMetrics(
     currentAnalysis: any,
     optimizedAnalysis: any,
-    targetRole?: string
+    _targetRole?: string
   ): Promise<OptimizeProfileOutput['successMetrics']> {
     const improvement = optimizedAnalysis.overallScore - currentAnalysis.overallScore;
     const multiplier = Math.max(1, improvement / 20);
@@ -712,7 +712,7 @@ export class OptimizeProfessionalProfileUseCase {
     return `Experienced ${role} with expertise in ${topSkills}, proven track record of ${keyAchievement}`;
   }
 
-  private extractKeyStrengths(skills: string[], achievements: string[], keywords: string[]): string[] {
+  private extractKeyStrengths(skills: string[], achievements: string[], _keywords: string[]): string[] {
     const strengths = [...skills.slice(0, 3)];
     
     if (achievements.some(a => a.toLowerCase().includes('lead'))) {
@@ -726,7 +726,7 @@ export class OptimizeProfessionalProfileUseCase {
     return strengths.slice(0, 5);
   }
 
-  private generateValueProposition(strengths: string[], targetRole?: string, achievements?: string[]): string {
+  private generateValueProposition(strengths: string[], _targetRole?: string, _achievements?: string[]): string {
     const strengthsText = strengths.slice(0, 2).join(' and ');
     return `Combining ${strengthsText} to drive business results and team success`;
   }

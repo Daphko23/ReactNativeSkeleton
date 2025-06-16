@@ -17,7 +17,7 @@
  */
 
 import { Result } from '../../../../../core/types/result.type';
-import { ILoggerService, LogCategory } from '../../../../../core/logging/logger.service.interface';
+import { ILoggerService as _ILoggerService, LogCategory } from '../../../../../core/logging/logger.service.interface';
 import { LoggerFactory } from '../../../../../core/logging/logger.factory';
 import {
   ProfileRefreshRepositoryInterface,
@@ -617,7 +617,7 @@ export class RefreshAnalyticsUseCase {
   // PRIVATE HELPER METHODS
   // =============================================================================
 
-  private async generatePredictiveInsights(userId: string, timeframe: TimeFrame): Promise<PredictiveAnalyticsResult> {
+  private async generatePredictiveInsights(_userId: string, _timeframe: TimeFrame): Promise<PredictiveAnalyticsResult> {
     // Simplified predictive analytics implementation
     return {
       nextRefreshPrediction: {
@@ -702,7 +702,7 @@ export class RefreshAnalyticsUseCase {
     return recommendations;
   }
 
-  private async generateComparativeAnalysis(userId: string, timeframe: TimeFrame): Promise<ComparativeAnalysis> {
+  private async generateComparativeAnalysis(_userId: string, _timeframe: TimeFrame): Promise<ComparativeAnalysis> {
     // Simplified comparative analysis
     return {
       vsLastPeriod: {
@@ -753,7 +753,7 @@ export class RefreshAnalyticsUseCase {
     };
   }
 
-  private calculateOperationalROI(metrics: BusinessImpactMetrics): OperationalROI {
+  private calculateOperationalROI(_metrics: BusinessImpactMetrics): OperationalROI {
     return {
       serverCostReduction: 1250,
       developmentEfficiency: 2800,
@@ -762,7 +762,7 @@ export class RefreshAnalyticsUseCase {
     };
   }
 
-  private generateROIProjections(currentROI: number, metrics: BusinessImpactMetrics): ROIProjections {
+  private generateROIProjections(currentROI: number, _metrics: BusinessImpactMetrics): ROIProjections {
     const growthRate = 1.15; // 15% quarterly growth
     
     return {
@@ -777,7 +777,7 @@ export class RefreshAnalyticsUseCase {
     };
   }
 
-  private async generateROISegmentation(timeframe: TimeFrame): Promise<ROISegmentation> {
+  private async generateROISegmentation(_timeframe: TimeFrame): Promise<ROISegmentation> {
     // Simplified segmentation
     return {
       byUserType: {
@@ -806,14 +806,14 @@ export class RefreshAnalyticsUseCase {
     };
   }
 
-  private analyzeUserBehaviorType(events: RefreshEvent[], context: JourneyContext): UserBehaviorType {
+  private analyzeUserBehaviorType(events: RefreshEvent[], _context: JourneyContext): UserBehaviorType {
     // Simplified behavior type analysis
     if (events.length > 10) return 'frequent';
     if (events.length > 5) return 'casual';
     return 'churning';
   }
 
-  private calculateSatisfactionScore(events: RefreshEvent[], context: JourneyContext): number {
+  private calculateSatisfactionScore(events: RefreshEvent[], _context: JourneyContext): number {
     // Simplified satisfaction calculation
     const successRate = events.filter(e => e.result.success).length / events.length;
     const avgDuration = events.reduce((sum, e) => sum + e.result.duration, 0) / events.length;
@@ -834,7 +834,7 @@ export class RefreshAnalyticsUseCase {
     return Math.min(1, engagementScore + performanceScore + sessionScore);
   }
 
-  private assessChurnRisk(events: RefreshEvent[], context: JourneyContext): number {
+  private assessChurnRisk(events: RefreshEvent[], _context: JourneyContext): number {
     // Simplified churn risk assessment
     const errorRate = events.filter(e => !e.result.success).length / events.length;
     const lowEngagement = events.length < 2 ? 0.3 : 0;
@@ -843,7 +843,7 @@ export class RefreshAnalyticsUseCase {
     return Math.min(1, errorRate * 0.5 + lowEngagement + poorPerformance);
   }
 
-  private identifyOptimizationOpportunities(events: RefreshEvent[], context: JourneyContext): OptimizationOpportunity[] {
+  private identifyOptimizationOpportunities(events: RefreshEvent[], _context: JourneyContext): OptimizationOpportunity[] {
     const opportunities: OptimizationOpportunity[] = [];
     
     // Performance opportunities
@@ -919,7 +919,7 @@ export class RefreshAnalyticsUseCase {
   }
 
   // Additional dashboard-related private methods would be implemented here
-  private async getDashboardData(type: DashboardType, timeframe: TimeFrame, segment?: string): Promise<DashboardData> {
+  private async getDashboardData(type: DashboardType, timeframe: TimeFrame, _segment?: string): Promise<DashboardData> {
     // Simplified dashboard data implementation
     return {
       type,
@@ -934,7 +934,7 @@ export class RefreshAnalyticsUseCase {
     };
   }
 
-  private async calculateDashboardKPIs(type: DashboardType, timeframe: TimeFrame): Promise<Record<string, KPIMetric>> {
+  private async calculateDashboardKPIs(_type: DashboardType, _timeframe: TimeFrame): Promise<Record<string, KPIMetric>> {
     // Simplified KPI calculation
     return {
       response_time: { current: 850, target: 1000, change: -12.5, trend: 'down', status: 'on_track', forecast: 800 },
@@ -961,7 +961,7 @@ export class RefreshAnalyticsUseCase {
     ];
   }
 
-  private async generateDashboardAlerts(type: DashboardType, timeframe: TimeFrame): Promise<DashboardAlert[]> {
+  private async generateDashboardAlerts(_type: DashboardType, _timeframe: TimeFrame): Promise<DashboardAlert[]> {
     // Simplified alert generation
     return [
       {
@@ -976,7 +976,7 @@ export class RefreshAnalyticsUseCase {
     ];
   }
 
-  private async generateDashboardRecommendations(type: DashboardType, kpis: Record<string, KPIMetric>): Promise<DashboardRecommendation[]> {
+  private async generateDashboardRecommendations(_type: DashboardType, _kpis: Record<string, KPIMetric>): Promise<DashboardRecommendation[]> {
     // Simplified recommendation generation
     return [
       {

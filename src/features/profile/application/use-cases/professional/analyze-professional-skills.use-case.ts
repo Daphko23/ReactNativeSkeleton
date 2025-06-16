@@ -431,8 +431,8 @@ export class AnalyzeProfessionalSkillsUseCase {
 
   private async generateMarketInsights(
     skillsAnalysis: SkillsAnalysis,
-    targetRole?: string,
-    targetIndustry?: string
+    _targetRole?: string,
+    _targetIndustry?: string
   ): Promise<AnalyzeSkillsOutput['marketInsights']> {
     // Mock market insights - would integrate with job market APIs
     const topDemandSkills = [
@@ -471,8 +471,8 @@ export class AnalyzeProfessionalSkillsUseCase {
 
   private async calculatePerformanceMetrics(
     skillsAnalysis: SkillsAnalysis,
-    skillGaps: SkillGap[],
-    marketInsights: AnalyzeSkillsOutput['marketInsights']
+    _skillGaps: SkillGap[],
+    _marketInsights: AnalyzeSkillsOutput['marketInsights']
   ): Promise<AnalyzeSkillsOutput['performanceMetrics']> {
     const portfolio = skillsAnalysis.portfolio;
     

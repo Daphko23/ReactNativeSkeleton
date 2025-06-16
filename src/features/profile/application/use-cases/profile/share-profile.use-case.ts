@@ -116,7 +116,7 @@ export class ShareProfileUseCase {
   /**
    * Check Share Permission
    */
-  private async checkSharePermission(userId: string, includePrivateData: boolean): Promise<boolean> {
+  private async checkSharePermission(_userId: string, _includePrivateData: boolean): Promise<boolean> {
     // TODO: Implement real permission check
     // - Check user's privacy settings
     // - Verify profile completion level

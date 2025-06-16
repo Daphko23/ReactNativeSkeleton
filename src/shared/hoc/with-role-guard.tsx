@@ -19,14 +19,14 @@ import { PrimaryButton } from '@shared/components/buttons/primary-button.compone
 import { useTranslation } from 'react-i18next';
 
 // Temporary fallback hook until use-role-champion is implemented
-const useRole = (requiredRole: Role) => ({
+const useRole = (_requiredRole: Role) => ({
   hasRole: false,
   userRoles: [] as string[],
   userLevel: 0,
   isLoading: false,
   error: null,
   refresh: async () => {},
-  checkMinimumLevel: (role: Role) => false,
+  checkMinimumLevel: (_role: Role) => false,
 });
 
 /**

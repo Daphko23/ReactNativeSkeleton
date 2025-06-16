@@ -17,9 +17,9 @@ const logger = LoggerFactory.createServiceLogger('SocialLinksUseCase');
 // Domain Types
 import { 
   SocialLink, 
-  SocialPlatformKey, 
-  SocialLinksCollection,
-  SocialLinksValidationResult,
+  SocialPlatformKey as _SocialPlatformKey, 
+  SocialLinksCollection as _SocialLinksCollection,
+  SocialLinksValidationResult as _SocialLinksValidationResult,
   SOCIAL_LINKS_DOMAIN_CONSTANTS 
 } from '../../../domain/types/social-links.types';
 
@@ -287,7 +287,7 @@ export class ManageSocialLinksUseCase {
     const socialPlatforms = ['twitter', 'instagram', 'facebook'];
     
     const professionalLinks = links.filter(l => professionalPlatforms.includes(l.platform));
-    const socialLinks = links.filter(l => socialPlatforms.includes(l.platform));
+    const _socialLinks = links.filter(l => socialPlatforms.includes(l.platform));
 
     // Business Rule: If professional platforms exist, they must be public for networking
     if (professionalLinks.length > 0) {
@@ -446,7 +446,7 @@ export class ManageSocialLinksUseCase {
     return ['linkedin', 'github', 'twitter'].includes(platform);
   }
 
-  private async verifyLinkValidity(url: string): Promise<boolean> {
+  private async verifyLinkValidity(_url: string): Promise<boolean> {
     // Simulated link verification
     try {
       // In real implementation: HTTP HEAD request to check if URL is accessible

@@ -604,7 +604,7 @@ export class ProfileCompletionRepositoryImpl implements IProfileCompletionReposi
   // SIMPLIFIED IMPLEMENTATIONS (MVP)
   // =============================================================================
 
-  async getAbTestResults(experimentId: string): Promise<any> {
+  async getAbTestResults(_experimentId: string): Promise<any> {
     // Simplified for MVP - would integrate with analytics service
     return {
       variants: {
@@ -616,12 +616,12 @@ export class ProfileCompletionRepositoryImpl implements IProfileCompletionReposi
     };
   }
 
-  async getCompletionTrends(userId: string, fromDate: number, toDate: number): Promise<any[]> {
+  async getCompletionTrends(_userId: string, _fromDate: number, _toDate: number): Promise<any[]> {
     // Simplified for MVP
     return [];
   }
 
-  async getFieldCompletionStats(userId: string): Promise<Record<string, any>> {
+  async getFieldCompletionStats(_userId: string): Promise<Record<string, any>> {
     // Simplified for MVP
     return {};
   }
@@ -659,7 +659,7 @@ export class ProfileCompletionRepositoryImpl implements IProfileCompletionReposi
     };
   }
 
-  async anonymizeUserCompletionData(userId: string): Promise<void> {
+  async anonymizeUserCompletionData(_userId: string): Promise<void> {
     // Simplified for MVP - would replace PII with anonymized IDs
   }
 
@@ -684,7 +684,7 @@ export class ProfileCompletionRepositoryImpl implements IProfileCompletionReposi
         },
         lastCheck: Date.now()
       };
-    } catch (error) {
+    } catch {
       return {
         status: 'unhealthy',
         metrics: {

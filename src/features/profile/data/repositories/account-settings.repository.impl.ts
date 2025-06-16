@@ -100,7 +100,7 @@ export class AccountSettingsRepositoryImpl implements IAccountSettingsRepository
     }
   ): Promise<AccountSettings> {
     try {
-      const now = new Date().toISOString();
+      const _now = new Date().toISOString();
       const row: Omit<AccountSettingsRow, 'created_at' | 'updated_at'> = {
         user_id: accountSettings.userId,
         social_links: accountSettings.socialLinks,

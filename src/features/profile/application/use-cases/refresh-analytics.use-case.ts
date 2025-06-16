@@ -221,7 +221,7 @@ export class RefreshAnalyticsUseCase {
    * @param timeframe - Analysis time period
    * @returns Analytics data with business insights
    */
-  async getRefreshAnalytics(userId: string, timeframe: TimeFrame): Promise<Result<RefreshAnalytics>> {
+  async getRefreshAnalytics(userId: string, _timeframe: TimeFrame): Promise<Result<RefreshAnalytics>> {
     try {
       this.logger.info('Getting refresh analytics', LogCategory.BUSINESS, { userId });
 

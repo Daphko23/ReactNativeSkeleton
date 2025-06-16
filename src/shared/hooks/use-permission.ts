@@ -372,7 +372,7 @@ export const usePermissionChampion = (targetPermission?: Permission): UsePermiss
     // auditService.recordPermissionAccess(auditEntry);
   }, [targetPermission, hasPermission, user?.id]);
 
-  const getPermissionExpiry = useCallback((permission: Permission): Date | null => {
+  const getPermissionExpiry = useCallback((_permission: Permission): Date | null => {
     // In production, check specific permission expiry
     return permissionData?.expiresAt || null;
   }, [permissionData]);

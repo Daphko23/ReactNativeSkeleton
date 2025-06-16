@@ -69,7 +69,7 @@ export const useProfileRefresh = ({
   shouldCheckForProfileUpdate,
 }: UseProfileRefreshParams): UseProfileRefreshReturn => {
   
-  const queryClient = useQueryClient();
+  const _queryClient = useQueryClient();
   const userId = currentUser?.id || '';
   
   // 🏆 CHAMPION STATE (Simplified)

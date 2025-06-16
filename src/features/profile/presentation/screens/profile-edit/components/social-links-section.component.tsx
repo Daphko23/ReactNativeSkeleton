@@ -8,7 +8,7 @@
  */
 
 import React from 'react';
-import { View } from 'react-native';
+import { View as _View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 
 // Shared Components
@@ -46,7 +46,7 @@ export const SocialLinksSection: React.FC<SocialLinksSectionProps> = ({
 }) => {
   const { t } = useTranslation();
   const { theme } = useTheme();
-  const styles = React.useMemo(() => createSocialLinksSectionStyles(theme), [theme]);
+  const _styles = React.useMemo(() => createSocialLinksSectionStyles(theme), [theme]);
 
   // Helper function to get link URL by platform
   const getLinkUrl = (platform: string): string => {

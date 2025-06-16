@@ -253,7 +253,7 @@ export class ProfessionalRepositoryImpl implements IProfessionalRepository {
 
   async deleteProfessionalProfile(
     userId: string,
-    options?: { hardDelete?: boolean }
+    _options?: { hardDelete?: boolean }
   ): Promise<Result<boolean>> {
     const startTime = Date.now();
     
@@ -376,9 +376,9 @@ export class ProfessionalRepositoryImpl implements IProfessionalRepository {
   }
 
   async getSkillsGapAnalysis(
-    userId: string,
-    targetRole?: string,
-    targetIndustry?: string
+    _userId: string,
+    _targetRole?: string,
+    _targetIndustry?: string
   ): Promise<Result<SkillsGapAnalysis>> {
     // Implementation would analyze current skills vs target requirements
     return {
@@ -388,8 +388,8 @@ export class ProfessionalRepositoryImpl implements IProfessionalRepository {
   }
 
   async getSkillsPortfolio(
-    userId: string,
-    options?: CacheOptions
+    _userId: string,
+    _options?: CacheOptions
   ): Promise<Result<SkillsPortfolioAssessment>> {
     // Implementation would assess skill portfolio strength
     return {
@@ -477,7 +477,7 @@ export class ProfessionalRepositoryImpl implements IProfessionalRepository {
     }
   }
 
-  async getCacheMetrics(userId?: string): Promise<Result<CacheMetrics>> {
+  async getCacheMetrics(_userId?: string): Promise<Result<CacheMetrics>> {
     try {
       const metrics = await this.cacheManager.getMetrics();
       return {
@@ -532,7 +532,7 @@ export class ProfessionalRepositoryImpl implements IProfessionalRepository {
     query: ProfessionalQuery
   ): Promise<ProfessionalProfile> {
     // Add related data based on query options
-    let enrichedProfile = { ...profile };
+    const enrichedProfile = { ...profile };
 
     if (query.includeSkills) {
       // Add skills data
@@ -564,7 +564,7 @@ export class ProfessionalRepositoryImpl implements IProfessionalRepository {
     };
   }
 
-  private recordMetrics(operation: string, startTime: number, success: boolean): void {
+  private recordMetrics(operation: string, startTime: number, _success: boolean): void {
     if (!this.config.metricsEnabled) return;
 
     const metrics: RepositoryMetrics = {
@@ -587,75 +587,75 @@ export class ProfessionalRepositoryImpl implements IProfessionalRepository {
   // STUB IMPLEMENTATIONS (Other methods would be implemented similarly)
   // =============================================================================
 
-  async getCareerProgression(query: CareerQuery, options?: CacheOptions): Promise<Result<CareerProgression>> {
+  async getCareerProgression(_query: CareerQuery, _options?: CacheOptions): Promise<Result<CareerProgression>> {
     throw new Error('Method not implemented.');
   }
 
-  async updateCareerProgression(userId: string, progression: Partial<CareerProgression>): Promise<Result<CareerProgression>> {
+  async updateCareerProgression(_userId: string, _progression: Partial<CareerProgression>): Promise<Result<CareerProgression>> {
     throw new Error('Method not implemented.');
   }
 
-  async addCareerMilestone(userId: string, milestone: Omit<CareerMilestone, 'id' | 'createdAt'>): Promise<Result<CareerMilestone>> {
+  async addCareerMilestone(_userId: string, _milestone: Omit<CareerMilestone, 'id' | 'createdAt'>): Promise<Result<CareerMilestone>> {
     throw new Error('Method not implemented.');
   }
 
-  async updateCareerGoal(userId: string, goalId: string, updates: Partial<CareerGoal>): Promise<Result<CareerGoal>> {
+  async updateCareerGoal(_userId: string, _goalId: string, _updates: Partial<CareerGoal>): Promise<Result<CareerGoal>> {
     throw new Error('Method not implemented.');
   }
 
-  async getCareerAnalytics(userId: string, timeframe: 'month' | 'quarter' | 'year'): Promise<Result<any>> {
+  async getCareerAnalytics(_userId: string, _timeframe: 'month' | 'quarter' | 'year'): Promise<Result<any>> {
     throw new Error('Method not implemented.');
   }
 
-  async getIndustryBenchmark(query: BenchmarkQuery, options?: CacheOptions): Promise<Result<IndustryBenchmark>> {
+  async getIndustryBenchmark(_query: BenchmarkQuery, _options?: CacheOptions): Promise<Result<IndustryBenchmark>> {
     throw new Error('Method not implemented.');
   }
 
-  async updateBenchmarkData(userId: string, benchmarkData: Partial<IndustryBenchmark>): Promise<Result<IndustryBenchmark>> {
+  async updateBenchmarkData(_userId: string, _benchmarkData: Partial<IndustryBenchmark>): Promise<Result<IndustryBenchmark>> {
     throw new Error('Method not implemented.');
   }
 
-  async getSalaryAnalysis(userId: string, industry: string, role: string, experience: string, location: string): Promise<Result<SalaryAnalysis>> {
+  async getSalaryAnalysis(_userId: string, _industry: string, _role: string, _experience: string, _location: string): Promise<Result<SalaryAnalysis>> {
     throw new Error('Method not implemented.');
   }
 
-  async getMarketTrends(industry: string, timeframe: 'month' | 'quarter' | 'year'): Promise<Result<MarketTrend[]>> {
+  async getMarketTrends(_industry: string, _timeframe: 'month' | 'quarter' | 'year'): Promise<Result<MarketTrend[]>> {
     throw new Error('Method not implemented.');
   }
 
-  async getProfessionalNetwork(query: NetworkQuery, options?: CacheOptions): Promise<Result<ProfessionalNetwork>> {
+  async getProfessionalNetwork(_query: NetworkQuery, _options?: CacheOptions): Promise<Result<ProfessionalNetwork>> {
     throw new Error('Method not implemented.');
   }
 
-  async updateProfessionalNetwork(userId: string, network: Partial<ProfessionalNetwork>): Promise<Result<ProfessionalNetwork>> {
+  async updateProfessionalNetwork(_userId: string, _network: Partial<ProfessionalNetwork>): Promise<Result<ProfessionalNetwork>> {
     throw new Error('Method not implemented.');
   }
 
-  async addConnection(userId: string, connection: Omit<Connection, 'id' | 'connectedAt'>): Promise<Result<Connection>> {
+  async addConnection(_userId: string, _connection: Omit<Connection, 'id' | 'connectedAt'>): Promise<Result<Connection>> {
     throw new Error('Method not implemented.');
   }
 
-  async updateConnection(userId: string, connectionId: string, updates: Partial<Connection>): Promise<Result<Connection>> {
+  async updateConnection(_userId: string, _connectionId: string, _updates: Partial<Connection>): Promise<Result<Connection>> {
     throw new Error('Method not implemented.');
   }
 
-  async removeConnection(userId: string, connectionId: string): Promise<Result<boolean>> {
+  async removeConnection(_userId: string, _connectionId: string): Promise<Result<boolean>> {
     throw new Error('Method not implemented.');
   }
 
-  async getNetworkAnalysis(userId: string, options?: { includeInsights?: boolean }): Promise<Result<NetworkAnalysis>> {
+  async getNetworkAnalysis(_userId: string, _options?: { includeInsights?: boolean }): Promise<Result<NetworkAnalysis>> {
     throw new Error('Method not implemented.');
   }
 
-  async batchUpdateSkills(operations: BatchOperation<{ userId: string; skills: string[] }>): Promise<BatchResult<SkillsAnalysis>> {
+  async batchUpdateSkills(_operations: BatchOperation<{ userId: string; skills: string[] }>): Promise<BatchResult<SkillsAnalysis>> {
     throw new Error('Method not implemented.');
   }
 
-  async batchUpdateConnections(operations: BatchOperation<{ userId: string; connection: Connection }>): Promise<BatchResult<Connection>> {
+  async batchUpdateConnections(_operations: BatchOperation<{ userId: string; connection: Connection }>): Promise<BatchResult<Connection>> {
     throw new Error('Method not implemented.');
   }
 
-  async batchUpdateMilestones(operations: BatchOperation<{ userId: string; milestone: CareerMilestone }>): Promise<BatchResult<CareerMilestone>> {
+  async batchUpdateMilestones(_operations: BatchOperation<{ userId: string; milestone: CareerMilestone }>): Promise<BatchResult<CareerMilestone>> {
     throw new Error('Method not implemented.');
   }
 
@@ -663,11 +663,11 @@ export class ProfessionalRepositoryImpl implements IProfessionalRepository {
     throw new Error('Method not implemented.');
   }
 
-  async optimizePerformance(options?: { cleanupCache?: boolean; optimizeQueries?: boolean; rebuildIndexes?: boolean }): Promise<Result<boolean>> {
+  async optimizePerformance(_options?: { cleanupCache?: boolean; optimizeQueries?: boolean; rebuildIndexes?: boolean }): Promise<Result<boolean>> {
     throw new Error('Method not implemented.');
   }
 
-  async getOperationMetrics(timeframe: 'hour' | 'day' | 'week'): Promise<Result<{ totalOperations: number; averageResponseTime: number; errorRate: number; cacheHitRate: number; topOperations: Array<{ operation: string; count: number; avgTime: number }> }>> {
+  async getOperationMetrics(_timeframe: 'hour' | 'day' | 'week'): Promise<Result<{ totalOperations: number; averageResponseTime: number; errorRate: number; cacheHitRate: number; topOperations: Array<{ operation: string; count: number; avgTime: number }> }>> {
     throw new Error('Method not implemented.');
   }
 }

@@ -102,7 +102,7 @@ export interface UseProfileScreenReturn {
 export const useProfileScreen = (navigation?: any): UseProfileScreenReturn => {
   const { t } = useTranslation();
   const { theme } = useTheme();
-  const queryClient = useQueryClient();
+  const _queryClient = useQueryClient();
   const { user } = useAuth();
   const userId = user?.id || '';
 
@@ -116,7 +116,7 @@ export const useProfileScreen = (navigation?: any): UseProfileScreenReturn => {
   }) : null;
   
   // 🏆 ENTERPRISE: Use Cases Integration (Essential Only)
-  const container = useProfileContainer();
+  const _container = useProfileContainer();
   const shareProfileUseCase = useMemo(() => new ShareProfileUseCase(), []);
   const exportProfileUseCase = useMemo(() => new ExportProfileUseCase(), []);
 

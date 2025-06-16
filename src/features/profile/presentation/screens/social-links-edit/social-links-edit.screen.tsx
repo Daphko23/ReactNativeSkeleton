@@ -54,7 +54,7 @@
  * - Social presence audit and compliance checking
  */
 
-import React, { useLayoutEffect } from 'react';
+import React, { useLayoutEffect, useCallback as _useCallback } from 'react';
 import {
   View,
   ScrollView,
@@ -570,7 +570,7 @@ export const SocialLinksEditScreen: React.FC<SocialLinksEditScreenProps> = ({
     // hasValidationErrors,
     
     // Actions
-    updateSocialLink,
+    updateSocialLink: _updateSocialLink,
     save,
     openSocialLink,
     // getSocialLinkData,
@@ -583,7 +583,6 @@ export const SocialLinksEditScreen: React.FC<SocialLinksEditScreenProps> = ({
     testIds: _testIds,
     // socialPlatforms,
     // getInputValue,
-    // updateSocialLinkByPlatform,
   } = useSocialLinksEdit({ navigation });
 
   // Styling
@@ -687,7 +686,7 @@ export const SocialLinksEditScreen: React.FC<SocialLinksEditScreenProps> = ({
                   key={platform.key}
                   platform={platform}
                   value={currentValue}
-                  onValueChange={(value) => {}} // updateSocialLinkByPlatform(platform.key as any, value)
+                  onValueChange={(_value) => {}} // updateSocialLinkByPlatform(platform.key as any, _value)
                   onPreview={() => existingLink && openSocialLink(platform.key)}
                   isValid={isValid}
                   isDisabled={isSaving}

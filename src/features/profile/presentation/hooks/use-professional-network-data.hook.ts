@@ -196,10 +196,10 @@ const networkQueryKeys = {
  */
 export const useProfessionalNetworkData = ({
   userId,
-  enableAnalytics = false
+  enableAnalytics: _enableAnalytics = false
 }: UseProfessionalNetworkProps): UseProfessionalNetworkReturn => {
   
-  const { t } = useTranslation();
+  const { t: _t } = useTranslation();
   const queryClient = useQueryClient();
 
   // =============================================================================

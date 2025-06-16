@@ -465,7 +465,7 @@ export class SkillsAnalysis {
     return relatedSkillsMap[skillName.toLowerCase()] || [];
   }
 
-  private getRequiredSkillsForTarget(targetRole?: string, targetIndustry?: string): Array<{
+  private getRequiredSkillsForTarget(_targetRole?: string, _targetIndustry?: string): Array<{
     name: string;
     category: SkillCategory;
     importance: number;
@@ -517,7 +517,7 @@ export class SkillsAnalysis {
     return complexityMap[skillName.toLowerCase()] || 1.0;
   }
 
-  private getLearningResources(skillName: string): string[] {
+  private getLearningResources(_skillName: string): string[] {
     return [
       'Online Courses',
       'Documentation',

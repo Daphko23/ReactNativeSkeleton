@@ -9,7 +9,7 @@
 import { Result } from '@core/types/result.type';
 import { LoggerFactory } from '@core/logging/logger.factory';
 import { LogCategory } from '@core/logging/logger.service.interface';
-import type { SocialLinks } from '../../../domain/entities/user-profile.entity';
+import type { SocialLinks as _SocialLinks } from '../../../domain/entities/user-profile.entity';
 import type { SocialLink } from '../../../domain/types/social-links.types';
 // import type { IProfileRepository } from '../../../domain/interfaces/profile-repository.interface';
 

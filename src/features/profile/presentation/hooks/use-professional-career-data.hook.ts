@@ -226,10 +226,10 @@ const careerQueryKeys = {
  */
 export const useProfessionalCareerData = ({
   userId,
-  enableAnalytics = false
+  enableAnalytics: _enableAnalytics = false
 }: UseProfessionalCareerProps): UseProfessionalCareerReturn => {
   
-  const { t } = useTranslation();
+  const { t: _t } = useTranslation();
   const queryClient = useQueryClient();
 
   // =============================================================================

@@ -10,7 +10,7 @@
  * ✅ Clean Interface: Simplified Champion API
  */
 
-import { useState, useCallback, useMemo } from 'react';
+import { useState, useCallback, useMemo as _useMemo } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { LoggerFactory } from '@core/logging/logger.factory';
 import { LogCategory } from '@core/logging/logger.service.interface';
@@ -73,7 +73,7 @@ export interface UseProfessionalActionsReturn {
 }
 
 // 🏆 CHAMPION CONFIG: Mobile Performance
-const ACTION_CONFIG = {
+const _ACTION_CONFIG = {
   timeout: 10000,              // 🏆 Mobile: 10s timeout
   retries: 2,                  // 🏆 Mobile: Limited retries
   debounceTime: 300,           // 🏆 Mobile: Quick debounce

@@ -526,7 +526,7 @@ export class CustomFieldsRepositoryImpl implements ICustomFieldsRepository {
    * 📋 Get Field Templates with Personalization
    */
   async getTemplates(request: GetTemplatesRequest): Promise<Result<GetTemplatesResponse>> {
-    const operationStart = Date.now();
+    const _operationStart = Date.now();
     
     try {
       this.logger.info('Getting field templates', LogCategory.BUSINESS, { 
@@ -725,7 +725,7 @@ export class CustomFieldsRepositoryImpl implements ICustomFieldsRepository {
     this.performanceMetrics.cache.size = this.cache.size;
   }
   
-  private updatePerformanceMetrics(operation: 'reads' | 'writes' | 'deletes', time: number, fromCache: boolean): void {
+  private updatePerformanceMetrics(operation: 'reads' | 'writes' | 'deletes', time: number, _fromCache: boolean): void {
     const op = this.performanceMetrics.operations[operation];
     op.count++;
     op.averageTime = (op.averageTime * (op.count - 1) + time) / op.count;
@@ -873,19 +873,19 @@ export class CustomFieldsRepositoryImpl implements ICustomFieldsRepository {
   }
   
   // Placeholder implementations for remaining interface methods
-  async getPersonalizedRecommendations(userId: string, context?: any): Promise<Result<CustomFieldTemplate[]>> {
+  async getPersonalizedRecommendations(_userId: string, _context?: any): Promise<Result<CustomFieldTemplate[]>> {
     return Success([]);
   }
   
-  async trackTemplateUsage(userId: string, templateId: string, applied: boolean): Promise<Result<void>> {
+  async trackTemplateUsage(_userId: string, _templateId: string, _applied: boolean): Promise<Result<void>> {
     return Success(undefined);
   }
   
-  async saveFieldUsageAnalytics(analytics: FieldUsageAnalytics): Promise<Result<void>> {
+  async saveFieldUsageAnalytics(_analytics: FieldUsageAnalytics): Promise<Result<void>> {
     return Success(undefined);
   }
   
-  async getAnalytics(request: GetAnalyticsRequest): Promise<Result<GetAnalyticsResponse>> {
+  async getAnalytics(_request: GetAnalyticsRequest): Promise<Result<GetAnalyticsResponse>> {
     // Simplified implementation
     const response: GetAnalyticsResponse = {
       analytics: [],
@@ -909,11 +909,11 @@ export class CustomFieldsRepositoryImpl implements ICustomFieldsRepository {
     return Success(response);
   }
   
-  async getFieldEffectivenessReports(fieldKeys?: string[], period?: { start: Date; end: Date }): Promise<Result<FieldEffectivenessReport[]>> {
+  async getFieldEffectivenessReports(_fieldKeys?: string[], _period?: { start: Date; end: Date }): Promise<Result<FieldEffectivenessReport[]>> {
     return Success([]);
   }
   
-  async validateFieldConfiguration(fields: CustomField[], userId?: string): Promise<Result<FieldValidationResult[]>> {
+  async validateFieldConfiguration(fields: CustomField[], _userId?: string): Promise<Result<FieldValidationResult[]>> {
     const results = fields.map(field => ({
       fieldKey: field.key,
       isValid: true,
@@ -929,11 +929,11 @@ export class CustomFieldsRepositoryImpl implements ICustomFieldsRepository {
     return Success(results);
   }
   
-  async checkFieldDependencies(fields: CustomField[]): Promise<Result<string[]>> {
+  async checkFieldDependencies(_fields: CustomField[]): Promise<Result<string[]>> {
     return Success([]);
   }
   
-  async validateGDPRCompliance(fields: CustomField[], userConsent?: any): Promise<Result<boolean>> {
+  async validateGDPRCompliance(_fields: CustomField[], _userConsent?: any): Promise<Result<boolean>> {
     return Success(true);
   }
   
@@ -959,11 +959,11 @@ export class CustomFieldsRepositoryImpl implements ICustomFieldsRepository {
     return Success(this.performanceMetrics);
   }
   
-  async clearCache(userId?: string): Promise<Result<void>> {
-    if (userId) {
+  async clearCache(_userId?: string): Promise<Result<void>> {
+    if (_userId) {
       // Clear user-specific cache entries
       for (const key of this.cache.keys()) {
-        if (key.includes(userId)) {
+        if (key.includes(_userId)) {
           this.cache.delete(key);
         }
       }
@@ -973,19 +973,19 @@ export class CustomFieldsRepositoryImpl implements ICustomFieldsRepository {
     return Success(undefined);
   }
   
-  async synchronizeData(userId: string): Promise<Result<void>> {
+  async synchronizeData(_userId: string): Promise<Result<void>> {
     return Success(undefined);
   }
   
-  async exportUserData(userId: string, format?: 'json' | 'csv' | 'xml'): Promise<Result<any>> {
+  async exportUserData(_userId: string, _format?: 'json' | 'csv' | 'xml'): Promise<Result<any>> {
     return Success({});
   }
   
-  async deleteAllUserData(userId: string, justification: string): Promise<Result<void>> {
+  async deleteAllUserData(_userId: string, _justification: string): Promise<Result<void>> {
     return Success(undefined);
   }
   
-  async getDataProcessingHistory(userId: string): Promise<Result<DataProcessingRecord[]>> {
+  async getDataProcessingHistory(_userId: string): Promise<Result<DataProcessingRecord[]>> {
     return Success([]);
   }
 }

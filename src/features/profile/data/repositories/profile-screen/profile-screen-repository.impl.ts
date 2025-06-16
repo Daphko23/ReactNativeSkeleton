@@ -16,18 +16,18 @@ import {
 } from '../../../domain/entities/profile-screen-state.entity';
 import {
   ProfileInteraction,
-  ProfileInteractionType,
-  EngagementLevel,
-  createProfileInteraction
+  ProfileInteractionType as _ProfileInteractionType,
+  EngagementLevel as _EngagementLevel,
+  createProfileInteraction as _createProfileInteraction
 } from '../../../domain/entities/profile-interaction.entity';
 import {
   ProfileScreenConfiguration,
-  ProfileScreenFeatureFlag,
+  ProfileScreenFeatureFlag as _ProfileScreenFeatureFlag,
   createProfileScreenConfiguration
 } from '../../../domain/entities/profile-screen-config.entity';
 import {
   OfflineProfileState,
-  ProfileSyncStatus,
+  ProfileSyncStatus as _ProfileSyncStatus,
   ConflictResolutionStrategy,
   createOfflineProfileState
 } from '../../../domain/entities/offline-profile-state.entity';

@@ -327,7 +327,7 @@ export class SupabaseProfileScreenDataSource implements IProfileScreenDataSource
 
   async performHealthCheck(): Promise<boolean> {
     try {
-      const { data, error } = await this.supabaseClient
+      const { data: _data, error } = await this.supabaseClient
         .from('profile_screen_states')
         .select('user_id')
         .limit(1);

@@ -144,11 +144,11 @@ export const useRole = (targetRole?: Role): UseRoleReturn => {
         });
 
         return roleData;
-      } catch (error) {
+      } catch (_error) {
         logger.error('User role data fetch failed (Champion)', LogCategory.SECURITY, { 
           correlationId,
           userId: user?.id
-        }, error as Error);
+        }, _error as Error);
         
         // Fallback to guest role
         return {
@@ -192,12 +192,12 @@ export const useRole = (targetRole?: Role): UseRoleReturn => {
         });
 
         return hasExactRole;
-      } catch (error) {
+      } catch (_error) {
         logger.error('Role check failed (Champion)', LogCategory.SECURITY, { 
           correlationId,
           userId: user?.id,
           metadata: { targetRole }
-        }, error as Error);
+        }, _error as Error);
         
         return false;
       }
@@ -269,7 +269,7 @@ export const useRole = (targetRole?: Role): UseRoleReturn => {
       });
 
       return meetsLevel;
-    } catch (error) {
+    } catch {
       logger.error('Minimum role level check failed - invalid role (Champion)', LogCategory.SECURITY, { 
         correlationId,
         userId: user?.id,

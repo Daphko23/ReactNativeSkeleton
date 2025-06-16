@@ -405,17 +405,17 @@ export class RefreshHealthMonitoringUseCase {
 
   // Private helper methods
 
-  private async measureResponseTime(serviceName: string): Promise<number> {
+  private async measureResponseTime(_serviceName: string): Promise<number> {
     // Simulate response time measurement
     return Math.floor(Math.random() * 200) + 100; // 100-300ms
   }
 
-  private async calculateSuccessRate(serviceName: string): Promise<number> {
+  private async calculateSuccessRate(_serviceName: string): Promise<number> {
     // Simulate success rate calculation
     return Math.random() * 5 + 95; // 95-100%
   }
 
-  private async checkResourceUsage(serviceName: string): Promise<{ cpuUsage: number; memoryUsage: number }> {
+  private async checkResourceUsage(_serviceName: string): Promise<{ cpuUsage: number; memoryUsage: number }> {
     // Simulate resource usage check
     return {
       cpuUsage: Math.random() * 30 + 20, // 20-50%
@@ -448,8 +448,22 @@ export class RefreshHealthMonitoringUseCase {
     return Math.round((successScore * 0.5 + responseScore * 0.3 + resourceScore * 0.2));
   }
 
-  private async processAlert(serviceName: string, alertType: string, severity: string): Promise<void> {
+  private async processAlert(_serviceName: string, _alertType: string, _severity: string): Promise<void> {
     // Simulate alert processing logic
     await new Promise(resolve => setTimeout(resolve, 100));
+  }
+
+  private async validateServiceStatus(_serviceName: string): Promise<boolean> {
+    // Implementation of validateServiceStatus method
+    return true; // Placeholder return, actual implementation needed
+  }
+
+  private async monitorServiceMetrics(_serviceName: string): Promise<any> {
+    // Implementation of monitorServiceMetrics method
+    return {}; // Placeholder return, actual implementation needed
+  }
+
+  private async handleServiceAlert(_serviceName: string, _alertType: string, _severity: string): Promise<void> {
+    // Implementation of handleServiceAlert method
   }
 } 

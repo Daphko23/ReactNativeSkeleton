@@ -29,11 +29,11 @@ import { LogCategory } from '@core/logging/logger.service.interface';
 // Domain Imports
 import type {
   ICustomFieldsRepository,
-  CustomField,
+  CustomField as _CustomField,
   FieldUsageAnalytics,
   GetAnalyticsRequest,
   GetAnalyticsResponse,
-  FieldEffectivenessReport
+  FieldEffectivenessReport as _FieldEffectivenessReport
 } from '../../../domain/interfaces/custom-fields-repository.interface';
 
 // =============================================
@@ -721,7 +721,7 @@ export class AnalyticsTrackingUseCase {
   /**
    * 💡 Generate Business Insights
    */
-  private async generateBusinessInsights(analyticsData: GetAnalyticsResponse): Promise<BusinessInsights> {
+  private async generateBusinessInsights(_analyticsData: GetAnalyticsResponse): Promise<BusinessInsights> {
     // 🎯 CALCULATE ENGAGEMENT METRICS
     const engagement = {
       averageSessionDuration: 15, // minutes - simplified calculation
@@ -893,13 +893,13 @@ export class AnalyticsTrackingUseCase {
     }
   }
   
-  private async countDataPoints(request: AnalyticsTrackingRequest): Promise<number> {
+  private async countDataPoints(_request: AnalyticsTrackingRequest): Promise<number> {
     // Simplified data points calculation
     // In real implementation, this would count actual data records
     return 1000;
   }
   
-  private calculateAccuracy(request: AnalyticsTrackingRequest): number {
+  private calculateAccuracy(_request: AnalyticsTrackingRequest): number {
     // Simplified accuracy calculation for ML predictions
     // In real implementation, this would use actual model performance metrics
     return 85;
@@ -928,7 +928,7 @@ export class AnalyticsTrackingUseCase {
     };
   }
   
-  private async generateAnalyticsReport(analyticsData: GetAnalyticsResponse, config?: any): Promise<AnalyticsReport> {
+  private async generateAnalyticsReport(_analyticsData: GetAnalyticsResponse, _config?: any): Promise<AnalyticsReport> {
     // Simplified report generation
     // In real implementation, this would create comprehensive reports
     
@@ -966,7 +966,7 @@ export class AnalyticsTrackingUseCase {
     };
   }
   
-  private async generateBehaviorPredictions(analyticsData: GetAnalyticsResponse): Promise<BehaviorPredictions> {
+  private async generateBehaviorPredictions(_analyticsData: GetAnalyticsResponse): Promise<BehaviorPredictions> {
     // Simplified ML predictions
     // In real implementation, this would use trained ML models
     
@@ -1014,7 +1014,7 @@ export class AnalyticsTrackingUseCase {
     };
   }
   
-  private async calculateBusinessImpact(analyticsData: GetAnalyticsResponse): Promise<BusinessImpactMetrics> {
+  private async calculateBusinessImpact(_analyticsData: GetAnalyticsResponse): Promise<BusinessImpactMetrics> {
     // Simplified business impact calculation
     // In real implementation, this would use complex ROI algorithms
     

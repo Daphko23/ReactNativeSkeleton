@@ -123,7 +123,7 @@ export class AvatarService implements IAvatarService {
    */
   async uploadAvatar(options: AvatarUploadOptions): Promise<AvatarUploadResult> {
     try {
-      const correlationId = `upload_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+      const _correlationId = `upload_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
       
       logger.info('Starting avatar upload via Repository', LogCategory.BUSINESS, {
         userId: options.userId,
@@ -187,7 +187,7 @@ export class AvatarService implements IAvatarService {
       return result;
 
     } catch (error) {
-      const correlationId = `upload_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+      const _correlationId = `upload_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
       logger.error('Avatar upload exception occurred', LogCategory.BUSINESS, {
         userId: options.userId,
         correlationId: `avatar_${Date.now()}`
@@ -219,7 +219,7 @@ export class AvatarService implements IAvatarService {
    */
   async deleteAvatar(userId?: string): Promise<{ success: boolean; error?: string }> {
     try {
-      const correlationId = `delete_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+      const _correlationId = `delete_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
       
       logger.info('Starting avatar deletion via Repository', LogCategory.BUSINESS, {
         userId,
@@ -285,7 +285,7 @@ export class AvatarService implements IAvatarService {
    */
   async getAvatarUrl(userId: string): Promise<string | null> {
     try {
-      const correlationId = `getUrl_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+      const _correlationId = `getUrl_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
       
       logger.info('Getting avatar URL via Repository', LogCategory.BUSINESS, {
         correlationId: 'avatar-error',
@@ -295,7 +295,7 @@ export class AvatarService implements IAvatarService {
       // Service Layer Business Logic: Validate user ID
       if (!userId) {
         logger.warn('No user ID provided for avatar URL, returning default', LogCategory.BUSINESS, {
-          correlationId
+          correlationId: _correlationId
         });
         return this.getDefaultAvatarUrl();
       }

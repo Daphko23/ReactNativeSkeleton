@@ -388,7 +388,7 @@ export class CalculateProfileCompletenessUseCase {
 
   private generateBasicRecommendations(
     missingFields: string[],
-    profile: UserProfile
+    _profile: UserProfile
   ): string[] {
     const recommendations: string[] = [];
     const fieldLabels: Record<string, string> = {

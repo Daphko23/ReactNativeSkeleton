@@ -119,7 +119,7 @@ export class CalculateAccountStatsUseCase {
    */
   async execute(request: CalculateAccountStatsRequest): Promise<Result<AccountStatsResponse, string>> {
     try {
-      const { userId, profile, accountSettings, privacySettings } = request;
+      const { userId: _userId, profile, accountSettings, privacySettings } = request;
 
       if (!profile) {
         return Failure('Profile data required for stats calculation');

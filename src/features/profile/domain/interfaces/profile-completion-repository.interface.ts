@@ -8,7 +8,7 @@
  * - Performance Metrics and Caching Interface
  */
 
-import { CompletionSuggestion } from '../../application/use-cases/completion/generate-completion-suggestions.use-case';
+import { CompletionSuggestion as _CompletionSuggestion } from '../../application/use-cases/completion/generate-completion-suggestions.use-case';
 
 /**
  * Completion Analytics Data

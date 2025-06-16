@@ -240,7 +240,7 @@ export class DeleteAvatarUseCase {
       return {
         verified: avatarUrl === null
       };
-    } catch (error) {
+    } catch {
       this.logger.warn('Storage cleanup verification failed', LogCategory.BUSINESS, { userId });
       return { verified: false };
     }
@@ -249,7 +249,7 @@ export class DeleteAvatarUseCase {
   /**
    * 🎯 BUSINESS LOGIC: Check Recent Deletion History
    */
-  private async checkRecentDeletionHistory(userId: string): Promise<number> {
+  private async checkRecentDeletionHistory(_userId: string): Promise<number> {
     // Business Rule: Prevent deletion abuse
     // In real implementation, check audit logs or database
     // For now, return 0 (no recent deletions)
@@ -280,7 +280,7 @@ export class DeleteAvatarUseCase {
       });
 
       return auditLogId;
-    } catch (error) {
+    } catch {
       this.logger.warn('GDPR audit logging failed', LogCategory.BUSINESS, { userId });
       return `audit_failed_${Date.now()}`;
     }
@@ -301,7 +301,7 @@ export class DeleteAvatarUseCase {
           action: 'avatar_deletion_cascade'
         }
       });
-    } catch (error) {
+    } catch {
       this.logger.warn('Related profile data update failed', LogCategory.BUSINESS, { userId });
     }
   }

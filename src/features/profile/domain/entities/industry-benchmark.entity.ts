@@ -673,13 +673,13 @@ export class IndustryBenchmark {
     return Math.min(100, expectedProgressions * 25 + 25);
   }
 
-  private calculateDemandTrend(role: string): RoleAnalysis['demandTrend'] {
+  private calculateDemandTrend(_role: string): RoleAnalysis['demandTrend'] {
     // Mock calculation
     const trends = ['declining', 'stable', 'growing', 'high_demand', 'critical_shortage'] as const;
     return trends[Math.floor(Math.random() * trends.length)];
   }
 
-  private getRequiredSkillsForRole(role: string): RoleAnalysis['requiredSkills'] {
+  private getRequiredSkillsForRole(_role: string): RoleAnalysis['requiredSkills'] {
     // Mock required skills
     return [
       { skill: 'JavaScript', importance: 90, demand: 85, averageProficiency: 70 },
@@ -690,7 +690,7 @@ export class IndustryBenchmark {
     ];
   }
 
-  private getCareerPathsForRole(role: string): RoleAnalysis['careerPaths'] {
+  private getCareerPathsForRole(_role: string): RoleAnalysis['careerPaths'] {
     return [
       { nextRole: 'Senior Developer', timeframe: 24, probability: 70, requirements: ['Leadership skills', 'Advanced technical skills'] },
       { nextRole: 'Tech Lead', timeframe: 36, probability: 50, requirements: ['Team leadership', 'Architecture skills'] },
@@ -698,7 +698,7 @@ export class IndustryBenchmark {
     ];
   }
 
-  private getGeographicHotspotsForRole(role: string): RoleAnalysis['geographicHotspots'] {
+  private getGeographicHotspotsForRole(_role: string): RoleAnalysis['geographicHotspots'] {
     return [
       { location: 'San Francisco', demand: 95, averageSalary: 150000, costOfLiving: 95 },
       { location: 'New York', demand: 90, averageSalary: 140000, costOfLiving: 90 },

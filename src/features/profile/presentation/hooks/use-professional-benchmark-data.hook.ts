@@ -181,7 +181,7 @@ const benchmarkQueryKeys = {
  */
 export const useProfessionalBenchmarkData = ({
   userId,
-  enableAnalytics = false
+  enableAnalytics: _enableAnalytics = false
 }: UseProfessionalBenchmarkProps): UseProfessionalBenchmarkReturn => {
   
   const { t } = useTranslation();

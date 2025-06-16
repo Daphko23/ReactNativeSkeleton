@@ -50,18 +50,18 @@ import {
 } from '../../domain/entities/skills-analysis.entity';
 import { 
   CareerProgression,
-  CareerMilestone,
-  CareerGoal 
+  CareerMilestone as _CareerMilestone,
+  CareerGoal as _CareerGoal 
 } from '../../domain/entities/career-progression.entity';
 import { 
   IndustryBenchmark,
-  SalaryAnalysis,
-  MarketTrend 
+  SalaryAnalysis as _SalaryAnalysis,
+  MarketTrend as _MarketTrend 
 } from '../../domain/entities/industry-benchmark.entity';
 import { 
   ProfessionalNetwork,
-  Connection,
-  NetworkAnalysis 
+  Connection as _Connection,
+  NetworkAnalysis as _NetworkAnalysis 
 } from '../../domain/entities/professional-network.entity';
 
 // =============================================================================
@@ -161,7 +161,7 @@ class SupabaseProfessionalProfileDataSource implements IProfessionalProfileDataS
   constructor(private readonly supabase: SupabaseClient<Database>) {}
 
   async getProfile(userId: string): Promise<DataSourceResult<ProfessionalProfile>> {
-    const startTime = Date.now();
+    const _startTime = Date.now();
     
     try {
       const { data, error } = await this.supabase
@@ -483,28 +483,28 @@ class SupabaseSkillsAnalysisDataSource implements ISkillsAnalysisDataSource {
   
   constructor(private readonly supabase: SupabaseClient<Database>) {}
 
-  async getSkillsAnalysis(userId: string): Promise<DataSourceResult<SkillsAnalysis>> {
+  async getSkillsAnalysis(_userId: string): Promise<DataSourceResult<SkillsAnalysis>> {
     // Implementation similar to profile data source
     throw new Error('Method not implemented.');
   }
 
-  async updateSkills(userId: string, skills: string[]): Promise<DataSourceResult<SkillsAnalysis>> {
+  async updateSkills(_userId: string, _skills: string[]): Promise<DataSourceResult<SkillsAnalysis>> {
     throw new Error('Method not implemented.');
   }
 
-  async analyzeSkills(userId: string, skills: string[], options?: { includeMarketData?: boolean; targetRole?: string; targetIndustry?: string }): Promise<DataSourceResult<SkillsAnalysis>> {
+  async analyzeSkills(_userId: string, _skills: string[], _options?: { includeMarketData?: boolean; targetRole?: string; targetIndustry?: string }): Promise<DataSourceResult<SkillsAnalysis>> {
     throw new Error('Method not implemented.');
   }
 
-  async getSkillsGapAnalysis(userId: string, targetRole: string, targetIndustry: string): Promise<DataSourceResult<SkillsGapAnalysis>> {
+  async getSkillsGapAnalysis(_userId: string, _targetRole: string, _targetIndustry: string): Promise<DataSourceResult<SkillsGapAnalysis>> {
     throw new Error('Method not implemented.');
   }
 
-  async getSkillsPortfolio(userId: string): Promise<DataSourceResult<SkillsPortfolioAssessment>> {
+  async getSkillsPortfolio(_userId: string): Promise<DataSourceResult<SkillsPortfolioAssessment>> {
     throw new Error('Method not implemented.');
   }
 
-  async getMarketSkillsData(skills: string[], industry?: string, location?: string): Promise<DataSourceResult<any>> {
+  async getMarketSkillsData(_skills: string[], _industry?: string, _location?: string): Promise<DataSourceResult<any>> {
     throw new Error('Method not implemented.');
   }
 }
@@ -608,7 +608,7 @@ export class SupabaseProfessionalDataSource implements IProfessionalDataSource {
   }> {
     try {
       // Test connection to Supabase
-      const { data, error } = await this.supabase
+      const { data: _data, error } = await this.supabase
         .from('professional_profiles')
         .select('count')
         .limit(1);
@@ -624,7 +624,7 @@ export class SupabaseProfessionalDataSource implements IProfessionalDataSource {
         overall: isHealthy
       };
       
-    } catch (error) {
+    } catch {
       return {
         profile: false,
         skills: false,

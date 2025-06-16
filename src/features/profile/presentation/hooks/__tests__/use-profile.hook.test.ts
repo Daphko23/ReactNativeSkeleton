@@ -8,7 +8,7 @@
  * @since Enterprise Industry Standard 2025
  */
 
-import { renderHook, act, waitFor } from '@testing-library/react-native';
+import { renderHook, act, waitFor as _waitFor } from '@testing-library/react-native';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import React from 'react';
 import { useProfile } from '../use-profile.hook';

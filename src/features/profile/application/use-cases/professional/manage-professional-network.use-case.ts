@@ -12,7 +12,7 @@ import {
   NetworkingRecommendation,
   NetworkingInsights,
   NetworkingROI,
-  NetworkInteraction as InteractionRecord
+  NetworkInteraction as _InteractionRecord
 } from '../../../domain/entities/professional-network.entity';
 
 // =============================================================================
@@ -344,11 +344,11 @@ export class ManageProfessionalNetworkUseCase {
     } as any;
   }
 
-  private performNetworkAnalysis(network: ProfessionalNetwork, input: ManageNetworkInput): NetworkAnalysis {
+  private performNetworkAnalysis(_network: ProfessionalNetwork, _input: ManageNetworkInput): NetworkAnalysis {
     return {} as any;
   }
 
-  private generateNetworkingInsights(analysis: NetworkAnalysis): NetworkingInsights {
+  private generateNetworkingInsights(_analysis: NetworkAnalysis): NetworkingInsights {
     return {
       recommendations: [
         'Network diversity is above average',
@@ -358,22 +358,22 @@ export class ManageProfessionalNetworkUseCase {
     } as any;
   }
 
-  private generateRecommendations(analysis: NetworkAnalysis, insights: NetworkingInsights): NetworkingRecommendation[] {
+  private generateRecommendations(_analysis: NetworkAnalysis, _insights: NetworkingInsights): NetworkingRecommendation[] {
     return [] as any;
   }
 
-  private calculateNetworkHealth(network: ProfessionalNetwork, analysis: NetworkAnalysis): any {
+  private calculateNetworkHealth(_network: ProfessionalNetwork, _analysis: NetworkAnalysis): any {
     return {
       overallScore: 85,
       status: 'healthy'
     };
   }
 
-  private calculateNetworkValue(network: ProfessionalNetwork): number {
+  private calculateNetworkValue(_network: ProfessionalNetwork): number {
     return 12500;
   }
 
-  private calculateGrowthRate(network: ProfessionalNetwork): number {
+  private calculateGrowthRate(_network: ProfessionalNetwork): number {
     return 12;
   }
 
@@ -383,11 +383,11 @@ export class ManageProfessionalNetworkUseCase {
     return totalConnections > 0 ? (activeConnections / totalConnections) * 100 : 0;
   }
 
-  private identifyTopOpportunities(analysis: NetworkAnalysis): NetworkingOpportunity[] {
+  private identifyTopOpportunities(_analysis: NetworkAnalysis): NetworkingOpportunity[] {
     return [] as any;
   }
 
-  private generateStrategicRecommendations(analysis: NetworkAnalysis): string[] {
+  private generateStrategicRecommendations(_analysis: NetworkAnalysis): string[] {
     return [
       'Focus on AI/ML networking for future growth',
       'Strengthen relationships with existing mentors',
@@ -395,18 +395,18 @@ export class ManageProfessionalNetworkUseCase {
     ];
   }
 
-  private identifyRiskAreas(analysis: NetworkAnalysis): string[] {
+  private identifyRiskAreas(_analysis: NetworkAnalysis): string[] {
     return [
       'High concentration in technology sector',
       'Some connections becoming dormant'
     ];
   }
 
-  private calculateGrowthPotential(analysis: NetworkAnalysis): number {
+  private calculateGrowthPotential(_analysis: NetworkAnalysis): number {
     return 85;
   }
 
-  private identifyNetworkGaps(analysis: NetworkAnalysis): string[] {
+  private identifyNetworkGaps(_analysis: NetworkAnalysis): string[] {
     return [
       'Limited international connections',
       'Few startup ecosystem contacts',
@@ -414,7 +414,7 @@ export class ManageProfessionalNetworkUseCase {
     ];
   }
 
-  private generateQuickActions(analysis: NetworkAnalysis, insights: NetworkingInsights): any[] {
+  private generateQuickActions(_analysis: NetworkAnalysis, _insights: NetworkingInsights): any[] {
     return [
       {
         label: 'Send Check-in Messages',

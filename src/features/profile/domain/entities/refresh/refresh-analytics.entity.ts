@@ -221,14 +221,14 @@ export class RefreshAnalyticsEntity {
   // HELPER METHODS
   // =============================================================================
 
-  private categorizeRisk(score: number): ChurnRiskLevel {
-    if (score < 25) return 'low';
-    if (score < 50) return 'medium';
-    if (score < 75) return 'high';
+  private categorizeRisk(_score: number): ChurnRiskLevel {
+    if (_score < 25) return 'low';
+    if (_score < 50) return 'medium';
+    if (_score < 75) return 'high';
     return 'critical';
   }
 
-  private identifyRiskFactors(score: number): string[] {
+  private identifyRiskFactors(_score: number): string[] {
     const factors: string[] = [];
     
     if (this.userPattern.refreshFrequency < this.userPattern.expectedFrequency * 0.5) {

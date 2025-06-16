@@ -119,7 +119,7 @@ export const useAuthGuard = (config?: AuthGuardConfig): UseAuthGuardReturn => {
         const hasRequiredRoles = config?.requiredRoles ? 
           config.requiredRoles.every(role => user?.role === role) : true;
         const hasRequiredPermissions = config?.requiredPermissions ?
-          config.requiredPermissions.every(permission => false) : true; // Simplified for now
+          config.requiredPermissions.every(_permission => false) : true; // Simplified for now
 
         const status: AuthGuardStatus = {
           isAuthenticated,

@@ -544,7 +544,7 @@ export class CareerProgression {
    */
   generateCareerRecommendations(): string[] {
     const recommendations: string[] = [];
-    const analysis = this.analyzeProgressionPatterns();
+    const _analysis = this.analyzeProgressionPatterns();
     
     // Based on goal completion rate
     const completedGoals = this.goals.filter(g => g.status === GoalStatus.COMPLETED).length;
@@ -601,7 +601,7 @@ export class CareerProgression {
     timeframe: string;
     preparation: string[];
   } {
-    const recentMilestones = this.milestones
+    const _recentMilestones = this.milestones
       .filter(m => Date.now() - m.achievedDate.getTime() < 365 * 24 * 60 * 60 * 1000) // Last year
       .sort((a, b) => b.achievedDate.getTime() - a.achievedDate.getTime());
 
@@ -783,7 +783,7 @@ export class CareerProgression {
     this._lastAnalysisDate = new Date();
     
     // Generate insights based on current career data
-    const analysis = this.analyzeProgressionPatterns();
+    const _analysis = this.analyzeProgressionPatterns();
     
     // Add opportunity insights
     if (this._trajectory.promotionProbability > 70) {
@@ -804,14 +804,14 @@ export class CareerProgression {
     }
 
     // Add risk insights
-    if (analysis.riskFactors.length > 0) {
+    if (_analysis.riskFactors.length > 0) {
       this._insights.push({
         type: 'risk',
         title: 'Career Risk Identified',
-        description: analysis.riskFactors[0],
+        description: _analysis.riskFactors[0],
         importance: 'medium',
         actionable: true,
-        suggestedActions: analysis.improvementAreas,
+        suggestedActions: _analysis.improvementAreas,
         timeline: '6-12 months',
         confidence: 70,
         source: 'Risk Assessment',

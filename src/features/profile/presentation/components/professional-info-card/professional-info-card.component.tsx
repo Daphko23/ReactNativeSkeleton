@@ -65,7 +65,7 @@ export function ProfessionalInfoCard({
   // 🎯 HOOK-CENTRIC - ALL BUSINESS LOGIC FROM HOOK
   const {
     // Data Processing
-    hasJobInfo,
+    hasJobInfo: _hasJobInfo,
     // hasSkills, // Property not available in hook
     // hasCustomFields, // Property not available in hook
     // isEmpty, // Property not available in hook
@@ -107,7 +107,7 @@ export function ProfessionalInfoCard({
   const formatWorkLocation = (location: string) => location;
   const formatAvailability = (availability: any) => availability ? 'Available for work' : 'Not available';
   const formatCustomFieldValue = (value: any) => String(value);
-  const handleSkillPress = (skill: string) => {};
+  const handleSkillPress = (_skill: string) => {};
   const showEmptyState = isEmpty;
   const showExperience = !!professionalInfo?.experience;
   const showWorkLocation = !!professionalInfo?.workLocation;
@@ -115,8 +115,8 @@ export function ProfessionalInfoCard({
   const showSkills = hasSkills;
   const showCustomFields = hasCustomFields;
   
-  const getExperienceLevelColor = (experience: string) => '#4CAF50';
-  const getWorkLocationIcon = (location: string) => 'map-marker';
+  const getExperienceLevelColor = (_experience: string) => '#4CAF50';
+  const getWorkLocationIcon = (_location: string) => 'map-marker';
   const getAvailabilityIcon = (available: boolean) => available ? 'check-circle' : 'clock';
   const getAvailabilityColor = (available: boolean) => available ? '#4CAF50' : '#FF9800';
 
@@ -328,21 +328,21 @@ export function ProfessionalInfoCard({
         </View>
         
         <View style={styles.skillsContainer}>
-          {professionalInfo.skills.map((skill, index) => (
+          {professionalInfo.skills?.map((_skill, index) => (
             <Chip
               key={index}
               mode="outlined"
               onPress={() => {
-                handleSkillPress(skill);
-                onSkillPress?.(skill);
+                handleSkillPress(_skill);
+                onSkillPress?.(_skill);
               }}
               style={styles.skillChip}
               textStyle={styles.skillText}
               accessibilityRole="button"
-              accessibilityLabel={`Skill: ${skill}`}
+              accessibilityLabel={`Skill: ${_skill}`}
               testID={`skill-chip-${index}`}
             >
-              {skill}
+              {_skill}
             </Chip>
           ))}
         </View>

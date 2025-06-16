@@ -398,7 +398,7 @@ export class ProcessProfessionalInfoUseCase {
   /**
    * 🔍 CHECK GDPR COMPLIANCE - Basic compliance check
    */
-  private checkGDPRCompliance(info: ProfessionalInfo): boolean {
+  private checkGDPRCompliance(_info: ProfessionalInfo): boolean {
     // For now, return true - in real implementation, check against GDPR rules
     // Check for sensitive data, consent requirements, etc.
     return true;

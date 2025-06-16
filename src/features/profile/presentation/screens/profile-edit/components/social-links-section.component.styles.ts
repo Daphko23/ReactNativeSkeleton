@@ -3,7 +3,7 @@
  */
 
 import { StyleSheet } from 'react-native';
-import { Theme } from '../../../../../../core/theme/theme.types';
+import { Theme as _Theme } from '@core/theme/theme.types';
 
 export const createSocialLinksSectionStyles = (theme: any) =>
   StyleSheet.create({

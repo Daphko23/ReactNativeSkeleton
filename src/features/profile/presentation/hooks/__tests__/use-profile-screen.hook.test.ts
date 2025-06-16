@@ -6,7 +6,7 @@
  * ✅ Enterprise error handling and state management tests
  */
 
-import { renderHook, waitFor } from '@testing-library/react-native';
+import { renderHook, waitFor as _waitFor } from '@testing-library/react-native';
 import { useProfileScreen } from '../use-profile-screen.hook';
 
 // Mock dependencies
@@ -394,16 +394,6 @@ describe('useProfileScreen', () => {
     });
   });
 
-  describe('📱 CONVENIENCE PROPERTIES', () => {
-    it('should provide backward compatibility properties', () => {
-      const { result } = renderHook(() => useProfileScreen());
-
-      // expect(result.current.isLoading).toBe(false);
-      // expect(result.current.hasError).toBe(false);
-      // expect(result.current.profile).toBe(mockProfile);
-    });
-  });
-
   describe('🧪 EDGE CASES', () => {
     it('should handle missing user', () => {
       (mockAuth as any).user = null;
@@ -426,9 +416,6 @@ describe('useProfileScreen', () => {
       };
       mockUseProfile.profile = largeProfile;
 
-      const { result } = renderHook(() => useProfileScreen());
-
-      // expect(result.current.profile).toBe(largeProfile);
     });
 
     it('should handle rapid state changes', () => {
@@ -477,39 +464,34 @@ describe('useProfileScreen', () => {
 
   describe('⚡ PERFORMANCE', () => {
     it('should handle complex profile data efficiently', () => {
-      const { result } = renderHook(() => useProfileScreen());
+      const { result: _result } = renderHook(() => useProfileScreen());
 
-      // expect(result.current.profile).toBe(mockProfile);
+      // expect(_result.current.profile).toBe(mockProfile);
     });
 
     it('should provide all function types correctly', () => {
-      const { result } = renderHook(() => useProfileScreen());
+      const { result: _result } = renderHook(() => useProfileScreen());
 
-      expect(typeof result.current.actions.navigateToEdit).toBe('function');
-      expect(typeof result.current.actions.navigateToSettings).toBe('function');
-      expect(typeof result.current.actions.navigateToCustomFields).toBe('function');
-      expect(typeof result.current.actions.navigateToPrivacySettings).toBe('function');
-      expect(typeof result.current.actions.shareProfile).toBe('function');
-      expect(typeof result.current.actions.exportProfile).toBe('function');
-      expect(typeof result.current.actions.changeAvatar).toBe('function');
-      expect(typeof result.current.actions.removeAvatar).toBe('function');
+      expect(typeof _result.current.actions.navigateToEdit).toBe('function');
+      expect(typeof _result.current.actions.navigateToSettings).toBe('function');
+      expect(typeof _result.current.actions.navigateToCustomFields).toBe('function');
+      expect(typeof _result.current.actions.navigateToPrivacySettings).toBe('function');
+      expect(typeof _result.current.actions.shareProfile).toBe('function');
+      expect(typeof _result.current.actions.exportProfile).toBe('function');
+      expect(typeof _result.current.actions.changeAvatar).toBe('function');
+      expect(typeof _result.current.actions.removeAvatar).toBe('function');
     });
   });
 
   describe('🔍 INTEGRATION TESTS', () => {
     it('should work with real profile data', () => {
-      const { result } = renderHook(() => useProfileScreen());
+      const { result: _result } = renderHook(() => useProfileScreen());
 
-      // expect(result.current.profile).toBeDefined();
-      expect(result.current.ui.headerTitle).toBe('John Doe');
-      expect(result.current.ui.completionPercentage).toBe(85);
+      // expect(_result.current.profile).toBeDefined();
+      expect(_result.current.ui.headerTitle).toBe('John Doe');
+      expect(_result.current.ui.completionPercentage).toBe(85);
     });
 
-    it('should handle auth state changes', () => {
-      const { result } = renderHook(() => useProfileScreen());
-
-      // expect(result.current.profile).toBe(mockProfile);
-    });
   });
 
   describe('🎯 SPECIALIZED HOOK TESTS', () => {

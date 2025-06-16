@@ -29,7 +29,7 @@ export const ProfessionalInfoSection: React.FC<ProfessionalInfoSectionProps> = (
   testIds,
 }) => {
   const { t } = useTranslation();
-  const { theme } = useTheme();
+  const { theme: _theme } = useTheme();
 
   // Work location options
   const workLocationOptions = useMemo(() => [

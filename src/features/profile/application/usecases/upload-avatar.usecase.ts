@@ -248,7 +248,7 @@ export class UploadAvatarUseCase {
         await this.avatarRepository.deleteAvatar(userId);
         this.logger.info('Previous avatar cleaned up', LogCategory.BUSINESS, { userId });
       }
-    } catch (error) {
+    } catch {
       // Non-blocking error - continue with upload even if cleanup fails
       this.logger.warn('Previous avatar cleanup failed', LogCategory.BUSINESS, { userId });
     }
@@ -269,7 +269,7 @@ export class UploadAvatarUseCase {
         timestamp: new Date().toISOString(),
         metadata
       });
-    } catch (error) {
+    } catch {
       this.logger.warn('GDPR audit logging failed', LogCategory.BUSINESS, { userId });
     }
   }

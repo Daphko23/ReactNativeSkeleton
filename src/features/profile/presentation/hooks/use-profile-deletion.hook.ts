@@ -51,7 +51,7 @@ export interface UseProfileDeletionReturn {
 
 // 🏆 CHAMPION SERVICES: DI Container
 // const profileRepository = profileContainer.getProfileRepository();
-const profileRepository = { deleteProfile: async (userId: string) => ({ success: true, error: null }) };
+const profileRepository = { deleteProfile: async (_userId: string) => ({ success: true, error: null }) };
 
 /**
  * 🏆 CHAMPION PROFILE DELETION HOOK

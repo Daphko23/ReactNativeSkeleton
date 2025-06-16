@@ -35,9 +35,9 @@ import type {
   UpdateCustomFieldsResponse,
   FieldValidationResult,
   FieldUsageAnalytics,
-  GetTemplatesRequest,
-  GetTemplatesResponse,
-  FieldEffectivenessReport
+  GetTemplatesRequest as _GetTemplatesRequest,
+  GetTemplatesResponse as _GetTemplatesResponse,
+  FieldEffectivenessReport as _FieldEffectivenessReport
 } from '../../../domain/interfaces/custom-fields-repository.interface';
 
 // Result helper functions - Use Core Result Class API
@@ -806,7 +806,7 @@ export class ManageCustomFieldsEnterpriseUseCase {
     return Math.min(confidence, 100);
   }
   
-  private calculateUserSegmentMatch(template: CustomFieldTemplate, userId: string): number {
+  private calculateUserSegmentMatch(_template: CustomFieldTemplate, _userId: string): number {
     // Simplified user segment matching
     return 75; // Default good match
   }

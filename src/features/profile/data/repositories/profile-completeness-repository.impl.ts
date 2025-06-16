@@ -571,7 +571,7 @@ export class ProfileCompletenessRepositoryImpl implements IProfileCompletenessRe
   // 🔄 SYNC & CACHING
   // =============================================================================
 
-  async syncCompletenessData(userId: string, deviceId: string): Promise<ProfileCompleteness | null> {
+  async syncCompletenessData(userId: string, _deviceId: string): Promise<ProfileCompleteness | null> {
     const startTime = Date.now();
     const operationName = 'syncCompletenessData';
     
@@ -583,7 +583,7 @@ export class ProfileCompletenessRepositoryImpl implements IProfileCompletenessRe
       
       this.recordMetric(operationName, Date.now() - startTime, true, !!cachedData);
       return cachedData;
-    } catch (error) {
+    } catch {
       this.recordMetric(operationName, Date.now() - startTime, false, false);
       return null;
     }
@@ -825,7 +825,7 @@ export class ProfileCompletenessRepositoryImpl implements IProfileCompletenessRe
     };
   }
 
-  private createBasicRecommendation(fieldName: string, profile: UserProfile): CompletionRecommendation {
+  private createBasicRecommendation(fieldName: string, _profile: UserProfile): CompletionRecommendation {
     const recommendations: Record<string, Partial<CompletionRecommendation>> = {
       firstName: { priority: 'high', impact: 15, difficulty: 'easy', estimatedTime: 1 },
       lastName: { priority: 'high', impact: 15, difficulty: 'easy', estimatedTime: 1 },

@@ -66,7 +66,7 @@ export const useProfileCompleteness = ({
 }: UseProfileCompletenessProps): UseProfileCompletenessReturn => {
   
   // 🏆 ENTERPRISE: Use Cases Integration
-  const container = useProfileContainer();
+  const _container = useProfileContainer();
   // const analyzeCompletenessUseCase = useMemo(() => {
   //   try {
   //     return container.getAnalyzeProfileCompletenessUseCase();

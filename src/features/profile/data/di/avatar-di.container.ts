@@ -14,7 +14,7 @@ import { UploadAvatarUseCase } from '../../application/usecases/upload-avatar.us
 import { DeleteAvatarUseCase } from '../../application/usecases/delete-avatar.usecase';
 
 // Core Services
-import { LoggerFactory } from '../../../../core/logging/logger.factory';
+import { LoggerFactory as _LoggerFactory } from '../../../../core/logging/logger.factory';
 import { GDPRAuditService } from '../../../../core/compliance/gdpr-audit.service';
 
 /**

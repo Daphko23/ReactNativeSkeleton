@@ -181,8 +181,8 @@ describe('useProfileForm Hook - Enterprise Tests', () => {
       const { result } = renderHook(() => useProfileForm(), { wrapper });
 
       await act(async () => {
-        const validation = await result.current.validateForm();
-        expect(validation).toEqual(complexValidationResult);
+        const _validation = await result.current.validateForm();
+        expect(_validation).toEqual(complexValidationResult);
       });
     });
 
@@ -257,7 +257,7 @@ describe('useProfileForm Hook - Enterprise Tests', () => {
 
       await act(async () => {
         result.current.setValue('bio', xssPayload);
-        const validation = await result.current.validateForm();
+        const _validation = await result.current.validateForm();
       });
 
       // Validation should be called with the raw payload for server-side sanitization
@@ -317,7 +317,7 @@ describe('useProfileForm Hook - Enterprise Tests', () => {
     it('should handle DoS prevention with large payloads', async () => {
       const { result } = renderHook(() => useProfileForm(), { wrapper });
 
-      const largePayload = 'A'.repeat(10000); // 10KB payload
+      const _largePayload = 'A'.repeat(10000); // 10KB payload
 
       await act(async () => {
         const error = await result.current.validateField('bio');
@@ -487,9 +487,9 @@ describe('useProfileForm Hook - Enterprise Tests', () => {
       const { result } = renderHook(() => useProfileForm(), { wrapper });
 
       await act(async () => {
-        const validation = await result.current.validateForm();
-        expect(validation.isValid).toBe(false);
-        expect(validation.errors).toHaveLength(2);
+        const _validation = await result.current.validateForm();
+        expect(_validation.isValid).toBe(false);
+        expect(_validation.errors).toHaveLength(2);
       });
     });
 
@@ -531,8 +531,8 @@ describe('useProfileForm Hook - Enterprise Tests', () => {
 
       await act(async () => {
         // Second call should succeed
-        const validation = await result.current.validateForm();
-        expect(validation.isValid).toBe(true);
+        const _validation = await result.current.validateForm();
+        expect(_validation.isValid).toBe(true);
       });
     });
   });
@@ -552,8 +552,8 @@ describe('useProfileForm Hook - Enterprise Tests', () => {
         result.current.setValue('bio', 'Updated bio');
 
         // Validate form
-        const validation = await result.current.validateForm();
-        expect(validation.isValid).toBe(true);
+        const _validation = await result.current.validateForm();
+        expect(_validation.isValid).toBe(true);
 
         // Submit form
         const success = await result.current.handleSubmit();
@@ -572,10 +572,10 @@ describe('useProfileForm Hook - Enterprise Tests', () => {
         result.current.setValue('email', 'john@example.com');
         // Leave other fields empty
 
-        const validation = await result.current.validateForm();
+        const _validation = await result.current.validateForm();
         
         // Should still validate successfully for partial completion
-        expect(validation).toBeDefined();
+        expect(_validation).toBeDefined();
       });
     });
 

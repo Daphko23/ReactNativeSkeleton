@@ -7,7 +7,7 @@
 import { Result } from '../../../../../core/types/result.type';
 import { 
   CareerProgression,
-  CareerMilestone,
+  CareerMilestone as _CareerMilestone,
   CareerGoal,
   Achievement,
   CareerTrajectory,
@@ -439,13 +439,13 @@ export class TrackCareerProgressionUseCase {
   private async calculateCareerHealth(
     careerProgression: CareerProgression,
     progressionAnalysis: any,
-    metrics: CareerMetrics
+    _metrics: CareerMetrics
   ): Promise<TrackProgressionOutput['careerHealth']> {
-    const overallScore = metrics.overallCareerHealth;
-    const growthVelocity = metrics.careerGrowthScore;
-    const skillDevelopment = metrics.skillAcquisitionRate * 20; // Convert to 0-100 scale
-    const goalAlignment = metrics.goalCompletionRate;
-    const marketRelevance = metrics.marketDemandScore;
+    const overallScore = _metrics.overallCareerHealth;
+    const growthVelocity = _metrics.careerGrowthScore;
+    const skillDevelopment = _metrics.skillAcquisitionRate * 20; // Convert to 0-100 scale
+    const goalAlignment = _metrics.goalCompletionRate;
+    const marketRelevance = _metrics.marketDemandScore;
 
     const recommendations = [];
     
@@ -468,7 +468,7 @@ export class TrackCareerProgressionUseCase {
   private async generateProgressPredictions(
     careerProgression: CareerProgression,
     trajectory: CareerTrajectory,
-    metrics: CareerMetrics
+    _metrics: CareerMetrics
   ): Promise<TrackProgressionOutput['progressPredictions']> {
     // Next promotion prediction
     const nextPromotion = {
@@ -552,7 +552,7 @@ export class TrackCareerProgressionUseCase {
     return Math.max(1, diffMonths);
   }
 
-  private extractQuantifiableResults(description: string): Achievement['quantifiableResults'] {
+  private extractQuantifiableResults(_description: string): Achievement['quantifiableResults'] {
     // Extract quantifiable results from description (mock implementation)
     return {
       efficiency: 20, // 20% efficiency improvement
@@ -659,7 +659,7 @@ export class TrackCareerProgressionUseCase {
 
   private async analyzeTrendDirection(
     careerProgression: CareerProgression,
-    timeframe: number
+    _timeframe: number
   ): Promise<'accelerating' | 'steady' | 'declining'> {
     // Mock trend analysis - would analyze historical data
     const velocity = careerProgression.calculateCareerVelocity();
@@ -681,7 +681,7 @@ export class TrackCareerProgressionUseCase {
     return factors.length > 0 ? factors : ['Steady professional development'];
   }
 
-  private async compareToBenchmarks(careerProgression: CareerProgression): Promise<{
+  private async compareToBenchmarks(_careerProgression: CareerProgression): Promise<{
     industry: number;
     experience: number;
     role: number;

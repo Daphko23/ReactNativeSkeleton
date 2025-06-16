@@ -10,7 +10,7 @@ import { LogCategory } from '@core/logging/logger.service.interface';
 import {
   ProfileInteraction,
   ProfileInteractionType,
-  ProfileInteractionEvent,
+  ProfileInteractionEvent as _ProfileInteractionEvent,
   EngagementLevel,
   DeviceInteractionContext,
   createProfileInteraction
@@ -215,7 +215,7 @@ export class TrackProfileInteractionUseCase {
       interaction.updateEngagementLevel();
       
       const behaviorMetrics = interaction.behaviorMetrics;
-      const sessionAnalytics = interaction.sessionAnalytics;
+      const _sessionAnalytics = interaction.sessionAnalytics;
       const engagementMetrics = interaction.engagementMetrics;
 
       // Generate insights
@@ -415,7 +415,7 @@ export class TrackProfileInteractionUseCase {
     };
   }
 
-  private generateHeatmapData(userId: string): Record<string, number> {
+  private generateHeatmapData(_userId: string): Record<string, number> {
     // Mock heatmap data - would integrate with analytics service
     return {
       'profile_header_0_0': 15,

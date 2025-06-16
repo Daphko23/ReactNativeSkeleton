@@ -36,7 +36,7 @@ import type {
   CustomField,
   CustomFieldTemplate,
   GetTemplatesRequest,
-  GetTemplatesResponse,
+  GetTemplatesResponse as _GetTemplatesResponse,
   FieldEffectivenessReport
 } from '../../../domain/interfaces/custom-fields-repository.interface';
 
@@ -374,7 +374,7 @@ export class TemplateManagementUseCase {
     }
     
     // 🎯 TRACK TEMPLATE APPLICATION
-    const trackingResult = await this.repository.trackTemplateUsage(
+    const _trackingResult = await this.repository.trackTemplateUsage(
       request.userId,
       request.templateId,
       true
@@ -434,7 +434,7 @@ export class TemplateManagementUseCase {
   /**
    * 📈 Execute Get Effectiveness
    */
-  private async executeGetEffectiveness(request: TemplateManagementRequest): Promise<TemplateManagementResponse> {
+  private async executeGetEffectiveness(_request: TemplateManagementRequest): Promise<TemplateManagementResponse> {
     const result = await this.repository.getFieldEffectivenessReports();
     
     if (result.success) {
@@ -660,7 +660,7 @@ export class TemplateManagementUseCase {
     }
   }
   
-  private calculateTemplateConfidence(template: CustomFieldTemplate, request: TemplateManagementRequest): number {
+  private calculateTemplateConfidence(template: CustomFieldTemplate, _request: TemplateManagementRequest): number {
     let confidence = 60; // Base confidence
     
     // Boost confidence for recommended templates
@@ -716,7 +716,7 @@ export class TemplateManagementUseCase {
     return 'basic';
   }
   
-  private calculateRecommendationConfidence(recommendations: EnhancedTemplateRecommendation[], request: TemplateManagementRequest): number {
+  private calculateRecommendationConfidence(recommendations: EnhancedTemplateRecommendation[], _request: TemplateManagementRequest): number {
     if (recommendations.length === 0) return 0;
     
     const averageConfidence = recommendations.reduce((sum, rec) => sum + rec.confidenceLevel, 0) / recommendations.length;

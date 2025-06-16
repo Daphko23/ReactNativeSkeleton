@@ -10,7 +10,7 @@
  * ✅ Clean Interface: Essential error operations
  */
 
-import { useState, useCallback, useMemo } from 'react';
+import { useState, useCallback, useMemo as _useMemo } from 'react';
 import { Alert } from 'react-native';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';

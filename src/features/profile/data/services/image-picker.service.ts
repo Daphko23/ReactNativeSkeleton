@@ -518,7 +518,7 @@ export class ImagePickerService implements IImagePickerService {
   async cleanupTempFiles(): Promise<void> {
     try {
       await ImagePicker.clean();
-    } catch (error) {
+    } catch {
       // Ignore cleanup errors
       logger.warn('Failed to cleanup temp files:', LogCategory.BUSINESS, { userId: 'system', metadata: {} });
     }

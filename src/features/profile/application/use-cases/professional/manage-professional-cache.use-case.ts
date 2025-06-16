@@ -517,7 +517,7 @@ export class ManageProfessionalCacheUseCase {
     return { applied, impact, recommendations };
   }
 
-  private async syncCache(userId: string, type?: CacheType): Promise<any> {
+  private async syncCache(_userId: string, _type?: CacheType): Promise<any> {
     // Sync implementation would integrate with backend
     return {
       synced: true,
@@ -711,7 +711,7 @@ export class ManageProfessionalCacheUseCase {
     return count;
   }
 
-  private async getSyncStatus(userId: string): Promise<ManageCacheOutput['syncStatus']> {
+  private async getSyncStatus(_userId: string): Promise<ManageCacheOutput['syncStatus']> {
     return {
       lastSync: new Date(Date.now() - 30 * 60 * 1000), // 30 minutes ago
       pendingChanges: 3,
@@ -766,7 +766,7 @@ export class ManageProfessionalCacheUseCase {
 
   private calculateNextOptimization(): Date {
     const now = new Date();
-    const timeSinceLastOptimization = now.getTime() - this.lastOptimization.getTime();
+    const _timeSinceLastOptimization = now.getTime() - this.lastOptimization.getTime();
     const optimizationInterval = 6 * 60 * 60 * 1000; // 6 hours
     
     return new Date(this.lastOptimization.getTime() + optimizationInterval);
@@ -796,7 +796,7 @@ export class ManageProfessionalCacheUseCase {
     return { actions, improvement };
   }
 
-  private async optimizeSync(aggressiveness: string): Promise<{ actions: string[]; improvement: number }> {
+  private async optimizeSync(_aggressiveness: string): Promise<{ actions: string[]; improvement: number }> {
     const actions: string[] = [];
     const improvement = 5; // Mock improvement
 
@@ -818,12 +818,12 @@ export class ManageProfessionalCacheUseCase {
     return recommendations.length > 0 ? recommendations : ['Cache is well optimized'];
   }
 
-  private calculateUserHitRate(userId: string): number {
+  private calculateUserHitRate(_userId: string): number {
     // Mock calculation
     return 82;
   }
 
-  private predictDataNeeds(userBehavior: any): Array<{ type: CacheType; probability: number; timeframe: number }> {
+  private predictDataNeeds(_userBehavior: any): Array<{ type: CacheType; probability: number; timeframe: number }> {
     // Mock prediction algorithm
     return [
       { type: CacheType.PROFILE_DATA, probability: 95, timeframe: 60000 },

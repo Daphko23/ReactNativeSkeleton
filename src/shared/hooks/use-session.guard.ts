@@ -10,7 +10,7 @@
  * @subcategory Authentication
  */
 
-import {useEffect, useCallback, useMemo} from 'react';
+import {useCallback, useEffect as _useEffect, useMemo} from 'react';
 import {useAuth} from '@features/auth/presentation/hooks';
 import {useNavigation} from '@react-navigation/native';
 import type {NativeStackNavigationProp} from '@react-navigation/native-stack';
@@ -370,7 +370,7 @@ export interface UseSessionGuardReturn {
 export const useSessionGuard = (config?: SessionGuardConfig): UseSessionGuardReturn => {
   const queryClient = useQueryClient();
   const {user, isAuthenticated, isLoading: authLoading} = useAuth();
-  const navigation =
+  const _navigation =
     useNavigation<NativeStackNavigationProp<AuthStackParamList>>();
 
   // 🔍 TANSTACK QUERY: Session Status (Champion Pattern)

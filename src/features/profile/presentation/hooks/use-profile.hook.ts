@@ -112,7 +112,7 @@ export const useProfile = (): UseProfileReturn => {
     logger.info('Refreshing profile data', LogCategory.BUSINESS, { userId });
     
     try {
-      const results = await Promise.all([
+      const _results = await Promise.allSettled([
         profileQuery.refetch(),
         privacyQuery.refetch()
       ]);

@@ -31,8 +31,8 @@ import { useProfile } from './use-profile.hook';
 // 🏆 CHAMPION: Essential Use Cases Integration
 import { 
   CalculateAccountStatsUseCase,
-  AccountStatsResponse,
-  CalculateAccountStatsRequest
+  AccountStatsResponse as _AccountStatsResponse,
+  CalculateAccountStatsRequest as _CalculateAccountStatsRequest
 } from '../../application/use-cases/account-settings/calculate-account-stats.use-case';
 
 // 🏆 CHAMPION: Repository Pattern Integration
@@ -96,7 +96,7 @@ export const useAccountSettings = (): UseAccountSettingsReturn => {
   
   // 🏆 CHAMPION: DI Container Integration
   const accountSettingsRepository = accountSettingsDIContainer.getAccountSettingsRepository();
-  const calculateAccountStatsUseCase = useMemo(() => new CalculateAccountStatsUseCase(), []);
+  const _calculateAccountStatsUseCase = useMemo(() => new CalculateAccountStatsUseCase(), []);
 
   // 🏆 CHAMPION: Mobile-Optimized TanStack Query
   const {

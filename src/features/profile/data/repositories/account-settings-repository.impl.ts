@@ -32,13 +32,13 @@ export class AccountSettingsRepositoryImpl implements IAccountSettingsRepository
   constructor(
     private readonly dataSource: IAccountSettingsDataSource
   ) {}
-    resetAccountSettings(userId: string, reason: string): Promise<UpdateAccountSettingsResult> {
+    resetAccountSettings(_userId: string, _reason: string): Promise<UpdateAccountSettingsResult> {
         throw new Error('Method not implemented.');
     }
-    exportAccountSettings(userId: string): Promise<AccountSettings | null> {
+    exportAccountSettings(_userId: string): Promise<AccountSettings | null> {
         throw new Error('Method not implemented.');
     }
-    deleteAccountSettings(userId: string, reason: string, gdprRequest?: boolean): Promise<{ success: boolean; error?: string; auditLogId?: string; }> {
+    deleteAccountSettings(_userId: string, _reason: string, _gdprRequest?: boolean): Promise<{ success: boolean; error?: string; auditLogId?: string; }> {
         throw new Error('Method not implemented.');
     }
 

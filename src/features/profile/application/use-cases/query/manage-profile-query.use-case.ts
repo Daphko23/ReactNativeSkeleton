@@ -173,7 +173,7 @@ export class ManageProfileQueryUseCase {
       }
 
       // 🔍 QUERY OPTIMIZATION: Determine optimal strategy
-      const queryStrategy = this.determineQueryStrategy(input.context, config);
+      const _queryStrategy = this.determineQueryStrategy(input.context, config);
       
       // 🔍 FIELD FILTERING: Apply scope-based field selection
       const requestedFields = this.getFieldsForScope(input.context.scope);
@@ -291,7 +291,6 @@ export class ManageProfileQueryUseCase {
     const results = new Map<string, QueryResult<T>>();
     const failedQueries: string[] = [];
     let totalDuration = 0;
-    let totalNetworkRequests = 0;
     let totalCacheHits = 0;
 
     // Execute queries in batches for better performance
@@ -310,7 +309,6 @@ export class ManageProfileQueryUseCase {
           results.set(userId, result.result);
           
           totalDuration += result.result.queryDuration;
-          totalNetworkRequests += result.result.networkRequests;
           if (result.result.cacheHit) totalCacheHits++;
           
         } catch (error) {
@@ -381,7 +379,7 @@ export class ManageProfileQueryUseCase {
   /**
    * 🔍 DETERMINE QUERY STRATEGY - Intelligent strategy selection
    */
-  private determineQueryStrategy(context: QueryContext, config: QueryConfiguration): string {
+  private determineQueryStrategy(context: QueryContext, _config: QueryConfiguration): string {
     if (context.performanceMode === 'fast') {
       return 'cache_first';
     } else if (context.performanceMode === 'complete') {
@@ -422,7 +420,7 @@ export class ManageProfileQueryUseCase {
   /**
    * 🔍 VALIDATE QUERY RESULT - Data integrity validation
    */
-  private validateQueryResult(data: any, context: QueryContext): { isValid: boolean; errors: string[] } {
+  private validateQueryResult(data: any, _context: QueryContext): { isValid: boolean; errors: string[] } {
     const errors: string[] = [];
     
     if (!data) {
@@ -458,8 +456,8 @@ export class ManageProfileQueryUseCase {
    */
   private generateCacheRecommendations(
     analytics: QueryAnalytics,
-    context: QueryContext,
-    config: QueryConfiguration
+    _context: QueryContext,
+    _config: QueryConfiguration
   ): string[] {
     const recommendations: string[] = [];
     
@@ -474,7 +472,7 @@ export class ManageProfileQueryUseCase {
     return recommendations;
   }
 
-  private generateQueryRecommendations(analytics: QueryAnalytics, context: QueryContext): string[] {
+  private generateQueryRecommendations(analytics: QueryAnalytics, _context: QueryContext): string[] {
     const recommendations: string[] = [];
     
     if (analytics.cacheHitRate < 0.5) {
@@ -507,11 +505,11 @@ export class ManageProfileQueryUseCase {
     };
   }
 
-  private validateFieldAccess(fields: string[], context: QueryContext, reason: string): { isValid: boolean; reasons: string[] } {
+  private validateFieldAccess(_fields: string[], _context: QueryContext, _reason: string): { isValid: boolean; reasons: string[] } {
     return { isValid: true, reasons: [] };
   }
 
-  private logDataAccess(userId: string, fields: string[], reason: string): void {
+  private logDataAccess(userId: string, _fields: string[], _reason: string): void {
     logger.info('GDPR data access logged', LogCategory.BUSINESS, { userId });
   }
 

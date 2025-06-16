@@ -19,7 +19,7 @@ import {
   Title,
   Paragraph,
   ProgressBar,
-  Button,
+  Button as _Button,
   List,
   Badge,
 } from 'react-native-paper';

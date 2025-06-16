@@ -342,7 +342,7 @@ export class ManageProfileCacheUseCase {
     });
   }
 
-  private async cleanupCache(request: CacheManagementRequest): Promise<CacheManagementResponse> {
+  private async cleanupCache(_request: CacheManagementRequest): Promise<CacheManagementResponse> {
     let cleanedCount = 0;
     let freedBytes = 0;
 
@@ -411,7 +411,7 @@ export class ManageProfileCacheUseCase {
     });
   }
 
-  private async warmupSection(userId: string, section: string, capabilities: any): Promise<any> {
+  private async warmupSection(userId: string, section: string, _capabilities: any): Promise<any> {
     // Simulate section-specific warmup
     const sectionData = this.generateSectionData(section);
     const cacheKey = this.generateCacheKey(userId, section);
@@ -440,7 +440,7 @@ export class ManageProfileCacheUseCase {
     return mockData[section] || { data: `mock_${section}` };
   }
 
-  private async generateCacheAnalytics(userId: string): Promise<CacheAnalyticsResponse> {
+  private async generateCacheAnalytics(_userId: string): Promise<CacheAnalyticsResponse> {
     const overall = {
       hitRate: this.calculateHitRate(),
       missRate: 1 - this.calculateHitRate(),
