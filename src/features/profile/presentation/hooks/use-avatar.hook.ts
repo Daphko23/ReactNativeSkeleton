@@ -113,13 +113,13 @@ export const useAvatar = (props?: UseAvatarProps): UseAvatarReturn => {
         const result = await avatarRepository.getAvatarUrl(userId);
         
         if (typeof result === 'string') {
-          logger.info('Avatar URL fetched successfully', LogCategory.BUSINESS, { userId, hasUrl: !!result });
+          logger.info('Avatar URL fetched successfully', LogCategory.BUSINESS, { metadata: { userId, hasUrl: !!result } });
           return result;
         }
         
-        if (typeof result === 'object' && 'success' in result) {
+        if (result && typeof result === 'object' && 'success' in result) {
           const url = (result as any).success ? (result as any).avatarUrl || null : null;
-          logger.info('Avatar URL fetched successfully', LogCategory.BUSINESS, { userId, hasUrl: !!url });
+          logger.info('Avatar URL fetched successfully', LogCategory.BUSINESS, { metadata: { userId, hasUrl: !!url } });
           return url;
         }
         

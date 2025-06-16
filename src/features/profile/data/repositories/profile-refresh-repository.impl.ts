@@ -280,7 +280,7 @@ export class ProfileRefreshRepositoryImpl implements ProfileRefreshRepositoryInt
         this.recordOperationMetrics('getCachedRefreshData', Date.now() - startTime, true);
         
         logger.info('Cache hit for refresh data', LogCategory.BUSINESS, { userId });
-        return { isSuccess: true, value: cachedData };
+        return Result.success(cachedData);
       }
 
       // Try persistent storage
@@ -295,17 +295,17 @@ export class ProfileRefreshRepositoryImpl implements ProfileRefreshRepositoryInt
           this.recordOperationMetrics('getCachedRefreshData', Date.now() - startTime, true);
           
           logger.info('Storage hit for refresh data', LogCategory.BUSINESS, { userId });
-          return { isSuccess: true, value: data };
+          return Result.success(data);
         }
       }
 
       // No valid cached data found
       logger.info('Cache miss for refresh data', LogCategory.BUSINESS, { userId });
-      return { isSuccess: true, value: null };
+      return Result.success(null);
       
     } catch (error) {
       logger.error('Failed to get cached refresh data', LogCategory.BUSINESS, { userId }, error as Error);
-      return { isSuccess: false, error: (error as Error).message };
+      return Result.error((error as Error).message);
     }
   }
 
@@ -329,11 +329,11 @@ export class ProfileRefreshRepositoryImpl implements ProfileRefreshRepositoryInt
         metadata: { key: `refresh_${userId}`, ttl }
       });
       
-      return { isSuccess: true, value: undefined };
+      return Result.success(undefined);
       
     } catch (error) {
       logger.error('Failed to cache refresh data', LogCategory.BUSINESS, { userId }, error as Error);
-      return { isSuccess: false, error: (error as Error).message };
+      return Result.error((error as Error).message);
     }
   }
 
@@ -381,14 +381,14 @@ export class ProfileRefreshRepositoryImpl implements ProfileRefreshRepositoryInt
       
       this.recordOperationMetrics('invalidateCache', Date.now() - startTime, true);
       
-      return { isSuccess: true, value: undefined };
+      return Result.success(undefined);
       
     } catch (error) {
       logger.error('Cache invalidation failed', LogCategory.BUSINESS, { 
         userId, 
         metadata: { scope } 
       }, error as Error);
-      return { isSuccess: false, error: (error as Error).message };
+      return Result.error((error as Error).message);
     }
   }
 
@@ -421,11 +421,11 @@ export class ProfileRefreshRepositoryImpl implements ProfileRefreshRepositoryInt
         }
       };
       
-      return { isSuccess: true, value: statistics };
+      return Result.success(statistics);
       
     } catch (error) {
       logger.error('Failed to get cache statistics', LogCategory.BUSINESS, {}, error as Error);
-      return { isSuccess: false, error: (error as Error).message };
+      return Result.error((error as Error).message);
     }
   }
 
@@ -477,13 +477,13 @@ export class ProfileRefreshRepositoryImpl implements ProfileRefreshRepositoryInt
         metadata: { userCount: userIds.length }
       });
       
-      return { isSuccess: true, value: undefined };
+      return Result.success(undefined);
       
     } catch (error) {
       logger.error('Cache warming failed', LogCategory.BUSINESS, {
         metadata: { userIds: userIds.length }
       }, error as Error);
-      return { isSuccess: false, error: (error as Error).message };
+      return Result.error((error as Error).message);
     }
   }
 
@@ -510,14 +510,14 @@ export class ProfileRefreshRepositoryImpl implements ProfileRefreshRepositoryInt
         metadata: { eventId: event.eventId }
       });
       
-      return { isSuccess: true, value: undefined };
+      return Result.success(undefined);
       
     } catch (error) {
       logger.error('Failed to record analytics event', LogCategory.BUSINESS, {
         userId: event.userId,
         metadata: { eventId: event.eventId }
       }, error as Error);
-      return { isSuccess: false, error: (error as Error).message };
+      return Result.error((error as Error).message);
     }
   }
 
@@ -528,7 +528,7 @@ export class ProfileRefreshRepositoryImpl implements ProfileRefreshRepositoryInt
       // Try cache first
       const cachedAnalytics = this.analyticsCache.get(cacheKey);
       if (cachedAnalytics) {
-        return { isSuccess: true, value: cachedAnalytics };
+        return Result.success(cachedAnalytics);
       }
       
       // Generate analytics from stored events
@@ -545,11 +545,11 @@ export class ProfileRefreshRepositoryImpl implements ProfileRefreshRepositoryInt
         }
       });
       
-      return { isSuccess: true, value: analytics };
+      return Result.success(analytics);
       
     } catch (error) {
       logger.error('Failed to get refresh analytics', LogCategory.BUSINESS, { userId }, error as Error);
-      return { isSuccess: false, error: (error as Error).message };
+      return Result.error((error as Error).message);
     }
   }
 
@@ -625,10 +625,10 @@ export class ProfileRefreshRepositoryImpl implements ProfileRefreshRepositoryInt
         }
       });
       
-      return { isSuccess: true, value: undefined };
+      return Result.success(undefined);
     } catch (error) {
       logger.error('Failed to record performance metrics', LogCategory.INFRASTRUCTURE, {}, error as Error);
-      return { isSuccess: false, error: (error as Error).message };
+      return Result.error((error as Error).message);
     }
   }
 
@@ -650,11 +650,11 @@ export class ProfileRefreshRepositoryImpl implements ProfileRefreshRepositoryInt
       await this.loadPersistedConfiguration();
       
       logger.info('ProfileRefreshRepository initialized successfully', LogCategory.BUSINESS);
-      return { isSuccess: true, value: undefined };
+      return Result.success(undefined);
       
     } catch (error) {
       logger.error('Failed to initialize repository', LogCategory.BUSINESS, {}, error as Error);
-      return { isSuccess: false, error: (error as Error).message };
+      return Result.error((error as Error).message);
     }
   }
 
@@ -671,11 +671,11 @@ export class ProfileRefreshRepositoryImpl implements ProfileRefreshRepositoryInt
       this.serviceHealth.status = 'unhealthy';
       
       logger.info('ProfileRefreshRepository shutdown completed', LogCategory.BUSINESS);
-      return { isSuccess: true, value: undefined };
+      return Result.success(undefined);
       
     } catch (error) {
       logger.error('Failed to shutdown repository', LogCategory.BUSINESS, {}, error as Error);
-      return { isSuccess: false, error: (error as Error).message };
+      return Result.error((error as Error).message);
     }
   }
 
@@ -683,18 +683,15 @@ export class ProfileRefreshRepositoryImpl implements ProfileRefreshRepositoryInt
     try {
       const cacheStats = await this.getCacheStatistics();
       
-      return {
-        isSuccess: true,
-        value: {
+      return Result.success({
           serviceHealth: this.serviceHealth,
           performanceMetrics: this.performanceMetrics,
-          cacheStatistics: cacheStats.isSuccess ? cacheStats.value : null,
+          cacheStatistics: cacheStats.success ? cacheStats.data : null,
           uptime: Date.now() - this.performanceMetrics.startTime,
           version: '3.0.0'
-        }
-      };
+      });
     } catch (error) {
-      return { isSuccess: false, error: (error as Error).message };
+      return Result.error((error as Error).message);
     }
   }
 
@@ -709,29 +706,29 @@ export class ProfileRefreshRepositoryImpl implements ProfileRefreshRepositoryInt
 
   async getUserBehaviorInsights(userId: string): Promise<Result<BehaviorInsights>> {
     // Placeholder - will be implemented with ML capabilities
-    return { isSuccess: false, error: 'Not yet implemented' };
+    return Result.error('Not yet implemented');
   }
 
   async getBusinessMetrics(timeframe: TimeFrame): Promise<Result<BusinessImpactMetrics>> {
     // Placeholder - will be implemented with business intelligence
-    return { isSuccess: false, error: 'Not yet implemented' };
+    return Result.error('Not yet implemented');
   }
 
   async generatePredictiveInsights(userId: string): Promise<Result<BehaviorInsights>> {
     // Placeholder - will be implemented with predictive analytics
-    return { isSuccess: false, error: 'Not yet implemented' };
+    return Result.error('Not yet implemented');
   }
 
   async getServiceHealth(): Promise<Result<ServiceHealth>> {
-    return { isSuccess: true, value: this.serviceHealth };
+    return Result.success(this.serviceHealth);
   }
 
   async getPerformanceTrends(timeframe: TimeFrame): Promise<Result<any[]>> {
-    return { isSuccess: false, error: 'Not yet implemented' };
+    return Result.error('Not yet implemented');
   }
 
   async checkHealthThresholds(): Promise<Result<any[]>> {
-    return { isSuccess: false, error: 'Not yet implemented' };
+    return Result.error('Not yet implemented');
   }
 
   getDataRetentionPolicy(): DataRetentionPolicy {
@@ -739,47 +736,47 @@ export class ProfileRefreshRepositoryImpl implements ProfileRefreshRepositoryInt
   }
 
   async cleanupExpiredData(): Promise<Result<CleanupReport>> {
-    return { isSuccess: false, error: 'Not yet implemented' };
+    return Result.error('Not yet implemented');
   }
 
   async exportUserData(userId: string, format?: 'json' | 'csv' | 'xml'): Promise<Result<UserDataExport>> {
-    return { isSuccess: false, error: 'Not yet implemented' };
+    return Result.error('Not yet implemented');
   }
 
   async deleteUserData(userId: string, verificationToken: string): Promise<Result<void>> {
-    return { isSuccess: false, error: 'Not yet implemented' };
+    return Result.error('Not yet implemented');
   }
 
   async generateComplianceReport(timeframe: TimeFrame): Promise<Result<any>> {
-    return { isSuccess: false, error: 'Not yet implemented' };
+    return Result.error('Not yet implemented');
   }
 
   async getActiveExperiment(userId: string, experimentType: string): Promise<Result<ExperimentConfig | null>> {
-    return { isSuccess: false, error: 'Not yet implemented' };
+    return Result.error('Not yet implemented');
   }
 
   async trackExperimentMetrics(experimentId: string, userId: string, metrics: any): Promise<Result<void>> {
-    return { isSuccess: false, error: 'Not yet implemented' };
+    return Result.error('Not yet implemented');
   }
 
   async getExperimentResults(experimentId: string): Promise<Result<ExperimentResults>> {
-    return { isSuccess: false, error: 'Not yet implemented' };
+    return Result.error('Not yet implemented');
   }
 
   async getFeatureFlag(flagName: string, userId?: string): Promise<Result<boolean>> {
-    return { isSuccess: false, error: 'Not yet implemented' };
+    return Result.error('Not yet implemented');
   }
 
   async searchRefreshEvents(criteria: any, pagination?: any): Promise<Result<RefreshEvent[]>> {
-    return { isSuccess: false, error: 'Not yet implemented' };
+    return Result.error('Not yet implemented');
   }
 
   async generateBIReport(reportType: string, parameters: any): Promise<Result<any>> {
-    return { isSuccess: false, error: 'Not yet implemented' };
+    return Result.error('Not yet implemented');
   }
 
   async getDashboardData(dashboardId: string): Promise<Result<any>> {
-    return { isSuccess: false, error: 'Not yet implemented' };
+    return Result.error('Not yet implemented');
   }
 
   // =============================================================================

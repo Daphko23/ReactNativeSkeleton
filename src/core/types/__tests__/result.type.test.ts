@@ -5,54 +5,45 @@
 import {Result, ResultFactory} from '../result.type';
 
 describe('Result Type', () => {
-  describe('Result Interface', () => {
+  describe('Result Class', () => {
     it('sollte ein Success Result korrekt repräsentieren', () => {
-      const result: Result<string> = {
-        isSuccess: true,
-        value: 'test-value',
-      };
+      const result = Result.success('test-value');
 
-      expect(result.isSuccess).toBe(true);
-      expect(result.value).toBe('test-value');
+      expect(result.success).toBe(true);
+      expect(result.data).toBe('test-value');
       expect(result.error).toBeUndefined();
+      expect(result.isSuccess()).toBe(true);
+      expect(result.isError()).toBe(false);
     });
 
-    it('sollte ein Failure Result korrekt repräsentieren', () => {
-      const result: Result<string> = {
-        isSuccess: false,
-        error: 'Test error message',
-      };
+    it('sollte ein Error Result korrekt repräsentieren', () => {
+      const result = Result.error('Test error message');
 
-      expect(result.isSuccess).toBe(false);
+      expect(result.success).toBe(false);
       expect(result.error).toBe('Test error message');
-      expect(result.value).toBeUndefined();
+      expect(result.data).toBeUndefined();
+      expect(result.isSuccess()).toBe(false);
+      expect(result.isError()).toBe(true);
     });
 
     it('sollte mit null/undefined Werten umgehen', () => {
-      const nullResult: Result<null> = {
-        isSuccess: true,
-        value: null,
-      };
+      const nullResult = Result.success(null);
+      const undefinedResult = Result.success(undefined);
 
-      const undefinedResult: Result<undefined> = {
-        isSuccess: true,
-        value: undefined,
-      };
-
-      expect(nullResult.isSuccess).toBe(true);
-      expect(nullResult.value).toBeNull();
-      expect(undefinedResult.isSuccess).toBe(true);
-      expect(undefinedResult.value).toBeUndefined();
+      expect(nullResult.success).toBe(true);
+      expect(nullResult.data).toBeNull();
+      expect(undefinedResult.success).toBe(true);
+      expect(undefinedResult.data).toBeUndefined();
     });
   });
 
-  describe('ResultFactory', () => {
+  describe('ResultFactory (Legacy Compatibility)', () => {
     describe('success()', () => {
       it('sollte ein Success Result mit String-Wert erstellen', () => {
         const result = ResultFactory.success('test-string');
 
-        expect(result.isSuccess).toBe(true);
-        expect(result.value).toBe('test-string');
+        expect(result.success).toBe(true);
+        expect(result.data).toBe('test-string');
         expect(result.error).toBeUndefined();
       });
 
@@ -60,8 +51,8 @@ describe('Result Type', () => {
         const testObject = {id: '123', name: 'Test'};
         const result = ResultFactory.success(testObject);
 
-        expect(result.isSuccess).toBe(true);
-        expect(result.value).toEqual(testObject);
+        expect(result.success).toBe(true);
+        expect(result.data).toEqual(testObject);
         expect(result.error).toBeUndefined();
       });
 
@@ -69,24 +60,24 @@ describe('Result Type', () => {
         const testArray = [1, 2, 3];
         const result = ResultFactory.success(testArray);
 
-        expect(result.isSuccess).toBe(true);
-        expect(result.value).toEqual(testArray);
+        expect(result.success).toBe(true);
+        expect(result.data).toEqual(testArray);
         expect(result.error).toBeUndefined();
       });
 
       it('sollte ein Success Result mit null-Wert erstellen', () => {
         const result = ResultFactory.success(null);
 
-        expect(result.isSuccess).toBe(true);
-        expect(result.value).toBeNull();
+        expect(result.success).toBe(true);
+        expect(result.data).toBeNull();
         expect(result.error).toBeUndefined();
       });
 
       it('sollte ein Success Result mit undefined-Wert erstellen', () => {
         const result = ResultFactory.success(undefined);
 
-        expect(result.isSuccess).toBe(true);
-        expect(result.value).toBeUndefined();
+        expect(result.success).toBe(true);
+        expect(result.data).toBeUndefined();
         expect(result.error).toBeUndefined();
       });
 
@@ -94,10 +85,10 @@ describe('Result Type', () => {
         const trueResult = ResultFactory.success(true);
         const falseResult = ResultFactory.success(false);
 
-        expect(trueResult.isSuccess).toBe(true);
-        expect(trueResult.value).toBe(true);
-        expect(falseResult.isSuccess).toBe(true);
-        expect(falseResult.value).toBe(false);
+        expect(trueResult.success).toBe(true);
+        expect(trueResult.data).toBe(true);
+        expect(falseResult.success).toBe(true);
+        expect(falseResult.data).toBe(false);
       });
 
       it('sollte ein Success Result mit number-Wert erstellen', () => {
@@ -105,10 +96,10 @@ describe('Result Type', () => {
         const positiveResult = ResultFactory.success(42);
         const negativeResult = ResultFactory.success(-1);
 
-        expect(zeroResult.isSuccess).toBe(true);
-        expect(zeroResult.value).toBe(0);
-        expect(positiveResult.value).toBe(42);
-        expect(negativeResult.value).toBe(-1);
+        expect(zeroResult.success).toBe(true);
+        expect(zeroResult.data).toBe(0);
+        expect(positiveResult.data).toBe(42);
+        expect(negativeResult.data).toBe(-1);
       });
     });
 
@@ -117,9 +108,9 @@ describe('Result Type', () => {
         const error = new Error('Test error message');
         const result = ResultFactory.failure<string>(error);
 
-        expect(result.isSuccess).toBe(false);
+        expect(result.success).toBe(false);
         expect(result.error).toBe('Test error message');
-        expect(result.value).toBeUndefined();
+        expect(result.data).toBeUndefined();
       });
 
       it('sollte ein Failure Result mit Custom Error erstellen', () => {
@@ -133,18 +124,18 @@ describe('Result Type', () => {
         const error = new CustomError('Custom error occurred');
         const result = ResultFactory.failure<number>(error);
 
-        expect(result.isSuccess).toBe(false);
+        expect(result.success).toBe(false);
         expect(result.error).toBe('Custom error occurred');
-        expect(result.value).toBeUndefined();
+        expect(result.data).toBeUndefined();
       });
 
       it('sollte ein Failure Result mit leerem Error-Message erstellen', () => {
         const error = new Error('');
         const result = ResultFactory.failure<boolean>(error);
 
-        expect(result.isSuccess).toBe(false);
+        expect(result.success).toBe(false);
         expect(result.error).toBe('');
-        expect(result.value).toBeUndefined();
+        expect(result.data).toBeUndefined();
       });
 
       it('sollte ein Failure Result mit undefined Error-Message erstellen', () => {
@@ -153,9 +144,9 @@ describe('Result Type', () => {
         (error as {message: string | undefined}).message = undefined;
         const result = ResultFactory.failure<string>(error);
 
-        expect(result.isSuccess).toBe(false);
-        expect(result.error).toBeUndefined();
-        expect(result.value).toBeUndefined();
+        expect(result.success).toBe(false);
+        expect(result.error).toBe('');
+        expect(result.data).toBeUndefined();
       });
 
       it('sollte verschiedene Error-Typen verarbeiten', () => {
@@ -176,47 +167,45 @@ describe('Result Type', () => {
     describe('Type Safety', () => {
       it('sollte TypeScript-kompatible Typisierung haben', () => {
         // String Result
-        const stringResult: Result<string> = ResultFactory.success('test');
-        expect(typeof stringResult.value).toBe('string');
+        const stringResult = Result.success('test');
+        expect(typeof stringResult.data).toBe('string');
 
         // Number Result
-        const numberResult: Result<number> = ResultFactory.success(42);
-        expect(typeof numberResult.value).toBe('number');
+        const numberResult = Result.success(42);
+        expect(typeof numberResult.data).toBe('number');
 
         // Object Result
         interface TestInterface {
           id: string;
           name: string;
         }
-        const objectResult: Result<TestInterface> = ResultFactory.success({
+        const objectResult = Result.success<TestInterface>({
           id: '123',
           name: 'Test',
         });
-        expect(objectResult.value?.id).toBe('123');
+        expect(objectResult.data?.id).toBe('123');
 
         // Array Result
-        const arrayResult: Result<string[]> = ResultFactory.success(['a', 'b']);
-        expect(Array.isArray(arrayResult.value)).toBe(true);
+        const arrayResult = Result.success(['a', 'b']);
+        expect(Array.isArray(arrayResult.data)).toBe(true);
       });
 
       it('sollte Generic Types korrekt verarbeiten', () => {
         // Generic function that returns Result
         function processData<T>(data: T): Result<T> {
           if (data === null || data === undefined) {
-            return ResultFactory.failure(
-              new Error('Data is null or undefined')
-            );
+            return Result.error('Data is null or undefined');
           }
-          return ResultFactory.success(data);
+          return Result.success(data);
         }
 
         const stringResult = processData('test');
         const numberResult = processData(123);
         const nullResult = processData(null);
 
-        expect(stringResult.isSuccess).toBe(true);
-        expect(numberResult.isSuccess).toBe(true);
-        expect(nullResult.isSuccess).toBe(false);
+        expect(stringResult.success).toBe(true);
+        expect(numberResult.success).toBe(true);
+        expect(nullResult.success).toBe(false);
       });
     });
 
@@ -226,14 +215,12 @@ describe('Result Type', () => {
         class TestService {
           validateInput(input: string): Result<string> {
             if (!input || input.trim().length === 0) {
-              return ResultFactory.failure(
-                new Error('Input darf nicht leer sein')
-              );
+              return Result.error('Input darf nicht leer sein');
             }
             if (input.length > 100) {
-              return ResultFactory.failure(new Error('Input zu lang'));
+              return Result.error('Input zu lang');
             }
-            return ResultFactory.success(input.trim());
+            return Result.success(input.trim());
           }
         }
 
@@ -241,54 +228,53 @@ describe('Result Type', () => {
 
         // Valid input
         const validResult = service.validateInput('  valid input  ');
-        expect(validResult.isSuccess).toBe(true);
-        expect(validResult.value).toBe('valid input');
+        expect(validResult.success).toBe(true);
+        expect(validResult.data).toBe('valid input');
 
         // Empty input
         const emptyResult = service.validateInput('');
-        expect(emptyResult.isSuccess).toBe(false);
+        expect(emptyResult.success).toBe(false);
         expect(emptyResult.error).toBe('Input darf nicht leer sein');
 
         // Too long input
         const longInput = 'a'.repeat(101);
         const longResult = service.validateInput(longInput);
-        expect(longResult.isSuccess).toBe(false);
+        expect(longResult.success).toBe(false);
         expect(longResult.error).toBe('Input zu lang');
       });
 
       it('sollte Chaining von Results ermöglichen', () => {
         // Chain multiple operations
         function processStep1(input: string): Result<string> {
-          if (!input) return ResultFactory.failure(new Error('Step 1 failed'));
-          return ResultFactory.success(input.toUpperCase());
+          if (!input) return Result.error('Step 1 failed');
+          return Result.success(input.toUpperCase());
         }
 
         function processStep2(input: string): Result<string> {
-          if (input.length < 3)
-            return ResultFactory.failure(new Error('Step 2 failed'));
-          return ResultFactory.success(input + '_PROCESSED');
+          if (input.length < 3) return Result.error('Step 2 failed');
+          return Result.success(input + '_PROCESSED');
         }
 
         function processChain(input: string): Result<string> {
           const step1 = processStep1(input);
-          if (!step1.isSuccess) return step1;
+          if (!step1.success) return step1;
 
-          return processStep2(step1.value!);
+          return processStep2(step1.data!);
         }
 
         // Success case
         const successResult = processChain('hello');
-        expect(successResult.isSuccess).toBe(true);
-        expect(successResult.value).toBe('HELLO_PROCESSED');
+        expect(successResult.success).toBe(true);
+        expect(successResult.data).toBe('HELLO_PROCESSED');
 
         // Failure in step 1
         const failStep1 = processChain('');
-        expect(failStep1.isSuccess).toBe(false);
+        expect(failStep1.success).toBe(false);
         expect(failStep1.error).toBe('Step 1 failed');
 
         // Failure in step 2
         const failStep2 = processChain('hi');
-        expect(failStep2.isSuccess).toBe(false);
+        expect(failStep2.success).toBe(false);
         expect(failStep2.error).toBe('Step 2 failed');
       });
     });
@@ -296,10 +282,10 @@ describe('Result Type', () => {
     describe('Edge Cases', () => {
       it('sollte mit sehr großen Strings umgehen', () => {
         const largeString = 'a'.repeat(10000);
-        const result = ResultFactory.success(largeString);
+        const result = Result.success(largeString);
 
-        expect(result.isSuccess).toBe(true);
-        expect(result.value?.length).toBe(10000);
+        expect(result.success).toBe(true);
+        expect(result.data?.length).toBe(10000);
       });
 
       it('sollte mit komplexen Objektstrukturen umgehen', () => {
@@ -317,16 +303,16 @@ describe('Result Type', () => {
           },
         };
 
-        const result = ResultFactory.success(complexObject);
-        expect(result.isSuccess).toBe(true);
-        expect(result.value?.level1.level2.level3.data).toEqual([1, 2, 3]);
+        const result = Result.success(complexObject);
+        expect(result.success).toBe(true);
+        expect(result.data?.level1.level2.level3.data).toEqual([1, 2, 3]);
       });
 
       it('sollte mit Error-Objekten ohne Message umgehen', () => {
-        const errorWithoutMessage = new Error();
-        const result = ResultFactory.failure<string>(errorWithoutMessage);
+        const _errorWithoutMessage = new Error();
+        const result = Result.error('');
 
-        expect(result.isSuccess).toBe(false);
+        expect(result.success).toBe(false);
         expect(result.error).toBe('');
       });
     });

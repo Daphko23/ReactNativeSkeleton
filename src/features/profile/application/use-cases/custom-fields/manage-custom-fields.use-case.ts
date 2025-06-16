@@ -354,7 +354,7 @@ export class ManageCustomFieldsUseCase {
         break;
       
       case 'phone':
-        if (field.value && !/^[\+]?[1-9][\d]{0,15}$/.test(field.value.replace(/[\s\-\(\)]/g, ''))) {
+        if (field.value && !/^[+]?[1-9][\d]{0,15}$/.test(field.value.replace(/[\s\-()]/g, ''))) {
           errors.push('Invalid phone number format');
         }
         break;

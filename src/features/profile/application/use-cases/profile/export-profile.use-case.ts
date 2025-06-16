@@ -285,10 +285,12 @@ export class ExportProfileUseCase {
 
     // TODO: Store in database
     logger.info('Profile export record stored', LogCategory.BUSINESS, {
-        exportId,
         userId: request.userId,
-        exportFormat: request.exportFormat,
-        deliveryMethod: request.deliveryMethod
+        metadata: {
+          exportId,
+          exportFormat: request.exportFormat,
+          deliveryMethod: request.deliveryMethod
+        }
       });
 
     return exportResponse;
@@ -300,9 +302,11 @@ export class ExportProfileUseCase {
   private async sendExportEmail(recipientEmail: string, exportResponse: ExportProfileResponse): Promise<void> {
     // TODO: Implement email service
     logger.info('Profile export email sent', LogCategory.BUSINESS, {
-        exportId: exportResponse.exportId,
-        recipientEmail,
-        deliveryMethod: 'email'
+        metadata: {
+          exportId: exportResponse.exportId,
+          recipientEmail,
+          deliveryMethod: 'email'
+        }
       });
   }
 
@@ -313,8 +317,10 @@ export class ExportProfileUseCase {
     // TODO: Implement audit logging for GDPR compliance
     logger.info('Profile export activity audited', LogCategory.BUSINESS, {
         userId,
-        exportId: exportResponse.exportId,
-        auditCompleted: true
+        metadata: {
+          exportId: exportResponse.exportId,
+          auditCompleted: true
+        }
       });
   }
 

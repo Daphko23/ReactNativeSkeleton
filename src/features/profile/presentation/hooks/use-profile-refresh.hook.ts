@@ -112,13 +112,13 @@ export const useProfileRefresh = ({
   // 🏆 CHAMPION: Execute Refresh
   const executeRefresh = useCallback(async (trigger: 'focus' | 'pull' | 'manual'): Promise<void> => {
     if (!userId || !shouldRefresh(trigger)) {
-      logger.info('Refresh skipped by Champion rules', LogCategory.BUSINESS, { userId, trigger });
+      logger.info('Refresh skipped by Champion rules', LogCategory.BUSINESS, { metadata: { userId, trigger } });
       return;
     }
 
     const startTime = Date.now();
     
-    logger.info('Champion refresh started', LogCategory.BUSINESS, { userId, trigger });
+    logger.info('Champion refresh started', LogCategory.BUSINESS, { metadata: { userId, trigger } });
     
     try {
       // 🏆 Determine what to refresh based on pending updates
@@ -153,15 +153,12 @@ export const useProfileRefresh = ({
       }
       
       logger.info('Champion refresh completed successfully', LogCategory.BUSINESS, { 
-        userId, 
-        trigger, 
-        duration 
+        metadata: { userId, trigger, duration }
       });
       
     } catch (error) {
       logger.error('Champion refresh failed', LogCategory.BUSINESS, { 
-        userId, 
-        trigger 
+        metadata: { userId, trigger }
       }, error as Error);
       
       throw error;

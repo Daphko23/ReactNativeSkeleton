@@ -61,6 +61,11 @@ export enum ExperienceLevel {
 }
 
 /**
+ * @interface SalaryAnalysis - Alias for SalaryBenchmark (backward compatibility)
+ */
+export type SalaryAnalysis = SalaryBenchmark;
+
+/**
  * @interface SalaryBenchmark - Compensation benchmarking data
  */
 export interface SalaryBenchmark {
@@ -380,10 +385,10 @@ export class IndustryBenchmark {
         opportunities = opportunities.filter(opp => opp.type === filters.type);
       }
       if (filters.minROI) {
-        opportunities = opportunities.filter(opp => opp.expectedROI >= filters.minROI);
+        opportunities = opportunities.filter(opp => opp.expectedROI >= (filters.minROI || 0));
       }
       if (filters.maxTimeframe) {
-        opportunities = opportunities.filter(opp => opp.timeToRealize <= filters.maxTimeframe);
+        opportunities = opportunities.filter(opp => opp.timeToRealize <= (filters.maxTimeframe || 365));
       }
       if (filters.remoteOnly) {
         opportunities = opportunities.filter(opp => opp.remoteAvailable);
@@ -660,7 +665,7 @@ export class IndustryBenchmark {
       [IndustryType.RETAIL]: 50
     };
 
-    return demandMap[this._userIndustry] || 65;
+    return (demandMap as Record<string, number>)[this._userIndustry] || 65;
   }
 
   private calculateCareerVelocity(years: number): number {

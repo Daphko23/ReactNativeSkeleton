@@ -31,48 +31,62 @@ import { ExportProfileUseCase } from '../../application/use-cases/profile/export
 
 const logger = LoggerFactory.createServiceLogger('ProfileScreen');
 
-// 🏆 CHAMPION INTERFACE: Simplified & Mobile-Optimized
+// 🏆 CHAMPION INTERFACE: Enterprise Hook-Centric API Structure
 export interface UseProfileScreenReturn {
-  // 🏆 Core Profile Data
-  profile: any;
-  avatar: any;
-  customFields: any[];
-  completion: any;
+  // 🏆 ENTERPRISE STRUCTURE: Grouped by Responsibility
+  data: {
+    profile: any;
+    avatar: any;
+    customFields: any[];
+    completion: any;
+    isProfileLoading: boolean;
+    isAvatarLoading: boolean;
+    isCustomFieldsLoading: boolean;
+    isAnyLoading: boolean;
+    profileError: string | null;
+    avatarError: string | null;
+    customFieldsError: string | null;
+    hasAnyError: boolean;
+    refreshAll: () => Promise<void>;
+  };
   
-  // 🏆 Champion UI State
-  isLoading: boolean;
-  hasError: boolean;
-  error: string | null;
+  actions: {
+    // 🏆 Navigation Actions
+    navigateToEdit: () => void;
+    navigateToSettings: () => void;
+    navigateToCustomFields: () => void;
+    navigateToPrivacySettings: () => void;
+    navigateToSkillsManagement: () => void;
+    navigateToSocialLinksEdit: () => void;
+    
+    // 🏆 Profile Actions
+    shareProfile: () => Promise<void>;
+    exportProfile: () => Promise<void>;
+    
+    // 🏆 Avatar Actions
+    changeAvatar: () => void;
+    removeAvatar: () => Promise<void>;
+    
+    // 🏆 Error Management
+    clearErrors: () => void;
+  };
   
-  // 🏆 Champion Navigation Actions
-  navigateToEdit: () => void;
-  navigateToSettings: () => void;
-  navigateToCustomFields: () => void;
-  navigateToPrivacySettings: () => void;
-  
-  // 🏆 Champion Profile Actions
-  shareProfile: () => Promise<void>;
-  exportProfile: () => Promise<void>;
-  refreshAll: () => Promise<void>;
-  
-  // 🏆 Champion Avatar Actions
-  changeAvatar: () => void;
-  removeAvatar: () => Promise<void>;
-  
-  // 🏆 Champion UI Helpers
-  headerTitle: string;
-  completionPercentage: number;
-  showCompletionBanner: boolean;
-  dismissCompletionBanner: () => void;
-  
-  // 🏆 Champion Loading States
-  isSharing: boolean;
-  isExporting: boolean;
-  isRefreshing: boolean;
-  
-  // 🏆 UI Dependencies (Minimal)
-  theme: any;
-  t: (key: string, options?: any) => string;
+  ui: {
+    // 🏆 UI Dependencies
+    theme: any;
+    t: (key: string, options?: any) => string;
+    
+    // 🏆 UI State
+    headerTitle: string;
+    completionPercentage: number;
+    showCompletionBanner: boolean;
+    dismissCompletionBanner: () => void;
+    
+    // 🏆 Loading States
+    isSharing: boolean;
+    isExporting: boolean;
+    isRefreshing: boolean;
+  };
 }
 
 /**
@@ -196,6 +210,23 @@ export const useProfileScreen = (navigation?: any): UseProfileScreenReturn => {
     navigation?.navigate('PrivacySettings');
   }, [userId, navigation]);
 
+  // 🏆 CHAMPION: Additional Navigation Actions (Missing from Profile Screen)
+  const navigateToSkillsManagement = useCallback(() => {
+    logger.info('Navigating to skills management', LogCategory.BUSINESS, { 
+      userId,
+      metadata: { action: 'navigate_skills' }
+    });
+    navigation?.navigate('SkillsManagement');
+  }, [userId, navigation]);
+
+  const navigateToSocialLinksEdit = useCallback(() => {
+    logger.info('Navigating to social links edit', LogCategory.BUSINESS, { 
+      userId,
+      metadata: { action: 'navigate_social_links' }
+    });
+    navigation?.navigate('SocialLinksEdit');
+  }, [userId, navigation]);
+
   // 🏆 CHAMPION PROFILE ACTIONS
   const shareProfile = useCallback(async () => {
     await shareProfileMutation.mutateAsync();
@@ -214,7 +245,7 @@ export const useProfileScreen = (navigation?: any): UseProfileScreenReturn => {
         profileQuery.refetch(),
         avatarQuery.refreshAvatar(),
         customFieldsQuery.refetch(),
-        completion?.refresh(),
+        completion?.refresh() || Promise.resolve(),
       ]);
       
       logger.info('Profile screen data refreshed successfully', LogCategory.BUSINESS, { userId });
@@ -234,7 +265,7 @@ export const useProfileScreen = (navigation?: any): UseProfileScreenReturn => {
     // This would typically open an image picker
     logger.info('Avatar picker action would be triggered', LogCategory.BUSINESS, {
       userId,
-      currentAvatarUrl: avatarQuery.avatarUrl
+      metadata: { currentAvatarUrl: avatarQuery.avatarUrl }
     });
   }, [userId, avatarQuery.avatarUrl]);
 
@@ -267,48 +298,62 @@ export const useProfileScreen = (navigation?: any): UseProfileScreenReturn => {
   // 🏆 CHAMPION COMPUTED STATE
   const isAnyLoading = profileQuery.isLoading || avatarQuery.isLoadingAvatar || customFieldsQuery.isLoading;
   const hasAnyError = !!(profileQuery.error || avatarQuery.error || customFieldsQuery.error);
-  const primaryError = profileQuery.error?.message || avatarQuery.error || customFieldsQuery.error?.message || null;
+  const primaryError = (profileQuery.error as any)?.message || avatarQuery.error || (customFieldsQuery.error as any)?.message || null;
 
   return {
-    // 🏆 Core Profile Data
-    profile: profileQuery.data,
-    avatar: avatarQuery.avatarUrl,
-    customFields: customFieldsQuery.data || [],
-    completion,
+    // 🏆 ENTERPRISE STRUCTURE: Grouped by Responsibility
+    data: {
+      profile: profileQuery.data,
+      avatar: avatarQuery.avatarUrl,
+      customFields: customFieldsQuery.data || [],
+      completion,
+      isProfileLoading: profileQuery.isLoading,
+      isAvatarLoading: avatarQuery.isLoadingAvatar,
+      isCustomFieldsLoading: customFieldsQuery.isLoading,
+      isAnyLoading: isAnyLoading,
+      profileError: primaryError as any,
+      avatarError: typeof avatarQuery.error === 'string' ? avatarQuery.error : (avatarQuery.error as any)?.message || null,
+      customFieldsError: (customFieldsQuery.error as any)?.message || null,
+      hasAnyError: hasAnyError,
+      refreshAll,
+    },
     
-    // 🏆 Champion UI State
-    isLoading: isAnyLoading,
-    hasError: hasAnyError,
-    error: primaryError,
+    actions: {
+      // �� Navigation Actions
+      navigateToEdit,
+      navigateToSettings,
+      navigateToCustomFields,
+      navigateToPrivacySettings,
+      navigateToSkillsManagement,
+      navigateToSocialLinksEdit,
+      
+      // 🏆 Profile Actions
+      shareProfile,
+      exportProfile,
+      
+      // 🏆 Avatar Actions
+      changeAvatar,
+      removeAvatar,
+      
+      // 🏆 Error Management
+      clearErrors: () => {},
+    },
     
-    // 🏆 Champion Navigation Actions
-    navigateToEdit,
-    navigateToSettings,
-    navigateToCustomFields,
-    navigateToPrivacySettings,
-    
-    // 🏆 Champion Profile Actions
-    shareProfile,
-    exportProfile,
-    refreshAll,
-    
-    // 🏆 Champion Avatar Actions
-    changeAvatar,
-    removeAvatar,
-    
-    // 🏆 Champion UI Helpers
-    headerTitle,
-    completionPercentage,
-    showCompletionBanner: shouldShowCompletionBanner,
-    dismissCompletionBanner,
-    
-    // 🏆 Champion Loading States
-    isSharing: shareProfileMutation.isPending,
-    isExporting: exportProfileMutation.isPending,
-    isRefreshing,
-    
-    // 🏆 UI Dependencies
-    theme,
-    t,
+    ui: {
+      // 🏆 UI Dependencies
+      theme,
+      t,
+      
+      // 🏆 UI State
+      headerTitle,
+      completionPercentage,
+      showCompletionBanner: shouldShowCompletionBanner,
+      dismissCompletionBanner,
+      
+      // 🏆 Loading States
+      isSharing: shareProfileMutation.isPending,
+      isExporting: exportProfileMutation.isPending,
+      isRefreshing,
+    },
   };
 };

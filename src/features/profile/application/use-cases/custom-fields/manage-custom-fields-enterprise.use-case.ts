@@ -40,9 +40,9 @@ import type {
   FieldEffectivenessReport
 } from '../../../domain/interfaces/custom-fields-repository.interface';
 
-// Result helper functions
-const Success = <T>(value: T): Result<T> => ({ isSuccess: true, value });
-const Failure = <T>(error: Error): Result<T> => ({ isSuccess: false, error: error.message });
+// Result helper functions - Use Core Result Class API
+const Success = <T>(value: T): Result<T> => Result.success(value);
+const Failure = <T>(error: Error): Result<T> => Result.error(error.message);
 
 // =============================================
 // 🎯 USE CASE REQUEST/RESPONSE INTERFACES
@@ -277,8 +277,8 @@ export class ManageCustomFieldsEnterpriseUseCase {
   private async executeGetFields(request: ManageCustomFieldsRequest): Promise<ManageCustomFieldsResponse> {
     const result = await this.repository.getCustomFields(request.userId);
     
-    if (result.isSuccess) {
-      const fields = result.value || [];
+    if (result.success) {
+      const fields = result.data || [];
       
       // 🎯 GENERATE RECOMMENDATIONS
       const recommendations = await this.generateFieldRecommendations(request.userId, fields);
@@ -359,8 +359,8 @@ export class ManageCustomFieldsEnterpriseUseCase {
     
     const result = await this.repository.updateCustomFields(updateRequest);
     
-    if (result.isSuccess) {
-      const updateResponse = result.value;
+    if (result.success) {
+      const updateResponse = result.data;
       
       if (!updateResponse) {
         this.logger.error('Update response is empty', LogCategory.BUSINESS, {
@@ -421,11 +421,11 @@ export class ManageCustomFieldsEnterpriseUseCase {
     
     const result = await this.repository.validateFieldConfiguration(request.fields, request.userId);
     
-    if (result.isSuccess) {
+    if (result.success) {
       return {
         success: true,
         data: {
-          validationResults: result.value
+          validationResults: result.data
         },
         metadata: {} as any
       };
@@ -461,7 +461,7 @@ export class ManageCustomFieldsEnterpriseUseCase {
       request.context?.businessJustification
     );
     
-    if (result.isSuccess) {
+    if (result.success) {
       return {
         success: true,
         metadata: {} as any
@@ -503,8 +503,8 @@ export class ManageCustomFieldsEnterpriseUseCase {
     
     const result = await this.repository.bulkUpdateCustomFields(requests);
     
-    if (result.isSuccess && result.value) {
-      const responses = result.value;
+    if (result.success && result.data) {
+      const responses = result.data;
       const allFields = responses.flatMap((r: UpdateCustomFieldsResponse) => r.fields);
       const allValidationResults = responses.flatMap((r: UpdateCustomFieldsResponse) => r.validationResults);
       
@@ -540,7 +540,7 @@ export class ManageCustomFieldsEnterpriseUseCase {
   private async calculateBusinessImpact(request: ManageCustomFieldsRequest): Promise<BusinessImpactAnalysis> {
     // Get current fields for comparison
     const currentFieldsResult = await this.repository.getCustomFields(request.userId);
-    const currentFields = currentFieldsResult.isSuccess ? currentFieldsResult.value : [];
+    const currentFields = currentFieldsResult.success ? currentFieldsResult.data : [];
     const newFields = request.fields || [];
     
     // Calculate profile completeness change
@@ -595,11 +595,11 @@ export class ManageCustomFieldsEnterpriseUseCase {
       maxResults: 5
     });
     
-    if (!templatesResult.isSuccess) {
+    if (!templatesResult.success) {
       return [];
     }
     
-    const templates = templatesResult.value?.templates || [];
+    const templates = templatesResult.data?.templates || [];
     const recommendations: FieldRecommendation[] = [];
     
     for (const template of templates) {
@@ -643,8 +643,8 @@ export class ManageCustomFieldsEnterpriseUseCase {
     const result = await this.repository.saveFieldUsageAnalytics(analytics);
     
     return {
-      tracked: result.isSuccess,
-      trackingId: result.isSuccess ? this.generateTrackingId() : undefined,
+      tracked: result.success,
+      trackingId: result.success ? this.generateTrackingId() : undefined,
       userBehavior: this.generateUserBehaviorInsights(request, response)
     };
   }

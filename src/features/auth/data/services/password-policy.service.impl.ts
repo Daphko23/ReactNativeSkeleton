@@ -523,7 +523,9 @@ export class PasswordPolicyServiceImpl implements IPasswordPolicyService {
     } catch (error) {
       logger.error('Password history check failed', LogCategory.SECURITY, {
   userId,
-  action: 'password_history_check'
+  metadata: {
+    action: 'password_history_check'
+  }
 }, error as Error);
       return false; // Fail safe - don't block password changes on history check errors
     }

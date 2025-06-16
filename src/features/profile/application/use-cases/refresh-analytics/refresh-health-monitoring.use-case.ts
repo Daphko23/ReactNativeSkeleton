@@ -422,13 +422,13 @@ export class RefreshHealthMonitoringUseCase {
 
       // 1. Get current service health
       const healthResult = await this.repository.getServiceHealth();
-      if (!healthResult.isSuccess) {
-        return { isSuccess: false, error: healthResult.error || 'Health check failed' };
+      if (!healthResult.success) {
+        return Result.error(healthResult.error || 'Health check failed');
       }
 
-      const currentHealth = healthResult.value;
+      const currentHealth = healthResult.data;
       if (!currentHealth) {
-        return { isSuccess: false, error: 'No health data available' };
+        return Result.error('No health data available');
       }
 
       // 2. Analyze health trends (with safe access)
@@ -467,14 +467,14 @@ export class RefreshHealthMonitoringUseCase {
         metadata: { serviceId: input.serviceId }
       });
 
-      return { isSuccess: true, value: output };
+      return Result.success(output);
 
     } catch (error) {
       logger.error('Service health monitoring failed', LogCategory.BUSINESS, { 
         service: input.serviceId,
         metadata: { serviceId: input.serviceId }
       }, error as Error);
-      return { isSuccess: false, error: (error as Error).message };
+      return Result.error((error as Error).message);
     }
   }
 
@@ -523,14 +523,14 @@ export class RefreshHealthMonitoringUseCase {
         metadata: { incidentId: incident.incidentId, automaticActionsCount: automaticActions.length }
       });
 
-      return { isSuccess: true, value: output };
+      return Result.success(output);
 
     } catch (error) {
       logger.error('Incident management failed', LogCategory.BUSINESS, { 
         service: input.incidentType,
         metadata: { incidentType: input.incidentType }
       }, error as Error);
-      return { isSuccess: false, error: (error as Error).message };
+      return Result.error((error as Error).message);
     }
   }
 
@@ -574,14 +574,14 @@ export class RefreshHealthMonitoringUseCase {
         metadata: { actionCount: output.optimizationPlan.length }
       });
 
-      return { isSuccess: true, value: output };
+      return Result.success(output);
 
     } catch (error) {
       logger.error('Performance optimization failed', LogCategory.BUSINESS, { 
         service: input.targetMetric,
         metadata: { targetMetric: input.targetMetric }
       }, error as Error);
-      return { isSuccess: false, error: (error as Error).message };
+      return Result.error((error as Error).message);
     }
   }
 
@@ -624,13 +624,13 @@ export class RefreshHealthMonitoringUseCase {
         metadata: { reportId: output.report.id }
       });
 
-      return { isSuccess: true, value: output };
+      return Result.success(output);
 
     } catch (error) {
       logger.error('Health report generation failed', LogCategory.BUSINESS, { 
         metadata: { reportType: input.reportType }
       }, error as Error);
-      return { isSuccess: false, error: (error as Error).message };
+      return Result.error((error as Error).message);
     }
   }
 

@@ -89,12 +89,12 @@ export class BenchmarkIndustryDataUseCase {
   /**
    * Executes comprehensive industry benchmarking analysis
    */
-  async execute(input: BenchmarkInput): Promise<Result<BenchmarkOutput, Error>> {
+  async execute(input: BenchmarkInput): Promise<Result<BenchmarkOutput>> {
     try {
       // Validate input
       const validationResult = this.validateInput(input);
       if (!validationResult.success) {
-        return Result.failure(new Error(validationResult.error));
+        return Result.error(validationResult.error || 'Validation failed');
       }
 
       // Create industry benchmark instance
@@ -172,7 +172,7 @@ export class BenchmarkIndustryDataUseCase {
       return Result.success(output);
 
     } catch (error) {
-      return Result.failure(new Error(`Industry benchmarking failed: ${error instanceof Error ? error.message : 'Unknown error'}`));
+      return Result.error(`Industry benchmarking failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
   }
 
@@ -183,7 +183,7 @@ export class BenchmarkIndustryDataUseCase {
     industry: IndustryType;
     timeframe: number; // months
     focusAreas?: string[];
-  }): Promise<Result<{
+  }  ): Promise<Result<{
     trends: MarketTrend[];
     trendSummary: {
       growingAreas: string[];
@@ -196,7 +196,7 @@ export class BenchmarkIndustryDataUseCase {
       negativeImpacts: Array<{ area: string; impact: string; probability: number }>;
     };
     recommendations: string[];
-  }, Error>> {
+  }>> {
     try {
       // Mock trend analysis - would integrate with market intelligence APIs
       const trends: MarketTrend[] = [
@@ -256,7 +256,7 @@ export class BenchmarkIndustryDataUseCase {
       });
 
     } catch (error) {
-      return Result.failure(new Error(`Trend analysis failed: ${error instanceof Error ? error.message : 'Unknown error'}`));
+      return Result.error(`Trend analysis failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
   }
 
@@ -273,7 +273,7 @@ export class BenchmarkIndustryDataUseCase {
       region?: GeographicRegion;
       companySize?: CompanySize;
     }>;
-  }): Promise<Result<{
+  }  ): Promise<Result<{
     comparisons: Array<{
       scenario: string;
       salaryRange: { min: number; median: number; max: number };
@@ -289,7 +289,7 @@ export class BenchmarkIndustryDataUseCase {
       highestROI: string;
       reasoning: string[];
     };
-  }, Error>> {
+  }>> {
     try {
       const comparisons = [];
 
@@ -367,7 +367,7 @@ export class BenchmarkIndustryDataUseCase {
       return Result.success({ comparisons, recommendations });
 
     } catch (error) {
-      return Result.failure(new Error(`Compensation comparison failed: ${error instanceof Error ? error.message : 'Unknown error'}`));
+      return Result.error(`Compensation comparison failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
   }
 
@@ -464,7 +464,7 @@ export class BenchmarkIndustryDataUseCase {
 
     // Based on insights
     for (const insight of insights) {
-      if (insight.actionable && insight.importance === 'high') {
+      if (insight.actionable && (insight as any).importance === 'high') {
         immediateActions.push(...insight.recommendations.slice(0, 1));
       }
     }

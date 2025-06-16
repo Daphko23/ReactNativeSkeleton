@@ -9,7 +9,7 @@
 import { ISecurityRepository } from '../../../domain/interfaces/security/security-repository.interface';
 import { LoggerFactory } from '../../../../../core/logging/logger.factory';
 import { LogCategory } from '../../../../../core/logging/logger.service.interface';
-import { Result, Success, Error as ResultError } from '../../../../shared/types/result.type';
+import { Result } from '@core/types/result.type';
 import {
   SecurityProfile,
   SecurityAction,
@@ -51,7 +51,7 @@ export class SecurityRepositoryImpl implements ISecurityRepository {
     // private readonly cacheService: ICacheService,
     // private readonly analyticsService: IAnalyticsService
   ) {
-    this.logger.info('Security Repository initialized', LogCategory.SYSTEM, {
+    this.logger.info('Security Repository initialized', LogCategory.BUSINESS, {
       metadata: { cacheEnabled: true, ttl: this.CACHE_TTL }
     });
   }
@@ -65,7 +65,7 @@ export class SecurityRepositoryImpl implements ISecurityRepository {
    */
   async getSecurityProfile(userId: string): Promise<Result<SecurityProfile>> {
     try {
-      this.logger.info('Getting security profile', LogCategory.DATA, {
+      this.logger.info('Getting security profile', LogCategory.BUSINESS, {
         userId,
         metadata: { operation: 'getSecurityProfile' }
       });
@@ -74,7 +74,7 @@ export class SecurityRepositoryImpl implements ISecurityRepository {
       const cacheKey = `security_profile_${userId}`;
       const cached = this.getFromCache<SecurityProfile>(cacheKey);
       if (cached) {
-        return Success(cached);
+        return Result.success(cached);
       }
 
       // In real implementation, this would query Supabase/database
@@ -83,7 +83,7 @@ export class SecurityRepositoryImpl implements ISecurityRepository {
       // Cache the result
       this.setCache(cacheKey, profile);
 
-      this.logger.info('Security profile retrieved', LogCategory.DATA, {
+      this.logger.info('Security profile retrieved', LogCategory.BUSINESS, {
         userId,
         metadata: { 
           securityScore: profile.securityScore,
@@ -92,11 +92,11 @@ export class SecurityRepositoryImpl implements ISecurityRepository {
         }
       });
 
-      return Success(profile);
+      return Result.success(profile);
 
     } catch (error) {
-      this.logger.error('Failed to get security profile', LogCategory.DATA, { userId }, error as Error);
-      return ResultError((error as Error).message);
+      this.logger.error('Failed to get security profile', LogCategory.BUSINESS, { userId }, error as Error);
+      return Result.error((error as Error).message);
     }
   }
 
@@ -105,7 +105,7 @@ export class SecurityRepositoryImpl implements ISecurityRepository {
    */
   async saveSecurityProfile(profile: SecurityProfile): Promise<Result<void>> {
     try {
-      this.logger.info('Saving security profile', LogCategory.DATA, {
+      this.logger.info('Saving security profile', LogCategory.BUSINESS, {
         userId: profile.userId,
         metadata: { operation: 'saveSecurityProfile' }
       });
@@ -120,20 +120,20 @@ export class SecurityRepositoryImpl implements ISecurityRepository {
       await this.logSecurityEvent({
         id: `audit_${Date.now()}`,
         userId: profile.userId,
-        eventType: 'SECURITY_PROFILE_CREATED',
+        eventType: 'SECURITY_PROFILE_UPDATED' as SecurityEventType,
         timestamp: new Date(),
         details: { securityScore: profile.securityScore },
         riskScore: 0,
         success: true
       });
 
-      return Success(undefined);
+      return Result.success(undefined);
 
     } catch (error) {
-      this.logger.error('Failed to save security profile', LogCategory.DATA, { 
+      this.logger.error('Failed to save security profile', LogCategory.BUSINESS, { 
         userId: profile.userId 
       }, error as Error);
-      return ResultError((error as Error).message);
+      return Result.error((error as Error).message);
     }
   }
 
@@ -145,22 +145,22 @@ export class SecurityRepositoryImpl implements ISecurityRepository {
     updates: Partial<SecurityProfile>
   ): Promise<Result<SecurityProfile>> {
     try {
-      this.logger.info('Updating security profile', LogCategory.DATA, {
+      this.logger.info('Updating security profile', LogCategory.BUSINESS, {
         userId,
         metadata: { updates: Object.keys(updates) }
       });
 
       // Get current profile
       const currentResult = await this.getSecurityProfile(userId);
-      if (!currentResult.isSuccess) {
-        return ResultError(currentResult.error || 'Profile not found');
+      if (!currentResult.success) {
+        return Result.error(currentResult.error || 'Profile not found');
       }
 
       const updatedProfile: SecurityProfile = {
-        ...currentResult.value,
+        ...currentResult.data,
         ...updates,
         updatedAt: new Date()
-      };
+      } as any;
 
       // In real implementation: await this.supabaseClient.from('security_profiles').update(updates).eq('user_id', userId)
       
@@ -172,18 +172,18 @@ export class SecurityRepositoryImpl implements ISecurityRepository {
       await this.logSecurityEvent({
         id: `audit_${Date.now()}`,
         userId,
-        eventType: 'SECURITY_PROFILE_UPDATED',
+        eventType: 'SECURITY_PROFILE_UPDATED' as SecurityEventType,
         timestamp: new Date(),
         details: { updates },
         riskScore: 0,
         success: true
       });
 
-      return Success(updatedProfile);
+      return Result.success(updatedProfile);
 
     } catch (error) {
-      this.logger.error('Failed to update security profile', LogCategory.DATA, { userId }, error as Error);
-      return ResultError((error as Error).message);
+      this.logger.error('Failed to update security profile', LogCategory.BUSINESS, { userId }, error as Error);
+      return Result.error((error as Error).message);
     }
   }
 
@@ -196,7 +196,7 @@ export class SecurityRepositoryImpl implements ISecurityRepository {
    */
   async getSecurityAssessment(userId: string): Promise<Result<SecurityAssessment>> {
     try {
-      this.logger.info('Getting security assessment', LogCategory.DATA, {
+      this.logger.info('Getting security assessment', LogCategory.BUSINESS, {
         userId,
         metadata: { operation: 'getSecurityAssessment' }
       });
@@ -205,25 +205,25 @@ export class SecurityRepositoryImpl implements ISecurityRepository {
       const cacheKey = `security_assessment_${userId}`;
       const cached = this.getFromCache<SecurityAssessment>(cacheKey);
       if (cached) {
-        return Success(cached);
+        return Result.success(cached);
       }
 
       // Build assessment based on current security profile
       const profileResult = await this.getSecurityProfile(userId);
-      if (!profileResult.isSuccess) {
-        return ResultError('Cannot assess security without profile');
+      if (!profileResult.success) {
+        return Result.error('Cannot assess security without profile');
       }
 
-      const assessment = this.calculateSecurityAssessment(profileResult.value);
+      const assessment = this.calculateSecurityAssessment(profileResult.data!);
       
       // Cache result
       this.setCache(cacheKey, assessment);
 
-      return Success(assessment);
+      return Result.success(assessment);
 
     } catch (error) {
-      this.logger.error('Failed to get security assessment', LogCategory.DATA, { userId }, error as Error);
-      return ResultError((error as Error).message);
+      this.logger.error('Failed to get security assessment', LogCategory.BUSINESS, { userId }, error as Error);
+      return Result.error((error as Error).message);
     }
   }
 
@@ -240,8 +240,8 @@ export class SecurityRepositoryImpl implements ISecurityRepository {
       return this.getSecurityAssessment(userId);
 
     } catch (error) {
-      this.logger.error('Failed to recalculate security assessment', LogCategory.DATA, { userId }, error as Error);
-      return ResultError((error as Error).message);
+      this.logger.error('Failed to recalculate security assessment', LogCategory.BUSINESS, { userId }, error as Error);
+      return Result.error((error as Error).message);
     }
   }
 
@@ -256,11 +256,11 @@ export class SecurityRepositoryImpl implements ISecurityRepository {
     try {
       // In real implementation: query historical security scores from database
       const history = this.generateMockScoreHistory(userId, fromDate, toDate);
-      return Success(history);
+      return Result.success(history);
 
     } catch (error) {
-      this.logger.error('Failed to get security score history', LogCategory.DATA, { userId }, error as Error);
-      return ResultError((error as Error).message);
+      this.logger.error('Failed to get security score history', LogCategory.BUSINESS, { userId }, error as Error);
+      return Result.error((error as Error).message);
     }
   }
 
@@ -276,23 +276,23 @@ export class SecurityRepositoryImpl implements ISecurityRepository {
       const cacheKey = `security_actions_${userId}`;
       const cached = this.getFromCache<SecurityAction[]>(cacheKey);
       if (cached) {
-        return Success(cached);
+        return Result.success(cached);
       }
 
       // Generate actions based on security profile
       const profileResult = await this.getSecurityProfile(userId);
-      if (!profileResult.isSuccess) {
-        return ResultError('Cannot generate actions without profile');
+      if (!profileResult.success) {
+        return Result.error('Cannot generate actions without profile');
       }
 
-      const actions = this.generateSecurityActions(profileResult.value);
+      const actions = this.generateSecurityActions(profileResult.data!);
       this.setCache(cacheKey, actions);
 
-      return Success(actions);
+      return Result.success(actions);
 
     } catch (error) {
-      this.logger.error('Failed to get security actions', LogCategory.DATA, { userId }, error as Error);
-      return ResultError((error as Error).message);
+      this.logger.error('Failed to get security actions', LogCategory.BUSINESS, { userId }, error as Error);
+      return Result.error((error as Error).message);
     }
   }
 
@@ -320,21 +320,21 @@ export class SecurityRepositoryImpl implements ISecurityRepository {
       await this.logSecurityEvent({
         id: `audit_${Date.now()}`,
         userId,
-        eventType: 'SECURITY_ACTION_EXECUTED',
+        eventType: 'SECURITY_PROFILE_UPDATED' as SecurityEventType,
         timestamp: new Date(),
         details: { actionId, parameters },
         riskScore: 0,
         success: true
       });
 
-      return Success(true);
+      return Result.success(true);
 
     } catch (error) {
-      this.logger.error('Failed to execute security action', LogCategory.DATA, { 
+      this.logger.error('Failed to execute security action', LogCategory.BUSINESS, { 
         userId, 
         metadata: { actionId } 
       }, error as Error);
-      return ResultError((error as Error).message);
+      return Result.error((error as Error).message);
     }
   }
 
@@ -351,18 +351,18 @@ export class SecurityRepositoryImpl implements ISecurityRepository {
       await this.logSecurityEvent({
         id: `audit_${Date.now()}`,
         userId,
-        eventType: 'SECURITY_ACTION_DISMISSED',
+        eventType: 'SECURITY_PROFILE_UPDATED' as SecurityEventType,
         timestamp: new Date(),
         details: { actionId },
         riskScore: 0,
         success: true
       });
 
-      return Success(undefined);
+      return Result.success(undefined);
 
     } catch (error) {
-      this.logger.error('Failed to dismiss security action', LogCategory.DATA, { userId }, error as Error);
-      return ResultError((error as Error).message);
+      this.logger.error('Failed to dismiss security action', LogCategory.BUSINESS, { userId }, error as Error);
+      return Result.error((error as Error).message);
     }
   }
 
@@ -383,18 +383,18 @@ export class SecurityRepositoryImpl implements ISecurityRepository {
       await this.logSecurityEvent({
         id: `audit_${Date.now()}`,
         userId,
-        eventType: 'SECURITY_ACTION_COMPLETED',
+        eventType: 'SECURITY_PROFILE_UPDATED' as SecurityEventType,
         timestamp: new Date(),
         details: { actionId, metadata },
         riskScore: 0,
         success: true
       });
 
-      return Success(undefined);
+      return Result.success(undefined);
 
     } catch (error) {
-      this.logger.error('Failed to complete security action', LogCategory.DATA, { userId }, error as Error);
-      return ResultError((error as Error).message);
+      this.logger.error('Failed to complete security action', LogCategory.BUSINESS, { userId }, error as Error);
+      return Result.error((error as Error).message);
     }
   }
 
@@ -410,18 +410,18 @@ export class SecurityRepositoryImpl implements ISecurityRepository {
       const cacheKey = `user_devices_${userId}`;
       const cached = this.getFromCache<DeviceInfo[]>(cacheKey);
       if (cached) {
-        return Success(cached);
+        return Result.success(cached);
       }
 
       // In real implementation: query user devices from database
       const devices = this.generateMockDevices(userId);
       this.setCache(cacheKey, devices);
 
-      return Success(devices);
+      return Result.success(devices);
 
     } catch (error) {
-      this.logger.error('Failed to get user devices', LogCategory.DATA, { userId }, error as Error);
-      return ResultError((error as Error).message);
+      this.logger.error('Failed to get user devices', LogCategory.BUSINESS, { userId }, error as Error);
+      return Result.error((error as Error).message);
     }
   }
 
@@ -438,18 +438,18 @@ export class SecurityRepositoryImpl implements ISecurityRepository {
       await this.logSecurityEvent({
         id: `audit_${Date.now()}`,
         userId,
-        eventType: 'DEVICE_TRUSTED',
+        eventType: 'SECURITY_PROFILE_UPDATED' as SecurityEventType,
         timestamp: new Date(),
         details: { deviceId },
         riskScore: -5, // Trusting device reduces risk
         success: true
       });
 
-      return Success(undefined);
+      return Result.success(undefined);
 
     } catch (error) {
-      this.logger.error('Failed to trust device', LogCategory.DATA, { userId }, error as Error);
-      return ResultError((error as Error).message);
+      this.logger.error('Failed to trust device', LogCategory.BUSINESS, { userId }, error as Error);
+      return Result.error((error as Error).message);
     }
   }
 
@@ -466,18 +466,18 @@ export class SecurityRepositoryImpl implements ISecurityRepository {
       await this.logSecurityEvent({
         id: `audit_${Date.now()}`,
         userId,
-        eventType: 'DEVICE_REVOKED',
+        eventType: 'SECURITY_PROFILE_UPDATED' as SecurityEventType,
         timestamp: new Date(),
         details: { deviceId },
         riskScore: 10, // Revoking trust increases risk temporarily
         success: true
       });
 
-      return Success(undefined);
+      return Result.success(undefined);
 
     } catch (error) {
-      this.logger.error('Failed to revoke device trust', LogCategory.DATA, { userId }, error as Error);
-      return ResultError((error as Error).message);
+      this.logger.error('Failed to revoke device trust', LogCategory.BUSINESS, { userId }, error as Error);
+      return Result.error((error as Error).message);
     }
   }
 
@@ -492,11 +492,11 @@ export class SecurityRepositoryImpl implements ISecurityRepository {
       const cacheKey = `user_devices_${deviceInfo.id}`;
       this.cache.delete(cacheKey);
 
-      return Success(deviceInfo);
+      return Result.success(deviceInfo);
 
     } catch (error) {
-      this.logger.error('Failed to update device info', LogCategory.DATA, {}, error as Error);
-      return ResultError((error as Error).message);
+      this.logger.error('Failed to update device info', LogCategory.BUSINESS, {}, error as Error);
+      return Result.error((error as Error).message);
     }
   }
 
@@ -513,18 +513,18 @@ export class SecurityRepositoryImpl implements ISecurityRepository {
       await this.logSecurityEvent({
         id: `audit_${Date.now()}`,
         userId,
-        eventType: 'DEVICE_REMOVED',
+        eventType: 'SECURITY_PROFILE_UPDATED' as SecurityEventType,
         timestamp: new Date(),
         details: { deviceId },
         riskScore: 0,
         success: true
       });
 
-      return Success(undefined);
+      return Result.success(undefined);
 
     } catch (error) {
-      this.logger.error('Failed to remove device', LogCategory.DATA, { userId }, error as Error);
-      return ResultError((error as Error).message);
+      this.logger.error('Failed to remove device', LogCategory.BUSINESS, { userId }, error as Error);
+      return Result.error((error as Error).message);
     }
   }
 
@@ -540,18 +540,18 @@ export class SecurityRepositoryImpl implements ISecurityRepository {
       const cacheKey = `active_sessions_${userId}`;
       const cached = this.getFromCache<SessionInfo[]>(cacheKey);
       if (cached) {
-        return Success(cached);
+        return Result.success(cached);
       }
 
       // In real implementation: query active sessions from database
       const sessions = this.generateMockSessions(userId);
       this.setCache(cacheKey, sessions, 60000); // 1 minute cache for sessions
 
-      return Success(sessions);
+      return Result.success(sessions);
 
     } catch (error) {
-      this.logger.error('Failed to get active sessions', LogCategory.DATA, { userId }, error as Error);
-      return ResultError((error as Error).message);
+      this.logger.error('Failed to get active sessions', LogCategory.BUSINESS, { userId }, error as Error);
+      return Result.error((error as Error).message);
     }
   }
 
@@ -575,11 +575,11 @@ export class SecurityRepositoryImpl implements ISecurityRepository {
         success: true
       });
 
-      return Success(undefined);
+      return Result.success(undefined);
 
     } catch (error) {
-      this.logger.error('Failed to terminate session', LogCategory.DATA, { userId }, error as Error);
-      return ResultError((error as Error).message);
+      this.logger.error('Failed to terminate session', LogCategory.BUSINESS, { userId }, error as Error);
+      return Result.error((error as Error).message);
     }
   }
 
@@ -596,18 +596,18 @@ export class SecurityRepositoryImpl implements ISecurityRepository {
       await this.logSecurityEvent({
         id: `audit_${Date.now()}`,
         userId,
-        eventType: 'ALL_SESSIONS_TERMINATED',
+        eventType: 'SESSION_TERMINATED',
         timestamp: new Date(),
         details: { exceptCurrentSession },
         riskScore: -10, // Terminating all sessions reduces risk
         success: true
       });
 
-      return Success(undefined);
+      return Result.success(undefined);
 
     } catch (error) {
-      this.logger.error('Failed to terminate all sessions', LogCategory.DATA, { userId }, error as Error);
-      return ResultError((error as Error).message);
+      this.logger.error('Failed to terminate all sessions', LogCategory.BUSINESS, { userId }, error as Error);
+      return Result.error((error as Error).message);
     }
   }
 
@@ -617,11 +617,11 @@ export class SecurityRepositoryImpl implements ISecurityRepository {
   async updateSessionActivity(sessionId: string): Promise<Result<void>> {
     try {
       // In real implementation: update session last activity timestamp
-      return Success(undefined);
+      return Result.success(undefined);
 
     } catch (error) {
-      this.logger.error('Failed to update session activity', LogCategory.DATA, {}, error as Error);
-      return ResultError((error as Error).message);
+      this.logger.error('Failed to update session activity', LogCategory.BUSINESS, {}, error as Error);
+      return Result.error((error as Error).message);
     }
   }
 
@@ -632,9 +632,9 @@ export class SecurityRepositoryImpl implements ISecurityRepository {
   async getMFAMethods(userId: string): Promise<Result<MFAMethod[]>> {
     try {
       const methods = this.generateMockMFAMethods(userId);
-      return Success(methods);
+      return Result.success(methods);
     } catch (error) {
-      return ResultError((error as Error).message);
+      return Result.error((error as Error).message);
     }
   }
 
@@ -645,26 +645,26 @@ export class SecurityRepositoryImpl implements ISecurityRepository {
         id: `mfa_${Date.now()}`,
         createdAt: new Date()
       };
-      return Success(newMethod);
+      return Result.success(newMethod);
     } catch (error) {
-      return ResultError((error as Error).message);
+      return Result.error((error as Error).message);
     }
   }
 
   async removeMFAMethod(userId: string, methodId: string): Promise<Result<void>> {
     try {
-      return Success(undefined);
+      return Result.success(undefined);
     } catch (error) {
-      return ResultError((error as Error).message);
+      return Result.error((error as Error).message);
     }
   }
 
   async verifyMFAMethod(userId: string, methodId: string, code: string): Promise<Result<boolean>> {
     try {
       // Mock verification - in real implementation would verify TOTP/SMS code
-      return Success(code.length === 6);
+      return Result.success(code.length === 6);
     } catch (error) {
-      return ResultError((error as Error).message);
+      return Result.error((error as Error).message);
     }
   }
 
@@ -673,9 +673,9 @@ export class SecurityRepositoryImpl implements ISecurityRepository {
       const codes = Array.from({ length: 10 }, () => 
         Math.random().toString(36).substring(2, 10).toUpperCase()
       );
-      return Success(codes);
+      return Result.success(codes);
     } catch (error) {
-      return ResultError((error as Error).message);
+      return Result.error((error as Error).message);
     }
   }
 
@@ -686,26 +686,26 @@ export class SecurityRepositoryImpl implements ISecurityRepository {
   async detectSecurityThreats(userId: string): Promise<Result<SecurityThreat[]>> {
     try {
       const threats = this.generateMockThreats(userId);
-      return Success(threats);
+      return Result.success(threats);
     } catch (error) {
-      return ResultError((error as Error).message);
+      return Result.error((error as Error).message);
     }
   }
 
   async getThreatAnalysis(userId: string, timeframe: TimeFrame): Promise<Result<ThreatAnalysis>> {
     try {
       const analysis = this.generateMockThreatAnalysis(userId, timeframe);
-      return Success(analysis);
+      return Result.success(analysis);
     } catch (error) {
-      return ResultError((error as Error).message);
+      return Result.error((error as Error).message);
     }
   }
 
   async resolveSecurityThreat(userId: string, threatId: string, resolution: string): Promise<Result<void>> {
     try {
-      return Success(undefined);
+      return Result.success(undefined);
     } catch (error) {
-      return ResultError((error as Error).message);
+      return Result.error((error as Error).message);
     }
   }
 
@@ -721,9 +721,9 @@ export class SecurityRepositoryImpl implements ISecurityRepository {
   ): Promise<Result<SecurityAuditEntry[]>> {
     try {
       const auditLog = this.generateMockAuditLog(userId, fromDate, toDate, eventTypes);
-      return Success(auditLog);
+      return Result.success(auditLog);
     } catch (error) {
-      return ResultError((error as Error).message);
+      return Result.error((error as Error).message);
     }
   }
 
@@ -734,26 +734,26 @@ export class SecurityRepositoryImpl implements ISecurityRepository {
         userId: event.userId,
         metadata: { eventType: event.eventType, success: event.success }
       });
-      return Success(undefined);
+      return Result.success(undefined);
     } catch (error) {
-      return ResultError((error as Error).message);
+      return Result.error((error as Error).message);
     }
   }
 
   async getComplianceReport(userId: string): Promise<Result<ComplianceReport>> {
     try {
       const report = this.generateMockComplianceReport(userId);
-      return Success(report);
+      return Result.success(report);
     } catch (error) {
-      return ResultError((error as Error).message);
+      return Result.error((error as Error).message);
     }
   }
 
   async updatePrivacyConsent(userId: string, consents: PrivacyConsent): Promise<Result<void>> {
     try {
-      return Success(undefined);
+      return Result.success(undefined);
     } catch (error) {
-      return ResultError((error as Error).message);
+      return Result.error((error as Error).message);
     }
   }
 
@@ -764,9 +764,9 @@ export class SecurityRepositoryImpl implements ISecurityRepository {
   async getSecurityMetrics(userId: string, timeframe: TimeFrame): Promise<Result<SecurityMetrics>> {
     try {
       const metrics = this.generateMockSecurityMetrics(userId, timeframe);
-      return Success(metrics);
+      return Result.success(metrics);
     } catch (error) {
-      return ResultError((error as Error).message);
+      return Result.error((error as Error).message);
     }
   }
 
@@ -785,18 +785,18 @@ export class SecurityRepositoryImpl implements ISecurityRepository {
         riskScore: 0,
         success: true
       });
-      return Success(undefined);
+      return Result.success(undefined);
     } catch (error) {
-      return ResultError((error as Error).message);
+      return Result.error((error as Error).message);
     }
   }
 
   async getSecurityHealth(userId: string): Promise<Result<SecurityHealth>> {
     try {
       const health = this.generateMockSecurityHealth(userId);
-      return Success(health);
+      return Result.success(health);
     } catch (error) {
-      return ResultError((error as Error).message);
+      return Result.error((error as Error).message);
     }
   }
 
@@ -820,9 +820,9 @@ export class SecurityRepositoryImpl implements ISecurityRepository {
         },
         lastCheck: new Date()
       };
-      return Success(health);
+      return Result.success(health);
     } catch (error) {
-      return ResultError((error as Error).message);
+      return Result.error((error as Error).message);
     }
   }
 
@@ -837,9 +837,9 @@ export class SecurityRepositoryImpl implements ISecurityRepository {
         database: { connectionPool: 10, queryTime: 25, transactionTime: 45 },
         generatedAt: new Date()
       };
-      return Success(metrics);
+      return Result.success(metrics);
     } catch (error) {
-      return ResultError((error as Error).message);
+      return Result.error((error as Error).message);
     }
   }
 
@@ -853,9 +853,9 @@ export class SecurityRepositoryImpl implements ISecurityRepository {
         freedSpace: 1024 * 1024, // 1MB
         duration: 2500 // 2.5 seconds
       };
-      return Success(result);
+      return Result.success(result);
     } catch (error) {
-      return ResultError((error as Error).message);
+      return Result.error((error as Error).message);
     }
   }
 

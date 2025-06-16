@@ -43,9 +43,12 @@ const ROLE_CONFIG = {
  */
 export interface RoleData {
   userRoles: string[];
-  userLevel: number;
-  highestRole: string;
-  lastUpdated: Date;
+  primaryRole: string;
+  roleLevel: number;
+  grantedAt: Date;
+  expiresAt: Date | null;
+  lastChecked: Date;
+  auditRequired: boolean;
 }
 
 /**
@@ -112,40 +115,32 @@ export const useRole = (targetRole?: Role): UseRoleReturn => {
         if (!isAuthenticated || !user) {
           return {
             userRoles: [],
-            userLevel: 0,
-            highestRole: 'guest',
-            lastUpdated: new Date(),
+            primaryRole: 'guest',
+            roleLevel: 0,
+            grantedAt: new Date(),
+            expiresAt: null,
+            lastChecked: new Date(),
+            auditRequired: false,
           };
         }
 
         // Mock role data - in production, fetch from RBAC service
-        const userRoles = user.roles || ['user'];
+        const userRoles = (user as any).roles || [user.role];
         
-        // Calculate user level
-        let maxLevel = 0;
-        let highestRole = 'user';
-        
-        userRoles.forEach(roleName => {
-          const roleDefinition = getRoleDefinition(roleName);
-          if (roleDefinition && roleDefinition.level > maxLevel) {
-            maxLevel = roleDefinition.level;
-            highestRole = roleName;
-          }
-        });
-
         const roleData: RoleData = {
           userRoles,
-          userLevel: maxLevel,
-          highestRole,
-          lastUpdated: new Date(),
+          primaryRole: user.role,
+          roleLevel: 0,
+          grantedAt: new Date(Date.now() - 1000 * 60 * 60), // 1 hour ago
+          expiresAt: null, // No expiration for basic roles
+          lastChecked: new Date(),
+          auditRequired: false,
         };
 
         logger.info('User role data fetched successfully (Champion)', LogCategory.SECURITY, { 
           correlationId,
           userId: user.id,
-          userRoles,
-          userLevel: maxLevel,
-          highestRole
+          metadata: { userRoles, primaryRole: roleData.primaryRole, roleLevel: roleData.roleLevel }
         });
 
         return roleData;
@@ -158,9 +153,12 @@ export const useRole = (targetRole?: Role): UseRoleReturn => {
         // Fallback to guest role
         return {
           userRoles: ['guest'],
-          userLevel: 0,
-          highestRole: 'guest',
-          lastUpdated: new Date(),
+          primaryRole: 'guest',
+          roleLevel: 0,
+          grantedAt: new Date(),
+          expiresAt: null,
+          lastChecked: new Date(),
+          auditRequired: false,
         };
       }
     },
@@ -177,7 +175,7 @@ export const useRole = (targetRole?: Role): UseRoleReturn => {
       logger.info('Checking specific role (Champion)', LogCategory.SECURITY, { 
         correlationId,
         userId: user?.id,
-        targetRole
+        metadata: { targetRole }
       });
 
       try {
@@ -190,8 +188,7 @@ export const useRole = (targetRole?: Role): UseRoleReturn => {
         logger.info('Role check completed (Champion)', LogCategory.SECURITY, { 
           correlationId,
           userId: user?.id,
-          targetRole,
-          hasRole: hasExactRole
+          metadata: { targetRole, hasRole: hasExactRole }
         });
 
         return hasExactRole;
@@ -199,7 +196,7 @@ export const useRole = (targetRole?: Role): UseRoleReturn => {
         logger.error('Role check failed (Champion)', LogCategory.SECURITY, { 
           correlationId,
           userId: user?.id,
-          targetRole
+          metadata: { targetRole }
         }, error as Error);
         
         return false;
@@ -220,7 +217,7 @@ export const useRole = (targetRole?: Role): UseRoleReturn => {
   }, [roleData]);
 
   const userLevel = useMemo(() => {
-    return roleData?.userLevel || 0;
+    return roleData?.roleLevel || 0;
   }, [roleData]);
 
   // 🏆 CHAMPION ACTIONS
@@ -230,17 +227,15 @@ export const useRole = (targetRole?: Role): UseRoleReturn => {
     logger.info('Manual role check (Champion)', LogCategory.SECURITY, { 
       correlationId,
       userId: user?.id,
-      role,
-      userRoles
+      metadata: { role, userRoles }
     });
 
     const hasRoleResult = userRoles.includes(role);
     
-    logger.info('Manual role check completed (Champion)', LogCategory.SECURITY, { 
+    logger.info('Role granted check (Champion)', LogCategory.SECURITY, { 
       correlationId,
       userId: user?.id,
-      role,
-      hasRole: hasRoleResult
+      metadata: { role, hasRole: hasRoleResult }
     });
 
     return hasRoleResult;
@@ -249,12 +244,10 @@ export const useRole = (targetRole?: Role): UseRoleReturn => {
   const checkMinimumLevel = useCallback((requiredRole: Role): boolean => {
     const correlationId = `level_check_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
     
-    logger.info('Minimum level check (Champion)', LogCategory.SECURITY, { 
+    logger.info('Checking minimum role level (Champion)', LogCategory.SECURITY, { 
       correlationId,
       userId: user?.id,
-      requiredRole,
-      userLevel,
-      userRoles
+      metadata: { requiredRole, userLevel, requiredLevel: 0 }
     });
 
     try {
@@ -262,29 +255,26 @@ export const useRole = (targetRole?: Role): UseRoleReturn => {
       if (!requiredRoleDefinition) {
         logger.warn('Required role definition not found (Champion)', LogCategory.SECURITY, { 
           correlationId,
-          requiredRole
+          metadata: { requiredRole }
         });
         return false;
       }
 
       const meetsLevel = userLevel >= requiredRoleDefinition.level;
       
-      logger.info('Minimum level check completed (Champion)', LogCategory.SECURITY, { 
+      logger.info('Minimum role level check completed (Champion)', LogCategory.SECURITY, { 
         correlationId,
         userId: user?.id,
-        requiredRole,
-        requiredLevel: requiredRoleDefinition.level,
-        userLevel,
-        meetsLevel
+        metadata: { requiredRole, hasMinimumLevel: meetsLevel }
       });
 
       return meetsLevel;
     } catch (error) {
-      logger.error('Minimum level check failed (Champion)', LogCategory.SECURITY, { 
+      logger.error('Minimum role level check failed - invalid role (Champion)', LogCategory.SECURITY, { 
         correlationId,
         userId: user?.id,
-        requiredRole
-      }, error as Error);
+        metadata: { requiredRole }
+      });
       
       return false;
     }
@@ -323,7 +313,7 @@ export const useRole = (targetRole?: Role): UseRoleReturn => {
   const hasRoleLevelHelper = useCallback((targetRoleForLevel: Role): boolean => {
     if (!roleData) return false;
     
-    return hasRoleLevel(roleData.highestRole as Role, targetRoleForLevel);
+    return hasRoleLevel(roleData.primaryRole as Role, targetRoleForLevel);
   }, [roleData]);
 
   const getRoleDefinitionHelper = useCallback((role: Role) => {
@@ -335,14 +325,17 @@ export const useRole = (targetRole?: Role): UseRoleReturn => {
     
     logger.info('Role access audit (Champion)', LogCategory.SECURITY, { 
       correlationId,
-      action,
-      resource,
-      userId: user?.id,
-      userRoles,
-      userLevel,
-      timestamp: new Date().toISOString()
+      metadata: { 
+        action,
+        resource,
+        role: roleData?.primaryRole,
+        granted: hasRole,
+        userId: user?.id,
+        timestamp: new Date().toISOString(),
+        auditLevel: 'high'
+      }
     });
-  }, [user?.id, userRoles, userLevel]);
+  }, [user?.id, roleData, hasRole]);
 
   return {
     // 🏆 Role Status

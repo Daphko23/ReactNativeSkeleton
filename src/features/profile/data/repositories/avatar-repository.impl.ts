@@ -163,26 +163,32 @@ export class AvatarRepositoryImpl implements IAvatarRepository {
       if (result.success) {
         const correlationId = `upload_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
         logger.info('Avatar upload successful', LogCategory.BUSINESS, {
-          correlationId,
           userId,
-          avatarUrl: result.data?.publicUrl || 'unknown',
-          fileSize: file.size,
-          fileName: file.fileName
+          metadata: {
+            correlationId,
+            avatarUrl: result.avatarUrl || 'unknown',
+            fileSize: file.size,
+            fileName: file.fileName
+          }
         });
       } else {
+        const correlationId = `upload_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
         logger.error('Avatar upload failed', LogCategory.BUSINESS, {
-          correlationId,
           userId,
-          error: result.error
+          metadata: {
+            correlationId,
+            error: result.error
+          }
         });
       }
 
       return result;
 
     } catch (error) {
+      const correlationId = `upload_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
       logger.error('Avatar upload exception occurred', LogCategory.BUSINESS, {
-        correlationId,
-        userId
+        userId,
+        metadata: { correlationId }
       }, error as Error);
       return {
         success: false,
@@ -227,23 +233,27 @@ export class AvatarRepositoryImpl implements IAvatarRepository {
       if (result.success) {
         const correlationId = `delete_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
         logger.info('Avatar deletion successful', LogCategory.BUSINESS, {
-          correlationId,
-          userId
+          userId,
+          metadata: { correlationId }
         });
       } else {
+        const correlationId = `delete_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
         logger.error('Avatar deletion failed', LogCategory.BUSINESS, {
-          correlationId,
           userId,
-          error: result.error
+          metadata: {
+            correlationId,
+            error: result.error
+          }
         });
       }
 
       return result;
 
     } catch (error) {
+      const correlationId = `delete_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
       logger.error('Avatar deletion exception occurred', LogCategory.BUSINESS, {
-        correlationId,
-        userId
+        userId,
+        metadata: { correlationId }
       }, error as Error);
       return {
         success: false,
@@ -277,7 +287,7 @@ export class AvatarRepositoryImpl implements IAvatarRepository {
       // Business Logic: Validate user ID
       if (!userId || userId.trim().length === 0) {
         logger.warn('Invalid user ID provided for avatar URL retrieval', LogCategory.BUSINESS, {
-          providedUserId: userId
+          metadata: { providedUserId: userId }
         });
         return null;
       }
@@ -289,23 +299,27 @@ export class AvatarRepositoryImpl implements IAvatarRepository {
       if (avatarUrl) {
         const correlationId = `getUrl_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
         logger.info('Avatar found for user', LogCategory.BUSINESS, {
-          correlationId,
           userId,
-          avatarUrl
+          metadata: {
+            correlationId,
+            avatarUrl
+          }
         });
       } else {
+        const correlationId = `getUrl_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
         logger.info('No avatar found for user', LogCategory.BUSINESS, {
-          correlationId,
-          userId
+          userId,
+          metadata: { correlationId }
         });
       }
 
       return avatarUrl;
 
     } catch (error) {
+      const correlationId = `getUrl_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
       logger.error('Error getting avatar URL', LogCategory.BUSINESS, {
-        correlationId,
-        userId
+        userId,
+        metadata: { correlationId }
       }, error as Error);
       return null;
     }
@@ -341,22 +355,31 @@ export class AvatarRepositoryImpl implements IAvatarRepository {
       if (isHealthy) {
         const correlationId = `health_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
         logger.info('Avatar storage health check passed', LogCategory.BUSINESS, {
-          correlationId,
-          healthy: true
+          userId: 'system',
+          metadata: {
+            correlationId,
+            healthy: true
+          }
         });
       } else {
+        const correlationId = `health_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
         logger.warn('Avatar storage health check failed', LogCategory.BUSINESS, {
-          correlationId,
-          healthy: false,
-          error: healthResult.error
+          userId: 'system',
+          metadata: {
+            correlationId,
+            healthy: false,
+            error: healthResult.error
+          }
         });
       }
 
       return isHealthy;
 
     } catch (error) {
+      const correlationId = `health_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
       logger.error('Avatar storage health check exception', LogCategory.BUSINESS, {
-        correlationId
+        userId: 'system',
+        metadata: { correlationId }
       }, error as Error);
       return false;
     }
@@ -423,16 +446,20 @@ export class AvatarRepositoryImpl implements IAvatarRepository {
 
       if (isValid) {
         logger.info('Avatar file validation passed', LogCategory.BUSINESS, {
-          fileName: file.fileName,
-          fileSize: file.size,
-          mimeType: file.mime
+          metadata: { 
+            fileName: file.fileName,
+            fileSize: file.size,
+            mimeType: file.mime
+          }
         });
       } else {
         logger.warn('Avatar file validation failed', LogCategory.BUSINESS, {
-          fileName: file.fileName,
-          fileSize: file.size,
-          mimeType: file.mime,
-          errors
+          metadata: { 
+            fileName: file.fileName,
+            fileSize: file.size,
+            mimeType: file.mime,
+            errors
+          }
         });
       }
 
@@ -443,8 +470,10 @@ export class AvatarRepositoryImpl implements IAvatarRepository {
 
     } catch (error) {
       logger.error('Avatar file validation exception', LogCategory.BUSINESS, {
-        fileName: file?.fileName,
-        fileSize: file?.size
+        metadata: { 
+          fileName: file?.fileName,
+          fileSize: file?.size
+        }
       }, error as Error);
       return {
         valid: false,

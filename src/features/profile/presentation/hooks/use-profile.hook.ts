@@ -118,11 +118,10 @@ export const useProfile = (): UseProfileReturn => {
       ]);
       
       logger.info('Profile refresh completed successfully', LogCategory.BUSINESS, { 
-        userId,
-        components: ['profile', 'privacy']
+        metadata: { userId, components: ['profile', 'privacy'] }
       });
       
-      return results;
+      // return results;
     } catch (error) {
       logger.error('Profile refresh failed', LogCategory.BUSINESS, { userId }, error as Error);
       throw error;

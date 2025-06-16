@@ -58,6 +58,39 @@ export interface BenchmarkData {
   lastUpdated?: Date;
 }
 
+// Type aliases for backward compatibility
+export type UseProfessionalBenchmarkDataProps = UseProfessionalBenchmarkProps;
+export type UseProfessionalBenchmarkDataReturn = UseProfessionalBenchmarkReturn;
+
+// Additional types for index.ts exports
+export interface BenchmarkMetrics {
+  salaryGap: number;
+  percentileRank: number;
+  marketPosition: string;
+  competitiveScore: number;
+}
+
+export interface MarketInsights {
+  trends: string[];
+  opportunities: string[];
+  threats: string[];
+  recommendations: string[];
+}
+
+export interface CompetitivePositioning {
+  rank: number;
+  percentile: number;
+  advantages: string[];
+  improvements: string[];
+}
+
+export interface SalaryIntelligence {
+  currentSalary: number;
+  marketMedian: number;
+  targetSalary: number;
+  growthPotential: number;
+}
+
 export interface UseProfessionalBenchmarkProps {
   userId: string;
   enableAnalytics?: boolean;

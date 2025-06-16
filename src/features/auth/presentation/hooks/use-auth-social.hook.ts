@@ -10,7 +10,7 @@
  * ✅ Clean Interface: Essential social operations
  */
 
-import { useCallback, useMemo } from 'react';
+import { useCallback, useState as _useState, useMemo as _useMemo } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { authContainer } from '../../application/di/auth.container';
 import { AuthUser } from '../../domain/entities/auth-user.entity';
@@ -130,8 +130,10 @@ export const useAuthSocial = (): UseAuthSocialReturn => {
         ];
         
         logger.info('Social providers fetched successfully (Champion)', LogCategory.BUSINESS, { 
-          providersCount: providers.length,
-          enabledCount: providers.filter(p => p.isEnabled).length
+          metadata: {
+            providersCount: providers.length,
+            enabledCount: providers.filter(p => p.isEnabled).length
+          }
         });
         
         return providers;
@@ -332,8 +334,10 @@ export const useAuthSocial = (): UseAuthSocialReturn => {
     const isAvailable = providerConfig?.isAvailable || false;
     
     logger.info('Checking provider availability (Champion)', LogCategory.BUSINESS, { 
-      provider,
-      isAvailable
+      metadata: {
+        provider,
+        isAvailable
+      }
     });
     
     return isAvailable;

@@ -16,7 +16,6 @@ export * from './profile-header';
 export * from './profile-information';
 export * from './profile-navigation';
 export * from './profile-actions';
-export * from './auth-aware-profile-card';
 
 // Specialized Profile Components
 export * from './avatar-uploader';

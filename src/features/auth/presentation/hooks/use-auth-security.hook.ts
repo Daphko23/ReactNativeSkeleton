@@ -10,7 +10,7 @@
  * ✅ Clean Interface: Essential security operations
  */
 
-import { useCallback, useMemo } from 'react';
+import { useCallback, useState as _useState, useMemo as _useMemo } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { authContainer } from '../../application/di/auth.container';
 import { AuthUser } from '../../domain/entities/auth-user.entity';
@@ -110,7 +110,9 @@ export const useAuthSecurity = (userId?: string): UseAuthSecurityReturn => {
         
         logger.info('MFA status fetched successfully (Champion)', LogCategory.SECURITY, { 
           userId: effectiveUserId,
-          mfaEnabled 
+          metadata: {
+            mfaEnabled
+          }
         });
         
         return mfaEnabled;
@@ -146,7 +148,9 @@ export const useAuthSecurity = (userId?: string): UseAuthSecurityReturn => {
         
         logger.info('Biometric status fetched successfully (Champion)', LogCategory.SECURITY, { 
           userId: effectiveUserId,
-          biometricEnabled 
+          metadata: {
+            biometricEnabled
+          }
         });
         
         return biometricEnabled;
@@ -181,9 +185,11 @@ export const useAuthSecurity = (userId?: string): UseAuthSecurityReturn => {
         
         logger.info('Security level calculated (Champion)', LogCategory.SECURITY, { 
           userId: effectiveUserId,
-          level,
-          mfaEnabled,
-          biometricEnabled
+          metadata: {
+            level,
+            mfaEnabled,
+            biometricEnabled
+          }
         });
         
         return level;
@@ -210,8 +216,10 @@ export const useAuthSecurity = (userId?: string): UseAuthSecurityReturn => {
       
       logger.info('Toggling MFA (Champion)', LogCategory.SECURITY, { 
         userId: effectiveUserId,
-        currentStatus: currentMfaStatus,
-        newStatus: newMfaStatus
+        metadata: {
+          currentStatus: currentMfaStatus,
+          newStatus: newMfaStatus
+        }
       });
 
       if (!authContainer.isReady()) {
@@ -224,7 +232,9 @@ export const useAuthSecurity = (userId?: string): UseAuthSecurityReturn => {
         
         logger.info('MFA toggled successfully (Champion)', LogCategory.SECURITY, { 
           userId: effectiveUserId,
-          newStatus: newMfaStatus
+          metadata: {
+            newStatus: newMfaStatus
+          }
         });
         
         return newMfaStatus;
@@ -248,7 +258,9 @@ export const useAuthSecurity = (userId?: string): UseAuthSecurityReturn => {
       
       logger.info('MFA optimistic update started (Champion)', LogCategory.SECURITY, { 
         userId: effectiveUserId,
-        newStatus: newMfaStatus
+        metadata: {
+          newStatus: newMfaStatus
+        }
       });
       
       return { previousMfaStatus };
@@ -263,7 +275,9 @@ export const useAuthSecurity = (userId?: string): UseAuthSecurityReturn => {
       
       logger.info('MFA optimistic update confirmed (Champion)', LogCategory.SECURITY, { 
         userId: effectiveUserId,
-        finalStatus: newMfaStatus
+        metadata: {
+          finalStatus: newMfaStatus
+        }
       });
     },
     
@@ -291,8 +305,10 @@ export const useAuthSecurity = (userId?: string): UseAuthSecurityReturn => {
       
       logger.info('Toggling biometric (Champion)', LogCategory.SECURITY, { 
         userId: effectiveUserId,
-        currentStatus: currentBiometricStatus,
-        newStatus: newBiometricStatus
+        metadata: {
+          currentStatus: currentBiometricStatus,
+          newStatus: newBiometricStatus
+        }
       });
 
       if (!authContainer.isReady()) {
@@ -305,7 +321,9 @@ export const useAuthSecurity = (userId?: string): UseAuthSecurityReturn => {
         
         logger.info('Biometric toggled successfully (Champion)', LogCategory.SECURITY, { 
           userId: effectiveUserId,
-          newStatus: newBiometricStatus
+          metadata: {
+            newStatus: newBiometricStatus
+          }
         });
         
         return newBiometricStatus;
@@ -329,7 +347,9 @@ export const useAuthSecurity = (userId?: string): UseAuthSecurityReturn => {
       
       logger.info('Biometric optimistic update started (Champion)', LogCategory.SECURITY, { 
         userId: effectiveUserId,
-        newStatus: newBiometricStatus
+        metadata: {
+          newStatus: newBiometricStatus
+        }
       });
       
       return { previousBiometricStatus };
@@ -344,7 +364,9 @@ export const useAuthSecurity = (userId?: string): UseAuthSecurityReturn => {
       
       logger.info('Biometric optimistic update confirmed (Champion)', LogCategory.SECURITY, { 
         userId: effectiveUserId,
-        finalStatus: newBiometricStatus
+        metadata: {
+          finalStatus: newBiometricStatus
+        }
       });
     },
     
@@ -399,7 +421,9 @@ export const useAuthSecurity = (userId?: string): UseAuthSecurityReturn => {
     // Mock permission validation - replace with real implementation
     logger.info('Validating permission (Champion)', LogCategory.SECURITY, { 
       userId: effectiveUserId,
-      permission
+      metadata: {
+        permission
+      }
     });
     
     return hasPermission(permission);

@@ -18,6 +18,16 @@ import { LogCategory } from '@core/logging/logger.service.interface';
 const logger = LoggerFactory.createServiceLogger('ProfessionalActions');
 
 // 🏆 CHAMPION INTERFACES: Simplified & Mobile-Optimized
+// Type aliases for backward compatibility
+export type ProfessionalActionType = 'skills:update' | 'skills:analyze' | 'career:add_goal' | 'network:add_connection' | 'profile:update';
+
+export interface ActionMetrics {
+  totalActions: number;
+  successRate: number;
+  averageDuration: number;
+  errorCount: number;
+}
+
 export interface ActionResult<T = any> {
   success: boolean;
   data?: T;

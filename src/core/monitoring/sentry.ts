@@ -929,8 +929,10 @@ class SentryService {
       this.isInitialized = true;
       logger.info('Sentry initialized successfully with Auth optimization', LogCategory.BUSINESS, {
   service: 'Sentry',
-  authOptimization: true,
-  profileIntegration: true
+  metadata: {
+    authOptimization: true,
+    profileIntegration: true
+  }
 });
     } catch (error) {
       logger.error('Failed to initialize Sentry', LogCategory.BUSINESS, {
@@ -1431,8 +1433,10 @@ class SentryService {
     // TODO: Update to new Sentry v4+ transaction API
     logger.info('Auth transaction started', LogCategory.BUSINESS, {
   service: 'Sentry',
-  transactionName: name,
-  operation: op
+  metadata: {
+    transactionName: name,
+    operation: op
+  }
 });
     return null;
   }
@@ -1444,8 +1448,10 @@ class SentryService {
     // TODO: Update to new Sentry v4+ transaction API
     logger.info('Transaction started', LogCategory.BUSINESS, {
   service: 'Sentry',
-  transactionName: name,
-  operation: op
+  metadata: {
+    transactionName: name,
+    operation: op
+  }
 });
     return null;
   }

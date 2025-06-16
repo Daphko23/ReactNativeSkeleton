@@ -13,10 +13,21 @@
 import React, { ComponentType, useEffect } from 'react';
 import { View, Text, ActivityIndicator } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-import { useRoleChampion as useRole } from '@shared/hooks/use-role-champion';
+// import { useRoleChampion as useRole } from '@shared/hooks/use-role-champion';
 import type { Role } from '@features/auth/domain/constants/permissions.registry';
 import { PrimaryButton } from '@shared/components/buttons/primary-button.component';
 import { useTranslation } from 'react-i18next';
+
+// Temporary fallback hook until use-role-champion is implemented
+const useRole = (requiredRole: Role) => ({
+  hasRole: false,
+  userRoles: [] as string[],
+  userLevel: 0,
+  isLoading: false,
+  error: null,
+  refresh: async () => {},
+  checkMinimumLevel: (role: Role) => false,
+});
 
 /**
  * Configuration options interface for the withRoleGuard HOC.

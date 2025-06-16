@@ -453,16 +453,16 @@ global.actWithPerformance = async (fn: () => void | Promise<void>): Promise<void
 // ============================================================================
 
 declare global {
-  var startPerformanceTest: (testName: string) => void;
-  var recordPerformanceCheckpoint: () => void;
-  var measureAsyncPerformance: <T>(operation: () => Promise<T>) => Promise<T>;
-  var measureRenderPerformance: <T>(renderFn: () => T) => T;
-  var finishPerformanceTest: (customThresholds?: Partial<PerformanceThresholds>) => {
+  function startPerformanceTest(testName: string): void;
+  function recordPerformanceCheckpoint(): void;
+  function measureAsyncPerformance<T>(operation: () => Promise<T>): Promise<T>;
+  function measureRenderPerformance<T>(renderFn: () => T): T;
+  function finishPerformanceTest(customThresholds?: Partial<PerformanceThresholds>): {
     passed: boolean;
     report: string;
     violations: string[];
   };
-  var actWithPerformance: (fn: () => void | Promise<void>) => Promise<void>;
+  function actWithPerformance(fn: () => void | Promise<void>): Promise<void>;
 }
 
 // ============================================================================

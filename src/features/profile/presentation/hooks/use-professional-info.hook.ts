@@ -351,7 +351,7 @@ export const useProfessionalInfo = ({
 
   return {
     // Core Data
-    professionalInfo,
+    professionalInfo: professionalInfo || null,
     isLoading,
     error,
     

@@ -195,10 +195,12 @@ export class ShareProfileUseCase {
     // - Allow share revocation
     
     logger.info('Profile share record stored', LogCategory.BUSINESS, {
-      shareId: shareResponse.shareId,
-      shareType: shareResponse.shareFormat,
-      privacyLevel: shareResponse.privacyLevel,
-      expiresAt: shareResponse.expiresAt
+      metadata: {
+        shareId: shareResponse.shareId,
+        shareType: shareResponse.shareFormat,
+        privacyLevel: shareResponse.privacyLevel,
+        expiresAt: shareResponse.expiresAt
+      }
     });
   }
 
@@ -216,10 +218,12 @@ export class ShareProfileUseCase {
     // - Add expiration notice
     
     logger.info('Profile share notification sent', LogCategory.BUSINESS, {
-      shareId: shareResponse.shareId,
-      recipientEmail,
-      notificationMethod: 'email',
-      hasCustomMessage: !!customMessage
+      metadata: {
+        shareId: shareResponse.shareId,
+        recipientEmail,
+        notificationMethod: 'email',
+        hasCustomMessage: !!customMessage
+      }
     });
   }
 
@@ -234,10 +238,12 @@ export class ShareProfileUseCase {
     
     logger.info('Profile share activity audited', LogCategory.BUSINESS, {
       userId,
-      shareId: shareResponse.shareId,
-      shareType: shareResponse.shareFormat,
-      privacyLevel: shareResponse.privacyLevel,
-      auditCompleted: true
+      metadata: {
+        shareId: shareResponse.shareId,
+        shareType: shareResponse.shareFormat,
+        privacyLevel: shareResponse.privacyLevel,
+        auditCompleted: true
+      }
     });
   }
 } 

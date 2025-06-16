@@ -130,7 +130,7 @@ export const useLoadingState = (): UseLoadingStateReturn => {
         
         logger.info('Global loading state fetched successfully (Champion)', LogCategory.PERFORMANCE, { 
           correlationId,
-          activeOperations: Object.keys(globalState).filter(key => globalState[key]).length
+          metadata: { activeOperations: Object.keys(globalState).filter(key => globalState[key]).length }
         });
 
         return globalState;
@@ -178,8 +178,7 @@ export const useLoadingState = (): UseLoadingStateReturn => {
 
         logger.info('Loading performance calculated successfully (Champion)', LogCategory.PERFORMANCE, { 
           correlationId,
-          operationCount: performance.operationCount,
-          averageDuration: performance.averageDuration
+          metadata: { operationCount: performance.operationCount, averageDuration: performance.averageDuration }
         });
 
         return performance;
@@ -233,9 +232,7 @@ export const useLoadingState = (): UseLoadingStateReturn => {
     
     logger.info('Setting loading state (Champion)', LogCategory.PERFORMANCE, { 
       correlationId,
-      key,
-      loading,
-      category
+      metadata: { key, loading, category }
     });
 
     // Update local loading states
@@ -268,9 +265,7 @@ export const useLoadingState = (): UseLoadingStateReturn => {
           
           logger.info('Loading operation completed (Champion)', LogCategory.PERFORMANCE, { 
             correlationId,
-            key,
-            duration,
-            category
+            metadata: { key, duration, category }
           });
           
           return {
@@ -303,8 +298,7 @@ export const useLoadingState = (): UseLoadingStateReturn => {
     
     logger.info('Starting async operation with loading (Champion)', LogCategory.PERFORMANCE, { 
       correlationId,
-      key,
-      category
+      metadata: { key, category }
     });
 
     setLoading(key, true, category);
@@ -314,16 +308,14 @@ export const useLoadingState = (): UseLoadingStateReturn => {
       
       logger.info('Async operation completed successfully (Champion)', LogCategory.PERFORMANCE, { 
         correlationId,
-        key,
-        category
+        metadata: { key, category }
       });
       
       return result;
     } catch (error) {
       logger.error('Async operation failed (Champion)', LogCategory.PERFORMANCE, { 
         correlationId,
-        key,
-        category
+        metadata: { key, category }
       }, error as Error);
       
       throw error;

@@ -168,6 +168,7 @@ export class AuthUser {
     (this as any).mfaEnabled = this.metadata.mfaEnabled;
     (this as any).lastLoginAt = this.metadata.lastLoginAt ? new Date(this.metadata.lastLoginAt) : undefined;
     (this as any).roles = [this.role.toLowerCase()]; // Convert role to roles array for legacy compatibility
+    (this as any).permissions = ['read:profile', 'write:profile']; // Basic permissions for all users
   }
 
   /**

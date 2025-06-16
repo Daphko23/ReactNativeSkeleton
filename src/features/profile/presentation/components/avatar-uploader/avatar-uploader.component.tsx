@@ -78,26 +78,26 @@ export const AvatarUploader: React.FC<AvatarUploaderProps> = ({
     isUploading,
     uploadProgress,
     selectedImage,
-    showActionSheet,
-    isLoadingGallery,
-    isLoadingCamera,
+    // showActionSheet,
+    // isLoadingGallery,
+    // isLoadingCamera,
     
     // Actions
     selectFromGallery,
     selectFromCamera,
     uploadAvatar,
-    deleteAvatar,
+    // deleteAvatar,
     resetSelection,
     
     // UI Actions
-    openActionSheet,
-    closeActionSheet,
+    // openActionSheet,
+    // closeActionSheet,
     
     // Computed States
-    hasSelectedImage,
-    canUpload,
+    // hasSelectedImage,
+    // canUpload,
     hasAvatar,
-  } = useAvatar({ userId, enableImagePicker: true, enableActionSheet: true });
+  } = useAvatar({ userId });
 
   // =============================================================================
   // UI EVENT HANDLERS - DELEGATE TO HOOK
@@ -105,7 +105,7 @@ export const AvatarUploader: React.FC<AvatarUploaderProps> = ({
 
   const handleAvatarPress = () => {
     if (!editable) return;
-    openActionSheet();
+    // openActionSheet();
   };
 
   const handleGallerySelect = async () => {
@@ -118,13 +118,13 @@ export const AvatarUploader: React.FC<AvatarUploaderProps> = ({
 
   const handleUpload = async () => {
     await uploadAvatar();
-    if (hasSelectedImage && onUploadSuccess) {
+    if (selectedImage && onUploadSuccess) {
       onUploadSuccess(avatarUrl || '');
     }
   };
 
   const handleRemove = async () => {
-    await deleteAvatar();
+    // await deleteAvatar();
   };
 
   // =============================================================================
@@ -181,10 +181,10 @@ export const AvatarUploader: React.FC<AvatarUploaderProps> = ({
 
   const renderActionSheet = () => (
     <Modal
-      visible={showActionSheet}
+      visible={false}
       transparent
       animationType="slide"
-      onRequestClose={closeActionSheet}
+      onRequestClose={() => {}}
       testID="avatar-action-sheet"
     >
       <View style={styles.modalOverlay}>
@@ -196,12 +196,12 @@ export const AvatarUploader: React.FC<AvatarUploaderProps> = ({
           <TouchableOpacity
             style={styles.actionButton}
             onPress={handleGallerySelect}
-            disabled={isLoadingGallery}
+            disabled={false}
             accessibilityRole="button"
             accessibilityLabel={t('avatar.gallery.accessibility')}
             testID="gallery-select-button"
           >
-            {isLoadingGallery ? (
+            {false ? (
               <ActivityIndicator size="small" color={theme.colors.primary} />
             ) : (
               <Text style={styles.actionButtonText}>
@@ -213,12 +213,12 @@ export const AvatarUploader: React.FC<AvatarUploaderProps> = ({
           <TouchableOpacity
             style={styles.actionButton}
             onPress={handleCameraSelect}
-            disabled={isLoadingCamera}
+            disabled={false}
             accessibilityRole="button"
             accessibilityLabel={t('avatar.camera.accessibility')}
             testID="camera-select-button"
           >
-            {isLoadingCamera ? (
+            {false ? (
               <ActivityIndicator size="small" color={theme.colors.primary} />
             ) : (
               <Text style={styles.actionButtonText}>
@@ -243,7 +243,7 @@ export const AvatarUploader: React.FC<AvatarUploaderProps> = ({
 
           <TouchableOpacity
             style={[styles.actionButton, styles.cancelButton]}
-            onPress={closeActionSheet}
+            onPress={() => {}}
             accessibilityRole="button"
             accessibilityLabel={t('common.cancel')}
             testID="action-sheet-cancel"
@@ -258,17 +258,17 @@ export const AvatarUploader: React.FC<AvatarUploaderProps> = ({
   );
 
   const renderUploadControls = () => {
-    if (!hasSelectedImage) return null;
+    if (!selectedImage) return null;
 
     return (
       <View style={styles.uploadControls}>
         <TouchableOpacity
-          style={[styles.uploadButton, !canUpload && styles.disabledButton]}
+          style={[styles.uploadButton, !selectedImage && styles.disabledButton]}
           onPress={handleUpload}
-          disabled={!canUpload}
+          disabled={!selectedImage}
           accessibilityRole="button"
           accessibilityLabel={t('avatar.upload.accessibility')}
-          accessibilityState={{ disabled: !canUpload }}
+          accessibilityState={{ disabled: !selectedImage }}
           testID="upload-confirm-button"
         >
           {isUploading ? (

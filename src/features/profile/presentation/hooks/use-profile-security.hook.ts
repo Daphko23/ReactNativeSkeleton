@@ -482,7 +482,7 @@ export const useProfileSecurityChampion = (props?: UseProfileSecurityChampionPro
       friends: 'account-group',
       private: 'lock'
     };
-    return iconMap[visibility] || 'help-circle';
+    return (iconMap as any)[visibility] || 'help-circle';
   }, []);
 
   const formatLastCheck = useCallback((): string => {
@@ -499,7 +499,7 @@ export const useProfileSecurityChampion = (props?: UseProfileSecurityChampionPro
 
   return {
     // 🏆 Core Security Data
-    security,
+    security: security || null,
     securityActions,
     securityScore,
     securityLevel,

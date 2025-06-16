@@ -55,12 +55,14 @@ class SimpleAuditLogService implements AuditLogService {
     const logId = `audit_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
     
     logger.info('Social links audit entry created', LogCategory.BUSINESS, {
-      auditLogId: logId,
       userId: entry.userId,
-      action: entry.action,
-      entityType: entry.entityType,
-      timestamp: entry.timestamp,
-      gdprCompliance: entry.gdprCompliance
+      metadata: {
+        auditLogId: logId,
+        action: entry.action,
+        entityType: entry.entityType,
+        timestamp: entry.timestamp,
+        gdprCompliance: entry.gdprCompliance
+      }
     });
     
     return logId;
@@ -69,9 +71,11 @@ class SimpleAuditLogService implements AuditLogService {
   async logError(entry: { userId: string; action: string; error: string; timestamp: Date }): Promise<void> {
     logger.error('Social links audit error', LogCategory.BUSINESS, {
       userId: entry.userId,
-      action: entry.action,
-      error: entry.error,
-      timestamp: entry.timestamp
+      metadata: {
+        action: entry.action,
+        error: entry.error,
+        timestamp: entry.timestamp
+      }
     });
   }
 }

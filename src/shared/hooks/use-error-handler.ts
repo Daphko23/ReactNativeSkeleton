@@ -163,8 +163,7 @@ export const useErrorHandler = (): UseErrorHandlerReturn => {
         
         logger.info('Error state fetched successfully (Champion)', LogCategory.BUSINESS, { 
           correlationId,
-          hasError: !!state.error,
-          isShowingError: state.isShowingError
+          metadata: { hasError: !!state.error, isShowingError: state.isShowingError }
         });
 
         return state;
@@ -223,8 +222,7 @@ export const useErrorHandler = (): UseErrorHandlerReturn => {
 
         logger.info('Error analytics calculated successfully (Champion)', LogCategory.BUSINESS, { 
           correlationId,
-          totalErrors: analytics.totalErrors,
-          mostFrequentError: analytics.mostFrequentError
+          metadata: { totalErrors: analytics.totalErrors, mostFrequentError: analytics.mostFrequentError }
         });
 
         return analytics;
@@ -277,10 +275,7 @@ export const useErrorHandler = (): UseErrorHandlerReturn => {
 
     logger.error('Error created (Champion)', LogCategory.BUSINESS, { 
       correlationId,
-      message: errorInfo.message,
-      context,
-      severity,
-      category
+      metadata: { message: errorInfo.message, context, severity, category }
     }, error instanceof Error ? error : new Error(error));
 
     return errorInfo;
@@ -368,7 +363,7 @@ export const useErrorHandler = (): UseErrorHandlerReturn => {
     
     logger.info('Starting async operation with error handling (Champion)', LogCategory.BUSINESS, { 
       correlationId,
-      context
+      metadata: { context }
     });
 
     // Store operation for retry
@@ -379,22 +374,21 @@ export const useErrorHandler = (): UseErrorHandlerReturn => {
       
       logger.info('Async operation completed successfully (Champion)', LogCategory.BUSINESS, { 
         correlationId,
-        context
+        metadata: { context }
       });
       
       return result;
     } catch (error) {
       logger.error('Async operation failed (Champion)', LogCategory.BUSINESS, { 
         correlationId,
-        context
+        metadata: { context }
       }, error as Error);
 
       // Handle retry logic
       if (recovery?.canRetry && recovery.autoRetryCount < recovery.maxRetries) {
         logger.info('Attempting auto-retry (Champion)', LogCategory.BUSINESS, { 
           correlationId,
-          retryCount: recovery.autoRetryCount + 1,
-          maxRetries: recovery.maxRetries
+          metadata: { retryCount: recovery.autoRetryCount + 1, maxRetries: recovery.maxRetries }
         });
 
         // Wait for retry delay
@@ -427,7 +421,7 @@ export const useErrorHandler = (): UseErrorHandlerReturn => {
     
     logger.info('Clearing error history (Champion)', LogCategory.BUSINESS, { 
       correlationId,
-      historySize: errorHistory.length
+      metadata: { historySize: errorHistory.length }
     });
 
     setErrorHistory([]);
@@ -445,7 +439,7 @@ export const useErrorHandler = (): UseErrorHandlerReturn => {
     
     logger.info('Retrying last operation (Champion)', LogCategory.BUSINESS, { 
       correlationId,
-      context: lastOperation.context
+      metadata: { context: lastOperation.context }
     });
 
     try {
@@ -453,7 +447,7 @@ export const useErrorHandler = (): UseErrorHandlerReturn => {
       
       logger.info('Retry operation completed successfully (Champion)', LogCategory.BUSINESS, { 
         correlationId,
-        context: lastOperation.context
+        metadata: { context: lastOperation.context }
       });
 
       // Clear error on successful retry
@@ -463,7 +457,7 @@ export const useErrorHandler = (): UseErrorHandlerReturn => {
     } catch (error) {
       logger.error('Retry operation failed (Champion)', LogCategory.BUSINESS, { 
         correlationId,
-        context: lastOperation.context
+        metadata: { context: lastOperation.context }
       }, error as Error);
 
       showError(error as Error, `retry-${lastOperation.context}`, 'high');
@@ -479,7 +473,7 @@ export const useErrorHandler = (): UseErrorHandlerReturn => {
     
     logger.info('Exporting error log (Champion)', LogCategory.BUSINESS, { 
       correlationId,
-      errorCount: errorHistory.length
+      metadata: { errorCount: errorHistory.length }
     });
 
     return [...errorHistory];
@@ -490,17 +484,21 @@ export const useErrorHandler = (): UseErrorHandlerReturn => {
     
     logger.error('Reporting critical error (Champion)', LogCategory.BUSINESS, { 
       correlationId,
-      errorMessage: error.message,
-      context: error.context,
-      severity: error.severity
+      metadata: { 
+        errorMessage: error.message,
+        context: error.context,
+        severity: error.severity
+      }
     });
 
     // In production, this would report to error monitoring service
     // For now, we just log it with high priority
     logger.error('Critical error reported to monitoring', LogCategory.BUSINESS, {
       correlationId,
-      error,
-      timestamp: new Date().toISOString(),
+      metadata: { 
+        error,
+        timestamp: new Date().toISOString()
+      }
     });
   }, []);
 

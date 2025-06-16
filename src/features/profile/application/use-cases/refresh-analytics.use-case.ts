@@ -256,10 +256,10 @@ export class RefreshAnalyticsUseCase {
         ]
       };
 
-      return { isSuccess: true, value: analytics };
+      return Result.success(analytics);
     } catch (error) {
       this.logger.error('Failed to get refresh analytics', LogCategory.BUSINESS, { userId }, error as Error);
-      return { isSuccess: false, error: (error as Error).message };
+      return Result.error((error as Error).message);
     }
   }
 
@@ -313,10 +313,10 @@ export class RefreshAnalyticsUseCase {
         ]
       };
 
-      return { isSuccess: true, value: insights };
+      return Result.success(insights);
     } catch (error) {
       this.logger.error('Failed to generate behavior insights', LogCategory.BUSINESS, { userId }, error as Error);
-      return { isSuccess: false, error: (error as Error).message };
+      return Result.error((error as Error).message);
     }
   }
 
@@ -343,10 +343,10 @@ export class RefreshAnalyticsUseCase {
         roi: 485.3
       };
 
-      return { isSuccess: true, value: impact };
+      return Result.success(impact);
     } catch (error) {
       this.logger.error('Failed to calculate business impact', LogCategory.BUSINESS, {}, error as Error);
-      return { isSuccess: false, error: (error as Error).message };
+      return Result.error((error as Error).message);
     }
   }
 
@@ -362,7 +362,7 @@ export class RefreshAnalyticsUseCase {
       // Check if sufficient data is available
       const dataAvailable = await this.checkDataAvailability(userId);
       if (!dataAvailable) {
-        return { isSuccess: false, error: 'Insufficient data for predictive analysis' };
+        return Result.error('Insufficient data for predictive analysis');
       }
 
       // Generate insights using advanced algorithms
@@ -370,7 +370,7 @@ export class RefreshAnalyticsUseCase {
       return insights;
     } catch (error) {
       this.logger.error('Failed to get predictive insights', LogCategory.BUSINESS, { userId }, error as Error);
-      return { isSuccess: false, error: (error as Error).message };
+      return Result.error((error as Error).message);
     }
   }
 

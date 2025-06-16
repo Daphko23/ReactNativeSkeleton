@@ -66,6 +66,30 @@ export interface NetworkMetrics {
   diversityScore: number;
 }
 
+// Type aliases for backward compatibility
+export type UseProfessionalNetworkDataProps = UseProfessionalNetworkProps;
+export type UseProfessionalNetworkDataReturn = UseProfessionalNetworkReturn;
+
+// Additional types for index.ts exports
+export interface NetworkInsights {
+  networkHealth: number; // 0-100
+  growthTrend: 'growing' | 'stable' | 'declining';
+  diversityScore: number;
+  engagementLevel: 'low' | 'medium' | 'high';
+  recommendations: string[];
+  opportunities: string[];
+}
+
+export interface NetworkingStrategy {
+  id: string;
+  title: string;
+  goals: string[];
+  tactics: string[];
+  timeframe: number; // months
+  expectedOutcome: string;
+  status: 'active' | 'completed' | 'paused';
+}
+
 export interface UseProfessionalNetworkProps {
   userId: string;
   enableAnalytics?: boolean;
@@ -83,6 +107,10 @@ export interface UseProfessionalNetworkReturn {
   recentConnections: Connection[];
   strongConnections: Connection[];
   connectionsByType: Record<Connection['connectionType'], Connection[]>;
+  
+  // Additional computed values for compatibility
+  networkInsights: NetworkInsights;
+  networkingStrategy: NetworkingStrategy | null;
   
   // Connection Management Actions
   addConnection: (connection: Omit<Connection, 'id' | 'connectedAt'>) => Promise<void>;
@@ -420,6 +448,53 @@ export const useProfessionalNetworkData = ({
     );
   }, [connections]);
 
+  // Additional computed values for compatibility
+  const networkInsights = useMemo((): NetworkInsights => {
+    const networkHealth = Math.min(100, (networkMetrics.activeConnections / Math.max(1, networkMetrics.totalConnections)) * 100);
+    const growthTrend = networkMetrics.recentConnections > 2 ? 'growing' : networkMetrics.recentConnections > 0 ? 'stable' : 'declining';
+    const engagementLevel = networkMetrics.strongConnections > 5 ? 'high' : networkMetrics.strongConnections > 2 ? 'medium' : 'low';
+    
+    const recommendations = [];
+    if (networkMetrics.totalConnections < 10) recommendations.push('Expand your professional network');
+    if (networkMetrics.strongConnections < 3) recommendations.push('Strengthen existing relationships');
+    if (networkMetrics.diversityScore < 30) recommendations.push('Connect with professionals from different industries');
+    
+    const opportunities = [];
+    if (networkMetrics.recentConnections > 0) opportunities.push('Follow up with recent connections');
+    if (strongConnections.length > 0) opportunities.push('Ask for introductions from strong connections');
+    
+    return {
+      networkHealth: Math.round(networkHealth),
+      growthTrend,
+      diversityScore: networkMetrics.diversityScore,
+      engagementLevel,
+      recommendations,
+      opportunities
+    };
+  }, [networkMetrics, strongConnections.length]);
+
+  const networkingStrategy = useMemo((): NetworkingStrategy | null => {
+    if (connections.length === 0) return null;
+    
+    return {
+      id: `strategy_${userId}`,
+      title: 'Professional Network Growth Strategy',
+      goals: [
+        'Expand network by 20% this quarter',
+        'Strengthen top 5 connections',
+        'Increase industry diversity'
+      ],
+      tactics: [
+        'Attend industry events',
+        'Engage on professional platforms',
+        'Schedule regular check-ins'
+      ],
+      timeframe: 3, // 3 months
+      expectedOutcome: 'Stronger professional network with diverse connections',
+      status: 'active'
+    };
+  }, [connections.length, userId]);
+
   // =============================================================================
   // 🎯 RETURN CHAMPION INTERFACE
   // =============================================================================
@@ -442,6 +517,10 @@ export const useProfessionalNetworkData = ({
     updateConnection,
     removeConnection,
     recordInteraction,
+    
+    // Additional computed values for compatibility
+    networkInsights,
+    networkingStrategy,
     
     // Mobile Performance
     refresh,

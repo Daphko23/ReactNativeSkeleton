@@ -1,7 +1,5 @@
 /**
  * ValidateProfileScreenSecurityUseCase - Enterprise Security Validation
- * 🚀 ENTERPRISE: Security Validation, Permission Management, Audit Logging
- * ✅ APPLICATION LAYER: Business Logic für Profile Screen Security
  */
 
 import { Result } from '../../../../../core/types/result.type';
@@ -9,15 +7,11 @@ import { LoggerFactory } from '@core/logging/logger.factory';
 import { LogCategory } from '@core/logging/logger.service.interface';
 import {
   ProfileScreenConfiguration,
-  ProfileSecurityLevel,
-  ProfileScreenFeatureFlag
+  ProfileSecurityLevel
 } from '../../../domain/entities/profile-screen-config.entity';
 
 const logger = LoggerFactory.createServiceLogger('ValidateProfileScreenSecurityUseCase');
 
-/**
- * @interface SecurityValidationRequest - Input for security validation
- */
 export interface SecurityValidationRequest {
   userId: string;
   organizationId: string;
@@ -39,22 +33,16 @@ export interface SecurityValidationRequest {
   };
 }
 
-/**
- * @interface SecurityValidationResponse - Result of security validation
- */
 export interface SecurityValidationResponse {
   allowed: boolean;
   securityLevel: ProfileSecurityLevel;
   reasons: string[];
-  requiredActions?: string[];
+  requiredActions: string[];
   auditEntryId: string;
-  riskScore: number; // 0-100
+  riskScore: number;
   recommendations: string[];
 }
 
-/**
- * @interface PermissionCheckRequest - Input for permission checking
- */
 export interface PermissionCheckRequest {
   userId: string;
   organizationId: string;
@@ -62,9 +50,6 @@ export interface PermissionCheckRequest {
   context?: Record<string, any>;
 }
 
-/**
- * @interface PermissionCheckResponse - Result of permission check
- */
 export interface PermissionCheckResponse {
   grantedPermissions: string[];
   deniedPermissions: string[];
@@ -72,9 +57,6 @@ export interface PermissionCheckResponse {
   effectiveLevel: ProfileSecurityLevel;
 }
 
-/**
- * @interface AuditLogRequest - Input for audit logging
- */
 export interface AuditLogRequest {
   userId: string;
   action: string;
@@ -84,18 +66,6 @@ export interface AuditLogRequest {
   riskFactors?: string[];
 }
 
-/**
- * @class ValidateProfileScreenSecurityUseCase
- * Enterprise Use Case for Profile Screen Security Validation
- * 
- * Handles:
- * - Action authorization and validation
- * - Permission management and checking
- * - Security level assessment
- * - Risk scoring and threat detection
- * - Comprehensive audit logging
- * - Compliance validation
- */
 export class ValidateProfileScreenSecurityUseCase {
   private auditLog: Map<string, any> = new Map();
   private securityCache: Map<string, any> = new Map();
@@ -104,44 +74,31 @@ export class ValidateProfileScreenSecurityUseCase {
     logger.info('ValidateProfileScreenSecurityUseCase initialized', LogCategory.BUSINESS);
   }
 
-  /**
-   * Validates security for profile screen actions
-   */
   async validateSecurity(
     request: SecurityValidationRequest
   ): Promise<Result<SecurityValidationResponse, string>> {
     try {
       logger.info('Validating profile screen security', LogCategory.BUSINESS, {
         userId: request.userId,
-        action: request.action,
-        securityLevel: request.sessionInfo.authLevel
+        metadata: {
+          action: request.action,
+          securityLevel: request.sessionInfo.authLevel
+        }
       });
 
-      // Check cache for recent validation
-      const cacheKey = this.generateSecurityCacheKey(request);
-      const cachedResult = this.securityCache.get(cacheKey);
-      if (cachedResult && this.isCacheValid(cachedResult)) {
-        logger.info('Using cached security validation', LogCategory.BUSINESS, { userId: request.userId });
-        return Result.success(cachedResult.response);
-      }
-
-      // Perform comprehensive security validation
       const authorizationResult = await this.checkAuthorization(request);
       const riskScore = await this.calculateRiskScore(request);
       const complianceCheck = await this.validateCompliance(request);
       
-      // Determine if action is allowed
       const allowed = authorizationResult.allowed && 
                      riskScore < 80 && 
                      complianceCheck.compliant;
 
-      // Generate recommendations
       const recommendations = this.generateSecurityRecommendations(
         authorizationResult, riskScore, complianceCheck
       );
 
-      // Create audit entry
-      const auditEntryId = await this.createAuditEntry({
+      const auditEntryResult = await this.createAuditEntry({
         userId: request.userId,
         action: request.action,
         result: allowed ? 'success' : 'blocked',
@@ -154,55 +111,37 @@ export class ValidateProfileScreenSecurityUseCase {
         securityLevel: request.sessionInfo.authLevel,
         riskFactors: this.identifyRiskFactors(request, riskScore)
       });
+      
+      const auditEntryId: string = auditEntryResult.success ? (auditEntryResult.data || 'audit_failed') : 'audit_failed';
 
       const response: SecurityValidationResponse = {
         allowed,
         securityLevel: request.sessionInfo.authLevel,
         reasons: allowed ? ['Authorization successful'] : authorizationResult.reasons,
-        requiredActions: allowed ? undefined : this.getRequiredActions(authorizationResult, riskScore),
+        requiredActions: allowed ? [] : this.getRequiredActions(authorizationResult, riskScore),
         auditEntryId,
         riskScore,
         recommendations
       };
 
-      // Cache the result
-      this.cacheSecurityResult(cacheKey, response);
-
-      logger.info('Security validation completed', LogCategory.BUSINESS, {
-        userId: request.userId,
-        allowed,
-        riskScore,
-        auditEntryId
-      });
-
       return Result.success(response);
     } catch (error) {
       logger.error('Failed to validate security', LogCategory.BUSINESS, 
         { userId: request.userId }, error as Error);
-      return Result.failure(`Security validation failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      return Result.error(`Security validation failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
   }
 
-  /**
-   * Checks user permissions for specific actions
-   */
   async checkPermissions(
     request: PermissionCheckRequest
   ): Promise<Result<PermissionCheckResponse, string>> {
     try {
-      logger.info('Checking profile permissions', LogCategory.BUSINESS, {
-        userId: request.userId,
-        permissions: request.permissions.length
-      });
-
-      // Get user's configuration and permissions
       const config = await this.getUserConfiguration(request.userId, request.organizationId);
       
       const grantedPermissions: string[] = [];
       const deniedPermissions: string[] = [];
       const conditionalPermissions: { permission: string; condition: string }[] = [];
 
-      // Check each permission
       for (const permission of request.permissions) {
         const permissionResult = this.evaluatePermission(permission, config, request.context);
         
@@ -225,23 +164,12 @@ export class ValidateProfileScreenSecurityUseCase {
         effectiveLevel: config.securitySettings.requiredSecurityLevel
       };
 
-      logger.info('Permission check completed', LogCategory.BUSINESS, {
-        userId: request.userId,
-        granted: grantedPermissions.length,
-        denied: deniedPermissions.length
-      });
-
       return Result.success(response);
     } catch (error) {
-      logger.error('Failed to check permissions', LogCategory.BUSINESS, 
-        { userId: request.userId }, error as Error);
-      return Result.failure(`Permission check failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      return Result.error(`Permission check failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
   }
 
-  /**
-   * Creates comprehensive audit log entry
-   */
   async createAuditEntry(request: AuditLogRequest): Promise<Result<string, string>> {
     try {
       const auditEntryId = `audit_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
@@ -261,25 +189,14 @@ export class ValidateProfileScreenSecurityUseCase {
         }
       };
 
-      // Store audit entry
       this.auditLog.set(auditEntryId, auditEntry);
-
-      logger.info('Audit entry created', LogCategory.BUSINESS, {
-        auditEntryId,
-        userId: request.userId,
-        action: request.action,
-        result: request.result
-      });
 
       return Result.success(auditEntryId);
     } catch (error) {
-      logger.error('Failed to create audit entry', LogCategory.BUSINESS, 
-        { userId: request.userId }, error as Error);
-      return Result.failure(`Audit entry creation failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      return Result.error(`Audit entry creation failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
   }
 
-  // Private helper methods
   private async checkAuthorization(request: SecurityValidationRequest): Promise<{
     allowed: boolean;
     reasons: string[];
@@ -288,28 +205,24 @@ export class ValidateProfileScreenSecurityUseCase {
     const reasons: string[] = [];
     let allowed = true;
 
-    // Check session validity
     const sessionAge = Date.now() - request.sessionInfo.startTime.getTime();
-    const maxSessionAge = 8 * 60 * 60 * 1000; // 8 hours
+    const maxSessionAge = 8 * 60 * 60 * 1000;
     
     if (sessionAge > maxSessionAge) {
       allowed = false;
       reasons.push('Session expired - re-authentication required');
     }
 
-    // Check activity timeout
     const inactivityTime = Date.now() - request.sessionInfo.lastActivity.getTime();
-    const maxInactivity = 30 * 60 * 1000; // 30 minutes
+    const maxInactivity = 30 * 60 * 1000;
     
     if (inactivityTime > maxInactivity) {
       allowed = false;
       reasons.push('Session inactive for too long');
     }
 
-    // Check action-specific requirements
     const actionRequirements = this.getActionSecurityRequirements(request.action);
     if (request.sessionInfo.authLevel !== actionRequirements.requiredLevel) {
-      // For now, allow but note the requirement
       reasons.push(`Action requires ${actionRequirements.requiredLevel} level`);
     }
 
@@ -323,18 +236,14 @@ export class ValidateProfileScreenSecurityUseCase {
   private async calculateRiskScore(request: SecurityValidationRequest): Promise<number> {
     let riskScore = 0;
 
-    // Device risk factors
     if (request.deviceInfo.platform === 'unknown') riskScore += 20;
-    if (!request.deviceInfo.appVersion.startsWith('1.')) riskScore += 10; // Old version
+    if (!request.deviceInfo.appVersion.startsWith('1.')) riskScore += 10;
 
-    // Session risk factors
     const sessionAge = Date.now() - request.sessionInfo.startTime.getTime();
-    if (sessionAge > 4 * 60 * 60 * 1000) riskScore += 15; // > 4 hours
+    if (sessionAge > 4 * 60 * 60 * 1000) riskScore += 15;
 
-    // IP address risk (mock implementation)
-    if (request.deviceInfo.ipAddress.startsWith('10.')) riskScore += 5; // Internal network
+    if (request.deviceInfo.ipAddress.startsWith('10.')) riskScore += 5;
 
-    // Action risk
     const actionRisk = this.getActionRiskScore(request.action);
     riskScore += actionRisk;
 
@@ -347,12 +256,10 @@ export class ValidateProfileScreenSecurityUseCase {
   }> {
     const violations: string[] = [];
 
-    // GDPR compliance check
     if (request.action.includes('export') && !request.metadata?.gdprConsent) {
       violations.push('GDPR consent required for data export');
     }
 
-    // Data retention compliance
     if (request.action.includes('delete') && !request.metadata?.retentionPolicy) {
       violations.push('Data retention policy validation required');
     }
@@ -410,10 +317,9 @@ export class ValidateProfileScreenSecurityUseCase {
   }
 
   private async getUserConfiguration(userId: string, organizationId: string): Promise<ProfileScreenConfiguration> {
-    // Mock configuration - would integrate with actual configuration service
     return new ProfileScreenConfiguration({
       userId,
-      organizationId,
+      organizationId: organizationId || 'default',
       version: '1.0.0'
     });
   }
@@ -423,7 +329,6 @@ export class ValidateProfileScreenSecurityUseCase {
     conditional?: boolean;
     condition?: string;
   } {
-    // Map permissions to configuration checks
     const permissionMap: Record<string, keyof typeof config.permissions> = {
       'edit_profile': 'canEdit',
       'share_profile': 'canShare',
@@ -439,7 +344,6 @@ export class ValidateProfileScreenSecurityUseCase {
       return { granted: true };
     }
 
-    // Check for conditional permissions
     if (permission === 'export_profile' && context?.gdprConsent) {
       return { granted: true, conditional: true, condition: 'GDPR consent provided' };
     }
@@ -477,32 +381,8 @@ export class ValidateProfileScreenSecurityUseCase {
 
     return riskScores[action] || 5;
   }
-
-  private generateSecurityCacheKey(request: SecurityValidationRequest): string {
-    return `security_${request.userId}_${request.action}_${request.sessionInfo.authLevel}`;
-  }
-
-  private isCacheValid(cachedResult: any): boolean {
-    const cacheAge = Date.now() - cachedResult.timestamp;
-    const maxCacheAge = 5 * 60 * 1000; // 5 minutes
-    return cacheAge < maxCacheAge;
-  }
-
-  private cacheSecurityResult(cacheKey: string, response: SecurityValidationResponse): void {
-    this.securityCache.set(cacheKey, {
-      response,
-      timestamp: Date.now()
-    });
-
-    // Cleanup old cache entries
-    if (this.securityCache.size > 100) {
-      const oldestKey = this.securityCache.keys().next().value;
-      this.securityCache.delete(oldestKey);
-    }
-  }
 }
 
-// Factory function
 export const createValidateProfileScreenSecurityUseCase = (): ValidateProfileScreenSecurityUseCase => {
   return new ValidateProfileScreenSecurityUseCase();
-}; 
+};

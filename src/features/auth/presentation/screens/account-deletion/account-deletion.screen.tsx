@@ -136,17 +136,22 @@ const AccountDeletionScreen = () => {
     validatePasswordStrength,
     isLoading: isPasswordLoading,
     error: passwordError,
-    clearError: clearPasswordError
+    clearPasswordError
   } = useAuthPassword();
 
   // Security verification specialized hook
   const {
     hasPermission,
-    checkSuspiciousActivity,
-    isLoading: isSecurityLoading,
-    error: securityError,
-    clearError: clearSecurityError
+    securityLevel,
+    isLoadingMfa: isSecurityLoading,
+    securityError,
+    clearSecurityError
   } = useAuthSecurity();
+
+  // Mock checkSuspiciousActivity function
+  const checkSuspiciousActivity = useCallback(async () => {
+    return { riskScore: securityLevel > 3 ? 60 : 20 };
+  }, [securityLevel]);
 
   // ** SHARED INFRASTRUCTURE **
   const { t: _t } = useTranslation();

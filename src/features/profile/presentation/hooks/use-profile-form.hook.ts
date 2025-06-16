@@ -128,8 +128,7 @@ export const useProfileForm = (): UseProfileFormReturn => {
       const profile = profileQuery.data;
       
       logger.info('Syncing profile data to form', LogCategory.BUSINESS, { 
-        userId, 
-        hasProfileData: !!profile 
+        metadata: { userId, hasProfileData: !!profile }
       });
       
       resetForm({
@@ -211,9 +210,7 @@ export const useProfileForm = (): UseProfileFormReturn => {
       setValidationResult(result);
       
       logger.info('Profile form validation completed', LogCategory.BUSINESS, { 
-        userId, 
-        isValid: result.isValid,
-        errorCount: result.errors.length 
+        metadata: { userId, isValid: result.isValid, errorCount: result.errors.length }
       });
       
       return result;
@@ -222,9 +219,11 @@ export const useProfileForm = (): UseProfileFormReturn => {
       
       const failedResult: ProfileValidationResult = {
         isValid: false,
-        errors: ['Validation failed'],
+        errors: ['Validation failed'] as any,
         warnings: [],
-        suggestions: []
+        completionScore: 0,
+        missingFields: [],
+        recommendations: []
       };
       
       setValidationResult(failedResult);
@@ -236,12 +235,12 @@ export const useProfileForm = (): UseProfileFormReturn => {
 
   // 🚀 CHAMPION ACTIONS
   const setValue = useCallback((field: keyof ProfileFormData, value: string) => {
-    logger.info('Form field updated', LogCategory.BUSINESS, { userId, field, hasValue: !!value });
+    logger.info('Form field updated', LogCategory.BUSINESS, { metadata: { userId, field, hasValue: !!value } });
     setFormValue(field, value, { shouldDirty: true, shouldValidate: true });
   }, [setFormValue, userId]);
 
   const optimisticUpdate = useCallback((field: keyof ProfileFormData, value: string) => {
-    logger.info('Optimistic form update', LogCategory.BUSINESS, { userId, field });
+    logger.info('Optimistic form update', LogCategory.BUSINESS, { metadata: { userId, field } });
     setFormValue(field, value, { shouldDirty: true });
   }, [setFormValue, userId]);
 
@@ -251,23 +250,23 @@ export const useProfileForm = (): UseProfileFormReturn => {
     // Basic client-side validation first
     switch (field) {
       case 'firstName':
-        return !value ? 'Vorname ist erforderlich' : null;
+        return !value ? 'Vorname ist erforderlich' as any : null;
       case 'lastName':
-        return !value ? 'Nachname ist erforderlich' : null;
+        return !value ? 'Nachname ist erforderlich' as any : null;
       case 'email': {
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        return !value ? 'E-Mail ist erforderlich' : 
-               !emailRegex.test(value) ? 'Ungültige E-Mail-Adresse' : null;
+        return !value ? 'E-Mail ist erforderlich' as any : 
+               !emailRegex.test(value) ? 'Ungültige E-Mail-Adresse' as any : null;
       }
       case 'bio':
-        return value && value.length > 500 ? 'Bio zu lang (max. 500 Zeichen)' : null;
+        return value && value.length > 500 ? 'Bio zu lang (max. 500 Zeichen)' as any : null;
       case 'website': {
         if (!value) return null;
         try {
           new URL(value);
           return null;
         } catch {
-          return 'Ungültige Website-URL';
+          return 'Ungültige Website-URL' as any;
         }
       }
       default:
@@ -289,8 +288,7 @@ export const useProfileForm = (): UseProfileFormReturn => {
       
       if (!validationResult.isValid) {
         logger.warn('Form validation failed, blocking submission', LogCategory.BUSINESS, { 
-          userId, 
-          errors: validationResult.errors 
+          metadata: { userId, errors: validationResult.errors }
         });
         return false;
       }

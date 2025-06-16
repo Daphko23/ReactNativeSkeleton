@@ -87,7 +87,8 @@ export class AvatarService implements IAvatarService {
     // Repository über Dependency Injection Container
     this.avatarRepository = avatarDIContainer.getAvatarRepository();
     logger.info('Avatar Service initialized with Repository Pattern', LogCategory.BUSINESS, {
-      repositoryType: 'DI Container Injected'
+      userId: 'system',
+      metadata: { repositoryType: 'DI Container Injected' }
     });
   }
 
@@ -125,10 +126,12 @@ export class AvatarService implements IAvatarService {
       const correlationId = `upload_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
       
       logger.info('Starting avatar upload via Repository', LogCategory.BUSINESS, {
-        correlationId,
         userId: options.userId,
-        fileSize: options.file?.size,
-        fileName: options.file?.fileName
+        metadata: {
+          correlationId: `avatar_${Date.now()}`,
+          metadata: { fileSize: options.file?.size },
+          fileName: options.file?.fileName
+        }
       });
 
       // Service Layer Business Logic: Validate options
@@ -164,25 +167,30 @@ export class AvatarService implements IAvatarService {
       // Service Layer: Add service-specific logging and context
       if (result.success) {
         logger.info('Avatar upload completed successfully', LogCategory.BUSINESS, {
-          correlationId,
           userId: options.userId,
-          avatarUrl: result.avatarUrl,
-          fileSize: options.file?.size
+          metadata: {
+            correlationId: 'avatar-upload',
+            avatarUrl: result.avatarUrl,
+            fileSize: options.file?.size
+          }
         });
       } else {
         logger.error('Avatar upload failed', LogCategory.BUSINESS, {
-          correlationId,
           userId: options.userId,
-          error: result.error
+          metadata: {
+            correlationId: 'avatar-delete',
+            error: result.error
+          }
         });
       }
 
       return result;
 
     } catch (error) {
+      const correlationId = `upload_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
       logger.error('Avatar upload exception occurred', LogCategory.BUSINESS, {
-        correlationId,
-        userId: options.userId
+        userId: options.userId,
+        correlationId: `avatar_${Date.now()}`
       }, error as Error);
       return {
         success: false,
@@ -214,8 +222,8 @@ export class AvatarService implements IAvatarService {
       const correlationId = `delete_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
       
       logger.info('Starting avatar deletion via Repository', LogCategory.BUSINESS, {
-        correlationId,
-        userId
+        userId,
+        metadata: { correlationId: 'avatar-delete' }
       });
 
       // Service Layer Business Logic: Validate user ID
@@ -232,14 +240,16 @@ export class AvatarService implements IAvatarService {
       // Service Layer: Add service-specific logging
       if (result.success) {
         logger.info('Avatar deletion completed successfully', LogCategory.BUSINESS, {
-          correlationId,
-          userId
+          userId,
+          metadata: { correlationId: 'avatar-delete-success' }
         });
       } else {
         logger.error('Avatar deletion failed', LogCategory.BUSINESS, {
-          correlationId,
           userId,
-          error: result.error
+          metadata: {
+            correlationId: 'health-check',
+            error: result.error
+          }
         });
       }
 
@@ -247,8 +257,8 @@ export class AvatarService implements IAvatarService {
 
     } catch (error) {
       logger.error('Avatar deletion exception occurred', LogCategory.BUSINESS, {
-        correlationId,
-        userId
+        userId,
+        metadata: { correlationId: 'avatar-delete-error' }
       }, error as Error);
       return {
         success: false,
@@ -278,7 +288,7 @@ export class AvatarService implements IAvatarService {
       const correlationId = `getUrl_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
       
       logger.info('Getting avatar URL via Repository', LogCategory.BUSINESS, {
-        correlationId,
+        correlationId: 'avatar-error',
         userId
       });
 
@@ -296,23 +306,23 @@ export class AvatarService implements IAvatarService {
       // Service Layer: Implement fallback logic for default avatars
       if (avatarUrl) {
         logger.info('Found custom avatar for user', LogCategory.BUSINESS, {
-          correlationId,
+          correlationId: 'avatar-delete-error',
           userId,
-          hasCustomAvatar: true
+          metadata: { hasCustomAvatar: true }
         });
         return avatarUrl;
       } else {
         logger.info('No custom avatar found, returning default', LogCategory.BUSINESS, {
-          correlationId,
+          correlationId: 'health-error',
           userId,
-          hasCustomAvatar: false
+          metadata: { hasCustomAvatar: false }
         });
         return this.getDefaultAvatarUrl();
       }
 
     } catch (error) {
       logger.error('Error getting avatar URL', LogCategory.BUSINESS, {
-        correlationId,
+        correlationId: 'health-check-success',
         userId
       }, error as Error);
       return this.getDefaultAvatarUrl();
@@ -358,16 +368,20 @@ export class AvatarService implements IAvatarService {
       // Service Layer: Log validation results
       if (validation.valid) {
         logger.info('Avatar validation passed', LogCategory.BUSINESS, {
-          fileName: repositoryFile.fileName,
-          fileSize: repositoryFile.size,
+          metadata: { 
+            fileName: repositoryFile.fileName,
+            fileSize: repositoryFile.size,
           mimeType: repositoryFile.mime
+        }
         });
       } else {
         logger.warn('Avatar validation failed', LogCategory.BUSINESS, {
-          fileName: repositoryFile.fileName,
-          fileSize: repositoryFile.size,
-          mimeType: repositoryFile.mime,
-          errors: validation.errors
+          metadata: { 
+            fileName: repositoryFile.fileName,
+            fileSize: repositoryFile.size,
+            mimeType: repositoryFile.mime,
+            errors: validation.errors
+          }
         });
       }
 
@@ -398,7 +412,7 @@ export class AvatarService implements IAvatarService {
     // Service Layer: Default Avatar Logic (UI/UX specific)
     const defaultAvatarUrl = 'https://ui-avatars.com/api/?name=User&background=6366f1&color=ffffff&size=200';
     logger.info('Using default avatar URL', LogCategory.BUSINESS, {
-      defaultUrl: defaultAvatarUrl
+      metadata: { defaultUrl: defaultAvatarUrl }
     });
     return defaultAvatarUrl;
   }
@@ -432,16 +446,20 @@ export class AvatarService implements IAvatarService {
       const initialsUrl = `https://ui-avatars.com/api/?name=${encodedName}&background=6366f1&color=ffffff&size=${size}&font-size=0.33`;
       
       logger.info('Generated initials avatar', LogCategory.BUSINESS, {
-        userName: cleanName,
-        avatarSize: size,
-        initialsUrl
+        metadata: { 
+          userName: cleanName,
+          avatarSize: size,
+          initialsUrl
+        }
       });
       return initialsUrl;
 
     } catch (error) {
       logger.error('Error generating initials avatar', LogCategory.BUSINESS, {
-        userName: name,
-        avatarSize: size
+        metadata: { 
+          userName: name,
+          avatarSize: size
+        }
       }, error as Error);
       return this.getDefaultAvatarUrl();
     }
@@ -470,8 +488,10 @@ export class AvatarService implements IAvatarService {
    */
   validateAvatarFile(file: { name: string; size: number; type: string; uri: string }): { valid: boolean; errors: string[] } {
     logger.warn('validateAvatarFile() method is deprecated', LogCategory.BUSINESS, {
-      deprecatedMethod: 'validateAvatarFile',
-      recommendedMethod: 'Repository.validateFile'
+      metadata: { 
+        deprecatedMethod: 'validateAvatarFile',
+        recommendedMethod: 'Repository.validateFile'
+      }
     });
     
     // Delegate to Repository for validation
@@ -521,13 +541,13 @@ export class AvatarService implements IAvatarService {
 
       if (healthResult.healthy) {
         logger.info('Storage health check passed', LogCategory.BUSINESS, {
-          correlationId,
-          healthy: true
+          correlationId: 'health-check-failed',
+          metadata: { healthy: true }
         });
       } else {
         logger.warn('Storage health check failed', LogCategory.BUSINESS, {
-          correlationId,
-          healthy: false
+          correlationId: 'health-check-failed',
+          metadata: { healthy: false }
         });
       }
 
@@ -535,7 +555,7 @@ export class AvatarService implements IAvatarService {
 
     } catch (error) {
       logger.error('Storage health check exception occurred', LogCategory.BUSINESS, {
-        correlationId
+        correlationId: 'health-check-error'
       }, error as Error);
       return {
         healthy: false,

@@ -110,12 +110,12 @@ export class TrackCareerProgressionUseCase {
   /**
    * Executes comprehensive career progression tracking
    */
-  async execute(input: TrackProgressionInput): Promise<Result<TrackProgressionOutput, Error>> {
+  async execute(input: TrackProgressionInput): Promise<Result<TrackProgressionOutput, string>> {
     try {
       // Validate input
       const validationResult = this.validateInput(input);
       if (!validationResult.success) {
-        return Result.failure(new Error(validationResult.error));
+        return Result.error<TrackProgressionOutput>(validationResult.error || 'Validation failed');
       }
 
       // Create or load career progression
@@ -180,7 +180,7 @@ export class TrackCareerProgressionUseCase {
       return Result.success(output);
 
     } catch (error) {
-      return Result.failure(new Error(`Career progression tracking failed: ${error instanceof Error ? error.message : 'Unknown error'}`));
+      return Result.error<TrackProgressionOutput>(`Career progression tracking failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
   }
 
@@ -203,7 +203,7 @@ export class TrackCareerProgressionUseCase {
       onTrack: boolean;
       riskFactors: string[];
     };
-  }, Error>> {
+  }, string>> {
     try {
       // This would integrate with stored career progression data
       const careerProgression = new CareerProgression(input.userId);
@@ -216,7 +216,17 @@ export class TrackCareerProgressionUseCase {
       );
 
       if (!updated) {
-        return Result.failure(new Error('Goal not found or update failed'));
+        return Result.error<{
+          goalUpdated: boolean;
+          newInsights: CareerInsight[];
+          recommendedActions: string[];
+          progressSummary: {
+            currentProgress: number;
+            timeRemaining: number;
+            onTrack: boolean;
+            riskFactors: string[];
+          };
+        }>('Goal not found or update failed');
       }
 
       // Generate new insights based on progress
@@ -246,7 +256,17 @@ export class TrackCareerProgressionUseCase {
       });
 
     } catch (error) {
-      return Result.failure(new Error(`Goal progress update failed: ${error instanceof Error ? error.message : 'Unknown error'}`));
+      return Result.error<{
+        goalUpdated: boolean;
+        newInsights: CareerInsight[];
+        recommendedActions: string[];
+        progressSummary: {
+          currentProgress: number;
+          timeRemaining: number;
+          onTrack: boolean;
+          riskFactors: string[];
+        };
+      }>(`Goal progress update failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
   }
 
@@ -266,7 +286,7 @@ export class TrackCareerProgressionUseCase {
       role: number;
     };
     optimizationSuggestions: string[];
-  }, Error>> {
+  }, string>> {
     try {
       const careerProgression = new CareerProgression(input.userId);
       
@@ -298,7 +318,17 @@ export class TrackCareerProgressionUseCase {
       });
 
     } catch (error) {
-      return Result.failure(new Error(`Career velocity analysis failed: ${error instanceof Error ? error.message : 'Unknown error'}`));
+      return Result.error<{
+        velocityScore: number;
+        trendDirection: 'accelerating' | 'steady' | 'declining';
+        keyFactors: string[];
+        benchmarkComparison: {
+          industry: number;
+          experience: number;
+          role: number;
+        };
+        optimizationSuggestions: string[];
+      }>(`Career velocity analysis failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
   }
 
@@ -559,7 +589,7 @@ export class TrackCareerProgressionUseCase {
           source: 'Progress Analysis',
           generatedDate: new Date(),
           relatedGoals: [goalId],
-          impact: { careerAdvancement: 20 }
+          impact: { advancement: 20 }
         });
       }
     }

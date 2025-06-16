@@ -219,10 +219,8 @@ export const formatDate = (dateString: string): string => {
     // Return formatted German date
     return `${day}.${month}.${year}`;
   } catch (error) {
-    logger.error('Date formatting error', LogCategory.BUSINESS, {
-      service: 'DateUtils',
-      function: 'formatDate',
-      inputDate: dateString
+    logger.error('Date formatting failed', LogCategory.BUSINESS, { 
+      metadata: { function: 'formatDate', dateString, format: 'German' }
     }, error as Error);
     return '';
   }
@@ -402,10 +400,8 @@ export const formatDateWithTime = (dateString: string): string => {
     // Return formatted German date with time
     return `${day}.${month}.${year}, ${hours}:${minutes}`;
   } catch (error) {
-    logger.error('Date with time formatting error', LogCategory.BUSINESS, {
-      service: 'DateUtils',
-      function: 'formatDateWithTime',
-      inputDate: dateString
+    logger.error('Date with time formatting failed', LogCategory.BUSINESS, { 
+      metadata: { function: 'formatDateWithTime', dateString, format: 'German' }
     }, error as Error);
     return '';
   }
@@ -869,8 +865,10 @@ export const parseGermanDate = (formattedDate: string): string | null => {
 
     // Return as ISO string
     return date.toISOString();
-  } catch {
-    // Return null for any parsing errors
+  } catch (error) {
+    logger.error('Date parsing failed', LogCategory.BUSINESS, { 
+      metadata: { function: 'parseGermanDate', dateString: formattedDate, format: 'dd.mm.yyyy' }
+    }, error as Error);
     return null;
   }
 };

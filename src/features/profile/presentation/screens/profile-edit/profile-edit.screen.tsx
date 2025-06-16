@@ -104,7 +104,7 @@ export default function ProfileEditScreen() {
   const isLoading = profileForm.isLoading || customFieldsManager.isLoading || socialLinksEdit.isLoading;
   const isSubmitting = profileForm.isSubmitting || socialLinksEdit.isSaving;
   const hasChanges = profileForm.isDirty || customFieldsManager.hasChanges || socialLinksEdit.hasChanges;
-  const isValid = profileForm.isValid && !socialLinksEdit.hasValidationErrors;
+  const isValid = profileForm.isValid && socialLinksEdit.isValid;
   const error = profileForm.error || customFieldsManager.error || socialLinksEdit.error;
 
   // 🚀 ENTERPRISE SAVE HANDLER - Pure Hook Delegation

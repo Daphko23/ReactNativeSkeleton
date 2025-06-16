@@ -10,7 +10,7 @@
  * ✅ Clean Interface: Essential flow operations
  */
 
-import { useCallback, useState, useMemo } from 'react';
+import { default as _React, useCallback, useState, useMemo as _useMemo } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useAuth } from './use-auth.hook';
 import { LoggerFactory } from '@core/logging/logger.factory';
@@ -158,7 +158,9 @@ export const useAuthFlow = (): UseAuthFlowReturn => {
         };
         
         logger.info('Auth flow capabilities fetched successfully (Champion)', LogCategory.BUSINESS, { 
-          capabilities: JSON.stringify(capabilities)
+          metadata: {
+            capabilities: JSON.stringify(capabilities)
+          }
         });
         
         return capabilities;
@@ -183,8 +185,10 @@ export const useAuthFlow = (): UseAuthFlowReturn => {
       const correlationId = `login_flow_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
       
       logger.info('Starting login flow (Champion)', LogCategory.BUSINESS, { 
-        email: credentials.email,
-        correlationId
+        correlationId,
+        metadata: {
+          email: credentials.email
+        }
       });
 
       setIsExecutingFlow(true);
@@ -198,20 +202,26 @@ export const useAuthFlow = (): UseAuthFlowReturn => {
         if (result.metadata?.mfaEnabled) {
           setCurrentState(AuthFlowState.MFA);
           logger.info('Login flow requires MFA (Champion)', LogCategory.BUSINESS, { 
-            userId: result.id,
-            correlationId
+            correlationId,
+            metadata: {
+              userId: result.id
+            }
           });
         } else if (result.metadata?.biometricEnabled && capabilitiesQuery.data?.canUseBiometric) {
           setCurrentState(AuthFlowState.BIOMETRIC);
           logger.info('Login flow requires biometric (Champion)', LogCategory.BUSINESS, { 
-            userId: result.id,
-            correlationId
+            correlationId,
+            metadata: {
+              userId: result.id
+            }
           });
         } else {
           setCurrentState(AuthFlowState.SUCCESS);
           logger.info('Login flow completed successfully (Champion)', LogCategory.BUSINESS, { 
-            userId: result.id,
-            correlationId
+            correlationId,
+            metadata: {
+              userId: result.id
+            }
           });
         }
       } catch (error) {
@@ -220,8 +230,10 @@ export const useAuthFlow = (): UseAuthFlowReturn => {
         setCurrentState(AuthFlowState.ERROR);
         
         logger.error('Login flow failed (Champion)', LogCategory.BUSINESS, { 
-          email: credentials.email,
-          correlationId
+          correlationId,
+          metadata: {
+            email: credentials.email
+          }
         }, error as Error);
         
         throw error;
@@ -237,8 +249,10 @@ export const useAuthFlow = (): UseAuthFlowReturn => {
       const correlationId = `register_flow_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
       
       logger.info('Starting register flow (Champion)', LogCategory.BUSINESS, { 
-        email: data.email,
-        correlationId
+        correlationId,
+        metadata: {
+          email: data.email
+        }
       });
 
       setIsExecutingFlow(true);
@@ -250,8 +264,10 @@ export const useAuthFlow = (): UseAuthFlowReturn => {
         setCurrentState(AuthFlowState.SUCCESS);
         
         logger.info('Register flow completed successfully (Champion)', LogCategory.BUSINESS, { 
-          email: data.email,
-          correlationId
+          correlationId,
+          metadata: {
+            email: data.email
+          }
         });
       } catch (error) {
         const errorMessage = error instanceof Error ? error.message : 'Register flow failed';
@@ -259,8 +275,10 @@ export const useAuthFlow = (): UseAuthFlowReturn => {
         setCurrentState(AuthFlowState.ERROR);
         
         logger.error('Register flow failed (Champion)', LogCategory.BUSINESS, { 
-          email: data.email,
-          correlationId
+          correlationId,
+          metadata: {
+            email: data.email
+          }
         }, error as Error);
         
         throw error;
@@ -270,9 +288,9 @@ export const useAuthFlow = (): UseAuthFlowReturn => {
     },
   });
 
-  // 🏆 CHAMPION MUTATION: Verify MFA
+  // �� CHAMPION MUTATION: Verify MFA
   const verifyMfaMutation = useMutation({
-    mutationFn: async (code: string): Promise<void> => {
+    mutationFn: async (_code: string): Promise<void> => {
       const correlationId = `mfa_verify_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
       
       logger.info('Starting MFA verification (Champion)', LogCategory.SECURITY, { correlationId });

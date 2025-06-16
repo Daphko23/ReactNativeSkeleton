@@ -187,7 +187,7 @@ describe('useProfile Hook - Enterprise Tests', () => {
       getCurrentUser: jest.fn(),
       clearError: jest.fn(),
       resetAuth: jest.fn()
-    });
+    } as any);
 
     // Default Query Mocks
     mockUseProfileQuery.mockReturnValue({
@@ -372,7 +372,7 @@ describe('useProfile Hook - Enterprise Tests', () => {
         getCurrentUser: jest.fn(),
         clearError: jest.fn(),
         resetAuth: jest.fn()
-      });
+      } as any);
 
       const wrapper = createTestWrapper();
       const { result } = renderHook(() => useProfile(), { wrapper });
@@ -696,7 +696,7 @@ describe('useProfile Hook - Enterprise Tests', () => {
         getCurrentUser: jest.fn(),
         clearError: jest.fn(),
         resetAuth: jest.fn()
-      });
+      } as any);
 
       const wrapper = createTestWrapper();
       const { result } = renderHook(() => useProfile(), { wrapper });
@@ -760,7 +760,7 @@ describe('useProfile Hook - Enterprise Tests', () => {
         getCurrentUser: jest.fn(),
         clearError: jest.fn(),
         resetAuth: jest.fn()
-      });
+      } as any);
 
       rerender({});
 

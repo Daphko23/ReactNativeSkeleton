@@ -183,8 +183,8 @@ export class ManageSecurityEnterpriseUseCase {
 
       // Validate request
       const validationResult = this.validateRequest(request);
-      if (!validationResult.isSuccess) {
-        return ResultFactory.failure(new Error(validationResult.error || 'Invalid request'));
+      if (!validationResult.success) {
+        return Result.error(validationResult.error || 'Invalid request');
       }
 
       // Execute action based on type
@@ -219,7 +219,7 @@ export class ManageSecurityEnterpriseUseCase {
           response = await this.generateSecurityReport(request);
           break;
         default:
-          return ResultFactory.failure(new Error(`Unsupported action: ${request.action}`));
+          return Result.error(`Unsupported action: ${request.action}`);
       }
 
       // Add operation metadata
@@ -241,7 +241,7 @@ export class ManageSecurityEnterpriseUseCase {
         }
       });
 
-      return ResultFactory.success(response);
+      return Result.success(response);
 
     } catch (error) {
       this.logger.error('Security management operation failed', LogCategory.BUSINESS, {
@@ -249,7 +249,7 @@ export class ManageSecurityEnterpriseUseCase {
         metadata: { action: request.action }
       }, error as Error);
 
-      return ResultFactory.failure(error as Error);
+      return Result.error((error as Error).message);
     }
   }
 
@@ -263,14 +263,20 @@ export class ManageSecurityEnterpriseUseCase {
   private async getSecurityProfile(request: ManageSecurityRequest): Promise<ManageSecurityResponse> {
     const profileResult = await this.securityRepository.getSecurityProfile(request.userId);
     
-    if (!profileResult.isSuccess) {
+    if (!profileResult.success) {
       return {
         success: false,
         error: profileResult.error || 'Failed to get security profile'
       };
     }
 
-    const profile = profileResult.value;
+    const profile = profileResult.data;
+    if (!profile) {
+      return {
+        success: false,
+        error: 'Profile data not available'
+      };
+    }
     const response: ManageSecurityResponse = {
       success: true,
       data: { securityProfile: profile }
@@ -279,36 +285,36 @@ export class ManageSecurityEnterpriseUseCase {
     // Add optional data based on options
     if (request.options?.includeAssessment) {
       const assessmentResult = await this.securityRepository.getSecurityAssessment(request.userId);
-      if (assessmentResult.isSuccess) {
-        response.data!.securityAssessment = assessmentResult.value;
+      if (assessmentResult.success) {
+        response.data!.securityAssessment = assessmentResult.data;
       }
     }
 
     if (request.options?.includeActions) {
       const actionsResult = await this.securityRepository.getSecurityActions(request.userId);
-      if (actionsResult.isSuccess) {
-        response.data!.securityActions = actionsResult.value;
+      if (actionsResult.success) {
+        response.data!.securityActions = actionsResult.data;
       }
     }
 
     if (request.options?.includeDevices) {
       const devicesResult = await this.securityRepository.getUserDevices(request.userId);
-      if (devicesResult.isSuccess) {
-        response.data!.devices = devicesResult.value;
+      if (devicesResult.success) {
+        response.data!.devices = devicesResult.data;
       }
     }
 
     if (request.options?.includeSessions) {
       const sessionsResult = await this.securityRepository.getActiveSessions(request.userId);
-      if (sessionsResult.isSuccess) {
-        response.data!.sessions = sessionsResult.value;
+      if (sessionsResult.success) {
+        response.data!.sessions = sessionsResult.data;
       }
     }
 
     if (request.options?.includeMFA) {
       const mfaResult = await this.securityRepository.getMFAMethods(request.userId);
-      if (mfaResult.isSuccess) {
-        response.data!.mfaMethods = mfaResult.value;
+      if (mfaResult.success) {
+        response.data!.mfaMethods = mfaResult.data;
       }
     }
 
@@ -329,7 +335,7 @@ export class ManageSecurityEnterpriseUseCase {
 
     const updateResult = await this.securityRepository.updateSecurityProfile(request.userId, updates);
     
-    if (!updateResult.isSuccess) {
+    if (!updateResult.success) {
       return {
         success: false,
         error: updateResult.error || 'Failed to update security settings'
@@ -339,7 +345,7 @@ export class ManageSecurityEnterpriseUseCase {
     // Log security change
     await this.securityRepository.trackSecurityEvent(
       request.userId,
-      'SECURITY_SETTINGS_UPDATED',
+      'SECURITY_PROFILE_UPDATED' as any,
       { updates, context: request.context }
     );
 
@@ -349,8 +355,8 @@ export class ManageSecurityEnterpriseUseCase {
     return {
       success: true,
       data: {
-        securityProfile: updateResult.value,
-        securityAssessment: assessmentResult.isSuccess ? assessmentResult.value : undefined
+        securityProfile: updateResult.data,
+        securityAssessment: assessmentResult.success ? assessmentResult.data : undefined
       }
     };
   }
@@ -361,14 +367,14 @@ export class ManageSecurityEnterpriseUseCase {
   private async performSecurityAssessment(request: ManageSecurityRequest): Promise<ManageSecurityResponse> {
     const assessmentResult = await this.securityRepository.recalculateSecurityAssessment(request.userId);
     
-    if (!assessmentResult.isSuccess) {
+    if (!assessmentResult.success) {
       return {
         success: false,
         error: assessmentResult.error || 'Failed to perform security assessment'
       };
     }
 
-    const assessment = assessmentResult.value;
+    const assessment = assessmentResult.data;
 
     // Get updated security actions based on assessment
     const actionsResult = await this.securityRepository.getSecurityActions(request.userId);
@@ -377,8 +383,8 @@ export class ManageSecurityEnterpriseUseCase {
     let threatsDetected = 0;
     if (request.options?.enableThreatDetection) {
       const threatsResult = await this.securityRepository.detectSecurityThreats(request.userId);
-      if (threatsResult.isSuccess) {
-        threatsDetected = threatsResult.value.length;
+      if (threatsResult.success) {
+        threatsDetected = threatsResult.data?.length || 0;
       }
     }
 
@@ -386,14 +392,14 @@ export class ManageSecurityEnterpriseUseCase {
       success: true,
       data: {
         securityAssessment: assessment,
-        securityActions: actionsResult.isSuccess ? actionsResult.value : []
+        securityActions: actionsResult.success ? actionsResult.data : []
       },
       metadata: {
         operationTime: 0, // Will be set by main execute method
         cacheUsed: false,
-        securityLevel: assessment.level,
+        securityLevel: assessment?.level || 'MINIMAL',
         threatsDetected,
-        recommendations: assessment.recommendations.map(r => r.title)
+        recommendations: assessment?.recommendations?.map((r: any) => r.title) || []
       }
     };
   }
@@ -418,7 +424,7 @@ export class ManageSecurityEnterpriseUseCase {
       actionParams
     );
 
-    if (!executeResult.isSuccess) {
+    if (!executeResult.success) {
       return {
         success: false,
         error: executeResult.error || 'Failed to execute security action'
@@ -441,8 +447,8 @@ export class ManageSecurityEnterpriseUseCase {
     return {
       success: true,
       data: {
-        securityActions: actionsResult.isSuccess ? actionsResult.value : [],
-        securityAssessment: assessmentResult.isSuccess ? assessmentResult.value : undefined
+        securityActions: actionsResult.success ? actionsResult.data : [],
+        securityAssessment: assessmentResult.success ? assessmentResult.data : undefined
       }
     };
   }
@@ -458,9 +464,9 @@ export class ManageSecurityEnterpriseUseCase {
       case 'LIST':
         const devicesResult = await this.securityRepository.getUserDevices(request.userId);
         return {
-          success: devicesResult.isSuccess,
-          data: devicesResult.isSuccess ? { devices: devicesResult.value } : undefined,
-          error: devicesResult.isSuccess ? undefined : devicesResult.error
+          success: devicesResult.success,
+          data: devicesResult.success ? { devices: devicesResult.data } : undefined,
+          error: devicesResult.success ? undefined : devicesResult.error
         };
 
       case 'TRUST':
@@ -469,8 +475,8 @@ export class ManageSecurityEnterpriseUseCase {
         }
         const trustResult = await this.securityRepository.trustDevice(request.userId, deviceId);
         return {
-          success: trustResult.isSuccess,
-          error: trustResult.isSuccess ? undefined : trustResult.error
+          success: trustResult.success,
+          error: trustResult.success ? undefined : trustResult.error
         };
 
       case 'REVOKE':
@@ -479,8 +485,8 @@ export class ManageSecurityEnterpriseUseCase {
         }
         const revokeResult = await this.securityRepository.revokeDeviceTrust(request.userId, deviceId);
         return {
-          success: revokeResult.isSuccess,
-          error: revokeResult.isSuccess ? undefined : revokeResult.error
+          success: revokeResult.success,
+          error: revokeResult.success ? undefined : revokeResult.error
         };
 
       case 'REMOVE':
@@ -489,8 +495,8 @@ export class ManageSecurityEnterpriseUseCase {
         }
         const removeResult = await this.securityRepository.removeDevice(request.userId, deviceId);
         return {
-          success: removeResult.isSuccess,
-          error: removeResult.isSuccess ? undefined : removeResult.error
+          success: removeResult.success,
+          error: removeResult.success ? undefined : removeResult.error
         };
 
       default:
@@ -509,9 +515,9 @@ export class ManageSecurityEnterpriseUseCase {
       case 'LIST':
         const sessionsResult = await this.securityRepository.getActiveSessions(request.userId);
         return {
-          success: sessionsResult.isSuccess,
-          data: sessionsResult.isSuccess ? { sessions: sessionsResult.value } : undefined,
-          error: sessionsResult.isSuccess ? undefined : sessionsResult.error
+          success: sessionsResult.success,
+          data: sessionsResult.success ? { sessions: sessionsResult.data } : undefined,
+          error: sessionsResult.success ? undefined : sessionsResult.error
         };
 
       case 'TERMINATE':
@@ -520,8 +526,8 @@ export class ManageSecurityEnterpriseUseCase {
         }
         const terminateResult = await this.securityRepository.terminateSession(request.userId, sessionId);
         return {
-          success: terminateResult.isSuccess,
-          error: terminateResult.isSuccess ? undefined : terminateResult.error
+          success: terminateResult.success,
+          error: terminateResult.success ? undefined : terminateResult.error
         };
 
       case 'TERMINATE_ALL':
@@ -530,8 +536,8 @@ export class ManageSecurityEnterpriseUseCase {
           request.parameters?.exceptCurrent as boolean
         );
         return {
-          success: terminateAllResult.isSuccess,
-          error: terminateAllResult.isSuccess ? undefined : terminateAllResult.error
+          success: terminateAllResult.success,
+          error: terminateAllResult.success ? undefined : terminateAllResult.error
         };
 
       default:
@@ -549,9 +555,9 @@ export class ManageSecurityEnterpriseUseCase {
       case 'LIST':
         const mfaResult = await this.securityRepository.getMFAMethods(request.userId);
         return {
-          success: mfaResult.isSuccess,
-          data: mfaResult.isSuccess ? { mfaMethods: mfaResult.value } : undefined,
-          error: mfaResult.isSuccess ? undefined : mfaResult.error
+          success: mfaResult.success,
+          data: mfaResult.success ? { mfaMethods: mfaResult.data } : undefined,
+          error: mfaResult.success ? undefined : mfaResult.error
         };
 
       case 'ADD':
@@ -561,9 +567,9 @@ export class ManageSecurityEnterpriseUseCase {
         }
         const addResult = await this.securityRepository.addMFAMethod(request.userId, method);
         return {
-          success: addResult.isSuccess,
-          data: addResult.isSuccess ? { mfaMethods: [addResult.value] } : undefined,
-          error: addResult.isSuccess ? undefined : addResult.error
+          success: addResult.success,
+          data: addResult.success ? { mfaMethods: addResult.data ? [addResult.data] : [] } : undefined,
+          error: addResult.success ? undefined : addResult.error
         };
 
       case 'REMOVE':
@@ -573,8 +579,8 @@ export class ManageSecurityEnterpriseUseCase {
         }
         const removeResult = await this.securityRepository.removeMFAMethod(request.userId, methodId);
         return {
-          success: removeResult.isSuccess,
-          error: removeResult.isSuccess ? undefined : removeResult.error
+          success: removeResult.success,
+          error: removeResult.success ? undefined : removeResult.error
         };
 
       case 'VERIFY':
@@ -585,8 +591,8 @@ export class ManageSecurityEnterpriseUseCase {
         }
         const verifyResult = await this.securityRepository.verifyMFAMethod(request.userId, verifyMethodId, code);
         return {
-          success: verifyResult.isSuccess && verifyResult.value,
-          error: verifyResult.isSuccess && verifyResult.value ? undefined : 'Verification failed'
+          success: !!(verifyResult.success && verifyResult.data),
+          error: verifyResult.success && verifyResult.data ? undefined : 'Verification failed'
         };
 
       default:
@@ -600,14 +606,20 @@ export class ManageSecurityEnterpriseUseCase {
   private async reviewPrivacySettings(request: ManageSecurityRequest): Promise<ManageSecurityResponse> {
     const profileResult = await this.securityRepository.getSecurityProfile(request.userId);
     
-    if (!profileResult.isSuccess) {
+    if (!profileResult.success) {
       return {
         success: false,
         error: profileResult.error || 'Failed to get privacy settings'
       };
     }
 
-    const profile = profileResult.value;
+    const profile = profileResult.data;
+    if (!profile) {
+      return {
+        success: false,
+        error: 'Profile data not available'
+      };
+    }
     const privacySettings = profile.privacy;
 
     // If updating privacy settings
@@ -617,7 +629,7 @@ export class ManageSecurityEnterpriseUseCase {
         privacy: { ...privacySettings, ...updates }
       });
 
-      if (!updateResult.isSuccess) {
+      if (!updateResult.success) {
         return {
           success: false,
           error: updateResult.error || 'Failed to update privacy settings'
@@ -633,7 +645,7 @@ export class ManageSecurityEnterpriseUseCase {
 
       return {
         success: true,
-        data: { securityProfile: updateResult.value }
+        data: { securityProfile: updateResult.data }
       };
     }
 
@@ -656,18 +668,18 @@ export class ManageSecurityEnterpriseUseCase {
       this.securityRepository.getActiveSessions(request.userId)
     ]);
 
-    if (!profileResult.isSuccess || !assessmentResult.isSuccess) {
+    if (!profileResult.success || !assessmentResult.success) {
       return {
         success: false,
         error: 'Failed to generate security report: missing data'
       };
     }
 
-    const profile = profileResult.value;
-    const assessment = assessmentResult.value;
-    const actions = actionsResult.isSuccess ? actionsResult.value : [];
-    const devices = devicesResult.isSuccess ? devicesResult.value : [];
-    const sessions = sessionsResult.isSuccess ? sessionsResult.value : [];
+    const profile = profileResult.data!;
+    const assessment = assessmentResult.data!;
+    const actions = actionsResult.success ? actionsResult.data || [] : [];
+    const devices = devicesResult.success ? devicesResult.data || [] : [];
+    const sessions = sessionsResult.success ? sessionsResult.data || [] : [];
 
     // Build comprehensive report
     const report: SecurityReport = {
@@ -725,28 +737,33 @@ export class ManageSecurityEnterpriseUseCase {
 
     // Validate action-specific parameters
     switch (request.action) {
-      case 'EXECUTE_SECURITY_ACTION':
+      case 'EXECUTE_SECURITY_ACTION': {
         if (!request.parameters?.actionId) {
           return ResultFactory.failure(new Error('Action ID is required for EXECUTE_SECURITY_ACTION'));
         }
+        break;
+      }
 
-      case 'MANAGE_DEVICES':
+      case 'MANAGE_DEVICES': {
         if (!request.parameters?.deviceAction) {
           return ResultFactory.failure(new Error('Device action is required for MANAGE_DEVICES'));
         }
         break;
+      }
 
-      case 'MANAGE_SESSIONS':
+      case 'MANAGE_SESSIONS': {
         if (!request.parameters?.sessionAction) {
           return ResultFactory.failure(new Error('Session action is required for MANAGE_SESSIONS'));
         }
         break;
+      }
 
-      case 'MANAGE_MFA':
+      case 'MANAGE_MFA': {
         if (!request.parameters?.mfaAction) {
           return ResultFactory.failure(new Error('MFA action is required for MANAGE_MFA'));
         }
         break;
+      }
     }
 
     return ResultFactory.success(undefined);

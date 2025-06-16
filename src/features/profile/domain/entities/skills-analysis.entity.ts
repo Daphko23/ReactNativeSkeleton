@@ -156,6 +156,25 @@ export interface LearningPlan {
 }
 
 /**
+ * @interface SkillsGapAnalysis - Alias for SkillsAnalysis (backward compatibility)
+ */
+export type SkillsGapAnalysis = SkillsAnalysis;
+
+/**
+ * @interface SkillsPortfolioAssessment - Portfolio assessment interface
+ */
+export interface SkillsPortfolioAssessment {
+  readonly portfolioStrength: number;
+  readonly marketAlignment: number;
+  readonly diversityScore: number;
+  readonly futureProofing: number;
+  readonly competitiveAdvantage: string[];
+  readonly improvementAreas: string[];
+  readonly totalSkills: number;
+  readonly skillsByCategory: Record<SkillCategory, number>;
+}
+
+/**
  * @class SkillsAnalysis - Enterprise Skills Analysis & Intelligence
  */
 export class SkillsAnalysis {

@@ -237,14 +237,14 @@ export class RefreshHealthMonitoringUseCase {
         }
       };
 
-      return { isSuccess: true, value: health };
+      return Result.success(health);
 
     } catch (error) {
       this.logger.error('Failed to check service health', LogCategory.INFRASTRUCTURE, {
         service: 'ProfileRefreshHealth',
         metadata: { serviceName }
       }, error as Error);
-      return { isSuccess: false, error: (error as Error).message };
+      return Result.error((error as Error).message);
     }
   }
 
@@ -290,13 +290,13 @@ export class RefreshHealthMonitoringUseCase {
         }
       ];
 
-      return { isSuccess: true, value: incidents };
+      return Result.success(incidents);
 
     } catch (error) {
       this.logger.error('Failed to get health incidents', LogCategory.INFRASTRUCTURE, {
         service: 'ProfileRefreshHealth'
       }, error as Error);
-      return { isSuccess: false, error: (error as Error).message };
+      return Result.error((error as Error).message);
     }
   }
 
@@ -356,7 +356,7 @@ export class RefreshHealthMonitoringUseCase {
         }
       ];
 
-      return { isSuccess: true, value: trends };
+      return Result.success(trends);
 
     } catch (error) {
       this.logger.error('Failed to get performance trends', LogCategory.PERFORMANCE, {
@@ -365,7 +365,7 @@ export class RefreshHealthMonitoringUseCase {
           timeframe: `${timeframe.startDate.toISOString()} - ${timeframe.endDate.toISOString()}`
         }
       }, error as Error);
-      return { isSuccess: false, error: (error as Error).message };
+      return Result.error((error as Error).message);
     }
   }
 
@@ -392,14 +392,14 @@ export class RefreshHealthMonitoringUseCase {
       // Simulate alert processing
       await this.processAlert(serviceName, alertType, severity);
 
-      return { isSuccess: true, value: undefined };
+      return Result.success(undefined);
 
     } catch (error) {
       this.logger.error('Failed to trigger health alert', LogCategory.INFRASTRUCTURE, {
         service: 'ProfileRefreshHealth',
         metadata: { serviceName, alertType, severity }
       }, error as Error);
-      return { isSuccess: false, error: (error as Error).message };
+      return Result.error((error as Error).message);
     }
   }
 

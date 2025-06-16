@@ -184,20 +184,19 @@ export const useDialogChampion = (): UseDialogReturn => {
     queryFn: async (): Promise<DialogState> => {
       const correlationId = `dialog_state_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
       
-      logger.info('Fetching dialog state (Champion)', LogCategory.UI, { correlationId });
+      logger.info('Fetching dialog state (Champion)', LogCategory.BUSINESS, { correlationId });
 
       try {
         const state = { ...localDialogState };
         
-        logger.info('Dialog state fetched successfully (Champion)', LogCategory.UI, { 
+        logger.info('Dialog state fetched successfully (Champion)', LogCategory.BUSINESS, { 
           correlationId,
-          visible: state.visible,
-          type: state.type
+          metadata: { visible: state.visible, type: state.type }
         });
 
         return state;
       } catch (error) {
-        logger.error('Dialog state fetch failed (Champion)', LogCategory.UI, { 
+        logger.error('Dialog state fetch failed (Champion)', LogCategory.BUSINESS, { 
           correlationId 
         }, error as Error);
         
@@ -214,20 +213,19 @@ export const useDialogChampion = (): UseDialogReturn => {
     queryFn: async (): Promise<DialogAnalytics> => {
       const correlationId = `dialog_analytics_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
       
-      logger.info('Calculating dialog analytics (Champion)', LogCategory.UI, { correlationId });
+      logger.info('Calculating dialog analytics (Champion)', LogCategory.BUSINESS, { correlationId });
 
       try {
         const analytics = { ...analyticsData };
         
-        logger.info('Dialog analytics calculated successfully (Champion)', LogCategory.UI, { 
+        logger.info('Dialog analytics calculated successfully (Champion)', LogCategory.BUSINESS, { 
           correlationId,
-          totalDialogs: analytics.totalDialogs,
-          confirmedDialogs: analytics.confirmedDialogs
+          metadata: { totalDialogs: analytics.totalDialogs, confirmedDialogs: analytics.confirmedDialogs }
         });
 
         return analytics;
       } catch (error) {
-        logger.error('Dialog analytics calculation failed (Champion)', LogCategory.UI, { 
+        logger.error('Dialog analytics calculation failed (Champion)', LogCategory.BUSINESS, { 
           correlationId 
         }, error as Error);
         
@@ -256,11 +254,13 @@ export const useDialogChampion = (): UseDialogReturn => {
   const trackDialogAction = useCallback((action: 'shown' | 'confirmed' | 'dismissed', dialogType: DialogType) => {
     const correlationId = `dialog_action_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
     
-    logger.info('Dialog action tracked (Champion)', LogCategory.UI, { 
+    logger.info('Dialog action tracked (Champion)', LogCategory.BUSINESS, { 
       correlationId,
-      action,
-      dialogType,
-      timestamp: new Date().toISOString()
+      metadata: { 
+        action,
+        dialogType,
+        timestamp: new Date().toISOString()
+      }
     });
 
     setAnalyticsData(prev => ({
@@ -292,12 +292,14 @@ export const useDialogChampion = (): UseDialogReturn => {
   ) => {
     const correlationId = `dialog_create_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
     
-    logger.info('Creating dialog (Champion)', LogCategory.UI, { 
+    logger.info('Creating dialog (Champion)', LogCategory.BUSINESS, { 
       correlationId,
-      type,
-      title,
-      category: options.category || 'user',
-      priority: options.priority || 'medium'
+      metadata: { 
+        type,
+        title,
+        category: options.category || 'user',
+        priority: options.priority || 'medium'
+      }
     });
 
     const newDialogState: DialogState = {
@@ -430,9 +432,9 @@ export const useDialogChampion = (): UseDialogReturn => {
   const dismissDialog = useCallback(() => {
     const correlationId = `dialog_dismiss_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
     
-    logger.info('Dismissing dialog (Champion)', LogCategory.UI, { 
+    logger.info('Dismissing dialog (Champion)', LogCategory.BUSINESS, { 
       correlationId,
-      dialogType: dialogState.type
+      metadata: { dialogType: dialogState.type }
     });
 
     trackDialogAction('dismissed', dialogState.type);
@@ -460,7 +462,7 @@ export const useDialogChampion = (): UseDialogReturn => {
 
   // 🏆 MOBILE PERFORMANCE HELPERS
   const refreshDialogState = useCallback(async (): Promise<void> => {
-    logger.info('Refreshing dialog state (Champion)', LogCategory.UI);
+    logger.info('Refreshing dialog state (Champion)', LogCategory.BUSINESS);
     await Promise.all([
       dialogStateQuery.refetch(),
       analyticsQuery.refetch()
@@ -476,9 +478,9 @@ export const useDialogChampion = (): UseDialogReturn => {
   const clearQueue = useCallback(() => {
     const correlationId = `dialog_clear_queue_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
     
-    logger.info('Clearing dialog queue (Champion)', LogCategory.UI, { 
+    logger.info('Clearing dialog queue (Champion)', LogCategory.BUSINESS, { 
       correlationId,
-      queueSize: dialogQueue.length
+      metadata: { queueSize: dialogQueue.length }
     });
 
     setDialogQueue([]);

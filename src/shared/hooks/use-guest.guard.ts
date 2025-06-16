@@ -188,9 +188,7 @@ export const useGuestGuard = (config?: GuestGuardConfig): UseGuestGuardReturn =>
 
         logger.info('Guest guard status checked successfully (Champion)', LogCategory.BUSINESS, { 
           correlationId,
-          isGuest,
-          allowGuestAccess,
-          sessionId
+          metadata: { isGuest, allowGuestAccess, sessionId }
         });
 
         return status;
@@ -244,8 +242,7 @@ export const useGuestGuard = (config?: GuestGuardConfig): UseGuestGuardReturn =>
     
     logger.info('Checking guest access (Champion)', LogCategory.BUSINESS, { 
       correlationId,
-      feature,
-      isGuest
+      metadata: { feature, isGuest }
     });
 
     try {
@@ -264,7 +261,7 @@ export const useGuestGuard = (config?: GuestGuardConfig): UseGuestGuardReturn =>
       if (feature && status.capabilities.restrictedFeatures.includes(feature)) {
         logger.warn('Guest access denied - restricted feature (Champion)', LogCategory.BUSINESS, { 
           correlationId,
-          feature
+          metadata: { feature }
         });
         
         if (config?.onAuthRequired) {
@@ -276,14 +273,14 @@ export const useGuestGuard = (config?: GuestGuardConfig): UseGuestGuardReturn =>
 
       logger.info('Guest access granted (Champion)', LogCategory.BUSINESS, { 
         correlationId,
-        feature
+        metadata: { feature }
       });
 
       return true;
     } catch (error) {
       logger.error('Guest access check failed (Champion)', LogCategory.BUSINESS, { 
         correlationId,
-        feature
+        metadata: { feature }
       }, error as Error);
       return false;
     }
@@ -294,7 +291,7 @@ export const useGuestGuard = (config?: GuestGuardConfig): UseGuestGuardReturn =>
     
     logger.info('Auth required for guest (Champion)', LogCategory.BUSINESS, { 
       correlationId,
-      isGuest
+      metadata: { isGuest }
     });
 
     if (config?.onAuthRequired) {
@@ -315,7 +312,7 @@ export const useGuestGuard = (config?: GuestGuardConfig): UseGuestGuardReturn =>
       
       logger.info('Guest session created successfully (Champion)', LogCategory.BUSINESS, { 
         correlationId,
-        sessionId
+        metadata: { sessionId }
       });
 
       return sessionId;
@@ -367,9 +364,11 @@ export const useGuestGuard = (config?: GuestGuardConfig): UseGuestGuardReturn =>
     
     logger.info('Guest action tracked (Champion)', LogCategory.BUSINESS, { 
       correlationId,
-      action,
-      sessionId: status?.sessionId,
-      isGuest
+      metadata: { 
+        action,
+        sessionId: status?.sessionId,
+        isGuest
+      }
     });
   }, [status, isGuest]);
 
@@ -377,22 +376,26 @@ export const useGuestGuard = (config?: GuestGuardConfig): UseGuestGuardReturn =>
   useEffect(() => {
     logger.info('Auth state change detected', LogCategory.BUSINESS, {
       service: 'GuestGuard',
-      isAuthenticated,
-      isLoading: authLoading,
-      hasUser: !!user,
-      userEmail: user?.email ? '***@***.***' : null, // Masked for privacy
-      hasRedirected: hasRedirected.current
+      metadata: {
+        isAuthenticated,
+        isLoading: authLoading,
+        hasUser: !!user,
+        userEmail: user?.email ? '***@***.***' : undefined, // Masked for privacy
+        hasRedirected: hasRedirected.current
+      }
     });
   }, [isAuthenticated, authLoading, user]);
 
   useEffect(() => {
     logger.info('Navigation effect triggered', LogCategory.BUSINESS, {
       service: 'GuestGuard',
-      isAuthenticated,
-      isLoading: authLoading,
-      hasUser: !!user,
-      userEmail: user?.email ? '***@***.***' : null, // Masked for privacy
-      hasRedirected: hasRedirected.current
+      metadata: {
+        isAuthenticated,
+        isLoading: authLoading,
+        hasUser: !!user,
+        userEmail: user?.email ? '***@***.***' : undefined, // Masked for privacy
+        hasRedirected: hasRedirected.current
+      }
     });
     
     if (isAuthenticated && !authLoading && !hasRedirected.current) {
@@ -400,14 +403,14 @@ export const useGuestGuard = (config?: GuestGuardConfig): UseGuestGuardReturn =>
       
       logger.info('Redirecting authenticated user to main app', LogCategory.BUSINESS, {
         service: 'GuestGuard',
-        destination: 'Main -> HomeTab'
+        metadata: { destination: 'Main -> HomeTab' }
       });
       
       // Use setTimeout to ensure navigation stack is ready
       setTimeout(() => {
         logger.info('Executing navigation dispatch', LogCategory.BUSINESS, {
           service: 'GuestGuard',
-          action: 'CommonActions.reset'
+          metadata: { action: 'CommonActions.reset' }
         });
         
         try {
@@ -420,7 +423,7 @@ export const useGuestGuard = (config?: GuestGuardConfig): UseGuestGuardReturn =>
           
           logger.info('Navigation dispatch successful', LogCategory.BUSINESS, {
             service: 'GuestGuard',
-            result: 'success'
+            metadata: { result: 'success' }
           });
         } catch (error) {
           logger.error('Navigation dispatch failed', LogCategory.BUSINESS, {
@@ -434,7 +437,7 @@ export const useGuestGuard = (config?: GuestGuardConfig): UseGuestGuardReturn =>
     if (!isAuthenticated && !authLoading) {
       logger.info('Resetting redirect flag on logout', LogCategory.BUSINESS, {
         service: 'GuestGuard',
-        action: 'reset_flag'
+        metadata: { action: 'reset_flag' }
       });
       hasRedirected.current = false;
     }

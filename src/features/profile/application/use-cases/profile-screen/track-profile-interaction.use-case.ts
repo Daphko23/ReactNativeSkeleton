@@ -130,12 +130,14 @@ export class TrackProfileInteractionUseCase {
       logger.info('Starting profile interaction session', LogCategory.BUSINESS, {
         userId: request.userId,
         sessionId: request.sessionId,
-        entryPoint: request.entryPoint
+        metadata: {
+          entryPoint: request.entryPoint
+        }
       });
 
       // Validate request
       if (!request.userId || !request.sessionId) {
-        return Result.failure('Invalid session start request');
+        return Result.error('Invalid session start request');
       }
 
       // Create new interaction tracker
@@ -170,7 +172,7 @@ export class TrackProfileInteractionUseCase {
     } catch (error) {
       logger.error('Failed to start interaction session', LogCategory.BUSINESS, 
         { userId: request.userId }, error as Error);
-      return Result.failure(`Failed to start session: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      return Result.error(`Failed to start session: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
   }
 
@@ -181,14 +183,16 @@ export class TrackProfileInteractionUseCase {
     try {
       logger.info('Tracking profile interaction', LogCategory.BUSINESS, {
         userId: request.userId,
-        interactionType: request.interactionType,
-        elementId: request.elementId
+        metadata: {
+          interactionType: request.interactionType,
+          elementId: request.elementId
+        }
       });
 
       // Get active session
       const interaction = this.activeInteractions.get(request.sessionId);
       if (!interaction) {
-        return Result.failure('No active session found');
+        return Result.error('No active session found');
       }
 
       // Generate interaction ID
@@ -235,15 +239,17 @@ export class TrackProfileInteractionUseCase {
 
       logger.info('Profile interaction tracked', LogCategory.BUSINESS, {
         userId: request.userId,
-        interactionId,
-        engagementScore
+        metadata: {
+          interactionId,
+          engagementScore
+        }
       });
 
       return Result.success(response);
     } catch (error) {
       logger.error('Failed to track interaction', LogCategory.BUSINESS, 
         { userId: request.userId }, error as Error);
-      return Result.failure(`Failed to track interaction: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      return Result.error(`Failed to track interaction: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
   }
 
@@ -260,7 +266,7 @@ export class TrackProfileInteractionUseCase {
       // Get active session
       const interaction = this.activeInteractions.get(request.sessionId);
       if (!interaction) {
-        return Result.failure('No active session found');
+        return Result.error('No active session found');
       }
 
       // End the session
@@ -275,14 +281,16 @@ export class TrackProfileInteractionUseCase {
       logger.info('Profile interaction session ended', LogCategory.BUSINESS, {
         userId: request.userId,
         sessionId: request.sessionId,
-        totalInteractions: interaction.events.length
+        metadata: {
+          totalInteractions: interaction.events.length
+        }
       });
 
       return Result.success(analytics);
     } catch (error) {
       logger.error('Failed to end interaction session', LogCategory.BUSINESS, 
         { userId: request.userId }, error as Error);
-      return Result.failure(`Failed to end session: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      return Result.error(`Failed to end session: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
   }
 
@@ -293,7 +301,9 @@ export class TrackProfileInteractionUseCase {
     try {
       logger.info('Getting profile analytics', LogCategory.BUSINESS, {
         userId: request.userId,
-        timeRange: request.timeRange
+        metadata: {
+          timeRange: request.timeRange
+        }
       });
 
       // For now, return mock analytics (would integrate with analytics service)
@@ -327,7 +337,7 @@ export class TrackProfileInteractionUseCase {
     } catch (error) {
       logger.error('Failed to get analytics', LogCategory.BUSINESS, 
         { userId: request.userId }, error as Error);
-      return Result.failure(`Failed to get analytics: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      return Result.error(`Failed to get analytics: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
   }
 

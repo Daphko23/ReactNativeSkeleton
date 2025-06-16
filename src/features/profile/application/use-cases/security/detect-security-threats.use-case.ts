@@ -85,7 +85,7 @@ export class DetectSecurityThreatsUseCase {
 
       // Validate request
       if (!request.userId) {
-        return ResultFactory.failure(new Error('User ID is required'));
+        return Result.error('User ID is required');
       }
 
       // Detect threats from multiple sources
@@ -98,7 +98,7 @@ export class DetectSecurityThreatsUseCase {
 
       // Combine all threats
       const allThreats: SecurityThreat[] = [
-        ...(repositoryThreats.isSuccess ? repositoryThreats.value : []),
+        ...(repositoryThreats.success ? repositoryThreats.data || [] : []),
         ...behaviorThreats,
         ...deviceThreats,
         ...sessionThreats
@@ -140,14 +140,14 @@ export class DetectSecurityThreatsUseCase {
         }
       });
 
-      return ResultFactory.success(response);
+      return Result.success(response);
 
     } catch (error) {
       this.logger.error('Threat detection failed', LogCategory.SECURITY, {
         userId: request.userId
       }, error as Error);
 
-      return ResultFactory.failure(error as Error);
+      return Result.error((error as Error).message);
     }
   }
 
@@ -206,10 +206,10 @@ export class DetectSecurityThreatsUseCase {
 
     // Get user devices for comparison
     const devicesResult = await this.securityRepository.getUserDevices(request.userId);
-    if (!devicesResult.isSuccess) return threats;
+    if (!devicesResult.success) return threats;
 
-    const userDevices = devicesResult.value;
-    const currentDevice = userDevices.find(d => d.id === deviceInfo.deviceId);
+    const userDevices = devicesResult.data || [];
+    const currentDevice = userDevices.find((d: any) => d.id === deviceInfo.deviceId);
 
     // Unknown device
     if (!currentDevice) {
@@ -262,21 +262,23 @@ export class DetectSecurityThreatsUseCase {
       
       for (const threat of criticalThreats) {
         switch (threat.type) {
-          case 'SESSION_HIJACKING':
+          case 'SESSION_HIJACKING': {
             // Terminate suspicious session
             const sessionId = threat.metadata.sessionId as string;
             if (sessionId) {
               await this.securityRepository.terminateSession(userId, sessionId);
             }
             break;
+          }
             
-          case 'DEVICE_ANOMALY':
+          case 'DEVICE_ANOMALY': {
             // Revoke device trust if jailbroken
             const deviceId = threat.metadata.deviceId as string;
             if (deviceId && threat.metadata.jailbroken) {
               await this.securityRepository.revokeDeviceTrust(userId, deviceId);
             }
             break;
+          }
         }
       }
 

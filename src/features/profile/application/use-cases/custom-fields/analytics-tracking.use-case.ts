@@ -552,7 +552,7 @@ export class AnalyticsTrackingUseCase {
     const result = await this.repository.saveFieldUsageAnalytics(analytics);
     
     return {
-      success: result.isSuccess,
+      success: result.success,
       error: result.error,
       metadata: {} as any,
       privacy: {} as any
@@ -577,7 +577,7 @@ export class AnalyticsTrackingUseCase {
     };
     
     const analyticsResult = await this.repository.getAnalytics(analyticsRequest);
-    if (!analyticsResult.isSuccess || !analyticsResult.value) {
+    if (!analyticsResult.success || !analyticsResult.data) {
       return {
         success: false,
         error: analyticsResult.error || 'Failed to get analytics',
@@ -587,7 +587,7 @@ export class AnalyticsTrackingUseCase {
     }
     
     // 🎯 GENERATE BUSINESS INSIGHTS
-    const insights = await this.generateBusinessInsights(analyticsResult.value);
+    const insights = await this.generateBusinessInsights(analyticsResult.data);
     
     return {
       success: true,
@@ -617,7 +617,7 @@ export class AnalyticsTrackingUseCase {
     };
     
     const analyticsResult = await this.repository.getAnalytics(analyticsRequest);
-    if (!analyticsResult.isSuccess || !analyticsResult.value) {
+    if (!analyticsResult.success || !analyticsResult.data) {
       return {
         success: false,
         error: analyticsResult.error || 'Failed to get analytics',
@@ -627,7 +627,7 @@ export class AnalyticsTrackingUseCase {
     }
     
     // 🎯 GENERATE COMPREHENSIVE REPORT
-    const report = await this.generateAnalyticsReport(analyticsResult.value, request.reportConfig);
+    const report = await this.generateAnalyticsReport(analyticsResult.data, request.reportConfig);
     
     return {
       success: true,
@@ -656,7 +656,7 @@ export class AnalyticsTrackingUseCase {
     };
     
     const analyticsResult = await this.repository.getAnalytics(analyticsRequest);
-    if (!analyticsResult.isSuccess || !analyticsResult.value) {
+    if (!analyticsResult.success || !analyticsResult.data) {
       return {
         success: false,
         error: analyticsResult.error || 'Failed to get analytics',
@@ -666,7 +666,7 @@ export class AnalyticsTrackingUseCase {
     }
     
     // 🎯 GENERATE BEHAVIOR PREDICTIONS
-    const predictions = await this.generateBehaviorPredictions(analyticsResult.value);
+    const predictions = await this.generateBehaviorPredictions(analyticsResult.data);
     
     return {
       success: true,
@@ -692,7 +692,7 @@ export class AnalyticsTrackingUseCase {
     };
     
     const analyticsResult = await this.repository.getAnalytics(analyticsRequest);
-    if (!analyticsResult.isSuccess || !analyticsResult.value) {
+    if (!analyticsResult.success || !analyticsResult.data) {
       return {
         success: false,
         error: analyticsResult.error || 'Failed to get analytics',
@@ -702,7 +702,7 @@ export class AnalyticsTrackingUseCase {
     }
     
     // 🎯 CALCULATE BUSINESS IMPACT
-    const impact = await this.calculateBusinessImpact(analyticsResult.value);
+    const impact = await this.calculateBusinessImpact(analyticsResult.data);
     
     return {
       success: true,
@@ -1061,6 +1061,6 @@ export class AnalyticsTrackingUseCase {
   }
 }
 
-// Result helper functions
-const Success = <T>(value: T): Result<T> => ({ isSuccess: true, value });
-const Failure = <T>(error: Error): Result<T> => ({ isSuccess: false, error: error.message });
+// Result helper functions - Use Core Result Class API
+const Success = <T>(value: T): Result<T> => Result.success(value);
+const Failure = <T>(error: Error): Result<T> => Result.error(error.message);

@@ -55,7 +55,6 @@ class OWASPComplianceChecker {
     ];
 
     const hasXSS = xssPayloads.some(payload => {
-      const testInput = input.replace('{{PAYLOAD}}', payload);
       return sanitizedOutput.includes(payload) || 
              sanitizedOutput.includes('<script>') ||
              sanitizedOutput.includes('javascript:') ||
@@ -79,7 +78,7 @@ class OWASPComplianceChecker {
   /**
    * Test for SQL injection vulnerabilities
    */
-  testSQLInjection(query: string, userInput: string): boolean {
+  testSQLInjection(query: string, _userInput: string): boolean {
     const sqlInjectionPayloads = [
       "'; DROP TABLE users; --",
       "' OR '1'='1",
@@ -91,7 +90,6 @@ class OWASPComplianceChecker {
     ];
 
     const hasInjection = sqlInjectionPayloads.some(payload => {
-      const testInput = userInput.replace('{{PAYLOAD}}', payload);
       return query.includes(payload) || !query.includes('?') || !query.includes('$');
     });
 
@@ -222,7 +220,7 @@ class PrivacyComplianceChecker {
   /**
    * Test for data retention compliance
    */
-  testDataRetention(dataAge: number, retentionPeriod: number, purpose: string): boolean {
+  testDataRetention(dataAge: number, retentionPeriod: number, _purpose: string): boolean {
     if (dataAge > retentionPeriod) {
       this.privacyViolations.push({
         type: 'DATA_RETENTION_VIOLATION',
@@ -387,7 +385,7 @@ class AuthSecurityTester {
       }
 
       return { isSecure: issues.length === 0, issues };
-    } catch (error) {
+    } catch {
       issues.push('Invalid JWT token');
       return { isSecure: false, issues };
     }
@@ -496,18 +494,18 @@ global.generateSecurityReport = (): SecurityTestResult => {
 // ============================================================================
 
 declare global {
-  var initSecurityTest: () => void;
-  var testXSSSecurity: (input: string, sanitizedOutput: string) => boolean;
-  var testSQLInjectionSecurity: (query: string, userInput: string) => boolean;
-  var testPasswordStrength: (password: string) => {
+  function initSecurityTest(): void;
+  function testXSSSecurity(input: string, sanitizedOutput: string): boolean;
+  function testSQLInjectionSecurity(query: string, userInput: string): boolean;
+  function testPasswordStrength(password: string): {
     strength: 'WEAK' | 'MEDIUM' | 'STRONG';
     issues: string[];
   };
-  var testJWTSecurity: (token: string) => {
+  function testJWTSecurity(token: string): {
     isSecure: boolean;
     issues: string[];
   };
-  var generateSecurityReport: () => SecurityTestResult;
+  function generateSecurityReport(): SecurityTestResult;
 }
 
 // ============================================================================
@@ -523,9 +521,9 @@ afterEach(() => {
     const report = global.generateSecurityReport();
     
     if (!report.passed && process.env.JEST_SECURITY_STRICT === 'true') {
-      const criticalVulns = report.vulnerabilities.filter(v => v.severity === 'CRITICAL');
+      const criticalVulns = report.vulnerabilities.filter((v: SecurityVulnerability) => v.severity === 'CRITICAL');
       if (criticalVulns.length > 0) {
-        throw new Error(`Critical security vulnerabilities detected: ${criticalVulns.map(v => v.description).join(', ')}`);
+        throw new Error(`Critical security vulnerabilities detected: ${criticalVulns.map((v: SecurityVulnerability) => v.description).join(', ')}`);
       }
     }
   }

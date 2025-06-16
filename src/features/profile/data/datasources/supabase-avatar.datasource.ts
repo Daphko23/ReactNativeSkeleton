@@ -178,11 +178,14 @@ export class SupabaseAvatarDataSource implements IAvatarDataSource {
         });
 
       if (uploadError) {
+        const correlationId = `upload_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
         logger.error('Avatar upload failed', LogCategory.BUSINESS, {
-          correlationId,
           userId: options.userId,
-          filePath,
-          error: uploadError.message
+          metadata: {
+            correlationId,
+            filePath,
+            error: uploadError.message
+          }
         });
         return {
           success: false,
@@ -214,12 +217,14 @@ export class SupabaseAvatarDataSource implements IAvatarDataSource {
 
       const correlationId = `upload_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
       logger.info('Avatar upload successful', LogCategory.BUSINESS, {
-        correlationId,
         userId: options.userId,
-        bucket: avatarStorageConfig.bucket,
-        filePath,
-        publicUrl: publicUrlData.publicUrl,
-        fileSize: options.file.size
+        metadata: {
+          correlationId,
+          bucket: avatarStorageConfig.bucket,
+          filePath,
+          publicUrl: publicUrlData.publicUrl,
+          fileSize: options.file.size
+        }
       });
 
       return {
@@ -228,9 +233,10 @@ export class SupabaseAvatarDataSource implements IAvatarDataSource {
       };
 
     } catch (error) {
+      const correlationId = `upload_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
       logger.error('Avatar upload exception occurred', LogCategory.BUSINESS, {
-        correlationId,
-        userId: options.userId
+        userId: options.userId,
+        metadata: { correlationId }
       }, error as Error);
       return {
         success: false,
@@ -265,10 +271,12 @@ export class SupabaseAvatarDataSource implements IAvatarDataSource {
       if (listError) {
         const correlationId = `delete_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
         logger.error('Error listing user files for deletion', LogCategory.BUSINESS, {
-          correlationId,
           userId,
-          bucket: avatarStorageConfig.bucket,
-          error: listError.message
+          metadata: {
+            correlationId,
+            bucket: avatarStorageConfig.bucket,
+            error: listError.message
+          }
         });
         return {
           success: false,
@@ -277,10 +285,13 @@ export class SupabaseAvatarDataSource implements IAvatarDataSource {
       }
 
       if (!files || files.length === 0) {
+        const correlationId = `delete_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
         logger.info('No avatar files found for user deletion', LogCategory.BUSINESS, {
-          correlationId,
           userId,
-          bucket: avatarStorageConfig.bucket
+          metadata: {
+            correlationId,
+            bucket: avatarStorageConfig.bucket
+          }
         });
         return { success: true }; // No files to delete is success
       }
@@ -293,11 +304,14 @@ export class SupabaseAvatarDataSource implements IAvatarDataSource {
         .remove(filePaths);
 
       if (deleteError) {
+        const correlationId = `delete_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
         logger.error('Error deleting avatar files', LogCategory.BUSINESS, {
-          correlationId,
           userId,
-          filePaths,
-          error: deleteError.message
+          metadata: {
+            correlationId,
+            filePaths,
+            error: deleteError.message
+          }
         });
         return {
           success: false,
@@ -305,18 +319,22 @@ export class SupabaseAvatarDataSource implements IAvatarDataSource {
         };
       }
 
+      const correlationId = `delete_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
       logger.info('Avatar files deleted successfully', LogCategory.BUSINESS, {
-        correlationId,
         userId,
-        filesDeleted: filePaths.length,
-        bucket: avatarStorageConfig.bucket
+        metadata: {
+          correlationId,
+          filesDeleted: filePaths.length,
+          bucket: avatarStorageConfig.bucket
+        }
       });
       return { success: true };
 
     } catch (error) {
+      const correlationId = `delete_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
       logger.error('Avatar deletion exception occurred', LogCategory.BUSINESS, {
-        correlationId,
-        userId
+        userId,
+        metadata: { correlationId }
       }, error as Error);
       return {
         success: false,
@@ -351,19 +369,24 @@ export class SupabaseAvatarDataSource implements IAvatarDataSource {
       if (listError) {
         const correlationId = `getUrl_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
         logger.error('Error listing files for avatar URL', LogCategory.BUSINESS, {
-          correlationId,
           userId,
-          bucket: avatarStorageConfig.bucket,
-          error: listError.message
+          metadata: {
+            correlationId,
+            bucket: avatarStorageConfig.bucket,
+            error: listError.message
+          }
         });
         return null;
       }
 
       if (!files || files.length === 0) {
+        const correlationId = `getUrl_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
         logger.info('No avatar found for user', LogCategory.BUSINESS, {
-          correlationId,
           userId,
-          bucket: avatarStorageConfig.bucket
+          metadata: {
+            correlationId,
+            bucket: avatarStorageConfig.bucket
+          }
         });
         return null;
       }
@@ -374,10 +397,13 @@ export class SupabaseAvatarDataSource implements IAvatarDataSource {
         .sort((a, b) => new Date(b.created_at || 0).getTime() - new Date(a.created_at || 0).getTime());
 
       if (avatarFiles.length === 0) {
+        const correlationId = `getUrl_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
         logger.info('No avatar files found in storage', LogCategory.BUSINESS, {
-          correlationId,
           userId,
-          bucket: avatarStorageConfig.bucket
+          metadata: {
+            correlationId,
+            bucket: avatarStorageConfig.bucket
+          }
         });
         return null;
       }
@@ -391,26 +417,33 @@ export class SupabaseAvatarDataSource implements IAvatarDataSource {
         .getPublicUrl(filePath);
 
       if (!publicUrlData.publicUrl) {
+        const correlationId = `getUrl_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
         logger.error('Failed to get public URL for avatar', LogCategory.BUSINESS, {
-          correlationId,
           userId,
-          filePath
+          metadata: {
+            correlationId,
+            filePath
+          }
         });
         return null;
       }
 
+      const correlationId = `getUrl_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
       logger.info('Found custom avatar for user', LogCategory.BUSINESS, {
-        correlationId,
         userId,
-        publicUrl: publicUrlData.publicUrl,
-        bucket: avatarStorageConfig.bucket
+        metadata: {
+          correlationId,
+          publicUrl: publicUrlData.publicUrl,
+          bucket: avatarStorageConfig.bucket
+        }
       });
       return publicUrlData.publicUrl;
 
     } catch (error) {
+      const correlationId = `getUrl_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
       logger.error('Error getting avatar URL', LogCategory.BUSINESS, {
-        correlationId,
-        userId
+        userId,
+        metadata: { correlationId }
       }, error as Error);
       return null;
     }
@@ -525,8 +558,10 @@ export class SupabaseAvatarDataSource implements IAvatarDataSource {
         
         const correlationId = `blob_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
         logger.info('Reading local file for upload', LogCategory.BUSINESS, {
-          correlationId,
-          filePath: cleanPath
+          metadata: {
+            correlationId,
+            filePath: cleanPath
+          }
         });
         
         // Read file as base64
@@ -537,18 +572,22 @@ export class SupabaseAvatarDataSource implements IAvatarDataSource {
         }
         
         logger.info('Local file read successfully', LogCategory.BUSINESS, {
-          correlationId,
-          base64Length: base64Data.length,
-          filePath: cleanPath
+          metadata: {
+            correlationId,
+            base64Length: base64Data.length,
+            filePath: cleanPath
+          }
         });
         
         // Use official Supabase React Native method: base64-arraybuffer
         const arrayBuffer = decode(base64Data);
         
         logger.info('ArrayBuffer created successfully from base64', LogCategory.BUSINESS, {
-          correlationId,
-          arrayBufferSize: arrayBuffer.byteLength,
-          base64Length: base64Data.length
+          metadata: {
+            correlationId,
+            arrayBufferSize: arrayBuffer.byteLength,
+            base64Length: base64Data.length
+          }
         });
         
         if (!arrayBuffer || arrayBuffer.byteLength === 0) {
@@ -558,9 +597,12 @@ export class SupabaseAvatarDataSource implements IAvatarDataSource {
         return arrayBuffer;
       } else {
         // Network URL - use fetch
+        const correlationId = `blob_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
         logger.info('Fetching network URL for upload', LogCategory.BUSINESS, {
-          correlationId,
-          networkUri: uri
+          metadata: {
+            correlationId,
+            networkUri: uri
+          }
         });
         const response = await fetch(uri);
         if (!response.ok) {
@@ -568,16 +610,21 @@ export class SupabaseAvatarDataSource implements IAvatarDataSource {
         }
         const arrayBuffer = await response.arrayBuffer();
         logger.info('Network file fetched and converted to ArrayBuffer', LogCategory.BUSINESS, {
-          correlationId,
-          arrayBufferSize: arrayBuffer.byteLength,
-          networkUri: uri
+          metadata: {
+            correlationId,
+            arrayBufferSize: arrayBuffer.byteLength,
+            networkUri: uri
+          }
         });
         return arrayBuffer;
       }
     } catch (error) {
+      const correlationId = `blob_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
       logger.error('Error converting URI to ArrayBuffer', LogCategory.BUSINESS, {
-        correlationId,
-        uri
+        metadata: {
+          correlationId,
+          uri
+        }
       }, error as Error);
       throw new Error(`Failed to process image file: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }

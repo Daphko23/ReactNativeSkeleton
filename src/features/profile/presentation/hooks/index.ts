@@ -25,24 +25,24 @@
 // =============================================================================
 
 // Master Enterprise Hook - Complete Professional Intelligence System
-export { 
-  useProfessionalInfoEnterprise,
-  type UseProfessionalInfoEnterpriseProps,
-  type UseProfessionalInfoEnterpriseReturn,
-  type ProfessionalIntelligence,
-  type CrossDomainInsights,
-  type EnterpriseMetrics,
-  type StrategicRecommendations
-} from './use-professional-info-enterprise.hook';
+// export { 
+//   useProfessionalInfoEnterprise,
+//   type UseProfessionalInfoEnterpriseProps,
+//   type UseProfessionalInfoEnterpriseReturn,
+//   type ProfessionalIntelligence,
+//   type CrossDomainInsights,
+//   type EnterpriseMetrics,
+//   type StrategicRecommendations
+// } from './use-professional-info-enterprise.hook';
 
 // Specialized Domain Hooks
-export { 
-  useProfessionalSkillsData,
-  type UseProfessionalSkillsDataProps,
-  type UseProfessionalSkillsDataReturn,
-  type SkillsMetrics,
-  type SkillsInsights
-} from './use-professional-skills-data.hook';
+// export { 
+//   useProfessionalSkillsData,
+//   type UseProfessionalSkillsDataProps,
+//   type UseProfessionalSkillsDataReturn,
+//   type SkillsMetrics,
+//   type SkillsInsights
+// } from './use-professional-skills-data.hook';
 
 export { 
   useProfessionalCareerData,
@@ -82,14 +82,14 @@ export {
   type ActionMetrics
 } from './use-professional-actions.hook';
 
-export { 
-  useProfessionalCache,
-  type UseProfessionalCacheProps,
-  type UseProfessionalCacheReturn,
-  type CacheMetrics,
-  type CacheHealth,
-  type CachePolicy
-} from './use-professional-cache.hook';
+// export { 
+//   useProfessionalCache,
+//   type UseProfessionalCacheProps,
+//   type UseProfessionalCacheReturn,
+//   type CacheMetrics,
+//   type CacheHealth,
+//   type CachePolicy
+// } from './use-professional-cache.hook';
 
 // =============================================================================
 // 🏛️ LEGACY HOOK EXPORTS (Backward Compatibility)
@@ -99,22 +99,22 @@ export {
 export { useProfessionalInfo } from './use-professional-info.hook';
 
 // Other existing hooks
-export { useAuthAwareProfile } from './use-auth-aware-profile.hook';
+// export { useAuthAwareProfile } from './use-auth-aware-profile.hook';
 export { useAvatar } from './use-avatar.hook';
 export { useAccountSettings } from './use-account-settings.hook';
-export { useCustomFieldsQueryEnterprise } from './use-custom-fields-query-enterprise.hook';
-export { useProfileCompletenessEnterprise } from './use-profile-completeness-enterprise.hook';
+// export { useCustomFieldsQueryEnterprise } from './use-custom-fields-query-enterprise.hook';
+// export { useProfileCompletenessEnterprise } from './use-profile-completeness-enterprise.hook';
 export { useProfileCompleteness } from './use-profile-completeness.hook';
-export { useProfileCompletion } from './use-profile-completion.hook';
+// export { useProfileCompletion } from './use-profile-completion.hook';
 export { useProfileDeletion } from './use-profile-deletion.hook';
 export { useProfileForm } from './use-profile-form.hook';
 export { useProfileQuery } from './use-profile-query.hook';
-export { useProfileRefreshEnterprise } from './use-profile-refresh-enterprise.hook';
+// export { useProfileRefreshEnterprise } from './use-profile-refresh-enterprise.hook';
 export { useProfileRefresh } from './use-profile-refresh.hook';
 export { useProfileScreen } from './use-profile-screen.hook';
-export { useProfileSecurity } from './use-profile-security.hook';
-export { useProfileUiStateEnterprise } from './use-profile-ui-state-enterprise.hook';
-export { useProfileUiState } from './use-profile-ui-state.hook';
+// export { useProfileSecurity as ProfileSecurity } from './use-profile-security.hook';
+// export { useProfileUiStateEnterprise } from './use-profile-ui-state-enterprise.hook';
+export { useProfileUIState as useProfileUiState } from './use-profile-ui-state.hook';
 export { useProfile } from './use-profile.hook';
 export { useSkillsManagement } from './use-skills-management.hook';
 export { useSocialLinksEdit } from './use-social-links-edit.hook';

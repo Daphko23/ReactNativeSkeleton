@@ -115,9 +115,11 @@ export const useSkillsManagement = (): UseSkillsManagementReturn => {
         }
 
         logger.info('Skills fetched successfully', LogCategory.BUSINESS, { 
-          userId, 
-          categoriesCount: result.data.length,
-          totalSkills: result.data.reduce((sum, cat) => sum + cat.skills.length, 0)
+          userId,
+          metadata: {
+            categoriesCount: result.data.length,
+            totalSkills: result.data.reduce((sum, cat) => sum + cat.skills.length, 0)
+          }
         });
         
         return result.data;
@@ -137,7 +139,10 @@ export const useSkillsManagement = (): UseSkillsManagementReturn => {
       level: Skill['level']; 
       category: string; 
     }): Promise<Skill> => {
-      logger.info('Adding new skill', LogCategory.BUSINESS, { userId, name, level, category });
+      logger.info('Adding new skill', LogCategory.BUSINESS, { 
+        userId,
+        metadata: { name, level, category }
+      });
 
       try {
         // ✅ ENTERPRISE: Use Case Integration
@@ -153,10 +158,13 @@ export const useSkillsManagement = (): UseSkillsManagementReturn => {
           throw new Error(result.error);
         }
         
-        logger.info('Skill added successfully', LogCategory.BUSINESS, { userId, skillId: result.data.id });
+        logger.info('Skill added successfully', LogCategory.BUSINESS, { 
+          userId,
+          metadata: { skillId: result.data.id }
+        });
         return result.data;
       } catch (error) {
-        logger.error('Failed to add skill', LogCategory.BUSINESS, { userId, name }, error as Error);
+        logger.error('Failed to add skill', LogCategory.BUSINESS, { userId, metadata: { name } }, error as Error);
         throw error;
       }
     },
@@ -229,7 +237,7 @@ export const useSkillsManagement = (): UseSkillsManagementReturn => {
       id: string; 
       updates: Partial<Skill>; 
     }): Promise<Skill> => {
-      logger.info('Updating skill', LogCategory.BUSINESS, { userId, skillId: id });
+      logger.info('Updating skill', LogCategory.BUSINESS, { userId, metadata: { skillId: id } });
 
       try {
         // ✅ ENTERPRISE: Use Case Integration
@@ -243,10 +251,10 @@ export const useSkillsManagement = (): UseSkillsManagementReturn => {
           throw new Error(result.error);
         }
         
-        logger.info('Skill updated successfully', LogCategory.BUSINESS, { userId, skillId: id });
+        logger.info('Skill updated successfully', LogCategory.BUSINESS, { userId, metadata: { skillId: id } });
         return result.data;
       } catch (error) {
-        logger.error('Failed to update skill', LogCategory.BUSINESS, { userId, skillId: id }, error as Error);
+        logger.error('Failed to update skill', LogCategory.BUSINESS, { userId, metadata: { skillId: id } }, error as Error);
         throw error;
       }
     },
@@ -282,14 +290,14 @@ export const useSkillsManagement = (): UseSkillsManagementReturn => {
       if (context?.previousSkills) {
         queryClient.setQueryData(skillsQueryKeys.user(userId), context.previousSkills);
       }
-      logger.error('Update skill mutation failed', LogCategory.BUSINESS, { userId, skillId: id }, error as Error);
+      logger.error('Update skill mutation failed', LogCategory.BUSINESS, { userId, metadata: { skillId: id } }, error as Error);
     },
   });
 
   // 🏆 CHAMPION MUTATION: Remove Skill
   const removeSkillMutation = useMutation({
     mutationFn: async (id: string): Promise<void> => {
-      logger.info('Removing skill', LogCategory.BUSINESS, { userId, skillId: id });
+      logger.info('Removing skill', LogCategory.BUSINESS, { userId, metadata: { skillId: id } });
 
       try {
         // ✅ ENTERPRISE: Use Case Integration
@@ -303,9 +311,9 @@ export const useSkillsManagement = (): UseSkillsManagementReturn => {
           throw new Error(result.error);
         }
         
-        logger.info('Skill removed successfully', LogCategory.BUSINESS, { userId, skillId: id });
+        logger.info('Skill removed successfully', LogCategory.BUSINESS, { userId, metadata: { skillId: id } });
       } catch (error) {
-        logger.error('Failed to remove skill', LogCategory.BUSINESS, { userId, skillId: id }, error as Error);
+        logger.error('Failed to remove skill', LogCategory.BUSINESS, { userId, metadata: { skillId: id } }, error as Error);
         throw error;
       }
     },
@@ -337,7 +345,7 @@ export const useSkillsManagement = (): UseSkillsManagementReturn => {
       if (context?.previousSkills) {
         queryClient.setQueryData(skillsQueryKeys.user(userId), context.previousSkills);
       }
-      logger.error('Remove skill mutation failed', LogCategory.BUSINESS, { userId, skillId: id }, error as Error);
+      logger.error('Remove skill mutation failed', LogCategory.BUSINESS, { userId, metadata: { skillId: id } }, error as Error);
     },
   });
 
@@ -352,7 +360,7 @@ export const useSkillsManagement = (): UseSkillsManagementReturn => {
     const allSkills = skillCategories.flatMap(cat => cat.skills);
     return allSkills
       .filter(skill => skill.level === 'expert' || skill.level === 'advanced')
-      .sort((a, b) => b.endorsements - a.endorsements)
+      .sort((a, b) => (b.endorsements || 0) - (a.endorsements || 0))
       .slice(0, 5);
   }, [skillCategories]);
 

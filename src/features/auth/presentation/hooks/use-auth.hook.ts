@@ -10,7 +10,7 @@
  * ✅ Clean Interface: Simplified Champion API
  */
 
-import { useCallback, useMemo } from 'react';
+import { useCallback, useState as _useState, useMemo as _useMemo } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { authContainer } from '../../application/di/auth.container';
 import { AuthUser } from '../../domain/entities/auth-user.entity';
@@ -93,7 +93,7 @@ export const useAuth = (): UseAuthReturn => {
 
       try {
         if (!authContainer.isReady()) {
-          logger.warn('Auth container not ready, attempting initialization', LogCategory.BUSINESS);
+          logger.warn('Auth container not ready, attempting initialization');
           
           await authContainer.initialize({
             enableAdvancedSecurity: true,
@@ -110,7 +110,9 @@ export const useAuth = (): UseAuthReturn => {
           const user = await getCurrentUserUseCase.execute();
           
           logger.info('Current user fetched successfully (Champion)', LogCategory.BUSINESS, { 
-            hasUser: !!user 
+            metadata: {
+              hasUser: !!user
+            }
           });
           
           return user;
@@ -130,7 +132,12 @@ export const useAuth = (): UseAuthReturn => {
     mutationFn: async ({ email, password }: { email: string; password: string }): Promise<AuthUser> => {
       const correlationId = `auth_champion_login_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
       
-      logger.info('Starting login process (Champion)', LogCategory.BUSINESS, { email, correlationId });
+      logger.info('Starting login process (Champion)', LogCategory.BUSINESS, { 
+        correlationId,
+        metadata: {
+          email
+        }
+      });
       
       // Validation
       if (!email || !password) {
@@ -149,8 +156,10 @@ export const useAuth = (): UseAuthReturn => {
         await authGDPRAuditService.logLoginSuccess(user, 'email', { correlationId });
         
         logger.info('Login completed successfully (Champion)', LogCategory.BUSINESS, { 
-          userId: user.id, 
-          correlationId 
+          correlationId,
+          metadata: {
+            userId: user.id
+          }
         });
         
         return user;
@@ -159,8 +168,10 @@ export const useAuth = (): UseAuthReturn => {
         await authGDPRAuditService.logLoginFailure(email, (error as Error).message, 1, { correlationId });
         
         logger.error('Login failed (Champion)', LogCategory.BUSINESS, { 
-          email, 
-          correlationId 
+          correlationId,
+          metadata: {
+            email
+          }
         }, error as Error);
         
         throw error;
@@ -185,7 +196,9 @@ export const useAuth = (): UseAuthReturn => {
       queryClient.invalidateQueries({ queryKey: authQueryKeys.status() });
       
       logger.info('Login optimistic update completed (Champion)', LogCategory.BUSINESS, { 
-        userId: user.id 
+        metadata: {
+          userId: user.id
+        }
       });
     },
     
@@ -210,7 +223,11 @@ export const useAuth = (): UseAuthReturn => {
       password: string; 
       confirmPassword: string; 
     }): Promise<AuthUser> => {
-      logger.info('Starting registration process (Champion)', LogCategory.BUSINESS, { email });
+      logger.info('Starting registration process (Champion)', LogCategory.BUSINESS, { 
+        metadata: {
+          email
+        }
+      });
       
       // Validation
       if (!email || !password || !confirmPassword) {
@@ -229,7 +246,9 @@ export const useAuth = (): UseAuthReturn => {
       const user = await registerUseCase.execute(email, password);
       
       logger.info('Registration completed successfully (Champion)', LogCategory.BUSINESS, { 
-        userId: user.id 
+        metadata: {
+          userId: user.id
+        }
       });
       
       return user;
@@ -240,7 +259,9 @@ export const useAuth = (): UseAuthReturn => {
       queryClient.invalidateQueries({ queryKey: authQueryKeys.status() });
       
       logger.info('Registration optimistic update completed (Champion)', LogCategory.BUSINESS, { 
-        userId: user.id 
+        metadata: {
+          userId: user.id
+        }
       });
     },
   });
@@ -252,8 +273,10 @@ export const useAuth = (): UseAuthReturn => {
       const currentUser = userQuery.data;
       
       logger.info('Starting logout process (Champion)', LogCategory.BUSINESS, { 
-        userId: currentUser?.id,
-        correlationId 
+        correlationId,
+        metadata: {
+          userId: currentUser?.id
+        }
       });
 
       if (authContainer.isReady()) {
@@ -267,8 +290,10 @@ export const useAuth = (): UseAuthReturn => {
       }
       
       logger.info('Logout completed successfully (Champion)', LogCategory.BUSINESS, { 
-        userId: currentUser?.id,
-        correlationId 
+        correlationId,
+        metadata: {
+          userId: currentUser?.id
+        }
       });
     },
     
@@ -338,11 +363,19 @@ export const useAuth = (): UseAuthReturn => {
       const isAuthenticatedUseCase = authContainer.isAuthenticatedUseCase;
       const authenticated = await isAuthenticatedUseCase.execute();
       
-      logger.info('Auth status checked (Champion)', LogCategory.BUSINESS, { authenticated });
+      logger.info('Auth status checked (Champion)', LogCategory.BUSINESS, { 
+        metadata: {
+          authenticated
+        }
+      });
       
       return authenticated;
     } catch (error) {
-      logger.warn('Auth status check failed (Champion)', LogCategory.BUSINESS, {}, error as Error);
+      logger.warn('Auth status check failed (Champion)', LogCategory.BUSINESS, {
+        metadata: {
+          errorMessage: (error as Error).message
+        }
+      });
       return false;
     }
   }, []);

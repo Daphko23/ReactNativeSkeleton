@@ -1,83 +1,135 @@
 /**
- * Repräsentiert das Ergebnis einer Operation, die entweder erfolgreich oder fehlgeschlagen sein kann.
- * Implementiert das Result Pattern für besseres Error Handling.
+ * 🏗️ UNIFIED RESULT TYPE SYSTEM - ARCHITECTURE FIX 2025
+ * 
+ * ✅ Single Result API - eliminates ResultFactory vs Result confusion
+ * ✅ Consistent Properties - .success, .data, .error
+ * ✅ Proper Generics - Result<T, E = string>
+ * ✅ Type Guards - isSuccess(), isError()
+ * ✅ Enterprise Ready - full TypeScript support
  */
-export interface Result<T> {
-  /** Gibt an, ob die Operation erfolgreich war */
-  isSuccess: boolean;
-  /** Der Wert bei erfolgreicher Operation */
-  value?: T;
-  /** Der Fehler bei fehlgeschlagener Operation */
-  error?: string;
-}
 
 /**
- * Factory-Klasse für die Erstellung von Result-Objekten
+ * 🎯 UNIFIED RESULT TYPE - Single Source of Truth
  */
-export class ResultFactory {
-  /**
-   * Erstellt ein erfolgreiches Result-Objekt
-   * @param value - Der Wert des erfolgreichen Ergebnisses
-   */
-  static success<T>(value: T): Result<T> {
-    return {
-      isSuccess: true,
-      value,
-    };
-  }
+export class Result<T = any, E = string> {
+  public readonly success: boolean;
+  public readonly data?: T;
+  public readonly error?: E;
 
-  /**
-   * Erstellt ein fehlgeschlagenes Result-Objekt
-   * @param error - Der Fehler, der aufgetreten ist
-   */
-  static failure<T>(error: Error): Result<T> {
-    return {
-      isSuccess: false,
-      error: error.message,
-    };
-  }
-}
-
-/**
- * Result-Klasse mit statischen Methoden (Use Case Pattern)
- * Kompatibel mit Enterprise Use Cases
- */
-export class Result {
-  public success: boolean;
-  public data?: any;
-  public error?: string;
-
-  constructor(success: boolean, data?: any, error?: string) {
+  private constructor(success: boolean, data?: T, error?: E) {
     this.success = success;
     this.data = data;
     this.error = error;
   }
 
   /**
-   * Erstellt ein erfolgreiches Result
+   * ✅ Creates a successful Result
    */
-  static success<T>(data: T): Result {
-    return new Result(true, data);
+  static success<T, E = string>(data: T): Result<T, E> {
+    return new Result<T, E>(true, data);
   }
 
   /**
-   * Erstellt ein fehlgeschlagenes Result
+   * ✅ Creates a failed Result
    */
-  static error(error: string): Result {
-    return new Result(false, undefined, error);
+  static error<T = any, E = string>(error: E): Result<T, E> {
+    return new Result<T, E>(false, undefined, error);
   }
 
   /**
-   * Prüft ob das Result erfolgreich ist
+   * 🔍 Type guard - checks if result is successful
    */
-  isSuccess(): boolean {
+  isSuccess(): this is Result<T, never> {
     return this.success;
   }
 
   /**
-   * Prüft ob das Result fehlgeschlagen ist
+   * 🔍 Type guard - checks if result is failed
    */
-  isError(): boolean {
+  isError(): this is Result<never, E> {
     return !this.success;
   }
+
+  /**
+   * 🎯 Get data with type safety
+   */
+  getData(): T | undefined {
+    return this.data;
+  }
+
+  /**
+   * 🎯 Get error with type safety
+   */
+  getError(): E | undefined {
+    return this.error;
+  }
 }
+
+/**
+ * 🏗️ LEGACY COMPATIBILITY LAYER
+ * 
+ * @deprecated Use Result.success() and Result.error() instead
+ * This will be removed in future versions
+ */
+export class ResultFactory {
+  /**
+   * @deprecated Use Result.success() instead
+   */
+  static success<T>(value: T): Result<T> {
+    return Result.success(value);
+  }
+
+  /**
+   * @deprecated Use Result.error() instead
+   */
+  static failure<T>(error: Error | string): Result<T, string> {
+    const errorMessage = error instanceof Error ? error.message : error;
+    return Result.error<T>(errorMessage);
+  }
+}
+
+/**
+ * 🎯 TYPE ALIASES for common patterns
+ */
+export type AsyncResult<T, E = string> = Promise<Result<T, E>>;
+export type VoidResult<E = string> = Result<void, E>;
+export type AsyncVoidResult<E = string> = Promise<Result<void, E>>;
+
+/**
+ * 🛠️ UTILITY FUNCTIONS
+ */
+export const isSuccess = <T, E>(result: Result<T, E>): result is Result<T, never> => {
+  return result.isSuccess();
+};
+
+export const isError = <T, E>(result: Result<T, E>): result is Result<never, E> => {
+  return result.isError();
+};
+
+/**
+ * 🎯 RESULT COMBINATORS
+ */
+export const combineResults = <T1, T2, E = string>(
+  result1: Result<T1, E>,
+  result2: Result<T2, E>
+): Result<[T1, T2], E> => {
+  if (result1.isError()) return result1 as Result<[T1, T2], E>;
+  if (result2.isError()) return result2 as Result<[T1, T2], E>;
+  return Result.success<[T1, T2], E>([result1.data!, result2.data!]);
+};
+
+export const mapResult = <T, U, E = string>(
+  result: Result<T, E>,
+  mapper: (data: T) => U
+): Result<U, E> => {
+  if (result.isError()) return result as Result<U, E>;
+  return Result.success<U, E>(mapper(result.data!));
+};
+
+export const flatMapResult = <T, U, E = string>(
+  result: Result<T, E>,
+  mapper: (data: T) => Result<U, E>
+): Result<U, E> => {
+  if (result.isError()) return result as any;
+  return mapper(result.data!);
+};

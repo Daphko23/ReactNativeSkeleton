@@ -134,21 +134,20 @@ export const usePermissionChampion = (targetPermission?: Permission): UsePermiss
         }
 
         // Mock permission data - in production, fetch from RBAC service
-        const userPermissions = user.permissions || ['basic:read'];
+        const userPermissions = (user as any).permissions || ['basic:read'];
         
         const permissionData: PermissionData = {
           userPermissions,
           grantedAt: new Date(Date.now() - 1000 * 60 * 60), // 1 hour ago
           expiresAt: null, // No expiration for basic permissions
           lastChecked: new Date(),
-          auditRequired: userPermissions.some(perm => requiresAudit(perm as Permission)),
+          auditRequired: userPermissions.some((perm: any) => requiresAudit(perm as Permission)),
         };
 
         logger.info('User permission data fetched successfully (Champion)', LogCategory.SECURITY, { 
           correlationId,
           userId: user.id,
-          permissionCount: userPermissions.length,
-          auditRequired: permissionData.auditRequired
+          metadata: { permissionCount: userPermissions.length, auditRequired: permissionData.auditRequired }
         });
 
         return permissionData;
@@ -181,7 +180,7 @@ export const usePermissionChampion = (targetPermission?: Permission): UsePermiss
       logger.info('Checking specific permission (Champion)', LogCategory.SECURITY, { 
         correlationId,
         userId: user?.id,
-        targetPermission
+        metadata: { targetPermission }
       });
 
       try {
@@ -196,18 +195,19 @@ export const usePermissionChampion = (targetPermission?: Permission): UsePermiss
           logger.info('Audited permission check (Champion)', LogCategory.SECURITY, { 
             correlationId,
             userId: user?.id,
-            permission: targetPermission,
-            granted: hasExactPermission,
-            timestamp: new Date().toISOString(),
-            auditLevel: 'high'
+            metadata: { 
+              permission: targetPermission,
+              granted: hasExactPermission,
+              timestamp: new Date().toISOString(),
+              auditLevel: 'high'
+            }
           });
         }
         
         logger.info('Permission check completed (Champion)', LogCategory.SECURITY, { 
           correlationId,
           userId: user?.id,
-          targetPermission,
-          hasPermission: hasExactPermission
+          metadata: { targetPermission, hasPermission: hasExactPermission }
         });
 
         return hasExactPermission;
@@ -215,7 +215,7 @@ export const usePermissionChampion = (targetPermission?: Permission): UsePermiss
         logger.error('Permission check failed (Champion)', LogCategory.SECURITY, { 
           correlationId,
           userId: user?.id,
-          targetPermission
+          metadata: { targetPermission }
         }, error as Error);
         
         return false;
@@ -243,7 +243,7 @@ export const usePermissionChampion = (targetPermission?: Permission): UsePermiss
         logger.info('Permission audit trail fetched successfully (Champion)', LogCategory.SECURITY, { 
           correlationId,
           userId: user?.id,
-          auditEntries: auditTrail.length
+          metadata: { auditEntries: auditTrail.length }
         });
 
         return auditTrail;
@@ -278,8 +278,7 @@ export const usePermissionChampion = (targetPermission?: Permission): UsePermiss
     logger.info('Manual permission check (Champion)', LogCategory.SECURITY, { 
       correlationId,
       userId: user?.id,
-      permission,
-      userPermissions
+      metadata: { permission, userPermissions }
     });
 
     try {
@@ -293,8 +292,7 @@ export const usePermissionChampion = (targetPermission?: Permission): UsePermiss
       logger.info('Manual permission check completed (Champion)', LogCategory.SECURITY, { 
         correlationId,
         userId: user?.id,
-        permission,
-        hasPermission: hasPermissionResult
+        metadata: { permission, hasPermission: hasPermissionResult }
       });
 
       return hasPermissionResult;
@@ -302,7 +300,7 @@ export const usePermissionChampion = (targetPermission?: Permission): UsePermiss
       logger.error('Manual permission check failed (Champion)', LogCategory.SECURITY, { 
         correlationId,
         userId: user?.id,
-        permission
+        metadata: { permission }
       }, error as Error);
       
       return false;
@@ -359,13 +357,15 @@ export const usePermissionChampion = (targetPermission?: Permission): UsePermiss
 
     logger.info('Permission access audit (Champion)', LogCategory.SECURITY, { 
       correlationId,
-      action,
-      resource,
-      permission: auditEntry.permission,
-      granted: auditEntry.granted,
-      userId: user?.id,
-      timestamp: auditEntry.timestamp.toISOString(),
-      auditLevel: 'high'
+      metadata: { 
+        action,
+        resource,
+        permission: auditEntry.permission,
+        granted: auditEntry.granted,
+        userId: user?.id,
+        timestamp: auditEntry.timestamp.toISOString(),
+        auditLevel: 'high'
+      }
     });
 
     // In production, this would send to audit service

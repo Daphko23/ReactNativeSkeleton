@@ -36,7 +36,9 @@ export class SupabaseProfileScreenDataSource implements IProfileScreenDataSource
     );
 
     logger.info('SupabaseProfileScreenDataSource initialized', LogCategory.BUSINESS, {
-      url: process.env.SUPABASE_URL?.substring(0, 30) + '...'
+      metadata: {
+        url: process.env.SUPABASE_URL?.substring(0, 30) + '...'
+      }
     });
 
     // Setup periodic health checks
@@ -65,7 +67,9 @@ export class SupabaseProfileScreenDataSource implements IProfileScreenDataSource
 
       logger.info('Profile screen state retrieved from Supabase', LogCategory.BUSINESS, { 
         userId,
-        found: !!data
+        metadata: {
+          found: !!data
+        }
       });
 
       return data;
@@ -131,7 +135,9 @@ export class SupabaseProfileScreenDataSource implements IProfileScreenDataSource
 
       logger.info('Profile interactions retrieved from Supabase', LogCategory.BUSINESS, { 
         userId,
-        count: data?.length || 0
+        metadata: {
+          count: data?.length || 0
+        }
       });
 
       return data || [];
@@ -199,7 +205,9 @@ export class SupabaseProfileScreenDataSource implements IProfileScreenDataSource
 
       logger.info('Profile configuration retrieved from Supabase', LogCategory.BUSINESS, { 
         userId,
-        found: !!data
+        metadata: {
+          found: !!data
+        }
       });
 
       return data;
@@ -266,7 +274,9 @@ export class SupabaseProfileScreenDataSource implements IProfileScreenDataSource
 
       logger.info('Offline state retrieved from Supabase', LogCategory.BUSINESS, { 
         userId,
-        found: !!data
+        metadata: {
+          found: !!data
+        }
       });
 
       return data;
@@ -329,7 +339,9 @@ export class SupabaseProfileScreenDataSource implements IProfileScreenDataSource
         logger.error('Supabase health check failed', LogCategory.BUSINESS, {}, error);
       } else {
         logger.info('Supabase health check passed', LogCategory.BUSINESS, {
-          timestamp: this.lastHealthCheck.toISOString()
+          metadata: {
+            timestamp: this.lastHealthCheck.toISOString()
+          }
         });
       }
 
@@ -363,7 +375,9 @@ export class SupabaseProfileScreenDataSource implements IProfileScreenDataSource
     try {
       logger.info('Batch saving interactions to Supabase', LogCategory.BUSINESS, { 
         userId,
-        count: interactions.length
+        metadata: {
+          count: interactions.length
+        }
       });
 
       await this.ensureConnection();
@@ -388,7 +402,9 @@ export class SupabaseProfileScreenDataSource implements IProfileScreenDataSource
 
       logger.info('Batch interactions saved to Supabase', LogCategory.BUSINESS, { 
         userId,
-        count: interactions.length
+        metadata: {
+          count: interactions.length
+        }
       });
     } catch (error) {
       logger.error('Failed to batch save interactions to Supabase', LogCategory.BUSINESS, { userId }, error as Error);
@@ -400,7 +416,9 @@ export class SupabaseProfileScreenDataSource implements IProfileScreenDataSource
     try {
       logger.info('Cleaning up old profile data in Supabase', LogCategory.BUSINESS, { 
         userId,
-        daysToKeep
+        metadata: {
+          daysToKeep
+        }
       });
 
       await this.ensureConnection();
@@ -418,11 +436,11 @@ export class SupabaseProfileScreenDataSource implements IProfileScreenDataSource
         throw error;
       }
 
-      const deletedCount = data?.length || 0;
+      const deletedCount = (data as any)?.length || 0;
 
       logger.info('Old profile data cleaned up in Supabase', LogCategory.BUSINESS, { 
         userId,
-        deletedCount
+        metadata: { deletedCount }
       });
 
       return deletedCount;
@@ -468,7 +486,7 @@ export class SupabaseProfileScreenDataSource implements IProfileScreenDataSource
     try {
       logger.info('Getting profile analytics from Supabase', LogCategory.BUSINESS, { 
         userId,
-        timeRange: `${timeRange.start.toISOString()} - ${timeRange.end.toISOString()}`
+        metadata: { timeRange: `${timeRange.start.toISOString()} - ${timeRange.end.toISOString()}` }
       });
 
       await this.ensureConnection();
@@ -497,7 +515,7 @@ export class SupabaseProfileScreenDataSource implements IProfileScreenDataSource
 
       logger.info('Profile analytics retrieved from Supabase', LogCategory.BUSINESS, { 
         userId,
-        totalSessions: analytics.totalSessions
+        metadata: { totalSessions: analytics.totalSessions }
       });
 
       return analytics;
@@ -528,7 +546,7 @@ export class SupabaseProfileScreenDataSource implements IProfileScreenDataSource
     return {
       healthy: this.connectionHealthy,
       lastHealthCheck: this.lastHealthCheck,
-      url: this.supabaseClient.supabaseUrl
+      url: (this.supabaseClient as any).supabaseUrl || 'unknown'
     };
   }
 }

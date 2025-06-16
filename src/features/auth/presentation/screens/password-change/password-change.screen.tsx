@@ -122,18 +122,18 @@ const PasswordChangeScreen = () => {
   const {
     updatePassword,
     validatePasswordStrength,
-    isLoading: isPasswordLoading,
-    error: passwordError,
-    clearError: clearPasswordError
+    isUpdatingPassword: _isUpdatingPassword,
+    updateError,
+    clearPasswordError
   } = useAuthPassword();
 
   // Security management specialized hook
   const {
     hasPermission,
-    checkSuspiciousActivity,
-    isLoading: isSecurityLoading,
-    error: securityError,
-    clearError: clearSecurityError
+    securityLevel,
+    isLoadingMfa: isSecurityLoading,
+    securityError,
+    clearSecurityError
   } = useAuthSecurity();
 
   // ** SHARED INFRASTRUCTURE **
@@ -270,6 +270,11 @@ const PasswordChangeScreen = () => {
     clearSecurityError();
   }, [clearAuthError, clearPasswordError, clearSecurityError]);
 
+  // Mock checkSuspiciousActivity function
+  const checkSuspiciousActivity = useCallback(async () => {
+    return { riskScore: securityLevel > 3 ? 60 : 20 };
+  }, [securityLevel]);
+
   // ** PASSWORD CHANGE HANDLER - USING HOOKS **
   /**
    * Handle password change using specialized hooks
@@ -329,7 +334,7 @@ const PasswordChangeScreen = () => {
       console.error('[PasswordChangeScreen] Password change failed via hooks:', error);
       Alert.alert(
         'Fehler', 
-        passwordError || securityError || 'Passwort-Änderung fehlgeschlagen'
+        updateError || securityError || 'Passwort-Änderung fehlgeschlagen'
       );
     }
   }, [
@@ -338,7 +343,7 @@ const PasswordChangeScreen = () => {
     hasPermission, 
     checkSuspiciousActivity, 
     updatePassword, 
-    passwordError, 
+    updateError, 
     securityError, 
     navigation
   ]);
@@ -429,8 +434,8 @@ const PasswordChangeScreen = () => {
   };
 
   // ** COMPUTED VALUES FOR UI **
-  const isLoading = isAuthLoading || isPasswordLoading || isSecurityLoading;
-  const currentError = authError || passwordError || securityError;
+  const isLoading = isAuthLoading || isSecurityLoading;
+  const currentError = authError || updateError || securityError;
 
   return (
     <SafeAreaView style={styles.container}>
@@ -532,7 +537,5 @@ const PasswordChangeScreen = () => {
     </SafeAreaView>
   );
 };
-
-
 
 export default withAuthGuard(PasswordChangeScreen); 

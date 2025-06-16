@@ -13,6 +13,9 @@
 import * as Sentry from '@sentry/react-native';
 import DeviceInfo from 'react-native-device-info';
 import { Platform } from 'react-native';
+import { LoggerFactory } from '@core/logging/logger.factory';
+import { LogCategory } from '@core/logging/logger.service.interface';
+import type { ILoggerService as _ILoggerService } from '../logging/logger.service.interface';
 
 /**
  * Error Context Interface
@@ -327,6 +330,14 @@ export interface PerformanceMetrics {
  */
 class ErrorMonitoringService {
   /**
+   * Logger instance for service logging.
+   * 
+   * @private
+   * @type {ILoggerService}
+   */
+  private logger = LoggerFactory.createServiceLogger('ErrorMonitoringService');
+
+  /**
    * Service initialization status.
    * Prevents multiple initialization attempts.
    * 
@@ -392,7 +403,9 @@ class ErrorMonitoringService {
       if (__DEV__) {
         this.logger.info('Error monitoring skipped in development mode', LogCategory.BUSINESS, {
   service: 'ErrorMonitoring',
-  environment: 'development'
+  metadata: {
+    environment: 'development'
+  }
 });
         this.isInitialized = true;
         return;
@@ -458,8 +471,10 @@ class ErrorMonitoringService {
       this.isInitialized = true;
       this.logger.info('Error monitoring initialized successfully', LogCategory.BUSINESS, {
   service: 'ErrorMonitoring',
-  sentryEnabled: true,
-  crashlyticsEnabled: false
+  metadata: {
+    sentryEnabled: true,
+    crashlyticsEnabled: false
+  }
 });
       
       // Track initialization
@@ -524,8 +539,10 @@ class ErrorMonitoringService {
     if (!this.isInitialized) {
       this.logger.info('Error monitoring log entry', LogCategory.BUSINESS, {
   service: 'ErrorMonitoring',
-  level,
-  message
+  metadata: {
+    level,
+    message
+  }
 });
       return;
     }

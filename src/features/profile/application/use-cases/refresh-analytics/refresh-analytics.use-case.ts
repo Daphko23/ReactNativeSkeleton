@@ -342,29 +342,29 @@ export class RefreshAnalyticsUseCase {
 
       // 1. Get base analytics data
       const analyticsResult = await this.repository.getRefreshAnalytics(input.userId, input.timeframe);
-      if (!analyticsResult.isSuccess) {
-        return { isSuccess: false, error: analyticsResult.error || 'Analytics failed' };
+      if (!analyticsResult.success) {
+        return Result.error(analyticsResult.error || 'Analytics failed');
       }
 
       // 2. Get user behavior insights
       const behaviorResult = await this.repository.getUserBehaviorInsights(input.userId);
-      if (!behaviorResult.isSuccess) {
-        return { isSuccess: false, error: behaviorResult.error || 'Behavior insights failed' };
+      if (!behaviorResult.success) {
+        return Result.error(behaviorResult.error || 'Behavior insights failed');
       }
 
       // 3. Get business metrics
       const businessResult = await this.repository.getBusinessMetrics(input.timeframe);
-      if (!businessResult.isSuccess) {
-        return { isSuccess: false, error: businessResult.error || 'Business metrics failed' };
+      if (!businessResult.success) {
+        return Result.error(businessResult.error || 'Business metrics failed');
       }
 
       // 4. Safe value extraction with undefined checks
-      const analytics = analyticsResult.value;
-      const behavior = behaviorResult.value;
-      const business = businessResult.value;
+      const analytics = analyticsResult.data;
+      const behavior = behaviorResult.data;
+      const business = businessResult.data;
 
       if (!analytics || !behavior || !business) {
-        return { isSuccess: false, error: 'Incomplete data for insights generation' };
+        return Result.error('Incomplete data for insights generation');
       }
 
       // 5. Generate predictive insights
@@ -405,13 +405,13 @@ export class RefreshAnalyticsUseCase {
         metadata: { confidence }
       });
 
-      return { isSuccess: true, value: output };
+      return Result.success(output);
 
     } catch (error) {
       logger.error('Failed to generate business insights', LogCategory.BUSINESS, { 
         userId: input.userId 
       }, error as Error);
-      return { isSuccess: false, error: (error as Error).message };
+      return Result.error((error as Error).message);
     }
   }
 
@@ -428,13 +428,13 @@ export class RefreshAnalyticsUseCase {
 
       // 1. Get business metrics for the timeframe
       const businessMetricsResult = await this.repository.getBusinessMetrics(input.timeframe);
-      if (!businessMetricsResult.isSuccess) {
-        return { isSuccess: false, error: businessMetricsResult.error || 'Business metrics failed' };
+      if (!businessMetricsResult.success) {
+        return Result.error(businessMetricsResult.error || 'Business metrics failed');
       }
 
-      const businessMetrics = businessMetricsResult.value;
+      const businessMetrics = businessMetricsResult.data;
       if (!businessMetrics) {
-        return { isSuccess: false, error: 'No business metrics available' };
+        return Result.error('No business metrics available');
       }
 
       // 2. Calculate different ROI components
@@ -475,7 +475,7 @@ export class RefreshAnalyticsUseCase {
         metadata: { totalROI }
       });
 
-      return { isSuccess: true, value: output };
+      return Result.success(output);
 
     } catch (error) {
       logger.error('Failed to calculate ROI', LogCategory.BUSINESS, { 
@@ -483,7 +483,7 @@ export class RefreshAnalyticsUseCase {
           timeframe: `${input.timeframe.start || 'unknown'} - ${input.timeframe.end || 'unknown'}` 
         }
       }, error as Error);
-      return { isSuccess: false, error: (error as Error).message };
+      return Result.error((error as Error).message);
     }
   }
 
@@ -543,14 +543,14 @@ export class RefreshAnalyticsUseCase {
         metadata: { journeyId: output.journeyId }
       });
 
-      return { isSuccess: true, value: output };
+      return Result.success(output);
 
     } catch (error) {
       logger.error('Failed to track user journey', LogCategory.BUSINESS, { 
         userId: input.userId,
         metadata: { sessionId: input.sessionId }
       }, error as Error);
-      return { isSuccess: false, error: (error as Error).message };
+      return Result.error((error as Error).message);
     }
   }
 
@@ -603,13 +603,13 @@ export class RefreshAnalyticsUseCase {
         metadata: { dashboardType: input.dashboardType }
       });
 
-      return { isSuccess: true, value: output };
+      return Result.success(output);
 
     } catch (error) {
       logger.error('Dashboard generation failed', LogCategory.BUSINESS, {
         metadata: { dashboardType: input.dashboardType }
       }, error as Error);
-      return { isSuccess: false, error: (error as Error).message };
+      return Result.error((error as Error).message);
     }
   }
 

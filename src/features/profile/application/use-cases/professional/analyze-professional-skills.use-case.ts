@@ -87,12 +87,12 @@ export class AnalyzeProfessionalSkillsUseCase {
   /**
    * Executes comprehensive professional skills analysis
    */
-  async execute(input: AnalyzeSkillsInput): Promise<Result<AnalyzeSkillsOutput, Error>> {
+  async execute(input: AnalyzeSkillsInput): Promise<Result> {
     try {
       // Validate input
       const validationResult = this.validateInput(input);
       if (!validationResult.success) {
-        return Result.failure(new Error(validationResult.error));
+        return Result.error(validationResult.error || 'Validation failed');
       }
 
       // Create skills analysis instance
@@ -168,7 +168,7 @@ export class AnalyzeProfessionalSkillsUseCase {
       return Result.success(output);
 
     } catch (error) {
-      return Result.failure(new Error(`Skills analysis failed: ${error instanceof Error ? error.message : 'Unknown error'}`));
+      return Result.error(`Skills analysis failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
   }
 
@@ -179,13 +179,13 @@ export class AnalyzeProfessionalSkillsUseCase {
     userId: string;
     skills: string[];
     targetRole?: string;
-  }): Promise<Result<{
+  }  ): Promise<Result<{
     overallScore: number;
     topStrengths: string[];
     criticalGaps: string[];
     quickWins: string[];
     marketValue: 'low' | 'medium' | 'high' | 'exceptional';
-  }, Error>> {
+  }>> {
     try {
       const skillsAnalysis = new SkillsAnalysis(input.userId);
       
@@ -242,7 +242,7 @@ export class AnalyzeProfessionalSkillsUseCase {
       });
 
     } catch (error) {
-      return Result.failure(new Error(`Quick assessment failed: ${error instanceof Error ? error.message : 'Unknown error'}`));
+      return Result.error(`Quick assessment failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
   }
 
@@ -255,7 +255,7 @@ export class AnalyzeProfessionalSkillsUseCase {
     industry: string;
     role: string;
     experienceLevel: string;
-  }): Promise<Result<{
+  }  ): Promise<Result<{
     benchmarkScore: number;
     skillRankings: Array<{
       skill: string;
@@ -267,7 +267,7 @@ export class AnalyzeProfessionalSkillsUseCase {
     }>;
     competitivePosition: 'below_average' | 'average' | 'above_average' | 'top_performer';
     improvementPriorities: string[];
-  }, Error>> {
+  }>> {
     try {
       // Mock industry benchmarking - would integrate with real data APIs
       const skillRankings = input.skills.map(skill => {
@@ -318,7 +318,7 @@ export class AnalyzeProfessionalSkillsUseCase {
       });
 
     } catch (error) {
-      return Result.failure(new Error(`Skills benchmarking failed: ${error instanceof Error ? error.message : 'Unknown error'}`));
+      return Result.error(`Skills benchmarking failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
   }
 

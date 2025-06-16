@@ -63,6 +63,30 @@ export enum InteractionType {
 }
 
 /**
+ * @interface Connection - Alias for ProfessionalConnection (backward compatibility)
+ */
+export type Connection = ProfessionalConnection;
+
+/**
+ * @interface ConnectionMetrics - Connection performance metrics
+ */
+export interface ConnectionMetrics {
+  readonly connectionId: string;
+  readonly interactionCount: number;
+  readonly lastInteractionDate: Date;
+  readonly responseRate: number;
+  readonly influenceScore: number;
+  readonly collaborationScore: number;
+  readonly referralPotential: number;
+  readonly networkValue: number;
+}
+
+/**
+ * @interface NetworkAnalysis - Alias for NetworkAnalytics (backward compatibility)
+ */
+export type NetworkAnalysis = NetworkAnalytics;
+
+/**
  * @interface ProfessionalConnection - Individual network connection
  */
 export interface ProfessionalConnection {
@@ -184,6 +208,69 @@ export interface NetworkingInsight {
   readonly timeframe: string;
   readonly generatedDate: Date;
   readonly source: string;
+}
+
+/**
+ * @interface NetworkingRecommendation - AI-generated networking recommendations
+ */
+export interface NetworkingRecommendation {
+  readonly id: string;
+  readonly type: 'connection' | 'event' | 'content' | 'outreach' | 'follow_up';
+  readonly title: string;
+  readonly description: string;
+  readonly priority: 'low' | 'medium' | 'high' | 'critical';
+  readonly confidence: number; // 0-100
+  readonly expectedOutcome: string;
+  readonly actionSteps: string[];
+  readonly timeframe: string;
+  readonly effort: 'low' | 'medium' | 'high';
+  readonly potentialValue: number; // 0-100
+  readonly targetConnections?: string[];
+  readonly requiredResources?: string[];
+  readonly successMetrics: string[];
+  readonly generatedDate: Date;
+  readonly expiryDate?: Date;
+}
+
+/**
+ * @interface InteractionRecord - Alias for NetworkInteraction (backward compatibility)
+ */
+export type InteractionRecord = NetworkInteraction;
+
+/**
+ * @interface NetworkingInsights - Alias for NetworkingInsight (backward compatibility)
+ */
+export type NetworkingInsights = NetworkingInsight;
+
+/**
+ * @interface NetworkingPlan - Alias for NetworkingStrategy (backward compatibility)
+ */
+export type NetworkingPlan = NetworkingStrategy;
+
+/**
+ * @interface NetworkingROI - Return on Investment metrics for networking activities
+ */
+export interface NetworkingROI {
+  readonly activityId: string;
+  readonly activityType: string;
+  readonly investment: {
+    time: number; // hours
+    cost: number; // currency
+    effort: 'low' | 'medium' | 'high';
+  };
+  readonly returns: {
+    newConnections: number;
+    businessValue: number;
+    careerAdvancement: number;
+    knowledgeGain: number;
+    reputationBoost: number;
+  };
+  readonly roi: number; // percentage
+  readonly paybackPeriod: number; // months
+  readonly riskLevel: 'low' | 'medium' | 'high';
+  readonly confidence: number; // 0-100
+  readonly calculatedDate: Date;
+  readonly projectedDate?: Date;
 }
 
 /**
@@ -818,7 +905,7 @@ export class ProfessionalNetwork {
       [NetworkingGoal.THOUGHT_LEADERSHIP]: 'Industry influencers and media'
     };
     
-    return goals.map(goal => focusMap[goal]).filter(Boolean);
+    return goals.map(goal => (focusMap as Record<string, string>)[goal]).filter(Boolean);
   }
 
   private generateNetworkingTactics(goals: NetworkingGoal[]): NetworkingStrategy['tactics'] {

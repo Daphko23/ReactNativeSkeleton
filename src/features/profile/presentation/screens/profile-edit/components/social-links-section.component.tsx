@@ -56,24 +56,12 @@ export const SocialLinksSection: React.FC<SocialLinksSectionProps> = ({
 
   // Helper function to get field error by platform
   const getFieldError = (platform: string): string | undefined => {
-    const link = socialLinksEdit.socialLinks.find((l: SocialLink) => l.platform === platform);
-    if (!link) return undefined;
-    
-    const index = socialLinksEdit.socialLinks.indexOf(link);
-    return socialLinksEdit.errors[`url_${index}`];
+    return socialLinksEdit.getValidationError(platform as any);
   };
 
   // Helper function to update link by platform
   const updateLinkByPlatform = (platform: string, url: string) => {
-    const existingIndex = socialLinksEdit.socialLinks.findIndex((l: SocialLink) => l.platform === platform);
-    
-    if (existingIndex >= 0) {
-      // Update existing link
-      socialLinksEdit.updateSocialLink(existingIndex, 'url', url);
-    } else {
-      // Add new link
-      socialLinksEdit.addSocialLink(platform, url);
-    }
+    socialLinksEdit.updateSocialLink(platform as any, url);
   };
 
   return (

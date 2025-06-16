@@ -108,6 +108,7 @@ export interface IProfileDataSource {
 
 export class ProfileDataSource implements IProfileDataSource {
   // Enterprise logger injected via DI
+  private readonly logger = LoggerFactory.createServiceLogger('ProfileDataSource');
 
   // =============================================
   // PROFILE CRUD
@@ -162,8 +163,10 @@ export class ProfileDataSource implements IProfileDataSource {
           data.email = authUser.user.email;
           logger.info('Added missing email from auth users', LogCategory.BUSINESS, {
             userId,
-            email: authUser.user.email,
-            source: 'auth.users'
+            metadata: {
+              email: authUser.user.email,
+              source: 'auth.users'
+            }
           });
         }
       }
@@ -178,7 +181,12 @@ export class ProfileDataSource implements IProfileDataSource {
 
   async updateProfile(userId: string, updates: Partial<UserProfileRow>): Promise<UserProfileRow> {
     try {
-      logger.info('Updating profile in database', LogCategory.BUSINESS, { userId, updateFields: Object.keys(updates) });
+      logger.info('Updating profile in database', LogCategory.BUSINESS, { 
+        userId, 
+        metadata: {
+          updateFields: Object.keys(updates)
+        }
+      });
 
       const { data, error } = await supabase
         .from('user_profiles')
@@ -235,7 +243,9 @@ export class ProfileDataSource implements IProfileDataSource {
     limit: number = 50
   ): Promise<UserProfileRow[]> {
     try {
-      this.logger.debug('Searching profiles', { query, filters, limit });
+      logger.debug('Searching profiles', LogCategory.BUSINESS, {
+        metadata: { query, filters, limit }
+      });
 
       let queryBuilder = supabase
         .from('user_profiles')
@@ -262,14 +272,16 @@ export class ProfileDataSource implements IProfileDataSource {
         .limit(limit);
 
       if (error) {
-        this.logger.error('Failed to search profiles', error.message);
+        logger.error('Failed to search profiles', LogCategory.BUSINESS, {}, new Error(error.message));
         throw new Error(`Database error: ${error.message}`);
       }
 
-      this.logger.debug('Profiles search completed', { count: data.length });
+      logger.debug('Profiles search completed', LogCategory.BUSINESS, {
+        metadata: { count: data.length }
+      });
       return data;
     } catch (error) {
-      this.logger.error('Error in searchProfiles', error);
+      logger.error('Error in searchProfiles', LogCategory.BUSINESS, {}, error as Error);
       throw error;
     }
   }
@@ -280,7 +292,10 @@ export class ProfileDataSource implements IProfileDataSource {
 
   async getProfileHistory(userId: string, limit: number = 50): Promise<ProfileHistoryRow[]> {
     try {
-      this.logger.debug('Fetching profile history', { userId, limit });
+      logger.debug('Fetching profile history', LogCategory.BUSINESS, {
+        userId,
+        metadata: { limit }
+      });
 
       const { data, error } = await supabase
         .from('profile_history')
@@ -290,14 +305,16 @@ export class ProfileDataSource implements IProfileDataSource {
         .limit(limit);
 
       if (error) {
-        this.logger.error('Failed to fetch profile history', error.message);
+        logger.error('Failed to fetch profile history', LogCategory.BUSINESS, { userId }, new Error(error.message));
         throw new Error(`Database error: ${error.message}`);
       }
 
-      this.logger.debug('Profile history fetched successfully', { count: data.length });
+      logger.debug('Profile history fetched successfully', LogCategory.BUSINESS, {
+        metadata: { count: data.length }
+      });
       return data;
     } catch (error) {
-      this.logger.error('Error in getProfileHistory', error);
+      logger.error('Error in getProfileHistory', LogCategory.BUSINESS, { userId }, error as Error);
       throw error;
     }
   }
@@ -306,7 +323,9 @@ export class ProfileDataSource implements IProfileDataSource {
     entry: Omit<ProfileHistoryRow, 'id' | 'changed_at'>
   ): Promise<ProfileHistoryRow> {
     try {
-      this.logger.debug('Creating profile history entry', entry);
+      logger.debug('Creating profile history entry', LogCategory.BUSINESS, {
+        metadata: entry
+      });
 
       const { data, error } = await supabase
         .from('profile_history')
@@ -318,14 +337,16 @@ export class ProfileDataSource implements IProfileDataSource {
         .single();
 
       if (error) {
-        this.logger.error('Failed to create history entry', error.message);
+        logger.error('Failed to create history entry', LogCategory.BUSINESS, {
+        metadata: { id: entry.user_id }
+      }, new Error(error.message));
         throw new Error(`Database error: ${error.message}`);
       }
 
-      this.logger.info('Profile history entry created successfully', { id: data.id });
+      logger.info('Profile history entry created successfully', LogCategory.BUSINESS, { metadata: { id: data.id } });
       return data;
     } catch (error) {
-      this.logger.error('Error in createProfileHistoryEntry', error);
+      logger.error('Error in createProfileHistoryEntry', LogCategory.BUSINESS, {}, error as Error);
       throw error;
     }
   }
@@ -334,7 +355,7 @@ export class ProfileDataSource implements IProfileDataSource {
     version: Omit<ProfileVersionRow, 'id' | 'created_at'>
   ): Promise<ProfileVersionRow> {
     try {
-      this.logger.debug('Creating profile version', version);
+      logger.debug('Creating profile version', LogCategory.BUSINESS);
 
       const { data, error } = await supabase
         .from('profile_versions')
@@ -346,21 +367,21 @@ export class ProfileDataSource implements IProfileDataSource {
         .single();
 
       if (error) {
-        this.logger.error('Failed to create profile version', error.message);
+        logger.error('Failed to create profile version', LogCategory.BUSINESS, {}, new Error(error.message));
         throw new Error(`Database error: ${error.message}`);
       }
 
-      this.logger.info('Profile version created successfully', { id: data.id });
+      logger.info('Profile version created successfully', LogCategory.BUSINESS, { metadata: { id: data.id } });
       return data;
     } catch (error) {
-      this.logger.error('Error in createProfileVersion', error);
+      logger.error('Error in createProfileVersion', LogCategory.BUSINESS, {}, error as Error);
       throw error;
     }
   }
 
   async getProfileVersions(userId: string): Promise<ProfileVersionRow[]> {
     try {
-      this.logger.debug('Fetching profile versions', { userId });
+      logger.debug('Fetching profile versions', LogCategory.BUSINESS);
 
       const { data, error } = await supabase
         .from('profile_versions')
@@ -369,21 +390,21 @@ export class ProfileDataSource implements IProfileDataSource {
         .order('version_number', { ascending: false });
 
       if (error) {
-        this.logger.error('Failed to fetch profile versions', error.message);
+        logger.error('Failed to fetch profile versions', LogCategory.BUSINESS, { userId }, new Error(error.message));
         throw new Error(`Database error: ${error.message}`);
       }
 
-      this.logger.debug('Profile versions fetched successfully', { count: data.length });
+      logger.debug('Profile versions fetched successfully', LogCategory.BUSINESS);
       return data;
     } catch (error) {
-      this.logger.error('Error in getProfileVersions', error);
+      logger.error('Error in getProfileVersions', LogCategory.BUSINESS, { userId }, error as Error);
       throw error;
     }
   }
 
   async getProfileVersion(versionId: string): Promise<ProfileVersionRow | null> {
     try {
-      this.logger.debug('Fetching profile version', { versionId });
+      logger.debug('Fetching profile version', LogCategory.BUSINESS);
 
       const { data, error } = await supabase
         .from('profile_versions')
@@ -393,17 +414,17 @@ export class ProfileDataSource implements IProfileDataSource {
 
       if (error) {
         if (error.code === 'PGRST116') { // Not found
-          this.logger.debug('Profile version not found', { versionId });
+          logger.debug('Profile version not found', LogCategory.BUSINESS);
           return null;
         }
-        this.logger.error('Failed to fetch profile version', error.message);
+        logger.error('Failed to fetch profile version', LogCategory.BUSINESS, { metadata: { versionId } }, new Error(error.message));
         throw new Error(`Database error: ${error.message}`);
       }
 
-      this.logger.debug('Profile version fetched successfully', { versionId });
+      logger.debug('Profile version fetched successfully', LogCategory.BUSINESS);
       return data;
     } catch (error) {
-      this.logger.error('Error in getProfileVersion', error);
+      logger.error('Error in getProfileVersion', LogCategory.BUSINESS, { metadata: { versionId } }, error as Error);
       throw error;
     }
   }
@@ -419,7 +440,7 @@ export class ProfileDataSource implements IProfileDataSource {
     avgCompletionRate: number;
   }> {
     try {
-      this.logger.debug('Fetching profile statistics');
+      logger.debug('Fetching profile statistics', LogCategory.BUSINESS);
 
       // Get total profiles count
       const { count: totalProfiles, error: totalError } = await supabase
@@ -471,10 +492,10 @@ export class ProfileDataSource implements IProfileDataSource {
         avgCompletionRate: Math.round(avgCompletionRate * 100) / 100
       };
 
-      this.logger.debug('Profile statistics fetched successfully', stats);
+      logger.debug('Profile statistics fetched successfully', LogCategory.BUSINESS);
       return stats;
     } catch (error) {
-      this.logger.error('Error in getProfileStats', error);
+      logger.error('Error in getProfileStats', LogCategory.BUSINESS, {}, error as Error);
       throw error;
     }
   }
@@ -485,7 +506,7 @@ export class ProfileDataSource implements IProfileDataSource {
 
   async getMultipleProfiles(userIds: string[]): Promise<UserProfileRow[]> {
     try {
-      this.logger.debug('Fetching multiple profiles', { count: userIds.length });
+      logger.debug('Fetching multiple profiles', LogCategory.BUSINESS);
 
       const { data, error } = await supabase
         .from('user_profiles')
@@ -493,14 +514,14 @@ export class ProfileDataSource implements IProfileDataSource {
         .in('user_id', userIds);
 
       if (error) {
-        this.logger.error('Failed to fetch multiple profiles', error.message);
+        logger.error('Failed to fetch multiple profiles', LogCategory.BUSINESS, {}, new Error(error.message));
         throw new Error(`Database error: ${error.message}`);
       }
 
-      this.logger.debug('Multiple profiles fetched successfully', { count: data.length });
+      logger.debug('Multiple profiles fetched successfully', LogCategory.BUSINESS);
       return data;
     } catch (error) {
-      this.logger.error('Error in getMultipleProfiles', error);
+      logger.error('Error in getMultipleProfiles', LogCategory.BUSINESS, {}, error as Error);
       throw error;
     }
   }

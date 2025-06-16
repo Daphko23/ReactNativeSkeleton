@@ -131,7 +131,7 @@ export interface ManageCacheOutput {
 export class ManageProfessionalCacheUseCase {
   private cacheStorage: Map<string, CacheEntry> = new Map();
   private strategies: Map<CacheType, CacheStrategy> = new Map();
-  private metrics: CacheMetrics;
+  private metrics!: CacheMetrics; // Definite assignment assertion - initialized in constructor
   private lastOptimization: Date = new Date();
 
   constructor() {
@@ -142,12 +142,12 @@ export class ManageProfessionalCacheUseCase {
   /**
    * Executes cache management operation
    */
-  async execute(input: ManageCacheInput): Promise<Result<ManageCacheOutput, Error>> {
+  async execute(input: ManageCacheInput): Promise<Result<ManageCacheOutput>> {
     try {
       // Validate input
       const validationResult = this.validateInput(input);
       if (!validationResult.success) {
-        return Result.failure(new Error(validationResult.error));
+        return Result.error(validationResult.error || 'Validation failed');
       }
 
       const startTime = Date.now();
@@ -179,7 +179,7 @@ export class ManageProfessionalCacheUseCase {
           result = await this.analyzeCache(input.userId);
           break;
         default:
-          return Result.failure(new Error(`Unknown operation: ${input.operation}`));
+          return Result.error(`Unknown operation: ${input.operation}`);
       }
 
       const latency = Date.now() - startTime;
@@ -216,7 +216,7 @@ export class ManageProfessionalCacheUseCase {
       return Result.success(output);
 
     } catch (error) {
-      return Result.failure(new Error(`Cache management failed: ${error instanceof Error ? error.message : 'Unknown error'}`));
+      return Result.error(`Cache management failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
   }
 
@@ -227,12 +227,12 @@ export class ManageProfessionalCacheUseCase {
     userId: string;
     priorities: CacheType[];
     backgroundMode?: boolean;
-  }): Promise<Result<{
+  }  ): Promise<Result<{
     warmedTypes: CacheType[];
     totalSize: number;
     loadTime: number;
     errors: Array<{ type: CacheType; error: string }>;
-  }, Error>> {
+  }>> {
     try {
       const startTime = Date.now();
       const warmedTypes: CacheType[] = [];
@@ -266,7 +266,7 @@ export class ManageProfessionalCacheUseCase {
       });
 
     } catch (error) {
-      return Result.failure(new Error(`Cache warmup failed: ${error instanceof Error ? error.message : 'Unknown error'}`));
+      return Result.error(`Cache warmup failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
   }
 
@@ -280,11 +280,11 @@ export class ManageProfessionalCacheUseCase {
       timePatterns: Array<{ time: string; types: CacheType[] }>;
       sessionDuration: number;
     };
-  }): Promise<Result<{
+  }  ): Promise<Result<{
     prefetchedTypes: CacheType[];
     predictedNeeds: Array<{ type: CacheType; probability: number; timeframe: number }>;
     cacheEfficiency: number;
-  }, Error>> {
+  }>> {
     try {
       // Analyze usage patterns
       const predictions = this.predictDataNeeds(input.userBehavior);
@@ -317,7 +317,7 @@ export class ManageProfessionalCacheUseCase {
       });
 
     } catch (error) {
-      return Result.failure(new Error(`Intelligent prefetch failed: ${error instanceof Error ? error.message : 'Unknown error'}`));
+      return Result.error(`Intelligent prefetch failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
   }
 
@@ -545,10 +545,15 @@ export class ManageProfessionalCacheUseCase {
 
   private async loadProfessionalData(userId: string, type: CacheType): Promise<any> {
     // Mock data loading - would integrate with actual data sources
-    const mockData = {
+    const mockData: Record<CacheType, any> = {
       [CacheType.PROFILE_DATA]: { userId, name: 'John Doe', role: 'Software Engineer' },
       [CacheType.SKILLS_ANALYSIS]: { skills: ['JavaScript', 'React'], score: 85 },
-      [CacheType.MARKET_TRENDS]: { trends: ['AI', 'Cloud'], updated: new Date() }
+      [CacheType.MARKET_TRENDS]: { trends: ['AI', 'Cloud'], updated: new Date() },
+      [CacheType.CAREER_PROGRESSION]: { goals: [], milestones: [] },
+      [CacheType.INDUSTRY_BENCHMARKS]: { salary: 0, percentile: 0 },
+      [CacheType.NETWORK_DATA]: { connections: [], metrics: {} },
+      [CacheType.SALARY_DATA]: { current: 0, market: 0 },
+      [CacheType.JOB_OPPORTUNITIES]: { opportunities: [] }
     };
 
     return mockData[type] || {};
@@ -564,39 +569,64 @@ export class ManageProfessionalCacheUseCase {
   }
 
   private updateAccessMetrics(entry: CacheEntry): void {
-    entry.accessCount++;
-    entry.lastAccessed = new Date();
+    // Create new entry with updated metrics instead of modifying readonly properties
+    const updatedEntry = {
+      ...entry,
+      accessCount: entry.accessCount + 1,
+      lastAccessed: new Date()
+    };
+    this.cacheStorage.set(entry.key, updatedEntry);
   }
 
   private updateStorageMetrics(): void {
     const entries = Array.from(this.cacheStorage.values());
-    this.metrics.entryCount = entries.length;
-    this.metrics.totalSize = entries.reduce((sum, entry) => sum + entry.size, 0);
-    this.metrics.memoryUsage = Math.min(100, (this.metrics.totalSize / (50 * 1024 * 1024)) * 100); // Assume 50MB limit
+    const totalSize = entries.reduce((sum, entry) => sum + entry.size, 0);
+    const memoryUsage = Math.min(100, (totalSize / (50 * 1024 * 1024)) * 100); // Assume 50MB limit
+    
+    // Create new metrics object instead of modifying readonly properties
+    this.metrics = {
+      ...this.metrics,
+      entryCount: entries.length,
+      totalSize,
+      memoryUsage
+    };
   }
 
   private updateMetrics(operation: string, cacheHit: boolean, latency: number): void {
+    // Calculate new metrics values
+    let newHitRate = this.metrics.hitRate;
+    let newMissRate = this.metrics.missRate;
+    
     // Update hit/miss rates
     if (operation === 'get') {
       const totalRequests = this.metrics.hitRate + this.metrics.missRate;
       if (cacheHit) {
-        this.metrics.hitRate = ((this.metrics.hitRate * totalRequests) + 100) / (totalRequests + 1);
-        this.metrics.missRate = 100 - this.metrics.hitRate;
+        newHitRate = ((this.metrics.hitRate * totalRequests) + 100) / (totalRequests + 1);
+        newMissRate = 100 - newHitRate;
       } else {
-        this.metrics.missRate = ((this.metrics.missRate * totalRequests) + 100) / (totalRequests + 1);
-        this.metrics.hitRate = 100 - this.metrics.missRate;
+        newMissRate = ((this.metrics.missRate * totalRequests) + 100) / (totalRequests + 1);
+        newHitRate = 100 - newMissRate;
       }
     }
 
-    // Update average latency
-    this.metrics.averageLatency = (this.metrics.averageLatency * 0.9) + (latency * 0.1);
+    // Calculate new average latency
+    const newAverageLatency = (this.metrics.averageLatency * 0.9) + (latency * 0.1);
     
-    // Update performance score
-    this.metrics.performanceScore = Math.round(
-      (this.metrics.hitRate * 0.4) +
-      (Math.max(0, 100 - (this.metrics.averageLatency / 2)) * 0.3) +
+    // Calculate new performance score
+    const newPerformanceScore = Math.round(
+      (newHitRate * 0.4) +
+      (Math.max(0, 100 - (newAverageLatency / 2)) * 0.3) +
       (Math.max(0, 100 - this.metrics.memoryUsage) * 0.3)
     );
+
+    // Create new metrics object instead of modifying readonly properties
+    this.metrics = {
+      ...this.metrics,
+      hitRate: newHitRate,
+      missRate: newMissRate,
+      averageLatency: newAverageLatency,
+      performanceScore: newPerformanceScore
+    };
   }
 
   private async checkMemoryLimitsAndEvict(newEntrySize: number): Promise<void> {
@@ -667,7 +697,13 @@ export class ManageProfessionalCacheUseCase {
     
     for (const [key, entry] of this.cacheStorage) {
       if (entry.size > sizeThreshold && typeof entry.data === 'object') {
-        entry.data = this.compressData(entry.data);
+        // Create new entry with compressed data instead of modifying readonly property
+        const compressedEntry = {
+          ...entry,
+          data: this.compressData(entry.data),
+          size: this.calculateDataSize(this.compressData(entry.data))
+        };
+        this.cacheStorage.set(key, compressedEntry);
         count++;
       }
     }

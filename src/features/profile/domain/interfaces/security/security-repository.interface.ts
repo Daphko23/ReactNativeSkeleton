@@ -6,7 +6,7 @@
  * ✅ CLEAN ARCHITECTURE: Interface segregation principle
  */
 
-import { Result } from '../../../shared/types/result.type';
+import { Result } from '@core/types/result.type';
 import { 
   SecurityProfile, 
   SecurityAction, 
@@ -384,7 +384,7 @@ export interface ComplianceReport {
   userId: string;
   generatedAt: Date;
   complianceScore: number; // 0-100
-  status: ComplianceStatus;
+  status: 'COMPLIANT' | 'PARTIAL' | 'NON_COMPLIANT';
   
   requirements: {
     gdpr: ComplianceRequirement;

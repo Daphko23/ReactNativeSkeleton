@@ -133,8 +133,7 @@ export const useNetworkStatusChampion = (): UseNetworkStatusReturn => {
 
         logger.info('Network status checked successfully (Champion)', LogCategory.BUSINESS, { 
           correlationId,
-          connectionType: status.connectionType,
-          isConnected: status.isConnected
+          metadata: { connectionType: status.connectionType, isConnected: status.isConnected }
         });
 
         return status;
@@ -173,17 +172,16 @@ export const useNetworkStatusChampion = (): UseNetworkStatusReturn => {
         const quality: NetworkQuality = {
           isSlowConnection: state.type === 'cellular' && details && 'cellularGeneration' in details ? 
             details.cellularGeneration === '2g' : false,
-          effectiveType: details && 'effectiveType' in details ? details.effectiveType : null,
-          downlink: details && 'downlink' in details ? details.downlink : null,
-          downlinkMax: details && 'downlinkMax' in details ? details.downlinkMax : null,
-          rtt: details && 'rtt' in details ? details.rtt : null,
-          saveData: details && 'saveData' in details ? details.saveData : false,
+          effectiveType: details && 'effectiveType' in details ? (details as any).effectiveType as string | null : null,
+          downlink: details && 'downlink' in details ? (details as any).downlink as number | null : null,
+          downlinkMax: details && 'downlinkMax' in details ? (details as any).downlinkMax as number | null : null,
+          rtt: details && 'rtt' in details ? (details as any).rtt as number | null : null,
+          saveData: details && 'saveData' in details ? (details as any).saveData as boolean : false,
         };
 
         logger.info('Network quality checked successfully (Champion)', LogCategory.BUSINESS, { 
           correlationId,
-          effectiveType: quality.effectiveType,
-          isSlowConnection: quality.isSlowConnection
+          metadata: { effectiveType: quality.effectiveType, isSlowConnection: quality.isSlowConnection }
         });
 
         return quality;
@@ -217,8 +215,7 @@ export const useNetworkStatusChampion = (): UseNetworkStatusReturn => {
       
       logger.info('Network status changed (Champion)', LogCategory.BUSINESS, { 
         correlationId,
-        isConnected,
-        connectionType: state.type
+        metadata: { isConnected, connectionType: state.type }
       });
 
       // Invalidate queries to refresh status
@@ -268,7 +265,7 @@ export const useNetworkStatusChampion = (): UseNetworkStatusReturn => {
       
       logger.info('Manual network check completed (Champion)', LogCategory.BUSINESS, { 
         correlationId,
-        result
+        metadata: { result }
       });
 
       return result;
@@ -285,7 +282,7 @@ export const useNetworkStatusChampion = (): UseNetworkStatusReturn => {
     
     logger.info('Testing network reachability (Champion)', LogCategory.BUSINESS, { 
       correlationId,
-      url
+      metadata: { url }
     });
 
     try {
@@ -295,15 +292,14 @@ export const useNetworkStatusChampion = (): UseNetworkStatusReturn => {
       
       logger.info('Reachability test completed (Champion)', LogCategory.BUSINESS, { 
         correlationId,
-        url,
-        reachable
+        metadata: { url, reachable }
       });
 
       return reachable;
     } catch (error) {
       logger.error('Reachability test failed (Champion)', LogCategory.BUSINESS, { 
         correlationId,
-        url
+        metadata: { url }
       }, error as Error);
       return false;
     }

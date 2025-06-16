@@ -31,18 +31,19 @@ interface MemoryUsageResult {
   arrayBuffers?: number;
 }
 
+/* eslint-disable no-var */
 declare global {
-  var waitFor: (ms?: number) => Promise<void>;
-  var flushPromises: () => Promise<void>;
-  var createMockHookReturn: <T>(overrides?: Partial<T>) => T;
+  function waitFor(ms?: number): Promise<void>;
+  function flushPromises(): Promise<void>;
+  function createMockHookReturn<T>(overrides?: Partial<T>): T;
   var createTestData: {
     user: (overrides?: any) => any;
     profile: (overrides?: any) => any;
     queryResult: <T>(data: T, overrides?: any) => any;
     mutationResult: (overrides?: any) => any;
   };
-  var getMemoryUsage: () => MemoryUsageResult;
-  var measurePerformance: (name: string, fn: () => void | Promise<void>) => any;
+  function getMemoryUsage(): MemoryUsageResult;
+  function measurePerformance(name: string, fn: () => void | Promise<void>): any;
   var TestErrorBoundary: React.FC<{ children: React.ReactNode; onError?: (error: Error) => void }>;
   var isCI: boolean;
 }

@@ -115,16 +115,16 @@ export class OptimizeProfessionalProfileUseCase {
   /**
    * Executes comprehensive professional profile optimization
    */
-  async execute(input: OptimizeProfileInput): Promise<Result<OptimizeProfileOutput, Error>> {
+  async execute(input: OptimizeProfileInput): Promise<Result<OptimizeProfileOutput>> {
     try {
       // Validate input
       const validationResult = this.validateInput(input);
       if (!validationResult.success) {
-        return Result.failure(new Error(validationResult.error));
+        return Result.error(validationResult.error || 'Validation failed');
       }
 
       // Create or update professional profile
-      let professionalProfile = await this.createOrUpdateProfile(input);
+      const professionalProfile = await this.createOrUpdateProfile(input);
 
       // Analyze current profile state
       const currentAnalysis = await this.analyzeProfile(professionalProfile);
@@ -192,7 +192,7 @@ export class OptimizeProfessionalProfileUseCase {
       return Result.success(output);
 
     } catch (error) {
-      return Result.failure(new Error(`Profile optimization failed: ${error instanceof Error ? error.message : 'Unknown error'}`));
+      return Result.error(`Profile optimization failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
   }
 
@@ -210,7 +210,7 @@ export class OptimizeProfessionalProfileUseCase {
     topIssues: string[];
     quickWins: string[];
     estimatedImprovementTime: number; // hours
-  }, Error>> {
+  }, string>> {
     try {
       // Create basic profile for assessment
       const profile = new ProfessionalProfile({
@@ -254,7 +254,13 @@ export class OptimizeProfessionalProfileUseCase {
       });
 
     } catch (error) {
-      return Result.failure(new Error(`Quick assessment failed: ${error instanceof Error ? error.message : 'Unknown error'}`));
+      return Result.error<{
+        score: number;
+        completeness: number;
+        topIssues: string[];
+        quickWins: string[];
+        estimatedImprovementTime: number;
+      }>(`Quick assessment failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
   }
 
@@ -274,7 +280,7 @@ export class OptimizeProfessionalProfileUseCase {
     keyStrengths: string[];
     uniqueValueProposition: string;
     improvementScore: number;
-  }, Error>> {
+  }, string>> {
     try {
       // Create optimized professional summary
       const elevatorPitch = this.generateElevatorPitch(
@@ -316,7 +322,13 @@ export class OptimizeProfessionalProfileUseCase {
       });
 
     } catch (error) {
-      return Result.failure(new Error(`Summary optimization failed: ${error instanceof Error ? error.message : 'Unknown error'}`));
+      return Result.error<{
+        optimizedSummary: string;
+        elevatorPitch: string;
+        keyStrengths: string[];
+        uniqueValueProposition: string;
+        improvementScore: number;
+      }>(`Summary optimization failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
   }
 

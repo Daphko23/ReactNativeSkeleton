@@ -388,12 +388,10 @@ export const useSessionGuard = (config?: SessionGuardConfig): UseSessionGuardRet
         
         // Default session expiry (24 hours from login)
         const defaultExpiryTime = 24 * 60 * 60 * 1000;
-        const expiresAt = sessionData?.sessionExpiresAt ? 
-          new Date(sessionData.sessionExpiresAt) : 
-          new Date(now.getTime() + defaultExpiryTime);
+        const expiresAt = new Date(now.getTime() + defaultExpiryTime);
         
-        const lastActivity = sessionData?.lastActivity ? 
-          new Date(sessionData.lastActivity) : 
+        const lastActivity = sessionData?.lastActiveAt ? 
+          new Date(sessionData.lastActiveAt) : 
           new Date();
 
         const timeUntilExpiry = expiresAt.getTime() - now.getTime();
@@ -554,7 +552,7 @@ export const useSessionGuard = (config?: SessionGuardConfig): UseSessionGuardRet
       
       logger.info('Manual session check completed (Champion)', LogCategory.SECURITY, { 
         correlationId,
-        result
+        metadata: { result }
       });
 
       return result || false;
@@ -595,8 +593,10 @@ export const useSessionGuard = (config?: SessionGuardConfig): UseSessionGuardRet
     
     logger.debug('Updating session activity (Champion)', LogCategory.SECURITY, { 
       correlationId,
-      userId: user?.id,
-      timestamp: new Date().toISOString()
+      metadata: { 
+        userId: user?.id,
+        timestamp: new Date().toISOString()
+      }
     });
 
     // Trigger a soft refresh of session status

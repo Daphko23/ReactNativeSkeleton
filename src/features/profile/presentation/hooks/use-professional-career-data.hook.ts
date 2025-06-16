@@ -65,6 +65,36 @@ export interface CareerMilestone {
   createdAt: Date;
 }
 
+// Type aliases for backward compatibility
+export type UseProfessionalCareerDataProps = UseProfessionalCareerProps;
+export type UseProfessionalCareerDataReturn = UseProfessionalCareerReturn;
+
+// Additional types for index.ts exports
+export interface CareerMetrics {
+  totalGoals: number;
+  activeGoals: number;
+  completedGoals: number;
+  overallProgress: number;
+  recentMilestones: number;
+}
+
+export interface CareerInsights {
+  progressTrend: 'improving' | 'stable' | 'declining';
+  recommendedActions: string[];
+  nextMilestone?: string;
+  estimatedCompletion?: Date;
+}
+
+export interface CareerHealthScore {
+  score: number; // 0-100
+  factors: {
+    goalCompletion: number;
+    progressConsistency: number;
+    milestoneFrequency: number;
+  };
+  recommendations: string[];
+}
+
 export interface UseProfessionalCareerProps {
   userId: string;
   enableAnalytics?: boolean;
@@ -84,6 +114,11 @@ export interface UseProfessionalCareerReturn {
   activeGoalsCount: number;
   completedGoalsCount: number;
   recentMilestones: CareerMilestone[];
+  
+  // Additional computed values for compatibility
+  careerMetrics: CareerMetrics;
+  careerInsights: CareerInsights;
+  careerHealthScore: CareerHealthScore;
   
   // Goal Management Actions
   addGoal: (goal: Omit<CareerGoal, 'id' | 'createdAt'>) => Promise<void>;
@@ -432,6 +467,50 @@ export const useProfessionalCareerData = ({
     );
   }, [goals, milestones]);
 
+  // Additional computed values for compatibility
+  const careerMetrics = useMemo((): CareerMetrics => ({
+    totalGoals: goals.length,
+    activeGoals: activeGoalsCount,
+    completedGoals: completedGoalsCount,
+    overallProgress,
+    recentMilestones: recentMilestones.length
+  }), [goals.length, activeGoalsCount, completedGoalsCount, overallProgress, recentMilestones.length]);
+
+  const careerInsights = useMemo((): CareerInsights => {
+    const progressTrend = overallProgress > 70 ? 'improving' : overallProgress > 40 ? 'stable' : 'declining';
+    const recommendedActions = [];
+    
+    if (activeGoalsCount === 0) recommendedActions.push('Set new career goals');
+    if (recentMilestones.length === 0) recommendedActions.push('Add recent achievements');
+    if (overallProgress < 50) recommendedActions.push('Focus on completing current goals');
+    
+    return {
+      progressTrend,
+      recommendedActions,
+      nextMilestone: goals.find(g => g.status === 'in_progress')?.title,
+      estimatedCompletion: goals.find(g => g.targetDate)?.targetDate
+    };
+  }, [overallProgress, activeGoalsCount, recentMilestones.length, goals]);
+
+  const careerHealthScore = useMemo((): CareerHealthScore => {
+    const goalCompletion = goals.length > 0 ? (completedGoalsCount / goals.length) * 100 : 0;
+    const progressConsistency = overallProgress;
+    const milestoneFrequency = recentMilestones.length > 0 ? 80 : 40;
+    
+    const score = Math.round((goalCompletion + progressConsistency + milestoneFrequency) / 3);
+    
+    const recommendations = [];
+    if (goalCompletion < 50) recommendations.push('Focus on completing existing goals');
+    if (milestoneFrequency < 60) recommendations.push('Track achievements more regularly');
+    if (progressConsistency < 60) recommendations.push('Set more realistic goal timelines');
+    
+    return {
+      score,
+      factors: { goalCompletion, progressConsistency, milestoneFrequency },
+      recommendations
+    };
+  }, [goals.length, completedGoalsCount, overallProgress, recentMilestones.length]);
+
   // =============================================================================
   // 🎯 RETURN CHAMPION INTERFACE
   // =============================================================================
@@ -460,6 +539,11 @@ export const useProfessionalCareerData = ({
     // Milestone Management Actions
     addMilestone,
     deleteMilestone,
+    
+    // Additional computed values for compatibility
+    careerMetrics,
+    careerInsights,
+    careerHealthScore,
     
     // Mobile Performance
     refresh,

@@ -102,12 +102,14 @@ export class ManageProfileCacheUseCase {
   /**
    * Manages cache operations (get, set, invalidate, etc.)
    */
-  async manageCache(request: CacheManagementRequest): Promise<Result<CacheManagementResponse, string>> {
+  async manageCache(request: CacheManagementRequest): Promise<Result> {
     try {
       logger.info('Managing cache operation', LogCategory.BUSINESS, {
         userId: request.userId,
-        operation: request.operation,
-        cacheKey: request.cacheKey
+        metadata: {
+          operation: request.operation,
+          cacheKey: request.cacheKey
+        }
       });
 
       let result: CacheManagementResponse;
@@ -129,20 +131,22 @@ export class ManageProfileCacheUseCase {
           result = await this.cleanupCache(request);
           break;
         default:
-          return Result.failure(`Unsupported cache operation: ${request.operation}`);
+          return Result.error(`Unsupported cache operation: ${request.operation}`);
       }
 
       logger.info('Cache operation completed', LogCategory.BUSINESS, {
         userId: request.userId,
-        operation: request.operation,
-        success: result.success
+        metadata: {
+          operation: request.operation,
+          success: result.success
+        }
       });
 
       return Result.success(result);
     } catch (error) {
       logger.error('Failed to manage cache', LogCategory.BUSINESS, 
         { userId: request.userId }, error as Error);
-      return Result.failure(`Cache management failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      return Result.error(`Cache management failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
   }
 
@@ -153,8 +157,10 @@ export class ManageProfileCacheUseCase {
     try {
       logger.info('Starting cache warmup', LogCategory.BUSINESS, {
         userId: request.userId,
-        sections: request.profileSections.length,
-        connectionType: request.deviceCapabilities.connectionType
+        metadata: {
+          sections: request.profileSections.length,
+          connectionType: request.deviceCapabilities.connectionType
+        }
       });
 
       // Prioritize sections based on device capabilities
@@ -172,15 +178,17 @@ export class ManageProfileCacheUseCase {
 
       logger.info('Cache warmup completed', LogCategory.BUSINESS, {
         userId: request.userId,
-        sectionsWarmed: warmupResults.length,
-        totalCacheSize: analytics.overall.totalSize
+        metadata: {
+          sectionsWarmed: warmupResults.length,
+          totalCacheSize: analytics.overall.totalSize
+        }
       });
 
       return Result.success(analytics);
     } catch (error) {
       logger.error('Failed to warmup cache', LogCategory.BUSINESS, 
         { userId: request.userId }, error as Error);
-      return Result.failure(`Cache warmup failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      return Result.error(`Cache warmup failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
   }
 
@@ -195,15 +203,17 @@ export class ManageProfileCacheUseCase {
 
       logger.info('Cache analytics generated', LogCategory.BUSINESS, {
         userId,
-        hitRate: analytics.overall.hitRate,
-        totalSize: analytics.overall.totalSize
+        metadata: {
+          hitRate: analytics.overall.hitRate,
+          totalSize: analytics.overall.totalSize
+        }
       });
 
       return Result.success(analytics);
     } catch (error) {
       logger.error('Failed to generate cache analytics', LogCategory.BUSINESS, 
         { userId }, error as Error);
-      return Result.failure(`Cache analytics failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      return Result.error(`Cache analytics failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
   }
 

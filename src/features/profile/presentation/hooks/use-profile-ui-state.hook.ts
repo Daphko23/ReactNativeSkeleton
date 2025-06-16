@@ -156,9 +156,7 @@ export const useProfileUIState = (props?: UseProfileUIStateProps): UseProfileUIS
     if (enableLogging) {
       logger.info('Profile section toggled', LogCategory.BUSINESS, {
         userId,
-        section,
-        newState: !wasExpanded,
-        variant
+        metadata: { section, newState: !wasExpanded, variant }
       });
     }
   }, [expandedSections, enableLogging, userId, variant]);
@@ -173,7 +171,7 @@ export const useProfileUIState = (props?: UseProfileUIStateProps): UseProfileUIS
     });
     
     if (enableLogging) {
-      logger.info('All profile sections expanded', LogCategory.BUSINESS, { userId, variant });
+      logger.info('All profile sections expanded', LogCategory.BUSINESS, { userId, metadata: { variant } });
     }
   }, [enableLogging, userId, variant]);
   
@@ -187,7 +185,7 @@ export const useProfileUIState = (props?: UseProfileUIStateProps): UseProfileUIS
     });
     
     if (enableLogging) {
-      logger.info('All profile sections collapsed', LogCategory.BUSINESS, { userId, variant });
+      logger.info('All profile sections collapsed', LogCategory.BUSINESS, { userId, metadata: { variant } });
     }
   }, [enableLogging, userId, variant]);
   
@@ -207,8 +205,7 @@ export const useProfileUIState = (props?: UseProfileUIStateProps): UseProfileUIS
       if (enableLogging) {
         logger.info('Enhanced info toggled', LogCategory.BUSINESS, { 
           userId, 
-          newState,
-          variant 
+          metadata: { newState, variant } 
         });
       }
       
@@ -223,8 +220,7 @@ export const useProfileUIState = (props?: UseProfileUIStateProps): UseProfileUIS
       if (enableLogging) {
         logger.info('Action menu toggled', LogCategory.BUSINESS, { 
           userId, 
-          newState,
-          variant 
+          metadata: { newState, variant } 
         });
       }
       
@@ -248,7 +244,7 @@ export const useProfileUIState = (props?: UseProfileUIStateProps): UseProfileUIS
     setError(null);
     
     if (enableLogging) {
-      logger.info('Profile UI state reset to defaults', LogCategory.BUSINESS, { userId, variant });
+      logger.info('Profile UI state reset to defaults', LogCategory.BUSINESS, { userId, metadata: { variant } });
     }
   }, [variant, enableLogging, userId]);
   
@@ -303,7 +299,7 @@ export const useProfileUIState = (props?: UseProfileUIStateProps): UseProfileUIS
         category: 'primary',
         onPress: () => {
           if (enableLogging) {
-            logger.info('Edit action triggered', LogCategory.BUSINESS, { userId, variant });
+            logger.info('Edit action triggered', LogCategory.BUSINESS, { userId, metadata: { variant } });
           }
           // Navigation would be handled by parent component
         }
@@ -316,7 +312,7 @@ export const useProfileUIState = (props?: UseProfileUIStateProps): UseProfileUIS
         category: 'secondary',
         onPress: () => {
           if (enableLogging) {
-            logger.info('Share action triggered', LogCategory.BUSINESS, { userId, variant });
+            logger.info('Share action triggered', LogCategory.BUSINESS, { userId, metadata: { variant } });
           }
           // Share logic would be handled by parent component
         }
@@ -333,7 +329,7 @@ export const useProfileUIState = (props?: UseProfileUIStateProps): UseProfileUIS
         category: 'admin',
         onPress: () => {
           if (enableLogging) {
-            logger.info('Manage action triggered', LogCategory.BUSINESS, { userId, variant });
+            logger.info('Manage action triggered', LogCategory.BUSINESS, { userId, metadata: { variant } });
           }
           // Admin logic would be handled by parent component
         }
@@ -389,9 +385,9 @@ export const useProfileUIState = (props?: UseProfileUIStateProps): UseProfileUIS
     collapseAllSections,
     
     // 🏆 Champion Loading Actions
-    setEnhancementLoading,
-    setLoadingEnhanced,
-    setRefreshing,
+    setEnhancementLoading: setIsEnhancementLoading,
+    setLoadingEnhanced: setIsLoadingEnhanced,
+    setRefreshing: setIsRefreshing,
     
     // 🏆 Champion Modal Actions
     dismissSecurityPrompt,

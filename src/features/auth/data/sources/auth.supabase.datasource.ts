@@ -126,8 +126,10 @@ export class AuthSupabaseDatasource implements AuthDatasource {
     
     logger.info('Attempting user registration', LogCategory.BUSINESS, {
       correlationId,
-      email,
-      hasPassword: !!password
+      metadata: {
+        email,
+        hasPassword: !!password
+      }
     });
 
     const {data, error} = await supabase.auth.signUp({
@@ -137,19 +139,23 @@ export class AuthSupabaseDatasource implements AuthDatasource {
 
     logger.info('User registration response received', LogCategory.BUSINESS, {
       correlationId,
-      hasUser: !!data?.user,
-      hasSession: !!data?.session,
-      userEmail: data?.user?.email,
-      emailConfirmed: !!data?.user?.email_confirmed_at,
-      errorStatus: error?.status || null
+      metadata: {
+        hasUser: !!data?.user,
+        hasSession: !!data?.session,
+        userEmail: data?.user?.email,
+        emailConfirmed: !!data?.user?.email_confirmed_at,
+        errorStatus: error?.status || null
+      }
     });
 
     if (error) {
       logger.error('User registration failed', LogCategory.BUSINESS, {
         correlationId,
-        email,
-        errorCode: error.status,
-        errorMessage: error.message
+        metadata: {
+          email,
+          errorCode: error.status,
+          errorMessage: error.message
+        }
       }, error);
       throw SupabaseAuthErrorMapper.map(error);
     }
@@ -158,8 +164,10 @@ export class AuthSupabaseDatasource implements AuthDatasource {
     if (data.user && !data.user.email_confirmed_at && !data.session) {
       logger.info('Email confirmation required for user registration', LogCategory.BUSINESS, {
         correlationId,
-        email,
-        requiresConfirmation: true
+        metadata: {
+          email,
+          requiresConfirmation: true
+        }
       });
       // This is normal for Supabase - user needs to confirm email
       // We should not throw an error here, just log it
@@ -239,7 +247,9 @@ export class AuthSupabaseDatasource implements AuthDatasource {
       
       if (sessionError) {
         logger.warn('Failed to get authentication session', LogCategory.BUSINESS, {
-          sessionError: sessionError.message
+          metadata: {
+            sessionError: sessionError.message
+          }
         });
         return null;
       }
@@ -257,7 +267,9 @@ export class AuthSupabaseDatasource implements AuthDatasource {
 
       if (error) {
         logger.warn('Failed to get current user from session', LogCategory.BUSINESS, {
-          errorMessage: error.message
+          metadata: {
+            errorMessage: error.message
+          }
         });
         return null;
       }
@@ -268,9 +280,11 @@ export class AuthSupabaseDatasource implements AuthDatasource {
       }
 
       logger.info('Current user retrieved successfully', LogCategory.BUSINESS, {
-        userEmail: user.email,
-        userId: user.id,
-        emailVerified: !!user.email_confirmed_at
+        metadata: {
+          userEmail: user.email,
+          userId: user.id,
+          emailVerified: !!user.email_confirmed_at
+        }
       });
       return this.mapSupabaseUserToDto(user);
     } catch (error) {

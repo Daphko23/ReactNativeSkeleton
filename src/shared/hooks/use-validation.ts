@@ -167,15 +167,17 @@ export const useValidationChampion = (): UseValidationReturn => {
           xss: xssPatterns,
           sql: sqlPatterns,
           email: /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/,
-          url: /^https?:\/\/(?:[-\w.])+(?:\:[0-9]+)?(?:\/(?:[\w\/_.])*(?:\?(?:[\w&=%.])*)?(?:\#(?:[\w.])*)?)?$/,
+          url: /^https?:\/\/(?:[-\w.])+(?::[0-9]+)?(?:\/(?:[\w/_.])*(?:\?(?:[\w&=%.])*)?(?:#(?:[\w.])*)?)?$/,
           phone: /^[+]?[(]?[0-9\s\-()]*$/,
           lastUpdated: new Date(),
         };
 
         logger.info('Validation patterns loaded successfully (Champion)', LogCategory.SECURITY, { 
           correlationId,
-          xssPatterns: patterns.xss.length,
-          sqlPatterns: patterns.sql.length
+          metadata: {
+            xssPatterns: patterns.xss.length,
+            sqlPatterns: patterns.sql.length
+          }
         });
 
         return patterns;
@@ -209,7 +211,7 @@ export const useValidationChampion = (): UseValidationReturn => {
     
     logger.info('Sanitizing HTML content (Champion)', LogCategory.SECURITY, { 
       correlationId,
-      inputLength: html?.length || 0
+      metadata: { inputLength: html?.length || 0 }
     });
 
     if (typeof html !== 'string') return '';
@@ -228,9 +230,11 @@ export const useValidationChampion = (): UseValidationReturn => {
 
       logger.info('HTML sanitization completed (Champion)', LogCategory.SECURITY, { 
         correlationId,
-        originalLength: html.length,
-        sanitizedLength: sanitized.length,
-        removed: html.length - sanitized.length
+        metadata: {
+          originalLength: html.length,
+          sanitizedLength: sanitized.length,
+          removed: html.length - sanitized.length
+        }
       });
 
       return sanitized.trim();
@@ -248,7 +252,7 @@ export const useValidationChampion = (): UseValidationReturn => {
     
     logger.info('Sanitizing SQL input (Champion)', LogCategory.SECURITY, { 
       correlationId,
-      inputLength: input?.length || 0
+      metadata: { inputLength: input?.length || 0 }
     });
 
     if (typeof input !== 'string') return '';
@@ -265,8 +269,10 @@ export const useValidationChampion = (): UseValidationReturn => {
 
       logger.info('SQL sanitization completed (Champion)', LogCategory.SECURITY, { 
         correlationId,
-        originalLength: input.length,
-        sanitizedLength: sanitized.length
+        metadata: {
+          originalLength: input.length,
+          sanitizedLength: sanitized.length
+        }
       });
 
       return sanitized;
@@ -306,8 +312,10 @@ export const useValidationChampion = (): UseValidationReturn => {
     
     logger.info('Starting validation (Champion)', LogCategory.SECURITY, { 
       correlationId,
-      rules: Object.keys(rules),
-      severity: rules.severity || 'medium'
+      metadata: {
+        rules: Object.keys(rules),
+        severity: rules.severity || 'medium'
+      }
     });
 
     setIsValidating(true);
@@ -335,8 +343,10 @@ export const useValidationChampion = (): UseValidationReturn => {
 
         logger.info('Validation completed (empty value) (Champion)', LogCategory.SECURITY, { 
           correlationId,
-          isValid: result.isValid,
-          validationTime: result.validationTime
+          metadata: {
+            isValid: result.isValid,
+            validationTime: result.validationTime
+          }
         });
 
         return result;
@@ -388,7 +398,7 @@ export const useValidationChampion = (): UseValidationReturn => {
           
           logger.warn('XSS pattern detected (Champion)', LogCategory.SECURITY, { 
             correlationId,
-            inputLength: stringValue.length
+            metadata: { inputLength: stringValue.length }
           });
         }
         sanitizedValue = sanitizeHTML(stringValue);
@@ -403,7 +413,7 @@ export const useValidationChampion = (): UseValidationReturn => {
           
           logger.warn('SQL injection pattern detected (Champion)', LogCategory.SECURITY, { 
             correlationId,
-            inputLength: stringValue.length
+            metadata: { inputLength: stringValue.length }
           });
         }
         sanitizedValue = sanitizeSQL(stringValue);
@@ -430,10 +440,12 @@ export const useValidationChampion = (): UseValidationReturn => {
 
       logger.info('Validation completed (Champion)', LogCategory.SECURITY, { 
         correlationId,
-        isValid: result.isValid,
-        errorCount: errors.length,
-        validationTime,
-        securityLevel
+        metadata: {
+          isValid: result.isValid,
+          errorCount: errors.length,
+          validationTime,
+          securityLevel
+        }
       });
 
       return result;
@@ -463,7 +475,7 @@ export const useValidationChampion = (): UseValidationReturn => {
     
     logger.info('Starting form validation (Champion)', LogCategory.SECURITY, { 
       correlationId,
-      fieldCount: Object.keys(schema).length
+      metadata: { fieldCount: Object.keys(schema).length }
     });
 
     const results: Record<string, ValidationResult> = {};
@@ -477,9 +489,11 @@ export const useValidationChampion = (): UseValidationReturn => {
 
     logger.info('Form validation completed (Champion)', LogCategory.SECURITY, { 
       correlationId,
-      fieldCount: Object.keys(schema).length,
-      isFormValid,
-      totalErrors
+      metadata: { 
+        fieldCount: Object.keys(schema).length,
+        isFormValid,
+        totalErrors
+      }
     });
 
     return results;
@@ -501,8 +515,7 @@ export const useValidationChampion = (): UseValidationReturn => {
     
     logger.info('Setting validation error (Champion)', LogCategory.SECURITY, { 
       correlationId,
-      field,
-      error
+      metadata: { field, error }
     });
 
     setErrors(prev => ({
@@ -516,7 +529,7 @@ export const useValidationChampion = (): UseValidationReturn => {
     
     logger.info('Clearing validation errors (Champion)', LogCategory.SECURITY, { 
       correlationId,
-      field: field || 'all'
+      metadata: { field: field || 'all' }
     });
 
     if (field) {
@@ -532,13 +545,15 @@ export const useValidationChampion = (): UseValidationReturn => {
 
   const auditValidation = useCallback((field: string, result: ValidationResult) => {
     logger.info('Validation audit (Champion)', LogCategory.SECURITY, { 
-      field,
-      isValid: result.isValid,
-      errorCount: result.errors.length,
-      validationTime: result.validationTime,
-      securityLevel: result.securityLevel,
       correlationId: result.correlationId,
-      timestamp: new Date().toISOString()
+      metadata: {
+        field,
+        isValid: result.isValid,
+        errorCount: result.errors.length,
+        validationTime: result.validationTime,
+        securityLevel: result.securityLevel,
+        timestamp: new Date().toISOString()
+      }
     });
   }, []);
 

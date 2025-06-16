@@ -12,8 +12,8 @@
 
 import React from 'react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { LoggerFactory } from '@core/logging/logger.factory';
-import { LogCategory } from '@core/logging/logger.service.interface';
+import { LoggerFactory } from '../logging/logger.factory';
+import { LogCategory } from '../logging/logger.service.interface';
 
 const logger = LoggerFactory.createServiceLogger('QueryClient');
 

@@ -286,12 +286,20 @@ export class ProfessionalProfile {
     
     // Update availability based on status
     if (status === ProfessionalStatus.ACTIVELY_SEEKING) {
-      this._workPreferences.startAvailability = new Date();
+      // Create new work preferences with updated startAvailability
+      this._workPreferences = {
+        ...this._workPreferences,
+        startAvailability: new Date()
+      };
     } else if (status === ProfessionalStatus.CURRENTLY_EMPLOYED) {
       // Extend availability by 2 weeks notice period
       const futureDate = new Date();
       futureDate.setDate(futureDate.getDate() + 14);
-      this._workPreferences.startAvailability = futureDate;
+              // Create new work preferences with updated startAvailability
+        this._workPreferences = {
+          ...this._workPreferences,
+          startAvailability: futureDate
+        };
     }
     
     this.recalculateMetrics();

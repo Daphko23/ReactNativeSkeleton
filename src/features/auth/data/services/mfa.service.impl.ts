@@ -402,8 +402,10 @@ export class MFAServiceImpl implements IMFAService {
       } else {
         logger.warn('TOTP verification failed', LogCategory.SECURITY, {
         userId,
-        mfaType: 'totp',
-        action: 'verification_failed'
+        metadata: {
+          mfaType: 'totp',
+          action: 'verification_failed'
+        }
       });
         await this.incrementFailedAttempts(userId, 'totp');
         
@@ -440,7 +442,9 @@ export class MFAServiceImpl implements IMFAService {
     } catch (error) {
       logger.error('TOTP verification error', LogCategory.SECURITY, {
         userId,
-        mfaType: 'totp'
+        metadata: {
+          mfaType: 'totp'
+        }
       }, error as Error);
       this.logger.error('TOTP verification error', LogCategory.SECURITY, {
         userId,
@@ -481,8 +485,10 @@ export class MFAServiceImpl implements IMFAService {
       
       logger.info('SMS MFA setup successful', LogCategory.SECURITY, {
         userId,
-        mfaType: 'sms',
-        action: 'setup'
+        metadata: {
+          mfaType: 'sms',
+          action: 'setup'
+        }
       });
       
       return {
@@ -491,7 +497,9 @@ export class MFAServiceImpl implements IMFAService {
     } catch (error) {
       logger.error('SMS MFA setup failed', LogCategory.SECURITY, {
         userId,
-        mfaType: 'sms'
+        metadata: {
+          mfaType: 'sms'
+        }
       }, error as Error);
       return {
         success: false,
@@ -516,8 +524,10 @@ export class MFAServiceImpl implements IMFAService {
       // Simulate SMS sending
       logger.info('SMS verification code sent', LogCategory.SECURITY, {
         userId,
-        mfaType: 'sms',
-        action: 'send_code'
+        metadata: {
+          mfaType: 'sms',
+          action: 'send_code'
+        }
       });
       
       return {
@@ -526,7 +536,9 @@ export class MFAServiceImpl implements IMFAService {
     } catch (error) {
       logger.error('Failed to send SMS verification code', LogCategory.SECURITY, {
         userId,
-        mfaType: 'sms'
+        metadata: {
+          mfaType: 'sms'
+        }
       }, error as Error);
       return {
         success: false,
@@ -555,8 +567,10 @@ export class MFAServiceImpl implements IMFAService {
       if (isValid) {
         logger.info('SMS verification successful', LogCategory.SECURITY, {
         userId,
-        mfaType: 'sms',
-        action: 'verify'
+        metadata: {
+          mfaType: 'sms',
+          action: 'verify'
+        }
       });
         return {
           success: true,
@@ -572,8 +586,10 @@ export class MFAServiceImpl implements IMFAService {
     } catch (error) {
       logger.error('SMS verification failed', LogCategory.SECURITY, {
         userId,
-        mfaType: 'sms',
-        verificationCode: '***masked***'
+        metadata: {
+          mfaType: 'sms',
+          verificationCode: '***masked***'
+        }
       }, error as Error);
       return {
         success: false,
@@ -618,7 +634,9 @@ export class MFAServiceImpl implements IMFAService {
       
       logger.info('Retrieved MFA methods for user', LogCategory.SECURITY, {
         userId,
-        methodsCount: methods.length
+        metadata: {
+          methodsCount: methods.length
+        }
       });
       return methods;
     } catch (error) {
@@ -645,8 +663,10 @@ export class MFAServiceImpl implements IMFAService {
     try {
       logger.info('MFA method disabled successfully', LogCategory.SECURITY, {
         userId,
-        methodId,
-        action: 'disable_mfa'
+        metadata: {
+          methodId,
+          action: 'disable_mfa'
+        }
       });
       
       return {
@@ -655,7 +675,9 @@ export class MFAServiceImpl implements IMFAService {
     } catch (error) {
       logger.error('Failed to disable MFA method', LogCategory.SECURITY, {
         userId,
-        methodId
+        metadata: {
+          methodId
+        }
       }, error as Error);
       return {
         success: false,
@@ -685,8 +707,10 @@ export class MFAServiceImpl implements IMFAService {
       
       logger.info('Backup codes generated successfully', LogCategory.SECURITY, {
         userId,
-        codesCount: codes.length,
-        action: 'generate_backup_codes'
+        metadata: {
+          codesCount: codes.length,
+          action: 'generate_backup_codes'
+        }
       });
       return codes;
     } catch (error) {
@@ -717,7 +741,9 @@ export class MFAServiceImpl implements IMFAService {
       if (isValid) {
         logger.info('Backup code verification successful', LogCategory.SECURITY, {
         userId,
-        action: 'verify_backup_code'
+        metadata: {
+          action: 'verify_backup_code'
+        }
       });
         return {
           success: true,
@@ -733,7 +759,9 @@ export class MFAServiceImpl implements IMFAService {
     } catch (error) {
       logger.error('Backup code verification failed', LogCategory.SECURITY, {
         userId,
-        backupCode: '***masked***'
+        metadata: {
+          backupCode: '***masked***'
+        }
       }, error as Error);
       return {
         success: false,

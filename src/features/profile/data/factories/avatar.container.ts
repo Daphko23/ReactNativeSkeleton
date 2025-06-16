@@ -50,8 +50,10 @@ export class AvatarContainer {
       // Note: initializeBucket method removed as it's not part of the interface
 
       logger.info('Avatar services initialized successfully', LogCategory.BUSINESS, {
-        serviceName: 'AvatarContainer',
-        components: ['AvatarService', 'ImagePickerService']
+        metadata: { 
+          serviceName: 'AvatarContainer',
+          components: ['AvatarService', 'ImagePickerService']
+        }
       });
     } catch (error) {
       logger.error('Failed to initialize avatar services', LogCategory.BUSINESS, {}, error as Error);
@@ -80,7 +82,7 @@ export class AvatarContainer {
       return true; // Assume valid if validation not available
     } catch (error) {
       logger.error('Failed to validate avatar URL', LogCategory.BUSINESS, {
-        testUrl: url
+        metadata: { testUrl: url }
       }, error as Error);
       return false;
     }
@@ -99,7 +101,7 @@ export class AvatarContainer {
       
       logger.info('Testing avatar storage connectivity', LogCategory.BUSINESS, {
         correlationId,
-        testUrl: defaultUrl
+        metadata: { testUrl: defaultUrl }
       });
       
       // Test basic URL accessibility
@@ -109,15 +111,19 @@ export class AvatarContainer {
       if (isAccessible) {
         logger.info('Avatar storage connectivity test passed', LogCategory.BUSINESS, {
           correlationId,
-          testUrl: defaultUrl,
-          responseStatus: response.status
+          metadata: { 
+            testUrl: defaultUrl,
+            responseStatus: response.status
+          }
         });
         return { success: true };
       } else {
         logger.warn('Avatar storage connectivity test failed', LogCategory.BUSINESS, {
           correlationId,
-          testUrl: defaultUrl,
-          responseStatus: response.status
+          metadata: { 
+            testUrl: defaultUrl,
+            responseStatus: response.status
+          }
         });
         return {
           success: false,
@@ -126,8 +132,10 @@ export class AvatarContainer {
       }
     } catch (error: any) {
       logger.error('Avatar storage connectivity test exception', LogCategory.BUSINESS, {
-        correlationId,
-        testUrl: defaultUrl
+        metadata: {
+          correlationId: `connectivity_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+          testUrl: 'default'
+        }
       }, error as Error);
       return {
         success: false,

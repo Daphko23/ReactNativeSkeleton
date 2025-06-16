@@ -83,7 +83,7 @@ interface TouchedFields {
  * - Professional UI design
  */
 const PasswordResetScreen = () => {
-  const { resetPassword, isLoading, error, clearError } = useAuthPassword();
+  const { resetPassword, isLoading, error, clearPasswordError } = useAuthPassword();
   const { t } = useTranslation();
   const navigation = useNavigation<NativeStackNavigationProp<AuthStackParamList>>();
   const { theme } = useTheme();
@@ -103,10 +103,9 @@ const PasswordResetScreen = () => {
   // Clear errors when component focuses
   useFocusEffect(
     useCallback(() => {
-      clearError();
+      clearPasswordError();
       setValidationErrors({});
-      setTouchedFields({ email: false });
-    }, [clearError])
+    }, [clearPasswordError])
   );
 
   // Form validation
@@ -148,7 +147,7 @@ const PasswordResetScreen = () => {
    */
   const handleEmailChange = (value: string) => {
     setEmail(value);
-    clearError();
+    clearPasswordError();
     setTouchedFields({ ...touchedFields, email: true });
   };
 
@@ -236,7 +235,7 @@ const PasswordResetScreen = () => {
     setCanResend(false);
     setResendCooldown(0);
     setTouchedFields({ email: false });
-    clearError();
+    clearPasswordError();
   };
 
   /**

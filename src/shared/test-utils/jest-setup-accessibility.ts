@@ -10,34 +10,9 @@
 import '@testing-library/jest-native/extend-expect';
 
 // Type declarations for global accessibility APIs
-type AccessibilityEventHandler = (event: any) => void;
-type VoiceCommandHandler = (result: string) => void;
-
-declare global {
-  var AccessibilityInfo: {
-    isScreenReaderEnabled: jest.MockedFunction<() => Promise<boolean>>;
-    isReduceMotionEnabled: jest.MockedFunction<() => Promise<boolean>>;
-    isReduceTransparencyEnabled: jest.MockedFunction<() => Promise<boolean>>;
-    announceForAccessibility: jest.MockedFunction<(message: string) => void>;
-    setAccessibilityFocus: jest.MockedFunction<(element: any) => void>;
-    addEventListener: jest.MockedFunction<(event: string, handler: AccessibilityEventHandler) => { remove: () => void }>;
-    removeEventListener: jest.MockedFunction<(event: string, handler: AccessibilityEventHandler) => void>;
-    isAccessibilityServiceEnabled: jest.MockedFunction<() => Promise<boolean>>;
-    isHighTextContrastEnabled: jest.MockedFunction<() => Promise<boolean>>;
-    isInvertColorsEnabled: jest.MockedFunction<() => Promise<boolean>>;
-  };
-
-  var VoiceControl: {
-    isVoiceControlEnabled: jest.MockedFunction<() => Promise<boolean>>;
-    startVoiceRecognition: jest.MockedFunction<() => void>;
-    stopVoiceRecognition: jest.MockedFunction<() => void>;
-    registerVoiceCommand: jest.MockedFunction<(command: string, handler: VoiceCommandHandler) => void>;
-    unregisterVoiceCommand: jest.MockedFunction<(command: string) => void>;
-  };
-}
 
 // Mock accessibility APIs for testing
-(global as any).AccessibilityInfo = {
+(globalThis as any).AccessibilityInfo = {
   isScreenReaderEnabled: jest.fn(() => Promise.resolve(false)),
   isReduceMotionEnabled: jest.fn(() => Promise.resolve(false)),
   isReduceTransparencyEnabled: jest.fn(() => Promise.resolve(false)),
@@ -51,7 +26,7 @@ declare global {
 };
 
 // Mock Voice Control APIs
-(global as any).VoiceControl = {
+(globalThis as any).VoiceControl = {
   isVoiceControlEnabled: jest.fn(() => Promise.resolve(false)),
   startVoiceRecognition: jest.fn(),
   stopVoiceRecognition: jest.fn(),
@@ -66,6 +41,7 @@ export const accessibilityTestUtils = {
    */
   testColorContrast: (foreground: string, background: string): boolean => {
     // Simplified contrast test for mocking
+    console.log('testColorContrast', foreground, background);
     return true;
   },
 
@@ -205,9 +181,9 @@ beforeEach(() => {
   jest.clearAllMocks();
   
   // Default accessibility state for tests
-  (global as any).AccessibilityInfo.isScreenReaderEnabled.mockResolvedValue(false);
-  (global as any).AccessibilityInfo.isReduceMotionEnabled.mockResolvedValue(false);
-  (global as any).AccessibilityInfo.isReduceTransparencyEnabled.mockResolvedValue(false);
+  (globalThis as any).AccessibilityInfo.isScreenReaderEnabled.mockResolvedValue(false);
+  (globalThis as any).AccessibilityInfo.isReduceMotionEnabled.mockResolvedValue(false);
+  (globalThis as any).AccessibilityInfo.isReduceTransparencyEnabled.mockResolvedValue(false);
 });
 
 // Export accessibility testing utilities

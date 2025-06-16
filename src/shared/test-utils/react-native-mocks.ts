@@ -12,7 +12,7 @@
 // Import gesture handler setup conditionally to avoid parsing errors
 try {
   require('react-native-gesture-handler/jestSetup');
-} catch (error) {
+} catch {
   // Gesture handler not available in test environment
 }
 

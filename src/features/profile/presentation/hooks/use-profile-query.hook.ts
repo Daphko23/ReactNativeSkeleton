@@ -31,7 +31,7 @@ import {
 } from '@tanstack/react-query';
 import { UserProfile, PrivacySettings } from '../../domain/entities/user-profile.entity';
 import { ProfileRepositoryImpl } from '../../data/repositories/profile.repository.impl';
-import { queryKeys } from '../../../../providers/query-client.provider';
+// import { queryKeys } from '../../../../providers/query-client.provider';
 import { LoggerFactory } from '@core/logging/logger.factory';
 import { LogCategory } from '@core/logging/logger.service.interface';
 
@@ -43,8 +43,6 @@ import {
   type ProfileQueryInput,
   type QueryAnalytics
 } from '../../application/use-cases/query/manage-profile-query.use-case';
-
-const logger = LoggerFactory.createServiceLogger('ProfileQueryHook');
 
 // 🏆 CHAMPION: Simplified DI Container Integration (Mobile-First)
 const manageProfileQueryUseCase = new ManageProfileQueryUseCase();
@@ -86,7 +84,7 @@ export function useProfileQuery(
 ): ChampionQueryResult<UserProfile | null> {
   
   const baseQuery = useQuery({
-    queryKey: [...queryKeys.profile.detail(userId), options.fastMode ? 'fast' : 'normal'],
+    queryKey: ['profile', userId, options.fastMode ? 'fast' : 'normal'],
     queryFn: async (): Promise<UserProfile | null> => {
       logger.info('Fetching profile data (Champion)', LogCategory.BUSINESS, { userId });
 
@@ -120,7 +118,7 @@ export function usePrivacySettingsQuery(
   options: ChampionQueryOptions = {}
 ): ChampionQueryResult<PrivacySettings | null> {
   return useQuery({
-    queryKey: [...queryKeys.profile.privacy(userId), 'champion'],
+    queryKey: ['profile', 'privacy', userId, 'champion'],
     queryFn: async (): Promise<PrivacySettings | null> => {
       logger.info('Fetching privacy settings (Champion)', LogCategory.BUSINESS, { userId });
 
@@ -167,11 +165,11 @@ export function useUpdateProfileMutation(): UseMutationResult<
     // 🏆 CHAMPION: Simple & effective cache management
     onSuccess: (data, { userId }) => {
       // Update cache with new data
-      queryClient.setQueryData(queryKeys.profile.detail(userId), data);
+      queryClient.setQueryData(['profile', userId], data);
       
       // Invalidate all profile queries for consistency
       queryClient.invalidateQueries({ 
-        queryKey: queryKeys.profile.all 
+        queryKey: ['profile']
       });
       
       logger.info('Profile updated successfully (Champion)', LogCategory.BUSINESS, { userId });
@@ -203,12 +201,12 @@ export function useUpdatePrivacySettingsMutation(): UseMutationResult<
     
     // 🏆 CHAMPION: Simple privacy cache management
     onSuccess: (data, { userId }) => {
-      queryClient.setQueryData(queryKeys.profile.detail(userId), data);
-      queryClient.setQueryData(queryKeys.profile.privacy(userId), data.privacySettings);
+      queryClient.setQueryData(['profile', userId], data);
+      queryClient.setQueryData(['profile', 'privacy', userId], data.privacySettings);
       
       // Invalidate champion privacy queries
       queryClient.invalidateQueries({ 
-        queryKey: [...queryKeys.profile.privacy(userId), 'champion']
+        queryKey: ['profile', 'privacy', userId, 'champion']
       });
       
       logger.info('Privacy settings updated successfully (Champion)', LogCategory.BUSINESS, { userId });
@@ -239,10 +237,10 @@ export function useDeleteProfileMutation(): UseMutationResult<
     // 🏆 CHAMPION: Complete cache cleanup
     onSuccess: (_, { userId }) => {
       queryClient.removeQueries({ 
-        queryKey: queryKeys.profile.detail(userId) 
+        queryKey: ['profile', userId]
       });
       queryClient.removeQueries({ 
-        queryKey: queryKeys.profile.privacy(userId) 
+        queryKey: ['profile', 'privacy', userId]
       });
       
       logger.info('Profile deletion completed (Champion)', LogCategory.BUSINESS, { userId });
@@ -266,10 +264,10 @@ export function useProfileCacheUtils(userId: string) {
   
   const clearCache = () => {
     queryClient.removeQueries({ 
-      queryKey: queryKeys.profile.detail(userId) 
+      queryKey: ['profile', userId]
     });
     queryClient.removeQueries({ 
-      queryKey: queryKeys.profile.privacy(userId) 
+      queryKey: ['profile', 'privacy', userId]
     });
     
     logger.info('Profile cache cleared (Champion)', LogCategory.BUSINESS, { userId });
@@ -277,7 +275,7 @@ export function useProfileCacheUtils(userId: string) {
 
   const refreshCache = async () => {
     await queryClient.invalidateQueries({ 
-      queryKey: queryKeys.profile.detail(userId) 
+      queryKey: ['profile', userId]
     });
     
     logger.info('Profile cache refreshed (Champion)', LogCategory.BUSINESS, { userId });

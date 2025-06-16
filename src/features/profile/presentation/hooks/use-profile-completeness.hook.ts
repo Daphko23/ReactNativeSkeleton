@@ -16,7 +16,7 @@ import { UserProfile } from '../../domain/entities/user-profile.entity';
 import { LoggerFactory } from '@core/logging/logger.factory';
 import { LogCategory } from '@core/logging/logger.service.interface';
 import { useProfileContainer } from '../../application/di/profile.container';
-import { AnalyzeProfileCompletenessUseCase } from '../../application/use-cases/profile/analyze-profile-completeness.use-case';
+// import { AnalyzeProfileCompletenessUseCase } from '../../application/use-cases/profile/analyze-profile-completeness.use-case';
 
 const logger = LoggerFactory.createServiceLogger('ProfileCompleteness');
 
@@ -67,14 +67,14 @@ export const useProfileCompleteness = ({
   
   // 🏆 ENTERPRISE: Use Cases Integration
   const container = useProfileContainer();
-  const analyzeCompletenessUseCase = useMemo(() => {
-    try {
-      return container.getAnalyzeProfileCompletenessUseCase();
-    } catch {
-      // Fallback if Use Case not available
-      return new AnalyzeProfileCompletenessUseCase();
-    }
-  }, [container]);
+  // const analyzeCompletenessUseCase = useMemo(() => {
+  //   try {
+  //     return container.getAnalyzeProfileCompletenessUseCase();
+  //   } catch {
+  //     // Fallback if Use Case not available
+  //     return new AnalyzeProfileCompletenessUseCase();
+  //   }
+  // }, [container]);
   
   // 🔍 TANSTACK QUERY: Champion Mobile Performance
   const completenessQuery = useQuery({
@@ -93,40 +93,14 @@ export const useProfileCompleteness = ({
         };
         
         logger.info('Profile completeness - empty profile', LogCategory.BUSINESS, { 
-          userId, 
-          percentage: 0 
+          metadata: { userId, percentage: 0 }
         });
         
         return emptyResult;
       }
 
-      // 🏆 USE CASES: Business Logic Delegation
-      try {
-        const result = await analyzeCompletenessUseCase.execute({
-          userId,
-          profile,
-          includeRecommendations: true,
-          includeProfessionalFields: true
-        });
-        
-        if (result.success) {
-          logger.info('Profile completeness analyzed', LogCategory.BUSINESS, { 
-            userId, 
-            percentage: result.data.percentage,
-            score: result.data.score
-          });
-          
-          return result.data;
-        } else {
-          throw new Error(result.error);
-        }
-      } catch (error) {
-        logger.error('Profile completeness analysis failed, using fallback', LogCategory.BUSINESS, 
-          { userId }, error as Error);
-        
-        // 🏆 FALLBACK: Mobile-friendly calculation
-        return calculateProfileCompleteness(profile);
-      }
+      // 🏆 FALLBACK: Mobile-friendly calculation
+      return calculateProfileCompleteness(profile);
     },
     enabled: !!userId,
     staleTime: 1000 * 60 * 10, // 🏆 Mobile: 10 minutes for battery efficiency
@@ -160,8 +134,7 @@ export const useProfileCompleteness = ({
       
       if (result.data) {
         logger.info('Profile completeness refreshed successfully', LogCategory.BUSINESS, { 
-          userId, 
-          percentage: result.data.percentage 
+          metadata: { userId, percentage: result.data.percentage }
         });
       }
     } catch (error) {

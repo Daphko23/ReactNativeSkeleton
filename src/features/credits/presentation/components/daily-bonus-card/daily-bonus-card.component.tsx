@@ -50,29 +50,29 @@ export const DailyBonusCard: React.FC<DailyBonusCardProps> = ({ style }) => {
   const {
     // Server State
     canClaim,
-    isLoading,
+    isLoading: _isLoading,
     currentStreak,
     timeUntilNext,
     potentialBonusAmount,
     hasActiveStreak,
-    isMaxStreak,
+    isMaxStreak: _isMaxStreak,
     
     // UI State
-    isClaiming,
+    isClaiming: _isClaiming,
     
     // Actions
     handleClaimBonus,
     
     // Visual Styling
-    getStreakBadgeColor,
-    getStreakEmoji,
+    getStreakBadgeColor: _getStreakBadgeColor,
+    getStreakEmoji: _getStreakEmoji,
     streakBadgeData,
     
     // Computed States
-    canInteract,
+    canInteract: _canInteract,
     showStreakBadge,
     bonusDescription,
-    waitingDescription,
+    waitingDescription: _waitingDescription,
     claimButtonText,
     isClaimButtonDisabled,
     

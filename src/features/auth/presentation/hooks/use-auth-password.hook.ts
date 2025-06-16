@@ -10,7 +10,7 @@
  * ✅ Clean Interface: Essential password operations
  */
 
-import { useCallback, useMemo } from 'react';
+import { useCallback, useState as _useState, useMemo as _useMemo } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { authContainer } from '../../application/di/auth.container';
 import { authQueryKeys } from './use-auth.hook';
@@ -125,7 +125,9 @@ export const useAuthPassword = (): UseAuthPasswordReturn => {
         };
         
         logger.info('Password policy fetched successfully (Champion)', LogCategory.SECURITY, { 
-          policy: JSON.stringify(policy) 
+          metadata: {
+            policy: JSON.stringify(policy)
+          }
         });
         
         return policy;
@@ -196,7 +198,9 @@ export const useAuthPassword = (): UseAuthPasswordReturn => {
         
         logger.info('Password updated successfully (Champion)', LogCategory.SECURITY, { 
           correlationId,
-          success: result.success 
+          metadata: {
+            success: result.success
+          }
         });
         
         return result.success;
@@ -221,7 +225,12 @@ export const useAuthPassword = (): UseAuthPasswordReturn => {
     mutationFn: async ({ email }: { email: string }): Promise<boolean> => {
       const correlationId = `password_reset_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
       
-      logger.info('Starting password reset (Champion)', LogCategory.SECURITY, { email, correlationId });
+      logger.info('Starting password reset (Champion)', LogCategory.SECURITY, { 
+        correlationId,
+        metadata: {
+          email
+        }
+      });
       
       // Validation
       if (!email) {
@@ -243,15 +252,19 @@ export const useAuthPassword = (): UseAuthPasswordReturn => {
         await passwordResetUseCase.execute(email);
         
         logger.info('Password reset email sent successfully (Champion)', LogCategory.SECURITY, { 
-          email,
-          correlationId
+          correlationId,
+          metadata: {
+            email
+          }
         });
         
         return true;
       } catch (error) {
         logger.error('Password reset failed (Champion)', LogCategory.SECURITY, { 
-          email,
-          correlationId 
+          correlationId,
+          metadata: {
+            email
+          }
         }, error as Error);
         throw error;
       }
@@ -363,9 +376,11 @@ export const useAuthPassword = (): UseAuthPasswordReturn => {
     }
 
     logger.debug('Password strength validated (Champion)', LogCategory.SECURITY, { 
-      score, 
-      isValid, 
-      feedbackCount: feedback.length 
+      metadata: {
+        score, 
+        isValid, 
+        feedbackCount: feedback.length
+      }
     });
 
     return {

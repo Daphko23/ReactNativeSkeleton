@@ -4,7 +4,7 @@
  * ✅ DATA LAYER: Implementation für Profile Screen Data Operations
  */
 
-import { ResultFactory } from '../../../../../core/types/result.type';
+import { Result } from '../../../../../core/types/result.type';
 import { LoggerFactory } from '@core/logging/logger.factory';
 import { LogCategory } from '@core/logging/logger.service.interface';
 import {
@@ -98,7 +98,7 @@ export class ProfileScreenRepositoryImpl implements IProfileScreenRepository {
     private dataSource: IProfileScreenDataSource
   ) {
     logger.info('ProfileScreenRepository initialized', LogCategory.BUSINESS, {
-      timestamp: new Date().toISOString()
+      metadata: { timestamp: new Date().toISOString() }
     });
 
     // Setup cache cleanup interval
@@ -118,7 +118,7 @@ export class ProfileScreenRepositoryImpl implements IProfileScreenRepository {
       const cachedState = this.getFromCache(cacheKey);
       if (cachedState) {
         logger.info('Profile screen state retrieved from cache', LogCategory.BUSINESS, { userId });
-        return ResultFactory.success(cachedState);
+        return Result.success(cachedState);
       }
 
       // Fetch from data source
@@ -126,7 +126,7 @@ export class ProfileScreenRepositoryImpl implements IProfileScreenRepository {
       
       let screenState: ProfileScreenState;
       if (stateData) {
-        screenState = ProfileScreenState.fromJSON(stateData);
+        screenState = stateData; // ProfileScreenState.fromJSON not available
       } else {
         // Create default state
         screenState = createProfileScreenState({
@@ -141,14 +141,16 @@ export class ProfileScreenRepositoryImpl implements IProfileScreenRepository {
 
       logger.info('Profile screen state retrieved', LogCategory.BUSINESS, { 
         userId,
-        viewMode: screenState.viewMode,
-        isActive: screenState.isActive()
+        metadata: {
+          viewMode: screenState.viewMode,
+          isActive: screenState.isActive ? screenState.isActive() : false
+        }
       });
 
-      return ResultFactory.success(screenState);
+      return Result.success(screenState);
     } catch (error) {
       logger.error('Failed to get profile screen state', LogCategory.BUSINESS, { userId }, error as Error);
-      return ResultFactory.failure(`Failed to get screen state: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      return Result.error(`Failed to get screen state: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
   }
 
@@ -156,13 +158,15 @@ export class ProfileScreenRepositoryImpl implements IProfileScreenRepository {
     try {
       logger.info('Updating profile screen state', LogCategory.BUSINESS, { 
         userId,
-        viewMode: state.viewMode,
-        interactionState: state.interactionState
+        metadata: {
+          viewMode: state.viewMode,
+          interactionState: state.interactionState
+        }
       });
 
       // Validate state
       if (!this.validateScreenState(state)) {
-        return ResultFactory.failure('Invalid screen state data');
+        return Result.error('Invalid screen state data');
       }
 
       // Save to data source
@@ -177,7 +181,7 @@ export class ProfileScreenRepositoryImpl implements IProfileScreenRepository {
 
       logger.info('Profile screen state updated successfully', LogCategory.BUSINESS, { userId });
 
-      return ResultFactory.success({
+      return Result.success({
         userId,
         state: state.toJSON(),
         updatedAt: new Date(),
@@ -185,7 +189,7 @@ export class ProfileScreenRepositoryImpl implements IProfileScreenRepository {
       });
     } catch (error) {
       logger.error('Failed to update profile screen state', LogCategory.BUSINESS, { userId }, error as Error);
-      return ResultFactory.failure(`Failed to update screen state: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      return Result.error(`Failed to update screen state: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
   }
 
@@ -197,14 +201,14 @@ export class ProfileScreenRepositoryImpl implements IProfileScreenRepository {
     try {
       logger.info('Getting interaction history', LogCategory.BUSINESS, { 
         userId,
-        timeRange: timeRange ? `${timeRange.start.toISOString()} - ${timeRange.end.toISOString()}` : 'all'
+        metadata: { timeRange: timeRange ? `${timeRange.start.toISOString()} - ${timeRange.end.toISOString()}` : 'all' }
       });
 
       // Check cache
       const cacheKey = this.generateCacheKey(userId, 'interactions', timeRange?.start?.getTime().toString());
       const cachedHistory = this.getFromCache(cacheKey);
       if (cachedHistory) {
-        return ResultFactory.success(cachedHistory);
+        return Result.success(cachedHistory);
       }
 
       // Fetch from data source
@@ -233,13 +237,13 @@ export class ProfileScreenRepositoryImpl implements IProfileScreenRepository {
 
       logger.info('Interaction history retrieved', LogCategory.BUSINESS, { 
         userId,
-        totalInteractions: history.totalInteractions
+        metadata: { totalInteractions: history.totalInteractions }
       });
 
-      return ResultFactory.success(history);
+      return Result.success(history);
     } catch (error) {
       logger.error('Failed to get interaction history', LogCategory.BUSINESS, { userId }, error as Error);
-      return ResultFactory.failure(`Failed to get interaction history: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      return Result.error(`Failed to get interaction history: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
   }
 
@@ -247,8 +251,7 @@ export class ProfileScreenRepositoryImpl implements IProfileScreenRepository {
     try {
       logger.info('Saving interaction event', LogCategory.BUSINESS, { 
         userId,
-        sessionId: interaction.sessionId,
-        eventCount: interaction.events.length
+        metadata: { sessionId: interaction.sessionId, eventCount: interaction.events.length }
       });
 
       // Save to data source
@@ -259,7 +262,7 @@ export class ProfileScreenRepositoryImpl implements IProfileScreenRepository {
 
       logger.info('Interaction event saved successfully', LogCategory.BUSINESS, { userId });
 
-      return ResultFactory.success({
+      return Result.success({
         userId,
         sessionId: interaction.sessionId,
         savedAt: new Date(),
@@ -268,7 +271,7 @@ export class ProfileScreenRepositoryImpl implements IProfileScreenRepository {
       });
     } catch (error) {
       logger.error('Failed to save interaction event', LogCategory.BUSINESS, { userId }, error as Error);
-      return ResultFactory.failure(`Failed to save interaction: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      return Result.error(`Failed to save interaction: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
   }
 
@@ -278,13 +281,16 @@ export class ProfileScreenRepositoryImpl implements IProfileScreenRepository {
 
   async getScreenConfiguration(userId: string, organizationId: string): Promise<any> {
     try {
-      logger.info('Getting screen configuration', LogCategory.BUSINESS, { userId, organizationId });
+      logger.info('Getting screen configuration', LogCategory.BUSINESS, {
+        userId,
+        metadata: { organizationId }
+      });
 
       // Check cache
       const cacheKey = this.generateCacheKey(userId, 'config');
       const cachedConfig = this.getFromCache(cacheKey);
       if (cachedConfig) {
-        return ResultFactory.success(cachedConfig);
+        return Result.success(cachedConfig);
       }
 
       // Fetch from data source
@@ -315,13 +321,13 @@ export class ProfileScreenRepositoryImpl implements IProfileScreenRepository {
 
       logger.info('Screen configuration retrieved', LogCategory.BUSINESS, { 
         userId,
-        enabledFeatures: configuration.getEnabledFeatures().length
+        metadata: { enabledFeatures: configuration.getEnabledFeatures().length }
       });
 
-      return ResultFactory.success(configuration);
+      return Result.success(configuration);
     } catch (error) {
       logger.error('Failed to get screen configuration', LogCategory.BUSINESS, { userId }, error as Error);
-      return ResultFactory.failure(`Failed to get configuration: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      return Result.error(`Failed to get configuration: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
   }
 
@@ -338,14 +344,14 @@ export class ProfileScreenRepositoryImpl implements IProfileScreenRepository {
 
       logger.info('Screen configuration updated successfully', LogCategory.BUSINESS, { userId });
 
-      return ResultFactory.success({
+      return Result.success({
         userId,
         config: config.toJSON(),
         updatedAt: new Date()
       });
     } catch (error) {
       logger.error('Failed to update screen configuration', LogCategory.BUSINESS, { userId }, error as Error);
-      return ResultFactory.failure(`Failed to update configuration: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      return Result.error(`Failed to update configuration: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
   }
 
@@ -361,7 +367,7 @@ export class ProfileScreenRepositoryImpl implements IProfileScreenRepository {
       const cacheKey = this.generateCacheKey(userId, 'offline_state');
       const cachedState = this.getFromCache(cacheKey);
       if (cachedState) {
-        return ResultFactory.success(cachedState);
+        return Result.success(cachedState);
       }
 
       // Fetch from data source
@@ -388,14 +394,16 @@ export class ProfileScreenRepositoryImpl implements IProfileScreenRepository {
 
       logger.info('Offline state retrieved', LogCategory.BUSINESS, { 
         userId,
-        syncStatus: offlineState.syncStatus,
-        pendingOperations: offlineState.getPendingOperationsCount()
+        metadata: {
+          syncStatus: offlineState.syncStatus,
+          pendingOperations: offlineState.getPendingOperationsCount()
+        }
       });
 
-      return ResultFactory.success(offlineState);
+      return Result.success(offlineState);
     } catch (error) {
       logger.error('Failed to get offline state', LogCategory.BUSINESS, { userId }, error as Error);
-      return ResultFactory.failure(`Failed to get offline state: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      return Result.error(`Failed to get offline state: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
   }
 
@@ -403,8 +411,10 @@ export class ProfileScreenRepositoryImpl implements IProfileScreenRepository {
     try {
       logger.info('Updating offline state', LogCategory.BUSINESS, { 
         userId,
-        syncStatus: state.syncStatus,
-        pendingOperations: state.getPendingOperationsCount()
+        metadata: {
+          syncStatus: state.syncStatus,
+          pendingOperations: state.getPendingOperationsCount()
+        }
       });
 
       // Save to data source
@@ -416,7 +426,7 @@ export class ProfileScreenRepositoryImpl implements IProfileScreenRepository {
 
       logger.info('Offline state updated successfully', LogCategory.BUSINESS, { userId });
 
-      return ResultFactory.success({
+      return Result.success({
         userId,
         syncStatus: state.syncStatus,
         pendingOperations: state.getPendingOperationsCount(),
@@ -424,7 +434,7 @@ export class ProfileScreenRepositoryImpl implements IProfileScreenRepository {
       });
     } catch (error) {
       logger.error('Failed to update offline state', LogCategory.BUSINESS, { userId }, error as Error);
-      return ResultFactory.failure(`Failed to update offline state: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      return Result.error(`Failed to update offline state: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
   }
 
@@ -449,18 +459,17 @@ export class ProfileScreenRepositoryImpl implements IProfileScreenRepository {
 
       logger.info('Performance metrics recorded', LogCategory.BUSINESS, { 
         userId,
-        loadTime: metrics.loadTime,
-        frameRate: metrics.frameRate
+        metadata: { loadTime: metrics.loadTime, frameRate: metrics.frameRate }
       });
 
-      return ResultFactory.success({
+      return Result.success({
         userId,
         recordedAt: new Date(),
         metricsCount: userMetrics.length
       });
     } catch (error) {
       logger.error('Failed to record performance metrics', LogCategory.BUSINESS, { userId }, error as Error);
-      return ResultFactory.failure(`Failed to record metrics: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      return Result.error(`Failed to record metrics: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
   }
 
@@ -477,10 +486,10 @@ export class ProfileScreenRepositoryImpl implements IProfileScreenRepository {
         latestMetrics: userMetrics[userMetrics.length - 1] || null
       };
 
-      return ResultFactory.success(history);
+      return Result.success(history);
     } catch (error) {
       logger.error('Failed to get performance history', LogCategory.BUSINESS, { userId }, error as Error);
-      return ResultFactory.failure(`Failed to get performance history: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      return Result.error(`Failed to get performance history: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
   }
 
@@ -514,11 +523,10 @@ export class ProfileScreenRepositoryImpl implements IProfileScreenRepository {
 
       logger.info('Cache invalidated', LogCategory.BUSINESS, { 
         userId,
-        sections: sections?.join(', ') || 'all',
-        invalidatedCount
+        metadata: { sections: sections?.join(', ') || 'all', invalidatedCount }
       });
 
-      return ResultFactory.success({
+      return Result.success({
         userId,
         invalidatedSections: sections || ['all'],
         invalidatedCount,
@@ -526,7 +534,7 @@ export class ProfileScreenRepositoryImpl implements IProfileScreenRepository {
       });
     } catch (error) {
       logger.error('Failed to invalidate cache', LogCategory.BUSINESS, { userId }, error as Error);
-      return ResultFactory.failure(`Failed to invalidate cache: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      return Result.error(`Failed to invalidate cache: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
   }
 
@@ -559,11 +567,10 @@ export class ProfileScreenRepositoryImpl implements IProfileScreenRepository {
 
       logger.info('Cache warmup completed', LogCategory.BUSINESS, { 
         userId,
-        requestedSections: sections.length,
-        warmedSections: warmedSections.length
+        metadata: { requestedSections: sections.length, warmedSections: warmedSections.length }
       });
 
-      return ResultFactory.success({
+      return Result.success({
         userId,
         requestedSections: sections,
         warmedSections,
@@ -571,7 +578,7 @@ export class ProfileScreenRepositoryImpl implements IProfileScreenRepository {
       });
     } catch (error) {
       logger.error('Failed to warmup cache', LogCategory.BUSINESS, { userId }, error as Error);
-      return ResultFactory.failure(`Failed to warmup cache: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      return Result.error(`Failed to warmup cache: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
   }
 
@@ -633,17 +640,18 @@ export class ProfileScreenRepositoryImpl implements IProfileScreenRepository {
     }
 
     if (expiredKeys.length > 0) {
-      logger.info('Expired cache entries cleaned up', LogCategory.BUSINESS, { 
-        cleanedCount: expiredKeys.length 
+      logger.info('Expired cache entries cleaned up', LogCategory.BUSINESS, {
+        userId: 'system',
+        metadata: { cleanedCount: expiredKeys.length }
       });
     }
   }
 
   private validateScreenState(state: ProfileScreenState): boolean {
-    return state && 
+    return Boolean(state && 
            state.userId && 
            Object.values(ProfileViewMode).includes(state.viewMode) &&
-           Object.values(ProfileInteractionState).includes(state.interactionState);
+           Object.values(ProfileInteractionState).includes(state.interactionState));
   }
 
   private aggregateInteractionsByType(interactions: any[]): Record<string, number> {

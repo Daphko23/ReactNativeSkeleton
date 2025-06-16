@@ -28,8 +28,8 @@ import { LogCategory } from '@core/logging/logger.service.interface';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 // Result helper functions
-const Success = <T>(value: T): Result<T> => ({ isSuccess: true, value });
-const Failure = <T>(error: Error): Result<T> => ({ isSuccess: false, error: error.message });
+const Success = <T>(value: T): Result<T> => ({ isSuccess: () => true, value } as any);
+const Failure = <T>(error: Error): Result<T> => ({ isSuccess: () => false, error: error.message } as any);
 
 // Domain Imports
 import type {
@@ -333,11 +333,11 @@ export class CustomFieldsRepositoryImpl implements ICustomFieldsRepository {
       
       // 🎯 VALIDATE FIELDS
       const validationResults = await this.validateFieldConfiguration(request.fields, request.userId);
-      if (!validationResults.isSuccess || !validationResults.value) {
+      if (!validationResults.isSuccess() || !(validationResults as any).value) {
         return Failure(new Error(validationResults.error || 'Validation failed'));
       }
       
-      const validations = validationResults.value;
+      const validations = (validationResults as any).value || [];
       const hasErrors = validations.some((v: FieldValidationResult) => !v.isValid);
       
       if (hasErrors && request.validateDependencies) {
@@ -349,10 +349,10 @@ export class CustomFieldsRepositoryImpl implements ICustomFieldsRepository {
       let dependencyWarnings: string[] = [];
       if (request.validateDependencies) {
         const dependencyResult = await this.checkFieldDependencies(request.fields);
-        if (!dependencyResult.isSuccess || !dependencyResult.value) {
+        if (!dependencyResult.isSuccess() || !(dependencyResult as any).value) {
           return Failure(new Error(dependencyResult.error || 'Dependency check failed'));
         }
-        dependencyWarnings = dependencyResult.value;
+        dependencyWarnings = (dependencyResult as any).value || [];
       }
       
       // 🎯 PREPARE FOR STORAGE
@@ -436,13 +436,13 @@ export class CustomFieldsRepositoryImpl implements ICustomFieldsRepository {
       
       // 🎯 GET CURRENT FIELDS
       const currentFieldsResult = await this.getCustomFields(userId);
-      if (!currentFieldsResult.isSuccess) {
+      if (!currentFieldsResult.isSuccess()) {
         return Failure(new Error(currentFieldsResult.error || 'Failed to get current fields'));
       }
       
       // 🎯 REMOVE THE FIELD
-      const currentFields = currentFieldsResult.value || [];
-      const updatedFields = currentFields.filter(field => field.key !== fieldKey);
+      const currentFields = (currentFieldsResult as any).value || [];
+      const updatedFields = currentFields.filter((field: any) => field.key !== fieldKey);
       
       // 🎯 UPDATE STORAGE
       const fieldsData = this.transformFieldsToStorage(updatedFields);
@@ -489,14 +489,14 @@ export class CustomFieldsRepositoryImpl implements ICustomFieldsRepository {
       // 🎯 PROCESS EACH REQUEST
       for (const request of requests) {
         const result = await this.updateCustomFields(request);
-        if (!result.isSuccess) {
+        if (!result.isSuccess()) {
           // 🎯 ROLLBACK ON FAILURE (simplified - in production would be more sophisticated)
           this.logger.error('Bulk update failed, rolling back', LogCategory.BUSINESS, { 
             userId: request.userId 
           });
           return Failure(new Error(result.error || 'Bulk update failed'));
         }
-        const response = result.value;
+        const response = (result as any).value;
         if (response) {
           responses.push(response);
         }
@@ -601,8 +601,8 @@ export class CustomFieldsRepositoryImpl implements ICustomFieldsRepository {
       // 🎯 INCLUDE EFFECTIVENESS REPORTS
       if (request.includeEffectiveness) {
         const effectivenessResult = await this.getFieldEffectivenessReports();
-        if (effectivenessResult.isSuccess) {
-          response.effectivenessReports = effectivenessResult.value;
+        if (effectivenessResult.isSuccess()) {
+          response.effectivenessReports = (effectivenessResult as any).value || [];
         }
       }
       

@@ -188,11 +188,13 @@ export class DeleteAvatarUseCase {
       await this.simulateAsyncOperation(200);
       
       logger.info('Avatar deletion audit logged', LogCategory.BUSINESS, {
-        auditEntryId: auditEntry.id,
         userId,
-        action: auditEntry.action,
-        timestamp: auditEntry.timestamp,
-        preservedBackup: auditEntry.data.preservedBackup
+        metadata: {
+          auditEntryId: auditEntry.id,
+          action: auditEntry.action,
+          timestamp: auditEntry.timestamp,
+          preservedBackup: auditEntry.data.preservedBackup
+        }
       });
       
       return auditLogId;
@@ -201,7 +203,9 @@ export class DeleteAvatarUseCase {
       // Audit logging failure should not fail the main operation
       logger.error('Failed to create avatar deletion audit log', LogCategory.BUSINESS, {
         userId,
-        reason
+        metadata: {
+          reason
+        }
       }, error as Error);
       return `audit_failed_${Date.now()}`;
     }

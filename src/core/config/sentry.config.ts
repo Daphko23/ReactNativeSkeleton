@@ -214,7 +214,7 @@ export function initializeSentry(): void {
   if (!config.dsn) {
     logger.info('Sentry initialization skipped - no DSN configured', LogCategory.BUSINESS, {
       service: 'SentryConfig',
-      environment: config.environment
+      metadata: { environment: config.environment }
     });
     return;
   }
@@ -264,7 +264,7 @@ export function initializeSentry(): void {
         if (config.debug && hint.originalException) {
           logger.error('Sentry Error captured in beforeSend', LogCategory.BUSINESS, {
             service: 'SentryConfig',
-            errorType: 'beforeSend'
+            metadata: { errorType: 'beforeSend' }
           }, hint.originalException as Error);
         }
 
@@ -313,11 +313,13 @@ export function initializeSentry(): void {
 
     logger.info('Sentry initialized successfully', LogCategory.BUSINESS, {
       service: 'SentryConfig',
-      environment: config.environment,
-      sampleRate: config.sampleRate,
-      tracesSampleRate: config.tracesSampleRate,
-      profilesSampleRate: config.profilesSampleRate,
-      debug: config.debug
+      metadata: {
+        environment: config.environment,
+        sampleRate: config.sampleRate,
+        tracesSampleRate: config.tracesSampleRate,
+        profilesSampleRate: config.profilesSampleRate,
+        debug: config.debug
+      }
     });
 
   } catch (error) {
@@ -356,7 +358,9 @@ export function updateSentryUser(userId: string, userRole?: string): void {
     logger.info('Sentry user context updated', LogCategory.BUSINESS, {
       service: 'SentryConfig',
       userId,
-      hasRole: !!userRole
+      metadata: {
+        hasRole: !!userRole
+      }
     });
   } catch (error) {
     logger.error('Failed to update Sentry user context', LogCategory.BUSINESS, {
@@ -413,7 +417,9 @@ export function testSentryIntegration(): void {
   if (environment !== 'development') {
     logger.warn('Sentry test only available in development environment', LogCategory.BUSINESS, {
       service: 'SentryConfig',
-      currentEnvironment: environment
+      metadata: {
+        currentEnvironment: environment
+      }
     });
     return;
   }

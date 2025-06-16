@@ -161,8 +161,10 @@ export class OptimizeProfilePerformanceUseCase {
     try {
       logger.info('Starting performance optimization', LogCategory.BUSINESS, {
         userId: request.userId,
-        viewMode: request.viewMode,
-        isLowEndDevice: request.deviceSpecs.isLowEndDevice
+        metadata: {
+          viewMode: request.viewMode,
+          isLowEndDevice: request.deviceSpecs.isLowEndDevice
+        }
       });
 
       // Check cache for similar optimization
@@ -200,15 +202,17 @@ export class OptimizeProfilePerformanceUseCase {
 
       logger.info('Performance optimization completed', LogCategory.BUSINESS, {
         userId: request.userId,
-        performanceScore,
-        optimizations: Object.keys(optimizations).length
+        metadata: {
+          performanceScore,
+          optimizations: Object.keys(optimizations).length
+        }
       });
 
       return Result.success(response);
     } catch (error) {
       logger.error('Failed to optimize performance', LogCategory.BUSINESS, 
         { userId: request.userId }, error as Error);
-      return Result.failure(`Performance optimization failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      return Result.error(`Performance optimization failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
   }
 
@@ -221,7 +225,9 @@ export class OptimizeProfilePerformanceUseCase {
     try {
       logger.info('Creating preload strategy', LogCategory.BUSINESS, {
         userId: request.userId,
-        connectionQuality: request.deviceCapabilities.connectionQuality
+        metadata: {
+          connectionQuality: request.deviceCapabilities.connectionQuality
+        }
       });
 
       // Analyze user behavior patterns
@@ -244,15 +250,17 @@ export class OptimizeProfilePerformanceUseCase {
 
       logger.info('Preload strategy created', LogCategory.BUSINESS, {
         userId: request.userId,
-        preloadItems: preloadQueue.length,
-        cacheSize: cachingStrategy.cacheSize
+        metadata: {
+          preloadItems: preloadQueue.length,
+          cacheSize: cachingStrategy.cacheSize
+        }
       });
 
       return Result.success(response);
     } catch (error) {
       logger.error('Failed to create preload strategy', LogCategory.BUSINESS, 
         { userId: request.userId }, error as Error);
-      return Result.failure(`Preload strategy creation failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      return Result.error(`Preload strategy creation failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
   }
 
@@ -266,7 +274,9 @@ export class OptimizeProfilePerformanceUseCase {
       logger.info('Monitoring profile performance', LogCategory.BUSINESS, {
         userId: request.userId,
         sessionId: request.sessionId,
-        frameRate: request.realTimeMetrics.frameRate
+        metadata: {
+          frameRate: request.realTimeMetrics.frameRate
+        }
       });
 
       // Store baseline metrics
@@ -293,15 +303,17 @@ export class OptimizeProfilePerformanceUseCase {
 
       logger.info('Performance monitoring completed', LogCategory.BUSINESS, {
         userId: request.userId,
-        performanceScore,
-        bottleneckCount: bottlenecks.length
+        metadata: {
+          performanceScore,
+          bottleneckCount: bottlenecks.length
+        }
       });
 
       return Result.success(response);
     } catch (error) {
       logger.error('Failed to monitor performance', LogCategory.BUSINESS, 
         { userId: request.userId }, error as Error);
-      return Result.failure(`Performance monitoring failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      return Result.error(`Performance monitoring failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
   }
 

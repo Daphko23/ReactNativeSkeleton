@@ -26,9 +26,9 @@ import { Result } from '@core/types/result.type';
 import { LoggerFactory } from '@core/logging/logger.factory';
 import { LogCategory } from '@core/logging/logger.service.interface';
 
-// Result helper functions
-const Success = <T>(value: T): Result<T> => ({ isSuccess: true, value });
-const Failure = <T>(error: Error): Result<T> => ({ isSuccess: false, error: error.message });
+// Result helper functions - Use Core Result Class API
+const Success = <T>(value: T): Result<T> => Result.success(value);
+const Failure = <T>(error: Error): Result<T> => Result.error(error.message);
 
 // Domain Imports
 import type {
@@ -295,7 +295,7 @@ export class TemplateManagementUseCase {
     };
     
     const templatesResult = await this.repository.getTemplates(templatesRequest);
-    if (!templatesResult.isSuccess || !templatesResult.value) {
+    if (!templatesResult.success || !templatesResult.data) {
       return {
         success: false,
         error: templatesResult.error || 'Failed to get templates',
@@ -309,7 +309,7 @@ export class TemplateManagementUseCase {
       };
     }
     
-    const templates = templatesResult.value.templates;
+    const templates = templatesResult.data.templates;
     
     // 🎯 DETERMINE ALGORITHM
     const algorithm = this.selectRecommendationAlgorithm(request);
@@ -334,7 +334,7 @@ export class TemplateManagementUseCase {
         confidenceScore,
         processingTime: 0, // Will be set by caller
         timestamp: new Date(),
-        cacheHit: templatesResult.value.cacheHit || false
+        cacheHit: templatesResult.data.cacheHit || false
       }
     };
   }
@@ -356,7 +356,7 @@ export class TemplateManagementUseCase {
       userId: request.userId
     });
     
-    if (!templatesResult.isSuccess || !templatesResult.value) {
+    if (!templatesResult.success || !templatesResult.data) {
       return {
         success: false,
         error: templatesResult.error || 'Failed to get templates',
@@ -364,7 +364,7 @@ export class TemplateManagementUseCase {
       };
     }
     
-    const template = templatesResult.value.templates.find((t: CustomFieldTemplate) => t.id === request.templateId);
+    const template = templatesResult.data.templates.find((t: CustomFieldTemplate) => t.id === request.templateId);
     if (!template) {
       return {
         success: false,
@@ -419,7 +419,7 @@ export class TemplateManagementUseCase {
     );
     
     return {
-      success: result.isSuccess,
+      success: result.success,
       error: result.error,
       metadata: {
         algorithmUsed: 'basic',
@@ -437,11 +437,11 @@ export class TemplateManagementUseCase {
   private async executeGetEffectiveness(request: TemplateManagementRequest): Promise<TemplateManagementResponse> {
     const result = await this.repository.getFieldEffectivenessReports();
     
-    if (result.isSuccess) {
+    if (result.success) {
       return {
         success: true,
         data: {
-          effectivenessReports: result.value
+          effectivenessReports: result.data
         },
         metadata: {
           algorithmUsed: 'basic',
