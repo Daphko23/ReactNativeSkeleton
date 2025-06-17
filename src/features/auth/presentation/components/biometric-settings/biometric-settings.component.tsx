@@ -56,7 +56,7 @@ import {
   Alert,
   StyleSheet,
 } from 'react-native';
-import { useTheme } from '../../../../../core/theme/theme.system';
+import { useTheme } from '@core/theme/theme.system';
 
 // Mock Logger Service Interface
 interface ILoggerService {

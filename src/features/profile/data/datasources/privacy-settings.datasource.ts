@@ -1,4 +1,4 @@
-import { supabase } from '../../../../core/config/supabase.config';
+import { supabase } from '@core/config/supabase.config';
 import type { PrivacySettings } from '../../domain/entities/user-profile.entity';
 
 // Database row interface (matching profile_privacy_settings schema)

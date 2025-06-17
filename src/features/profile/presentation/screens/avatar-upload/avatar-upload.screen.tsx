@@ -84,11 +84,11 @@ import { useTheme } from 'react-native-paper';
 import { 
   InfoCard,
   ActionCard,
-} from '../../../../../shared/components';
+} from '@shared/components';
 
 // Core Services
-import { AlertService } from '../../../../../core/services';
-import type { ActionItem } from '../../../../../shared/components/cards/types/card.types';
+import { AlertService } from '@core/services';
+import type { ActionItem } from '@shared/components/cards/types/card.types';
 
 // Hooks
 import { useAvatar } from '../../hooks/use-avatar.hook';

@@ -14,7 +14,7 @@ import { useState, useCallback, useEffect, useMemo } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 import { Alert, Linking } from 'react-native';
-import { useTheme } from '../../../../core/theme/theme.system';
+import { useTheme } from '@core/theme/theme.system';
 import { LoggerFactory } from '@core/logging/logger.factory';
 import { LogCategory } from '@core/logging/logger.service.interface';
 import { useProfileContainer } from '../../application/di/profile.container';

@@ -14,8 +14,8 @@ import { UploadAvatarUseCase } from '../../application/use-cases/avatar/upload-a
 import { DeleteAvatarUseCase } from '../../application/use-cases/avatar/delete-avatar.usecase';
 
 // Core Services
-import { LoggerFactory as _LoggerFactory } from '../../../../core/logging/logger.factory';
-import { GDPRAuditService } from '../../../../core/compliance/gdpr-audit.service';
+import { LoggerFactory as _LoggerFactory } from '@core/logging/logger.factory';
+import { GDPRAuditService } from '@core/compliance/gdpr-audit.service';
 
 /**
  * Avatar Feature DI Container

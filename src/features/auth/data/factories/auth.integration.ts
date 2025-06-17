@@ -23,8 +23,8 @@
  */
 
 import { AuthServiceContainer, type AuthServiceContainerConfig } from './auth-service.container';
-import type { ILoggerService } from '../../../../core/logging/logger.service.interface';
-import { Environment, type EnvironmentConfig } from '../../../../core/config/environment.config.interface';
+import type { ILoggerService } from '@core/logging/logger.service.interface';
+import { Environment, type EnvironmentConfig } from '@core/config/environment.config.interface';
 import type { EnhancedSecurityServiceConfig } from '../interfaces/security-service-factory.interfaces';
 
 /**

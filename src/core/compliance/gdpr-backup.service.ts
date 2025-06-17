@@ -12,8 +12,8 @@
 
 import { LoggerFactory } from '@core/logging/logger.factory';
 import { LogCategory } from '@core/logging/logger.service.interface';
-import { UserProfile } from '../../features/profile/domain/entities/user-profile.entity';
-import { ProfileBackupError } from '../../features/profile/domain/errors/profile-deletion.errors';
+import { UserProfile } from '@features/profile/domain/entities/user-profile.entity';
+import { ProfileBackupError } from '@features/profile/domain/errors/profile-deletion.errors';
 
 /**
  * @interface BackupMetadata

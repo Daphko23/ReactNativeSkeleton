@@ -16,9 +16,9 @@
  * @architecture Clean Architecture - Application Layer
  */
 
-import { Result } from '../../../../../core/types/result.type';
-import { ILoggerService as _ILoggerService, LogCategory } from '../../../../../core/logging/logger.service.interface';
-import { LoggerFactory } from '../../../../../core/logging/logger.factory';
+import { Result } from '@core/types/result.type';
+import { ILoggerService as _ILoggerService, LogCategory } from '@core/logging/logger.service.interface';
+import { LoggerFactory } from '@core/logging/logger.factory';
 import {
   ProfileRefreshRepositoryInterface,
   TimeFrame,

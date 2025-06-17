@@ -4,7 +4,7 @@
  * ✅ APPLICATION LAYER: Business Logic für Industry Market Analysis
  */
 
-import { Result } from '../../../../../core/types/result.type';
+import { Result } from '@core/types/result.type';
 import { 
   IndustryBenchmark,
   SalaryBenchmark,

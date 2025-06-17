@@ -13,7 +13,7 @@
 import React from 'react';
 import {TextInput} from 'react-native-paper';
 import {StyleSheet} from 'react-native';
-import { useTheme } from '../../../core/theme/theme.system';
+import { useTheme } from '@core/theme/theme.system';
 
 /**
  * Props interface for the FormTextInput component.
@@ -422,7 +422,7 @@ const createStyles = (theme: any) => StyleSheet.create({
  * - react: Core React library
  * - react-native-paper: Material Design TextInput component
  * - react-native: StyleSheet for styling
- * - ../../../core/theme/theme.system: Theme hook
+ * - @core/theme/theme.system: Theme hook
  * 
  * @see {@link useTheme} for theme system integration
  * @see {@link FormErrorText} for error message display

@@ -21,7 +21,7 @@
  */
 
 import { StyleSheet } from 'react-native';
-import { colors, spacing, typography } from '../../../../../core/theme';
+import { colors, spacing, typography } from '@core/theme';
 
 /**
  * @const mfaSetupModalStyles

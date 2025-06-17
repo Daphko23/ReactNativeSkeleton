@@ -12,7 +12,7 @@
 
 import React from 'react';
 import {Text, StyleSheet} from 'react-native';
-import { useTheme } from '../../../core/theme/theme.system';
+import { useTheme } from '@core/theme/theme.system';
 
 /**
  * Props interface for the FormErrorText component.
@@ -334,7 +334,7 @@ const createStyles = (theme: any) => StyleSheet.create({
  * @dependencies
  * - react: Core React library
  * - react-native: Text component and StyleSheet
- * - ../../../core/theme/theme.system: Theme hook
+ * - @core/theme/theme.system: Theme hook
  * 
  * @see {@link useTheme} for theme system integration
  * @see {@link FormTextInput} for related form input component

@@ -25,7 +25,7 @@ import {
 } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
 import { ProfessionalInfo } from '../../../domain/entities/user-profile.entity';
-import { useTheme } from '../../../../../core/theme/theme.system';
+import { useTheme } from '@core/theme/theme.system';
 import { useProfessionalInfo } from '../../hooks/use-professional-info.hook';
 import { createProfessionalInfoCardStyles } from './professional-info-card.component.styles';
 

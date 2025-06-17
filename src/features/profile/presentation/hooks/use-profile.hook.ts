@@ -24,7 +24,7 @@
 
 import { useCallback, useMemo } from 'react';
 import { UserProfile, PrivacySettings } from '../../domain/entities/user-profile.entity';
-import { useAuth } from '../../../../features/auth/presentation/hooks/use-auth.hook';
+import { useAuth } from '@features/auth/presentation/hooks/use-auth.hook';
 import { 
   useProfileQuery,
   usePrivacySettingsQuery,

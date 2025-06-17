@@ -23,7 +23,7 @@
 import React, { useMemo } from 'react';
 import { View, Text } from 'react-native';
 import { PasswordValidationResult } from '../../../domain/interfaces/password-policy.service.interface';
-import { useAuthTranslations } from '../../../../../core/i18n/hooks/useAuthTranslations';
+import { useAuthTranslations } from '@core/i18n/hooks/useAuthTranslations';
 import { 
   passwordStrengthIndicatorStyles as styles, 
   strengthColors, 

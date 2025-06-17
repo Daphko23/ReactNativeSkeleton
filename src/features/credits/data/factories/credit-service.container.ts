@@ -23,8 +23,8 @@
  */
 
 // Core imports
-import type { ILoggerService } from '../../../../core/logging/logger.service.interface';
-import { Environment } from '../../../../core/config/environment.config.interface';
+import type { ILoggerService } from '@core/logging/logger.service.interface';
+import { Environment } from '@core/config/environment.config.interface';
 
 // Data Layer imports
 import { SupabaseCreditDataSource } from '../datasources/supabase-credit.datasource';

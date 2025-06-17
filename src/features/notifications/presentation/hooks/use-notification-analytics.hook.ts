@@ -14,7 +14,7 @@
 
 import { useState, useMemo, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useTheme } from '../../../../core/theme/theme.system';
+import { useTheme } from '@core/theme/theme.system';
 
 // =============================================================================
 // TYPES & INTERFACES

@@ -15,8 +15,8 @@ import { View, ViewStyle } from 'react-native';
 import { Card } from 'react-native-paper';
 
 import { createCardStyles, createCardVariantStyles, createCardSizeStyles } from '../utils/card-styles.util';
-import { useTheme } from '../../../../core/theme/theme.system';
-import { adaptThemeToMD3 } from '../../../../core/theme/theme-adapter';
+import { useTheme } from '@core/theme/theme.system';
+import { adaptThemeToMD3 } from '@core/theme/theme-adapter';
 
 /**
  * Props interface for the BaseCard component.

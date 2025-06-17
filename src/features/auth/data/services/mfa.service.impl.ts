@@ -160,7 +160,7 @@ import {
 import { 
   ILoggerService, 
   LogCategory 
-} from '../../../../core/logging/logger.service.interface';
+} from '@core/logging/logger.service.interface';
 import { LoggerFactory } from '@core/logging/logger.factory';
 
 const logger = LoggerFactory.createServiceLogger('MFAService');

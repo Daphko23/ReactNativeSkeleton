@@ -19,7 +19,7 @@
 
 import React from 'react';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import type { CreditStackParamList } from '../../../../core/navigation/navigation.types';
+import type { CreditStackParamList } from '@core/navigation/navigation.types';
 import { useTheme } from '@core/theme/theme.system';
 
 // Credit Screens

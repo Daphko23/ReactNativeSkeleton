@@ -29,8 +29,8 @@
  */
 
 // Core imports
-import type { ILoggerService } from '../../../../core/logging/logger.service.interface';
-import { Environment } from '../../../../core/config/environment.config.interface';
+import type { ILoggerService } from '@core/logging/logger.service.interface';
+import { Environment } from '@core/config/environment.config.interface';
 
 // Factory imports
 import { OptimizedSecurityServiceFactory } from './security-service.factory';

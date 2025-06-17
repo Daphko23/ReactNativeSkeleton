@@ -13,7 +13,7 @@
 import React, { memo } from 'react';
 import { View, StyleSheet } from 'react-native';
 import { ActivityIndicator, Text, Portal } from 'react-native-paper';
-import { useTheme } from '../../../core/theme/theme.system';
+import { useTheme } from '@core/theme/theme.system';
 
 /**
  * Props interface for the LoadingOverlay component.
@@ -390,7 +390,7 @@ const createStyles = (theme: any) => StyleSheet.create({
  * - react: Core React library and memo
  * - react-native: View and StyleSheet
  * - react-native-paper: ActivityIndicator, Text, Portal
- * - ../../../core/theme/theme.system: Theme hook
+ * - @core/theme/theme.system: Theme hook
  * 
  * @see {@link useTheme} for theme system integration
  * @see {@link Portal} for overlay rendering

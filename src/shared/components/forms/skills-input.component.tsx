@@ -13,7 +13,7 @@
 import React, { memo, useState, useCallback, useMemo } from 'react';
 import { View, StyleSheet } from 'react-native';
 import { TextInput, Chip, Paragraph } from 'react-native-paper';
-import { useTheme } from '../../../core/theme/theme.system';
+import { useTheme } from '@core/theme/theme.system';
 
 /**
  * Props interface for the SkillsInput component.
@@ -450,7 +450,7 @@ const createStyles = (theme: any) => StyleSheet.create({
  * - react: Core React library with hooks
  * - react-native: View, StyleSheet components
  * - react-native-paper: TextInput, Chip, Paragraph
- * - ../../../core/theme/theme.system: Theme integration
+ * - @core/theme/theme.system: Theme integration
  * 
  * @see {@link useTheme} for theme system integration
  * @see {@link TextInput} for input component functionality

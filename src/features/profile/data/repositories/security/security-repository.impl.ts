@@ -7,8 +7,8 @@
  */
 
 import { ISecurityRepository } from '../../../domain/interfaces/security/security-repository.interface';
-import { LoggerFactory } from '../../../../../core/logging/logger.factory';
-import { LogCategory } from '../../../../../core/logging/logger.service.interface';
+import { LoggerFactory } from '@core/logging/logger.factory';
+import { LogCategory } from '@core/logging/logger.service.interface';
 import { Result } from '@core/types/result.type';
 import {
   SecurityProfile,

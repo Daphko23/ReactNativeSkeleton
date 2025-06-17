@@ -5,7 +5,7 @@
  */
 
 import { InvalidCredentialsError } from '../../../domain/errors/invalid-credentials.error';
-import { ErrorSeverity, ErrorCategory } from '../../../../../shared/errors';
+import { ErrorSeverity, ErrorCategory } from '@shared/errors';
 
 describe('InvalidCredentialsError - DOMAIN ERROR VALIDATION', () => {
   describe('🎯 Error Construction Tests', () => {

@@ -34,9 +34,9 @@
 
 import type { AuthRepository } from '../../domain/interfaces/auth.repository.interface';
 // Import IAuthService entfernt - aktuell nicht verwendet
-import type { ILoggerService } from '../../../../core/logging/logger.service.interface';
-import { LoggerFactory } from '../../../../core/logging/logger.factory';
-import { LogCategory } from '../../../../core/logging/logger.service.interface';
+import type { ILoggerService } from '@core/logging/logger.service.interface';
+import { LoggerFactory } from '@core/logging/logger.factory';
+import { LogCategory } from '@core/logging/logger.service.interface';
 import { isBusinessError } from '../utils/auth-error.utils';
 
 // Data Layer Imports

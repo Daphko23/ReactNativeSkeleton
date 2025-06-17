@@ -160,7 +160,7 @@ import { supabase } from '@core/config/supabase.config';
 import { 
   ILoggerService, 
   LogCategory 
-} from '../../../../core/logging/logger.service.interface';
+} from '@core/logging/logger.service.interface';
 import {
   IComplianceService,
   UserDataExport,

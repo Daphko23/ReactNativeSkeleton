@@ -5,7 +5,7 @@
  */
 
 import { UserNotAuthenticatedError } from '../../../domain/errors/user-not-authenticated.error';
-import { AppError, ErrorSeverity, ErrorCategory } from '../../../../../shared/errors';
+import { AppError, ErrorSeverity, ErrorCategory } from '@shared/errors';
 
 describe('UserNotAuthenticatedError - ERROR-007', () => {
   describe('Constructor', () => {

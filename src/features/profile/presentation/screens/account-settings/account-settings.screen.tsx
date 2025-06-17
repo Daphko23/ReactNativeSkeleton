@@ -80,10 +80,10 @@ import {
   InfoCard,
   ActionCard,
   StatsCard
-} from '../../../../../shared/components';
+} from '@shared/components';
 
 // Layout
-import { SettingsScreenLayout } from '../../../../../shared/components/layouts';
+import { SettingsScreenLayout } from '@shared/components/layouts';
 
 // Hooks
 import { useProfile } from '../../hooks/use-profile.hook';

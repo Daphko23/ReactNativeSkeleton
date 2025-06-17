@@ -22,8 +22,8 @@ import { View, Animated } from 'react-native';
 import { Avatar, Text } from 'react-native-paper';
 
 import { PROFILE_CONSTANTS } from '../../constants/profile.constants';
-import { CustomCard } from '../../../../../shared/components/cards/specialized/custom-card.component';
-import { AvatarSkeleton } from '../../../../../shared/components/ui/avatar-skeleton.component';
+import { CustomCard } from '@shared/components/cards/specialized/custom-card.component';
+import { AvatarSkeleton } from '@shared/components/ui/avatar-skeleton.component';
 import { createProfileHeaderStyles } from './profile-header.component.styles';
 
 // =============================================================================

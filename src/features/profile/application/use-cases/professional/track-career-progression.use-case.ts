@@ -4,7 +4,7 @@
  * ✅ APPLICATION LAYER: Business Logic für Career Advancement Management
  */
 
-import { Result } from '../../../../../core/types/result.type';
+import { Result } from '@core/types/result.type';
 import { 
   CareerProgression,
   CareerMilestone as _CareerMilestone,

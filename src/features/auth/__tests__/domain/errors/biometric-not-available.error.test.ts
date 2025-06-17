@@ -5,7 +5,7 @@
  */
 
 import { BiometricNotAvailableError } from '../../../domain/errors/biometric-not-available.error';
-import { AppError, ErrorSeverity, ErrorCategory } from '../../../../../shared/errors';
+import { AppError, ErrorSeverity, ErrorCategory } from '@shared/errors';
 
 describe('BiometricNotAvailableError', () => {
   describe('Constructor', () => {

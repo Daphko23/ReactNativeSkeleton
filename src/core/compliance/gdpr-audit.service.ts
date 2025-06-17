@@ -12,7 +12,7 @@
 
 import { LoggerFactory } from '@core/logging/logger.factory';
 import { LogCategory } from '@core/logging/logger.service.interface';
-import { ProfileAuditError } from '../../features/profile/domain/errors/profile-deletion.errors';
+import { ProfileAuditError } from '@features/profile/domain/errors/profile-deletion.errors';
 
 /**
  * @enum GDPRAuditEventType

@@ -6,7 +6,7 @@
 import { AvatarService } from '../avatar.service';
 
 // Mock Supabase with avatarStorageConfig
-jest.mock('../../../../../core/config/supabase.config', () => ({
+jest.mock('@core/config/supabase.config', () => ({
   supabase: {
     auth: {
       getSession: jest.fn(),
@@ -127,7 +127,7 @@ describe('AvatarService', () => {
   });
 
   describe('uploadAvatar', () => {
-    const { supabase } = require('../../../../../core/config/supabase.config');
+    const { supabase } = require('@core/config/supabase.config');
     
     beforeEach(() => {
       supabase.auth.getSession.mockResolvedValue({
@@ -261,7 +261,7 @@ describe('AvatarService', () => {
   });
 
   describe('deleteAvatar', () => {
-    const { supabase } = require('../../../../../core/config/supabase.config');
+    const { supabase } = require('@core/config/supabase.config');
 
     beforeEach(() => {
       supabase.auth.getSession.mockResolvedValue({
@@ -315,7 +315,7 @@ describe('AvatarService', () => {
   });
 
   describe('getAvatarUrl', () => {
-    const { supabase } = require('../../../../../core/config/supabase.config');
+    const { supabase } = require('@core/config/supabase.config');
 
     beforeEach(() => {
       // Mock supabase RPC call

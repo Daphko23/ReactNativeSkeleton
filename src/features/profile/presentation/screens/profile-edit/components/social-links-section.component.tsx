@@ -12,10 +12,10 @@ import { View as _View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 
 // Shared Components
-import { FormSection, FormField } from '../../../../../../shared/components';
+import { FormSection, FormField } from '@shared/components';
 
 // Core Imports
-import { useTheme } from '../../../../../../core/theme/theme.system';
+import { useTheme } from '@core/theme/theme.system';
 
 // Types
 import { UseSocialLinksEditReturn } from '../../../hooks/use-social-links-edit.hook';

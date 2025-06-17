@@ -70,8 +70,8 @@
  */
 
 import { Alert, Platform } from 'react-native';
-import type { ILoggerService } from '../../../core/logging/logger.service.interface';
-import { LogCategory } from '../../../core/logging/logger.service.interface';
+import type { ILoggerService } from '@core/logging/logger.service.interface';
+import { LogCategory } from '@core/logging/logger.service.interface';
 
 /**
  * @enum AlertType

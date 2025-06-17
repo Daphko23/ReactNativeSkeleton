@@ -4,7 +4,7 @@
  * ✅ APPLICATION LAYER: Business Logic für Professional Profile Optimization
  */
 
-import { Result } from '../../../../../core/types/result.type';
+import { Result } from '@core/types/result.type';
 import { 
   ProfessionalProfile,
   ProfessionalStatus,

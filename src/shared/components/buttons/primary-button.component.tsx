@@ -1,7 +1,7 @@
 import React from 'react';
 import {Button} from 'react-native-paper';
 import {StyleSheet} from 'react-native';
-import { useTheme } from '../../../core/theme/theme.system';
+import { useTheme } from '@core/theme/theme.system';
 
 /**
  * Props interface for the PrimaryButton component.

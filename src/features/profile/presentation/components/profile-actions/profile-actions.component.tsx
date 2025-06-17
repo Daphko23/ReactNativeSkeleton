@@ -16,8 +16,8 @@
  */
 
 import React from 'react';
-import { ActionCard } from '../../../../../shared/components/cards';
-import type { ActionItem } from '../../../../../shared/components/cards/types/card.types';
+import { ActionCard } from '@shared/components/cards';
+import type { ActionItem } from '@shared/components/cards/types/card.types';
 import { PROFILE_CONSTANTS } from '../../constants/profile.constants';
 
 // =============================================================================

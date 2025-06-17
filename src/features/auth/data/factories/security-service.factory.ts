@@ -37,8 +37,8 @@
  */
 
 // Core imports
-import type { ILoggerService } from '../../../../core/logging/logger.service.interface';
-import { LogCategory } from '../../../../core/logging/logger.service.interface';
+import type { ILoggerService } from '@core/logging/logger.service.interface';
+import { LogCategory } from '@core/logging/logger.service.interface';
 import { AdvancedSecurityServiceImpl } from '../services/advanced-security.service.impl';
 
 // Import all interfaces from separated interface file

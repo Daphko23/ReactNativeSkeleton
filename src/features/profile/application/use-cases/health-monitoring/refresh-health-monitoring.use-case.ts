@@ -22,8 +22,8 @@
  * @namespace Profile.Application.UseCases
  */
 
-import { Result } from '../../../../../core/types/result.type';
-import { ILoggerService, LogCategory } from '../../../../../core/logging/logger.service.interface';
+import { Result } from '@core/types/result.type';
+import { ILoggerService, LogCategory } from '@core/logging/logger.service.interface';
 
 /**
  * @interface ServiceHealth

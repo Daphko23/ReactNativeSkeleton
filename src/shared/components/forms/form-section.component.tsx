@@ -13,7 +13,7 @@
 import React, { memo } from 'react';
 import { View, StyleSheet } from 'react-native';
 import { Text } from 'react-native-paper';
-import { useTheme } from '../../../core/theme/theme.system';
+import { useTheme } from '@core/theme/theme.system';
 import { BaseCard } from '../cards/base/base-card.component';
 
 /**
@@ -347,7 +347,7 @@ const createStyles = (theme: any) => StyleSheet.create({
  * - react: Core React library with memo
  * - react-native: View, StyleSheet components
  * - react-native-paper: Text component
- * - ../../../core/theme/theme.system: Theme integration
+ * - @core/theme/theme.system: Theme integration
  * - ../cards/base/base-card.component: Card functionality
  * 
  * @see {@link useTheme} for theme system integration

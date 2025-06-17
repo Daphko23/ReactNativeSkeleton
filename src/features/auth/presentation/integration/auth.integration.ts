@@ -22,8 +22,8 @@
 
 import { AuthServiceContainer } from '../../data/factories/auth-service.container';
 import { AuthServiceFactory } from '../../data/factories/auth.integration';
-import type { ILoggerService } from '../../../../core/logging/logger.service.interface';
-import { Environment, type EnvironmentValue } from '../../../../core/config/environment.config.interface';
+import type { ILoggerService } from '@core/logging/logger.service.interface';
+import { Environment, type EnvironmentValue } from '@core/config/environment.config.interface';
 
 /**
  * @interface AuthIntegrationConfig

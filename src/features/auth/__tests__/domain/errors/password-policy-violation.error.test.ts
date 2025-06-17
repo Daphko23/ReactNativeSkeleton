@@ -5,7 +5,7 @@
  */
 
 import { PasswordPolicyViolationError } from '../../../domain/errors/password-policy-violation.error';
-import { AppError, ErrorSeverity, ErrorCategory } from '../../../../../shared/errors';
+import { AppError, ErrorSeverity, ErrorCategory } from '@shared/errors';
 
 describe('PasswordPolicyViolationError - ERROR-006', () => {
   describe('Constructor', () => {

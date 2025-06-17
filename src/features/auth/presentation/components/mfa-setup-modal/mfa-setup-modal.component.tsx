@@ -19,9 +19,9 @@ import {
   Alert,
 } from 'react-native';
 import {useAuthSecurity} from '../../hooks';
-// import { EnterpriseAlert } from '../../../../shared/components/enterprise-alert/enterprise-alert.component';
-// import { AlertType } from '../../../../shared/types/alert.types';
-import { useAuthTranslations } from '../../../../../core/i18n/hooks';
+// import { EnterpriseAlert } from '@shared/components/enterprise-alert/enterprise-alert.component';
+// import { AlertType } from '@shared/types/alert.types';
+import { useAuthTranslations } from '@core/i18n/hooks';
 import { mfaSetupModalStyles as styles } from './mfa-setup-modal.component.style';
 
 export interface MFASetupModalProps {

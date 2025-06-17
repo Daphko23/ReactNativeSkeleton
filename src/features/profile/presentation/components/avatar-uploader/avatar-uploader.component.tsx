@@ -23,7 +23,7 @@ import {
 } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { useAvatar } from '../../hooks/use-avatar.hook';
-import { useTheme } from '../../../../../core/theme/theme.system';
+import { useTheme } from '@core/theme/theme.system';
 import { createAvatarUploaderStyles } from './avatar-uploader.component.styles';
 
 // =============================================================================

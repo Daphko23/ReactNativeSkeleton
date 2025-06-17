@@ -11,10 +11,10 @@ import React, { useMemo } from 'react';
 import { View, Text } from 'react-native';
 import { SegmentedButtons } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
-import { useTheme } from '../../../../../../core/theme/theme.system';
+import { useTheme } from '@core/theme/theme.system';
 
 // Shared Components
-import { FormSection, FormField } from '../../../../../../shared/components';
+import { FormSection, FormField } from '@shared/components';
 
 // Types
 import { UseProfileFormReturn } from '../../../hooks/use-profile-form.hook';

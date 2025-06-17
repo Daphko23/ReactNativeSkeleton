@@ -49,7 +49,7 @@
  * @namespace Auth.Domain.Errors
  */
 
-import { AppError, ErrorSeverity, ErrorCategory, type ErrorDetails } from '../../../../shared/errors';
+import { AppError, ErrorSeverity, ErrorCategory, type ErrorDetails } from '@shared/errors';
 
 /**
  * @class EmailAlreadyInUseError

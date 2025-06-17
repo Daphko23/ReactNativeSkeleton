@@ -13,7 +13,7 @@
 import React, { memo, useMemo } from 'react';
 import { View, StyleSheet } from 'react-native';
 import { TextInput, HelperText, Paragraph } from 'react-native-paper';
-import { useTheme } from '../../../core/theme/theme.system';
+import { useTheme } from '@core/theme/theme.system';
 
 /**
  * Props interface for the FormField component.
@@ -560,7 +560,7 @@ const createStyles = (theme: any) => StyleSheet.create({
  * - react: Core React library with hooks
  * - react-native: View, StyleSheet components
  * - react-native-paper: Material Design components
- * - ../../../core/theme/theme.system: Theme integration
+ * - ../@core/theme/theme.system: Theme integration
  * 
  * @see {@link useTheme} for theme system integration
  * @see {@link TextInput} for underlying input component

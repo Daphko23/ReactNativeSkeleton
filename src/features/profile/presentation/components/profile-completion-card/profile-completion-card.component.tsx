@@ -25,7 +25,7 @@ import {
 } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
 import { UserProfile } from '../../../domain/entities/user-profile.entity';
-import { useTheme } from '../../../../../core/theme/theme.system';
+import { useTheme } from '@core/theme/theme.system';
 import { createProfileCompletionCardStyles } from './profile-completion-card.component.styles';
 import { useProfileCompleteness } from '../../hooks/use-profile-completeness.hook';
 

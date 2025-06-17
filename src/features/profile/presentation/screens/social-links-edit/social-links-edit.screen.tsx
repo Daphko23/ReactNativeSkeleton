@@ -74,9 +74,9 @@ import {
 import { SafeAreaView } from 'react-native';
 
 // Shared Components
-import { StatsCard } from '../../../../../shared/components';
-import { PrimaryButton } from '../../../../../shared/components/buttons/primary-button.component';
-import type { StatItem as _StatItem } from '../../../../../shared/components/cards/types/card.types';
+import { StatsCard } from '@shared/components';
+import { PrimaryButton } from '@shared/components/buttons/primary-button.component';
+import type { StatItem as _StatItem } from '@shared/components/cards/types/card.types';
 
 // Business Logic
 import { useSocialLinksEdit } from '../../hooks/use-social-links-edit.hook';

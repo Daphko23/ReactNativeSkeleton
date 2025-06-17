@@ -27,13 +27,13 @@ import {
   FormSection,
   FormField,
   LoadingOverlay,
-} from '../../../../../shared/components';
+} from '@shared/components';
 
 // Core Services
-import { AlertService } from '../../../../../core/services';
+import { AlertService } from '@core/services';
 
 // Core Imports
-import { useTheme } from '../../../../../core/theme/theme.system';
+import { useTheme } from '@core/theme/theme.system';
 
 // 🚀 ENTERPRISE HOOK-CENTRIC ARCHITECTURE
 import { useProfileForm } from '../../hooks/use-profile-form.hook';

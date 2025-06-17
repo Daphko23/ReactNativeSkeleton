@@ -22,8 +22,8 @@ import { View, Text } from 'react-native';
 import { Divider } from 'react-native-paper';
 
 import { PROFILE_CONSTANTS } from '../../constants/profile.constants';
-import { ActionCard } from '../../../../../shared/components/cards';
-import type { ActionItem } from '../../../../../shared/components/cards/types/card.types';
+import { ActionCard } from '@shared/components/cards';
+import type { ActionItem } from '@shared/components/cards/types/card.types';
 import { createProfileNavigationStyles } from './profile-navigation.component.styles';
 
 // Feature Flag Hook Import

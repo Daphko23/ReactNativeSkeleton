@@ -122,8 +122,8 @@ import { useTranslation } from 'react-i18next';
 import { 
   LoadingOverlay,
   ActionCard
-} from '../../../../../shared/components';
-import { EmptyList } from '../../../../../shared/components/empty-state/empty-list.component';
+} from '@shared/components';
+import { EmptyList } from '@shared/components/empty-state/empty-list.component';
 
 // Business Logic
 import { useCustomFieldsManager } from '../../hooks/use-custom-fields-query.hook';

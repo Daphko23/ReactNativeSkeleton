@@ -15,7 +15,7 @@ import {
 } from 'react-native';
 import PagerView from 'react-native-pager-view';
 import { useTranslation } from 'react-i18next';
-import { useTheme, createThemedStyles } from '../../../../core/theme/theme.system';
+import { useTheme, createThemedStyles } from '@core/theme/theme.system';
 
 import { errorMonitoring } from '@core/monitoring/error-monitoring.service';
 

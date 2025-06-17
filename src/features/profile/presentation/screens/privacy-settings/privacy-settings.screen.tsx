@@ -123,13 +123,13 @@ import {
   PrivacyFieldCard,
   SwitchSettingsCard,
   DangerZoneCard
-} from '../../../../../shared/components';
+} from '@shared/components';
 
 // Dialog Components
-import { DeleteConfirmationDialog } from '../../../../../shared/components/dialogs';
+import { DeleteConfirmationDialog } from '@shared/components/dialogs';
 
 // Layout
-import { SettingsScreenLayout } from '../../../../../shared/components/layouts';
+import { SettingsScreenLayout } from '@shared/components/layouts';
 
 // =============================================================================
 // TYPES & INTERFACES

@@ -18,8 +18,8 @@
  * @namespace Auth.Data.Interfaces
  */
 
-import type { ILoggerService } from '../../../../core/logging/logger.service.interface';
-import { Environment, type EnvironmentValue } from '../../../../core/config/environment.config.interface';
+import type { ILoggerService } from '@core/logging/logger.service.interface';
+import { Environment, type EnvironmentValue } from '@core/config/environment.config.interface';
 import type {
   DeviceFingerprint,
   ThreatAssessment,

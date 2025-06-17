@@ -4,7 +4,7 @@
  * ✅ APPLICATION LAYER: Business Logic für Professional Skills Management
  */
 
-import { Result } from '../../../../../core/types/result.type';
+import { Result } from '@core/types/result.type';
 import { 
   SkillsAnalysis, 
   SkillAssessment, 

@@ -25,7 +25,7 @@ import {
   Badge,
   Button,
 } from 'react-native-paper';
-import { useTheme } from '../../../../core/theme/theme.system';
+import { useTheme } from '@core/theme/theme.system';
 import { useNotificationAnalytics } from '../hooks/use-notification-analytics.hook';
 
 // =============================================================================

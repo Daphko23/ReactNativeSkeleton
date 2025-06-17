@@ -4,7 +4,7 @@
  * ✅ DATA LAYER: Implementation für Profile Screen Data Operations
  */
 
-import { Result } from '../../../../../core/types/result.type';
+import { Result } from '@core/types/result.type';
 import { LoggerFactory } from '@core/logging/logger.factory';
 import { LogCategory } from '@core/logging/logger.service.interface';
 import {
