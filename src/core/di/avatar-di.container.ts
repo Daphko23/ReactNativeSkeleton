@@ -12,6 +12,11 @@ import { IAvatarRepository } from '@features/profile/domain/interfaces/avatar-re
 import { IAvatarDataSource } from '@features/profile/domain/interfaces/avatar-datasource.interface';
 import { AvatarRepositoryImpl } from '@features/profile/data/repositories/avatar-repository.impl';
 import { SupabaseAvatarDataSource } from '@features/profile/data/datasources/supabase-avatar.datasource';
+import { LoggerFactory } from '@core/logging/logger.factory';
+import { LogCategory } from '@core/logging/logger.service.interface';
+
+// Logger for Avatar DI Container
+const logger = LoggerFactory.createServiceLogger('AvatarDIContainer');
 
 /**
  * Avatar Dependency Injection Container
@@ -166,7 +171,10 @@ export class AvatarDIContainer {
     // Repository mit neuer DataSource neu erstellen
     this.avatarRepository = new AvatarRepositoryImpl(this.avatarDataSource);
     
-    console.log('AvatarDIContainer: DataSource updated, Repository recreated');
+    logger.info('DataSource updated, Repository recreated', LogCategory.BUSINESS, {
+      service: 'AvatarDIContainer',
+      metadata: { operation: 'setAvatarDataSource', dataSourceType: dataSource.constructor.name }
+    });
   }
 
   /**
@@ -186,7 +194,10 @@ export class AvatarDIContainer {
    */
   public setAvatarRepository(repository: IAvatarRepository): void {
     this.avatarRepository = repository;
-    console.log('AvatarDIContainer: Repository updated');
+    logger.info('Repository updated', LogCategory.BUSINESS, {
+      service: 'AvatarDIContainer',
+      metadata: { operation: 'setAvatarRepository', repositoryType: repository.constructor.name }
+    });
   }
 
   /**
@@ -205,7 +216,10 @@ export class AvatarDIContainer {
   public resetToDefaults(): void {
     this.avatarDataSource = new SupabaseAvatarDataSource();
     this.avatarRepository = new AvatarRepositoryImpl(this.avatarDataSource);
-    console.log('AvatarDIContainer: Reset to default Supabase configuration');
+    logger.info('Reset to default Supabase configuration', LogCategory.BUSINESS, {
+      service: 'AvatarDIContainer',
+      metadata: { operation: 'resetToDefaults', dataSourceType: 'SupabaseAvatarDataSource' }
+    });
   }
 }
 

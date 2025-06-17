@@ -71,7 +71,7 @@ import {
   Chip as _Chip,
   Divider as _Divider,
 } from 'react-native-paper';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { SafeAreaView } from 'react-native';
 
 // Shared Components
 import { StatsCard } from '../../../../../shared/components';
@@ -559,7 +559,7 @@ export const SocialLinksEditScreen: React.FC<SocialLinksEditScreenProps> = ({
   const {
     // Data
     socialLinks,
-    availablePlatforms: _availablePlatforms,
+    availablePlatforms,
     // completedPlatforms: _completedPlatforms,
     
     // State
@@ -570,7 +570,7 @@ export const SocialLinksEditScreen: React.FC<SocialLinksEditScreenProps> = ({
     // hasValidationErrors,
     
     // Actions
-    updateSocialLink: _updateSocialLink,
+    updateSocialLink,
     save,
     openSocialLink,
     // getSocialLinkData,
@@ -608,7 +608,7 @@ export const SocialLinksEditScreen: React.FC<SocialLinksEditScreenProps> = ({
     return (
       <SafeAreaView 
         style={styles.loadingContainer} 
-        edges={['bottom', 'left', 'right']}
+
         testID={SOCIAL_LINKS_TEST_IDS.LOADING_INDICATOR}
       >
         <ActivityIndicator size="large" />
@@ -621,7 +621,7 @@ export const SocialLinksEditScreen: React.FC<SocialLinksEditScreenProps> = ({
   return (
     <SafeAreaView 
       style={styles.container} 
-      edges={['bottom', 'left', 'right']}
+
       testID={testID}
     >
       <ScrollView 
@@ -642,25 +642,25 @@ export const SocialLinksEditScreen: React.FC<SocialLinksEditScreenProps> = ({
             {
               id: 'professional',
               label: t('profile.socialLinksScreen.stats.professional'),
-              value: 0, // socialLinks.filter(link => 
-                // [].find((p: any) => p.key === link.platform)?.category === 'professional'
-              // ).length,
+              value: socialLinks.filter(link => 
+                availablePlatforms.find((p: any) => p.key === link.platform)?.category === 'professional'
+              ).length,
               icon: 'briefcase'
             },
             {
               id: 'social',
               label: t('profile.socialLinksScreen.stats.social'),
-              value: 0, // socialLinks.filter(link => 
-                // [].find((p: any) => p.key === link.platform)?.category === 'social'
-              // ).length,
+              value: socialLinks.filter(link => 
+                availablePlatforms.find((p: any) => p.key === link.platform)?.category === 'social'
+              ).length,
               icon: 'account-group'
             },
             {
               id: 'creative',
               label: t('profile.socialLinksScreen.stats.creative'),
-              value: 0, // socialLinks.filter(link => 
-                // [].find((p: any) => p.key === link.platform)?.category === 'creative'
-              // ).length,
+              value: socialLinks.filter(link => 
+                availablePlatforms.find((p: any) => p.key === link.platform)?.category === 'creative'
+              ).length,
               icon: 'palette'
             }
           ]}
@@ -675,9 +675,8 @@ export const SocialLinksEditScreen: React.FC<SocialLinksEditScreenProps> = ({
               {t('profile.socialLinksScreen.platforms.title')}
             </Text>
             
-            {[].map((platform: any, _index: number) => {
-              const _linkData = null; // getSocialLinkData(platform.key);
-              const currentValue = ''; // getInputValue(platform.key);
+            {availablePlatforms.map((platform, _index: number) => {
+              const currentValue = ''; // Hook integration: getSocialLinkValue(platform.key);
               const isValid = !getValidationError(platform.key);
               const existingLink = socialLinks.find(l => l.platform === platform.key);
               
@@ -686,7 +685,7 @@ export const SocialLinksEditScreen: React.FC<SocialLinksEditScreenProps> = ({
                   key={platform.key}
                   platform={platform}
                   value={currentValue}
-                  onValueChange={(_value) => {}} // updateSocialLinkByPlatform(platform.key as any, _value)
+                  onValueChange={(value) => updateSocialLink(platform.key, value)}
                   onPreview={() => existingLink && openSocialLink(platform.key)}
                   isValid={isValid}
                   isDisabled={isSaving}
@@ -709,7 +708,7 @@ export const SocialLinksEditScreen: React.FC<SocialLinksEditScreenProps> = ({
             
             <SummaryComponent
               socialLinks={socialLinks}
-              socialPlatforms={[]}
+              socialPlatforms={availablePlatforms}
               onPreview={openSocialLink}
               styles={styles}
               t={t}

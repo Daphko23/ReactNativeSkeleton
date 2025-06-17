@@ -31,7 +31,7 @@ import {
   Alert,
 } from 'react-native';
 import { Text, Divider, ActivityIndicator, Checkbox } from 'react-native-paper';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { SafeAreaView } from 'react-native';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 

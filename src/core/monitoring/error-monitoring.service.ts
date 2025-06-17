@@ -688,7 +688,10 @@ class ErrorMonitoringService {
         platformVersion: Platform.Version,
       };
     } catch (error) {
-      console.warn('Failed to get device info:', error);
+      this.logger.warn('Failed to get device info', LogCategory.BUSINESS, {
+        service: 'ErrorMonitoring',
+        metadata: { platform: Platform.OS, error: (error as Error)?.message || String(error) }
+      });
       return {
         platform: Platform.OS,
         platformVersion: Platform.Version,
@@ -723,7 +726,10 @@ class ErrorMonitoringService {
         lastUpdateTime,
       };
     } catch (error) {
-      console.warn('Failed to get app info:', error);
+      this.logger.warn('Failed to get app info', LogCategory.BUSINESS, {
+        service: 'ErrorMonitoring',
+        metadata: { error: (error as Error)?.message || String(error) }
+      });
       return {
         version: 'unknown',
         buildNumber: 'unknown',

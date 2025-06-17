@@ -14,6 +14,8 @@ import i18n from 'i18next';
 import {initReactI18next} from 'react-i18next';
 import de from './locales/de.json';
 import en from './locales/en.json';
+import { LoggerFactory } from '@core/logging/logger.factory';
+import { LogCategory } from '@core/logging/logger.service.interface';
 
 /**
  * React i18next Internationalization Configuration
@@ -378,9 +380,30 @@ i18n.use(initReactI18next).init({
  * @category Debugging
  * @since 1.0.0
  */
-console.log('🔧 i18n initialized successfully with FLAT structure');
-console.log('🔧 Available DE keys:', Object.keys(de));
-console.log('🔧 Available EN keys:', Object.keys(en));
+const logger = LoggerFactory.createServiceLogger('I18nConfiguration');
+
+logger.info('i18n initialized successfully with FLAT structure', LogCategory.BUSINESS, {
+  service: 'I18nConfiguration',
+  metadata: {
+    fallbackLanguage: 'de',
+    initialLanguage: 'de',
+    availableLanguages: ['de', 'en'],
+    structure: 'flat',
+    debugMode: __DEV__
+  }
+});
+
+if (__DEV__) {
+  logger.info('Available translation keys loaded', LogCategory.BUSINESS, {
+    service: 'I18nConfiguration',
+    metadata: {
+      deKeysCount: Object.keys(de).length,
+      enKeysCount: Object.keys(en).length,
+      deKeys: Object.keys(de).slice(0, 10), // Show first 10 keys for debugging
+      enKeys: Object.keys(en).slice(0, 10)  // Show first 10 keys for debugging
+    }
+  });
+}
 
 /**
  * Configured i18next Instance Export

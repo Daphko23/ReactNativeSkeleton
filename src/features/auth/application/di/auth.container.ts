@@ -35,6 +35,9 @@
 import type { AuthRepository } from '../../domain/interfaces/auth.repository.interface';
 // Import IAuthService entfernt - aktuell nicht verwendet
 import type { ILoggerService } from '../../../../core/logging/logger.service.interface';
+import { LoggerFactory } from '../../../../core/logging/logger.factory';
+import { LogCategory } from '../../../../core/logging/logger.service.interface';
+import { isBusinessError } from '../utils/auth-error.utils';
 
 // Data Layer Imports
 import { AuthRepositoryImpl } from '../../data/repository/auth.repository.impl';
@@ -48,22 +51,24 @@ import { ComplianceServiceImpl } from '../../data/services/compliance.service.im
 
 // Application Layer - Service Implementation removed (redundancy eliminated)
 
-// Application Layer - Use Cases (alle 15 UseCases)
+// Application Layer - Use Cases (6 Essential UseCase after Over-Engineering Elimination)
 import { LoginWithEmailUseCase } from '../usecases/login-with-email.usecase';
 import { RegisterWithEmailUseCase } from '../usecases/register-with-email.usecase';
 import { LogoutUseCase } from '../usecases/logout.usecase';
 import { PasswordResetUseCase } from '../usecases/password-reset.usecase';
 import { IsAuthenticatedUseCase } from '../usecases/is-authenticated.usecase';
 import { GetCurrentUserUseCase } from '../usecases/get-current-user.usecase';
-import { UpdatePasswordUseCase } from '../usecases/update-password.usecase';
-import { EnableMFAUseCase } from '../usecases/enable-mfa.usecase';
-import { VerifyMFAUseCase } from '../usecases/verify-mfa.usecase';
-import { EnableBiometricUseCase } from '../usecases/enable-biometric.usecase';
-import { AuthenticateWithBiometricUseCase } from '../usecases/authenticate-with-biometric.usecase';
-import { LoginWithGoogleUseCase } from '../usecases/login-with-google.usecase';
-import { HasPermissionUseCase } from '../usecases/has-permission.usecase';
-import { GetActiveSessionsUseCase } from '../usecases/get-active-sessions.usecase';
-import { CheckSuspiciousActivityUseCase } from '../usecases/check-suspicious-activity.usecase';
+
+// 🗑️ ELIMINATED USE CASES (5.424 Zeilen Over-Engineering removed):
+// ❌ UpdatePasswordUseCase - deleted (642 lines)
+// ❌ EnableMFAUseCase - deleted (511 lines)  
+// ❌ VerifyMFAUseCase - deleted (607 lines)
+// ❌ EnableBiometricUseCase - deleted (531 lines)
+// ❌ AuthenticateWithBiometricUseCase - deleted (459 lines)
+// ❌ LoginWithGoogleUseCase - deleted (624 lines)
+// ❌ HasPermissionUseCase - deleted (703 lines)
+// ❌ GetActiveSessionsUseCase - deleted (656 lines)
+// ❌ CheckSuspiciousActivityUseCase - deleted (691 lines)
 
 /**
  * @interface AuthContainerOptions
@@ -156,27 +161,27 @@ class AuthContainer {
   // AuthOrchestratorService removed - Hooks use Container directly
 
   // ==========================================
-  // 🔧 USE CASES (alle 15 Enterprise UseCases)
+  // 🔧 USE CASES (6 Essential UseCases after Over-Engineering Elimination)
   // ==========================================
   
-  // Basic Authentication UseCases
+  // Essential Authentication UseCases (React Native-appropriate complexity)
   private _loginWithEmailUseCase: LoginWithEmailUseCase | null = null;
   private _registerWithEmailUseCase: RegisterWithEmailUseCase | null = null;
   private _logoutUseCase: LogoutUseCase | null = null;
   private _passwordResetUseCase: PasswordResetUseCase | null = null;
   private _isAuthenticatedUseCase: IsAuthenticatedUseCase | null = null;
   private _getCurrentUserUseCase: GetCurrentUserUseCase | null = null;
-  private _updatePasswordUseCase: UpdatePasswordUseCase | null = null;
 
-  // Enterprise Security UseCases
-  private _enableMFAUseCase: EnableMFAUseCase | null = null;
-  private _verifyMFAUseCase: VerifyMFAUseCase | null = null;
-  private _enableBiometricUseCase: EnableBiometricUseCase | null = null;
-  private _authenticateWithBiometricUseCase: AuthenticateWithBiometricUseCase | null = null;
-  private _loginWithGoogleUseCase: LoginWithGoogleUseCase | null = null;
-  private _hasPermissionUseCase: HasPermissionUseCase | null = null;
-  private _getActiveSessionsUseCase: GetActiveSessionsUseCase | null = null;
-  private _checkSuspiciousActivityUseCase: CheckSuspiciousActivityUseCase | null = null;
+  // 🗑️ ELIMINATED PRIVATE PROPERTIES (9 Over-Engineering UseCase Properties removed)
+  // ❌ private _updatePasswordUseCase: UpdatePasswordUseCase | null = null;
+  // ❌ private _enableMFAUseCase: EnableMFAUseCase | null = null;
+  // ❌ private _verifyMFAUseCase: VerifyMFAUseCase | null = null;
+  // ❌ private _enableBiometricUseCase: EnableBiometricUseCase | null = null;
+  // ❌ private _authenticateWithBiometricUseCase: AuthenticateWithBiometricUseCase | null = null;
+  // ❌ private _loginWithGoogleUseCase: LoginWithGoogleUseCase | null = null;
+  // ❌ private _hasPermissionUseCase: HasPermissionUseCase | null = null;
+  // ❌ private _getActiveSessionsUseCase: GetActiveSessionsUseCase | null = null;
+  // ❌ private _checkSuspiciousActivityUseCase: CheckSuspiciousActivityUseCase | null = null;
 
   // ==========================================
   // ⚙️ CONFIGURATION & LIFECYCLE
@@ -227,13 +232,14 @@ class AuthContainer {
    */
   get authRepository(): AuthRepository {
     if (!this._authRepository) {
+      const logger = this._logger || this.createFallbackLogger();
       this._authRepository = new AuthRepositoryImpl(
         this.authDatasource,
         this.biometricService,
         this.oauthService,
-        this._logger!
+        logger
       );
-      this._logger?.info('Auth repository initialized', undefined, {
+      logger?.info('Auth repository initialized', undefined, {
         service: 'AuthContainer'
       });
     }
@@ -247,8 +253,10 @@ class AuthContainer {
    */
   get biometricService(): BiometricAuthServiceImpl {
     if (!this._biometricService) {
-      this._biometricService = new BiometricAuthServiceImpl(this._logger!);
-      this._logger?.info('Biometric service initialized', undefined, {
+      // FIX: Ensure logger is available or create fallback
+      const logger = this._logger || this.createFallbackLogger();
+      this._biometricService = new BiometricAuthServiceImpl(logger);
+      logger?.info('Biometric service initialized', undefined, {
         service: 'AuthContainer'
       });
     }
@@ -262,6 +270,7 @@ class AuthContainer {
    */
   get oauthService(): OAuthServiceImpl {
     if (!this._oauthService) {
+      const logger = this._logger || this.createFallbackLogger();
       const oauthConfig = {
         google: {
           webClientId: process.env.GOOGLE_WEB_CLIENT_ID || 'mock-google-client-id',
@@ -279,8 +288,8 @@ class AuthContainer {
           scopes: ['openid', 'profile', 'email']
         }
       };
-      this._oauthService = new OAuthServiceImpl(oauthConfig, this._logger!);
-      this._logger?.info('OAuth service initialized', undefined, {
+      this._oauthService = new OAuthServiceImpl(oauthConfig, logger);
+      logger?.info('OAuth service initialized', undefined, {
         service: 'AuthContainer'
       });
     }
@@ -294,8 +303,9 @@ class AuthContainer {
    */
   get mfaService(): MFAServiceImpl {
     if (!this._mfaService) {
-      this._mfaService = new MFAServiceImpl(this._logger!);
-      this._logger?.info('MFA service initialized', undefined, {
+      const logger = this._logger || this.createFallbackLogger();
+      this._mfaService = new MFAServiceImpl(logger);
+      logger?.info('MFA service initialized', undefined, {
         service: 'AuthContainer'
       });
     }
@@ -309,8 +319,9 @@ class AuthContainer {
    */
   get passwordPolicyService(): PasswordPolicyServiceImpl {
     if (!this._passwordPolicyService) {
-      this._passwordPolicyService = new PasswordPolicyServiceImpl(this._logger!);
-      this._logger?.info('Password policy service initialized', undefined, {
+      const logger = this._logger || this.createFallbackLogger();
+      this._passwordPolicyService = new PasswordPolicyServiceImpl(logger);
+      logger?.info('Password policy service initialized', undefined, {
         service: 'AuthContainer'
       });
     }
@@ -324,8 +335,9 @@ class AuthContainer {
    */
   get advancedSecurityService(): AdvancedSecurityServiceImpl {
     if (!this._advancedSecurityService) {
+      const logger = this._logger || this.createFallbackLogger();
              this._advancedSecurityService = new AdvancedSecurityServiceImpl(
-         this._logger!,
+         logger,
          {
            encryption: {
              algorithm: 'AES-256',
@@ -365,7 +377,7 @@ class AuthContainer {
            enableLocationMonitoring: true
          }
        );
-      this._logger?.info('Advanced security service initialized', undefined, {
+      logger?.info('Advanced security service initialized', undefined, {
         service: 'AuthContainer'
       });
     }
@@ -379,8 +391,9 @@ class AuthContainer {
    */
   get complianceService(): ComplianceServiceImpl {
     if (!this._complianceService) {
-             this._complianceService = new ComplianceServiceImpl(this._logger!);
-      this._logger?.info('Compliance service initialized', undefined, {
+      const logger = this._logger || this.createFallbackLogger();
+             this._complianceService = new ComplianceServiceImpl(logger);
+      logger?.info('Compliance service initialized', undefined, {
         service: 'AuthContainer'
       });
     }
@@ -394,7 +407,7 @@ class AuthContainer {
   // AuthOrchestratorService removed - Hooks use Container directly for Use Cases
 
   // ==========================================
-  // 🔧 USE CASE GETTERS (alle 15 UseCases)
+  // 🔧 USE CASE GETTERS (6 Essential UseCases after Over-Engineering Elimination)
   // ==========================================
 
   /**
@@ -463,104 +476,18 @@ class AuthContainer {
     return this._getCurrentUserUseCase;
   }
 
-  /**
-   * @getter updatePasswordUseCase
-   * @description UC-007: Password Security Management UseCase
-   */
-  get updatePasswordUseCase(): UpdatePasswordUseCase {
-    if (!this._updatePasswordUseCase) {
-      this._updatePasswordUseCase = new UpdatePasswordUseCase(this.authRepository);
-    }
-    return this._updatePasswordUseCase;
-  }
-
-  /**
-   * @getter enableMFAUseCase
-   * @description UC-008: Multi-Factor Authentication Setup UseCase
-   */
-  get enableMFAUseCase(): EnableMFAUseCase {
-    if (!this._enableMFAUseCase) {
-      this._enableMFAUseCase = new EnableMFAUseCase(this.authRepository);
-    }
-    return this._enableMFAUseCase;
-  }
-
-  /**
-   * @getter verifyMFAUseCase
-   * @description UC-009: Multi-Factor Authentication Verification UseCase
-   */
-  get verifyMFAUseCase(): VerifyMFAUseCase {
-    if (!this._verifyMFAUseCase) {
-      this._verifyMFAUseCase = new VerifyMFAUseCase(this.authRepository);
-    }
-    return this._verifyMFAUseCase;
-  }
-
-  /**
-   * @getter enableBiometricUseCase
-   * @description UC-010: Biometric Authentication Setup UseCase
-   */
-  get enableBiometricUseCase(): EnableBiometricUseCase {
-    if (!this._enableBiometricUseCase) {
-      this._enableBiometricUseCase = new EnableBiometricUseCase(this.authRepository);
-    }
-    return this._enableBiometricUseCase;
-  }
-
-  /**
-   * @getter authenticateWithBiometricUseCase
-   * @description UC-011: Biometric Authentication UseCase
-   */
-  get authenticateWithBiometricUseCase(): AuthenticateWithBiometricUseCase {
-    if (!this._authenticateWithBiometricUseCase) {
-      this._authenticateWithBiometricUseCase = new AuthenticateWithBiometricUseCase(this.authRepository);
-    }
-    return this._authenticateWithBiometricUseCase;
-  }
-
-  /**
-   * @getter loginWithGoogleUseCase
-   * @description UC-012: Google OAuth Authentication UseCase
-   */
-  get loginWithGoogleUseCase(): LoginWithGoogleUseCase {
-    if (!this._loginWithGoogleUseCase) {
-      this._loginWithGoogleUseCase = new LoginWithGoogleUseCase(this.authRepository);
-    }
-    return this._loginWithGoogleUseCase;
-  }
-
-  /**
-   * @getter hasPermissionUseCase
-   * @description UC-013: Role-Based Access Control UseCase
-   */
-  get hasPermissionUseCase(): HasPermissionUseCase {
-    if (!this._hasPermissionUseCase) {
-      this._hasPermissionUseCase = new HasPermissionUseCase(this.authRepository);
-    }
-    return this._hasPermissionUseCase;
-  }
-
-  /**
-   * @getter getActiveSessionsUseCase
-   * @description UC-014: Session Management UseCase
-   */
-  get getActiveSessionsUseCase(): GetActiveSessionsUseCase {
-    if (!this._getActiveSessionsUseCase) {
-      this._getActiveSessionsUseCase = new GetActiveSessionsUseCase(this.authRepository);
-    }
-    return this._getActiveSessionsUseCase;
-  }
-
-  /**
-   * @getter checkSuspiciousActivityUseCase
-   * @description UC-015: Advanced Threat Detection UseCase
-   */
-  get checkSuspiciousActivityUseCase(): CheckSuspiciousActivityUseCase {
-    if (!this._checkSuspiciousActivityUseCase) {
-      this._checkSuspiciousActivityUseCase = new CheckSuspiciousActivityUseCase(this.authRepository);
-    }
-    return this._checkSuspiciousActivityUseCase;
-  }
+  // 🗑️ ELIMINATED GETTERS (9 Over-Engineering UseCase Getters removed)
+  // ❌ updatePasswordUseCase - deleted (UC-007: 642 lines)
+  // ❌ enableMFAUseCase - deleted (UC-008: 511 lines)  
+  // ❌ verifyMFAUseCase - deleted (UC-009: 607 lines)
+  // ❌ enableBiometricUseCase - deleted (UC-010: 531 lines)
+  // ❌ authenticateWithBiometricUseCase - deleted (UC-011: 459 lines)
+  // ❌ loginWithGoogleUseCase - deleted (UC-012: 624 lines)
+  // ❌ hasPermissionUseCase - deleted (UC-013: 703 lines)
+  // ❌ getActiveSessionsUseCase - deleted (UC-014: 656 lines)
+  // ❌ checkSuspiciousActivityUseCase - deleted (UC-015: 691 lines)
+  
+  // ✅ REMAINING: 6 Essential Use Cases for React Native
 
   // ==========================================
   // ⚙️ CONFIGURATION & LIFECYCLE MANAGEMENT
@@ -616,7 +543,7 @@ class AuthContainer {
       service: 'AuthContainer',
       metadata: {
         options: this._options,
-        useCasesCount: 15,
+        useCasesCount: 6, // Reduced from 15 (9 over-engineered use cases eliminated)
         servicesCount: 7
       }
     });
@@ -651,6 +578,47 @@ class AuthContainer {
   }
 
   // ==========================================
+  // 🔧 FALLBACK UTILITIES
+  // ==========================================
+
+  /**
+   * @method createFallbackLogger
+   * @description Create a fallback logger when none is provided
+   * @private
+   */
+  private createFallbackLogger(): ILoggerService {
+    // 🏆 ENTERPRISE FIX: Use proper Logger Factory instead of console.*
+    const logger = LoggerFactory.createServiceLogger('AuthContainerFallback');
+    
+    return {
+      info: (message: string, category?: any, context?: any) => {
+        logger.info(`[AuthContainer] ${message}`, category || LogCategory.BUSINESS, { metadata: context });
+      },
+      warn: (message: string, category?: any, context?: any) => {
+        logger.warn(`[AuthContainer] ${message}`, category || LogCategory.BUSINESS, { metadata: context });
+      },
+      error: (message: string, category?: any, context?: any, error?: Error) => {
+        // 🎯 UX FIX: Unterscheide zwischen Business-Fehlern und technischen Fehlern
+        if (error && isBusinessError(error)) {
+          // Business-Fehler als Warnings loggen, nicht als Console-Errors
+          logger.warn(`[AuthContainer] ${message} (Business Error)`, category || LogCategory.BUSINESS, { metadata: context });
+        } else {
+          // Nur echte technische Fehler als Console-Errors
+          logger.error(`[AuthContainer] ${message}`, category || LogCategory.BUSINESS, { metadata: context }, error);
+        }
+      },
+      debug: (message: string, category?: any, context?: any) => {
+        logger.debug(`[AuthContainer] ${message}`, category || LogCategory.BUSINESS, { metadata: context });
+      },
+      logSecurity: (message: string, securityContext: any, context?: any) => {
+        logger.info(`[AuthContainer] ${message}`, LogCategory.SECURITY, { 
+          metadata: { securityContext, ...context }
+        });
+      }
+    } as ILoggerService;
+  }
+
+  // ==========================================
   // 🧪 TESTING UTILITIES (nach Profile Pattern)
   // ==========================================
 
@@ -680,25 +648,28 @@ class AuthContainer {
 
   /**
    * @method resetUseCases
-   * @description Reset all use cases to use updated dependencies
+   * @description Reset essential use cases to use updated dependencies (9 eliminated)
    * @private
    */
   private resetUseCases(): void {
+    // Reset only the 6 remaining essential use cases
     this._loginWithEmailUseCase = null;
     this._registerWithEmailUseCase = null;
     this._logoutUseCase = null;
     this._passwordResetUseCase = null;
     this._isAuthenticatedUseCase = null;
     this._getCurrentUserUseCase = null;
-    this._updatePasswordUseCase = null;
-    this._enableMFAUseCase = null;
-    this._verifyMFAUseCase = null;
-    this._enableBiometricUseCase = null;
-    this._authenticateWithBiometricUseCase = null;
-    this._loginWithGoogleUseCase = null;
-    this._hasPermissionUseCase = null;
-    this._getActiveSessionsUseCase = null;
-    this._checkSuspiciousActivityUseCase = null;
+    
+    // 🗑️ ELIMINATED RESET (9 Over-Engineering UseCase resets removed)
+    // ❌ this._updatePasswordUseCase = null;
+    // ❌ this._enableMFAUseCase = null;
+    // ❌ this._verifyMFAUseCase = null;
+    // ❌ this._enableBiometricUseCase = null;
+    // ❌ this._authenticateWithBiometricUseCase = null;
+    // ❌ this._loginWithGoogleUseCase = null;
+    // ❌ this._hasPermissionUseCase = null;
+    // ❌ this._getActiveSessionsUseCase = null;
+    // ❌ this._checkSuspiciousActivityUseCase = null;
   }
 
   /**

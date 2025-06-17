@@ -5,6 +5,8 @@
  */
 
 import { Result } from '../../../../../core/types/result.type';
+import { LoggerFactory } from '@core/logging/logger.factory';
+import { LogCategory } from '@core/logging/logger.service.interface';
 
 /**
  * @enum CacheType - Types of professional data caches
@@ -129,6 +131,7 @@ export interface ManageCacheOutput {
  * @class ManageProfessionalCacheUseCase - Enterprise Cache Management Business Logic
  */
 export class ManageProfessionalCacheUseCase {
+  private readonly logger = LoggerFactory.createServiceLogger('ManageProfessionalCacheUseCase');
   private cacheStorage: Map<string, CacheEntry> = new Map();
   private strategies: Map<CacheType, CacheStrategy> = new Map();
   private metrics!: CacheMetrics; // Definite assignment assertion - initialized in constructor
@@ -302,7 +305,14 @@ export class ManageProfessionalCacheUseCase {
             prefetchedTypes.push(prediction.type);
           } catch (error) {
             // Log error but continue with other prefetches
-            console.warn(`Prefetch failed for ${prediction.type}:`, error);
+            this.logger.warn('Prefetch failed for data type', LogCategory.BUSINESS, {
+              metadata: { 
+                userId: input.userId, 
+                type: prediction.type, 
+                probability: prediction.probability, 
+                error: (error as Error)?.message || String(error) 
+              }
+            });
           }
         }
       }

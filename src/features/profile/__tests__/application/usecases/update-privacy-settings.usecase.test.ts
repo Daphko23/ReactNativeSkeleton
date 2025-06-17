@@ -31,7 +31,7 @@
  * @since 2025-01-23
  */
 
-import { UpdatePrivacySettingsUseCase } from '../../../application/usecases/update-privacy-settings.usecase';
+import { UpdatePrivacySettingsUseCase } from '../../../application/use-cases/security/update-privacy-settings.usecase';
 import { PrivacySettings, UserProfile } from '../../../domain/entities/user-profile.entity';
 import { IProfileRepository } from '../../../data/repositories/profile.repository.impl';
 

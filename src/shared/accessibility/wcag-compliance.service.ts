@@ -5,6 +5,11 @@
  */
 
 import { Platform } from 'react-native';
+import { LoggerFactory } from '@core/logging/logger.factory';
+import { LogCategory } from '@core/logging/logger.service.interface';
+
+// Logger for WCAG compliance service
+const logger = LoggerFactory.createServiceLogger('WCAGCompliance');
 
 // WCAG 2.2 Compliance Types
 export interface AccessibilityTestResult {
@@ -423,7 +428,10 @@ export class WCAGComplianceService {
     // In React Native, this would trigger AccessibilityInfo.announceForAccessibility
     if (Platform.OS !== 'web') {
       // AccessibilityInfo.announceForAccessibility(message);
-      console.log('Screen Reader Announcement:', message);
+      logger.info('Screen Reader Announcement', LogCategory.BUSINESS, {
+        service: 'WCAGCompliance',
+        metadata: { message, platform: Platform.OS }
+      });
     }
   }
 

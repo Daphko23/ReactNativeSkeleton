@@ -161,7 +161,7 @@
     "routing": ["@react-navigation/native", "@react-navigation/native-stack"],
     "ui": [
       "react-native-paper",
-      "react-native-safe-area-context",
+
       "react-native-vector-icons"
     ],
     "forms": [

@@ -26,6 +26,8 @@
 #import "SentrySerialization.h"
 #import "SentrySwift.h"
 #import "SentryTransactionContext.h"
+#import "SentryUIApplication.h"
+#import "SentryUserFeedbackIntegration.h"
 
 #if TARGET_OS_OSX
 #    import "SentryCrashExceptionApplication.h"
@@ -34,6 +36,9 @@
 #if SENTRY_HAS_UIKIT
 #    import "SentryUIDeviceWrapper.h"
 #    import "SentryUIViewControllerPerformanceTracker.h"
+#    if TARGET_OS_IOS
+#        import "SentryFeedbackAPI.h"
+#    endif // TARGET_OS_IOS
 #endif // SENTRY_HAS_UIKIT
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
@@ -214,7 +219,7 @@ static NSDate *_Nullable startTimestamp = nil;
         return;
     }
 
-    [SentryLog configure:options.debug diagnosticLevel:options.diagnosticLevel];
+    [SentryLogSwiftSupport configure:options.debug diagnosticLevel:options.diagnosticLevel];
 
     // We accept the tradeoff that the SDK might not be fully initialized directly after
     // initializing it on a background thread because scheduling the init synchronously on the main
@@ -236,6 +241,8 @@ static NSDate *_Nullable startTimestamp = nil;
     SentryClient *newClient = [[SentryClient alloc] initWithOptions:options];
     [newClient.fileManager moveAppStateToPreviousAppState];
     [newClient.fileManager moveBreadcrumbsToPreviousBreadcrumbs];
+    [SentryDependencyContainer.sharedInstance
+            .scopeContextPersistentStore moveCurrentFileToPreviousFile];
 
     SentryScope *scope
         = options.initialScope([[SentryScope alloc] initWithMaxBreadcrumbs:options.maxBreadcrumbs]);
@@ -430,6 +437,18 @@ static NSDate *_Nullable startTimestamp = nil;
 {
     [SentrySDK.currentHub captureFeedback:feedback];
 }
+
+#if TARGET_OS_IOS && SENTRY_HAS_UIKIT
+
++ (SentryFeedbackAPI *)feedback
+{
+    static SentryFeedbackAPI *feedbackAPI;
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{ feedbackAPI = [[SentryFeedbackAPI alloc] init]; });
+    return feedbackAPI;
+}
+
+#endif // TARGET_OS_IOS && SENTRY_HAS_UIKIT
 
 + (void)addBreadcrumb:(SentryBreadcrumb *)crumb
 {
@@ -679,6 +698,16 @@ static NSDate *_Nullable startTimestamp = nil;
     [SentryContinuousProfiler stop];
 }
 #endif // SENTRY_TARGET_PROFILING_SUPPORTED
+
+#if SENTRY_HAS_UIKIT
+
+/** Only needed for testing. We can't use `SENTRY_TEST || SENTRY_TEST_CI` because we call this from
+ * the iOS-Swift sample app. */
++ (nullable NSArray<NSString *> *)relevantViewControllersNames
+{
+    return SentryDependencyContainer.sharedInstance.application.relevantViewControllersNames;
+}
+#endif // SENTRY_HAS_UIKIT
 
 @end
 

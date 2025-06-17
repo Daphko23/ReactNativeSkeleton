@@ -1,6 +1,6 @@
 {
   "name": "react-native-mmkv",
-  "version": "3.2.0",
+  "version": "3.3.0",
   "summary": "The fastest key/value storage for React Native. ~30x faster than AsyncStorage! Works on Android, iOS and Web.",
   "homepage": "https://github.com/mrousavy/react-native-mmkv#readme",
   "license": "(MIT AND BSD-3-Clause)",
@@ -12,7 +12,7 @@
   },
   "source": {
     "git": "https://github.com/mrousavy/react-native-mmkv.git",
-    "tag": "3.2.0"
+    "tag": "3.3.0"
   },
   "pod_target_xcconfig": {
     "CLANG_CXX_LANGUAGE_STANDARD": "c++20",
@@ -24,6 +24,10 @@
     "OTHER_SWIFT_FLAGS": "$(inherited)"
   },
   "compiler_flags": "-x objective-c++  -DFOLLY_NO_CONFIG -DFOLLY_MOBILE=1 -DFOLLY_USE_LIBCPP=1 -DFOLLY_CFG_NO_COROUTINES=1 -DFOLLY_HAVE_CLOCK_GETTIME=1 -Wno-comma -Wno-shorten-64-to-32",
+  "libraries": [
+    "z",
+    "c++"
+  ],
   "source_files": [
     "ios/**/*.{h,m,mm}",
     "cpp/**/*.{hpp,cpp,c,h}",

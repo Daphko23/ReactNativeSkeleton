@@ -101,11 +101,10 @@ export const useSocialLinksEdit = (params?: { navigation?: any } | string): UseS
   const userId = typeof params === 'string' ? params : undefined;
   
   // 🏆 ENTERPRISE: Use Cases Integration
-  const container = useProfileContainer();
+  const { container, accessor: _accessor } = useProfileContainer();
   const updateSocialLinksUseCase = useMemo(() => {
     try {
-      // return container.getUpdateUserProfileUseCase();
-      return null; // Temporarily disabled
+      return container.manageSocialLinksUseCase;
     } catch {
       return null; // Fallback
     }
@@ -113,7 +112,7 @@ export const useSocialLinksEdit = (params?: { navigation?: any } | string): UseS
   
   const validateSocialLinksUseCase = useMemo(() => {
     try {
-      return container.getValidateProfileDataUseCase();
+      return null; // Not available in Enterprise Container
     } catch {
       return null; // Fallback validation
     }

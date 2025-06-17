@@ -13,6 +13,11 @@
 import { createClient } from '@supabase/supabase-js';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import type { Database } from './types/database.types';
+import { LoggerFactory } from '@core/logging/logger.factory';
+import { LogCategory } from '@core/logging/logger.service.interface';
+
+// Logger for Supabase configuration
+const logger = LoggerFactory.createServiceLogger('SupabaseConfig');
 
 /**
  * Supabase Configuration Interface
@@ -782,7 +787,10 @@ export const validateSupabaseConfig = (): boolean => {
   // Validate required fields presence
   for (const field of requiredFields) {
     if (!supabaseConfig[field]) {
-      console.error(`❌ Missing required Supabase config: ${field}`);
+      logger.error('Missing required Supabase config field', LogCategory.BUSINESS, {
+        service: 'SupabaseConfig',
+        metadata: { field, configUrl: supabaseConfig.url }
+      });
       isValid = false;
     }
   }
@@ -794,37 +802,58 @@ export const validateSupabaseConfig = (): boolean => {
       
       // Ensure HTTPS for security
       if (url.protocol !== 'https:') {
-        console.error('❌ Supabase URL must use HTTPS protocol');
+        logger.error('Supabase URL must use HTTPS protocol', LogCategory.BUSINESS, {
+          service: 'SupabaseConfig',
+          metadata: { protocol: url.protocol, url: supabaseConfig.url }
+        });
         isValid = false;
       }
       
       // Validate Supabase domain format
       if (!url.hostname.includes('supabase.co') && process.env.NODE_ENV === 'production') {
-        console.warn('⚠️ Non-standard Supabase domain detected');
+        logger.warn('Non-standard Supabase domain detected', LogCategory.BUSINESS, {
+          service: 'SupabaseConfig',
+          metadata: { hostname: url.hostname, environment: process.env.NODE_ENV }
+        });
       }
     } catch {
-      console.error(`❌ Invalid Supabase URL format: ${supabaseConfig.url}`);
+      logger.error('Invalid Supabase URL format', LogCategory.BUSINESS, {
+        service: 'SupabaseConfig',
+        metadata: { url: supabaseConfig.url }
+      });
       isValid = false;
     }
   }
   
   // Validate anonymous key format (basic JWT check)
   if (supabaseConfig.anonKey && !supabaseConfig.anonKey.startsWith('eyJ')) {
-    console.error('❌ Anonymous key does not appear to be a valid JWT token');
+    logger.error('Anonymous key does not appear to be a valid JWT token', LogCategory.BUSINESS, {
+      service: 'SupabaseConfig',
+      metadata: { keyPrefix: supabaseConfig.anonKey?.substring(0, 10) }
+    });
     isValid = false;
   }
   
   // Validate service role key format if present
   if (supabaseConfig.serviceRoleKey && !supabaseConfig.serviceRoleKey.startsWith('eyJ')) {
-    console.error('❌ Service role key does not appear to be a valid JWT token');
+    logger.error('Service role key does not appear to be a valid JWT token', LogCategory.BUSINESS, {
+      service: 'SupabaseConfig',
+      metadata: { keyPrefix: supabaseConfig.serviceRoleKey?.substring(0, 10) }
+    });
     isValid = false;
   }
   
   // Log validation result
   if (isValid) {
-    console.log('✅ Supabase configuration validation passed');
+    logger.info('Supabase configuration validation passed', LogCategory.BUSINESS, {
+      service: 'SupabaseConfig',
+      metadata: { url: supabaseConfig.url, region: supabaseConfig.region }
+    });
   } else {
-    console.error('❌ Supabase configuration validation failed');
+    logger.error('Supabase configuration validation failed', LogCategory.BUSINESS, {
+      service: 'SupabaseConfig',
+      metadata: { url: supabaseConfig.url, hasAnonKey: !!supabaseConfig.anonKey }
+    });
   }
   
   return isValid;

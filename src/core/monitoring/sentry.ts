@@ -887,7 +887,10 @@ class SentryService {
    */
   async initialize(): Promise<void> {
     if (this.isInitialized) {
-      console.warn('Sentry already initialized');
+      logger.warn('Sentry already initialized', LogCategory.BUSINESS, {
+        service: 'SentryMonitoring',
+        metadata: { isInitialized: this.isInitialized }
+      });
       return;
     }
 

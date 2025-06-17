@@ -167,6 +167,10 @@ namespace facebook::react {
       return static_cast<ObjCTurboModule&>(turboModule).invokeObjCMethod(rt, BooleanKind, "setActiveSpanId", @selector(setActiveSpanId:), args, count);
     }
 
+    static facebook::jsi::Value __hostFunction_NativeRNSentrySpecJSI_encodeToBase64(facebook::jsi::Runtime& rt, TurboModule &turboModule, const facebook::jsi::Value* args, size_t count) {
+      return static_cast<ObjCTurboModule&>(turboModule).invokeObjCMethod(rt, PromiseKind, "encodeToBase64", @selector(encodeToBase64:resolve:reject:), args, count);
+    }
+
   NativeRNSentrySpecJSI::NativeRNSentrySpecJSI(const ObjCTurboModule::InitParams &params)
     : ObjCTurboModule(params) {
       
@@ -270,6 +274,9 @@ namespace facebook::react {
         
         
         methodMap_["setActiveSpanId"] = MethodMetadata {1, __hostFunction_NativeRNSentrySpecJSI_setActiveSpanId};
+        
+        
+        methodMap_["encodeToBase64"] = MethodMetadata {1, __hostFunction_NativeRNSentrySpecJSI_encodeToBase64};
         
   }
 } // namespace facebook::react

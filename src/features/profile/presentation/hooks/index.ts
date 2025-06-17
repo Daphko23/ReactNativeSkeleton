@@ -224,3 +224,17 @@ export { useSocialLinksEdit } from './use-social-links-edit.hook';
  * 
  * 🏆 MISSION ACCOMPLISHED: Professional Info Hook Enterprise Transformation Complete!
  */
+
+// =============================================================================
+// 🚀 FEATURE FLAG HOOKS
+// =============================================================================
+
+// Feature Flag Management Hook
+export { 
+  useFeatureFlag,
+  FeatureFlagUtils,
+  ProfileScreenFeatureFlag,
+  SCREEN_FEATURE_MAP,
+  type UseFeatureFlagReturn,
+  type ScreenName
+} from './use-feature-flag.hook';

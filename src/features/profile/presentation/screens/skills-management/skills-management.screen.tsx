@@ -62,7 +62,7 @@ import {
   ActivityIndicator,
   IconButton,
 } from 'react-native-paper';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { SafeAreaView } from 'react-native';
 
 import { useTheme } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
@@ -581,7 +581,7 @@ export const SkillsManagementScreen: React.FC<SkillsManagementScreenProps> = ({
     return (
       <SafeAreaView 
         style={[styles.container, styles.loadingContainer]}
-        edges={['bottom', 'left', 'right']}
+
         testID={SKILLS_TEST_IDS.LOADING_INDICATOR}
       >
         <ActivityIndicator size="large" color={theme.colors.primary} />
@@ -595,7 +595,7 @@ export const SkillsManagementScreen: React.FC<SkillsManagementScreenProps> = ({
   return (
     <SafeAreaView 
       style={styles.container}
-      edges={['bottom', 'left', 'right']}
+
       testID={testID || SKILLS_TEST_IDS.SCREEN}
     >
       <LoadingOverlay 

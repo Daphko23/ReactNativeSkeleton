@@ -43,7 +43,7 @@ export const ProfileInformation: React.FC<ProfileInformationProps> = React.memo(
     const items = [
       {
         label: t('profile.mainScreen.email'),
-        value: currentUser?.email || t('profile.mainScreen.na'),
+        value: currentUser?.email || profile?.email || profile?.alternativeEmail || currentUser?.user?.email || t('profile.mainScreen.na'),
         key: 'email',
       },
       {

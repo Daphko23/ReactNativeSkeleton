@@ -357,6 +357,50 @@
         "onsite": "On-site",
         "hybrid": "Hybrid"
       },
+      
+      "sections": {
+        "basicInfo": "Basic Information",
+        "contactInfo": "Contact Information",
+        "customFields": "Custom Fields",
+        "professionalInfo": "Professional Information",
+        "socialLinks": "Social Links"
+      },
+      
+      "fields": {
+        "firstName": "First Name",
+        "lastName": "Last Name",
+        "email": "Email",
+        "bio": "Bio",
+        "phone": "Phone",
+        "location": "Location",
+        "website": "Website",
+        "company": "Company",
+        "jobTitle": "Job Title",
+        "industry": "Industry",
+        "workLocation": "Work Location",
+        "linkedIn": "LinkedIn",
+        "twitter": "Twitter",
+        "github": "GitHub",
+        "instagram": "Instagram",
+        "personalWebsite": "Personal Website"
+      },
+      
+      "accessibility": {
+        "email": "Enter email address",
+        "bio": "Enter biography",
+        "phone": "Enter phone number",
+        "location": "Enter location",
+        "website": "Enter website URL",
+        "company": "Enter company name",
+        "jobTitle": "Enter job title",
+        "industry": "Enter industry",
+        "linkedIn": "Enter LinkedIn profile URL",
+        "twitter": "Enter Twitter profile URL",
+        "github": "Enter GitHub profile URL",
+        "instagram": "Enter Instagram profile URL",
+        "personalWebsite": "Enter personal website URL"
+      },
+      
       "errors": {}
     },
     "avatarScreen": {
@@ -440,6 +484,9 @@
       "goBack": "Go Back",
       "featureInfo": "Feature Information"
     },
+    "screen": {
+      "defaultTitle": "My Profile"
+    },
     "socialLinksScreen": {
       "title": "Edit Social Links",
       "placeholders": {
@@ -495,10 +542,12 @@
         "github": "Enter only your GitHub username - e.g. 'johndoe'",
         "twitter": "Use your Twitter handle without '@' - e.g. 'johndoe'",
         "instagram": "Instagram username only - e.g. 'john.doe'",
+        "facebook": "Use your Facebook profile name or username",
         "youtube": "Your YouTube channel name with '@' - e.g. 'johndoe'",
         "behance": "Your Behance username - e.g. 'johndoe'",
         "dribbble": "Your Dribbble username - e.g. 'johndoe'",
         "medium": "Your Medium username without '@' - e.g. 'johndoe'",
+        "tiktok": "Your TikTok handle with '@' - e.g. '@johndoe'",
         "website": "Full URL of your website - e.g. 'https://johndoe.com'",
         "portfolio": "Full URL of your portfolio - e.g. 'https://portfolio.johndoe.com'"
       },
@@ -989,6 +1038,16 @@
       "errors": {}
     }
   },
+  "dashboard": {
+    "buyCredits": "Buy Credits",
+    "dailyBonus": "Daily Bonus",
+    "recentTransactions": "Recent Transactions",
+    "noTransactions": "No Transactions",
+    "noTransactionsMessage": "Your credit transactions will appear here"
+  },
+  "yourCredits": "Your Credits",
+  "creditsLow": "Credits are low. Top up now!",
+  "dailyBonusMessage": "Come back daily for bonus credits!",
   "dialogs": {
     "deleteDialog": {
       "title": "Confirm Delete",

@@ -215,6 +215,12 @@ static jsi::Value __hostFunction_NativeRNSentryCxxSpecJSI_setActiveSpanId(jsi::R
     count <= 0 ? throw jsi::JSError(rt, "Expected argument in position 0 to be passed") : args[0].asString(rt)
   );
 }
+static jsi::Value __hostFunction_NativeRNSentryCxxSpecJSI_encodeToBase64(jsi::Runtime &rt, TurboModule &turboModule, const jsi::Value* args, size_t count) {
+  return static_cast<NativeRNSentryCxxSpecJSI *>(&turboModule)->encodeToBase64(
+    rt,
+    count <= 0 ? throw jsi::JSError(rt, "Expected argument in position 0 to be passed") : args[0].asObject(rt).asArray(rt)
+  );
+}
 
 NativeRNSentryCxxSpecJSI::NativeRNSentryCxxSpecJSI(std::shared_ptr<CallInvoker> jsInvoker)
   : TurboModule("RNSentry", jsInvoker) {
@@ -252,6 +258,7 @@ NativeRNSentryCxxSpecJSI::NativeRNSentryCxxSpecJSI(std::shared_ptr<CallInvoker> 
   methodMap_["getDataFromUri"] = MethodMetadata {1, __hostFunction_NativeRNSentryCxxSpecJSI_getDataFromUri};
   methodMap_["popTimeToDisplayFor"] = MethodMetadata {1, __hostFunction_NativeRNSentryCxxSpecJSI_popTimeToDisplayFor};
   methodMap_["setActiveSpanId"] = MethodMetadata {1, __hostFunction_NativeRNSentryCxxSpecJSI_setActiveSpanId};
+  methodMap_["encodeToBase64"] = MethodMetadata {1, __hostFunction_NativeRNSentryCxxSpecJSI_encodeToBase64};
 }
 
 

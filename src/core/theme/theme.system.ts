@@ -6,6 +6,11 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { Dimensions, useColorScheme } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { LoggerFactory } from '@core/logging/logger.factory';
+import { LogCategory } from '@core/logging/logger.service.interface';
+
+// Logger for theme system
+const logger = LoggerFactory.createServiceLogger('ThemeSystem');
 
 // =============================================
 // DESIGN TOKENS
@@ -523,7 +528,10 @@ export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
           setCurrentThemeName(savedTheme as 'light' | 'dark' | 'auto');
         }
       } catch (error) {
-        console.warn('Failed to load theme preference:', error);
+        logger.warn('Failed to load theme preference', LogCategory.BUSINESS, {
+          service: 'ThemeSystem',
+          metadata: { error: (error as Error)?.message || String(error) }
+        });
       }
     };
 
@@ -535,7 +543,10 @@ export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
     try {
       await AsyncStorage.setItem(THEME_STORAGE_KEY, themeName);
     } catch (error) {
-      console.warn('Failed to save theme preference:', error);
+      logger.warn('Failed to save theme preference', LogCategory.BUSINESS, {
+        service: 'ThemeSystem',
+        metadata: { themeName, error: (error as Error)?.message || String(error) }
+      });
     }
   };
 

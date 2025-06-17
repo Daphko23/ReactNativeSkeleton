@@ -398,7 +398,9 @@ export class ProfileRepositoryImpl implements IProfileRepository {
         metadata: item.metadata
       }));
     } catch (error) {
-      console.error('Error in getProfileHistory:', error);
+      this.logger.error('Error in getProfileHistory', LogCategory.BUSINESS, {
+        metadata: { userId, limit, operation: 'getProfileHistory' }
+      }, error as Error);
       throw error;
     }
   }
@@ -439,7 +441,9 @@ export class ProfileRepositoryImpl implements IProfileRepository {
         tags: result.tags
       };
     } catch (error) {
-      console.error('Error in createProfileVersion:', error);
+      this.logger.error('Error in createProfileVersion', LogCategory.BUSINESS, {
+        metadata: { userId, description, operation: 'createProfileVersion' }
+      }, error as Error);
       throw error;
     }
   }
@@ -458,7 +462,9 @@ export class ProfileRepositoryImpl implements IProfileRepository {
         tags: version.tags
       }));
     } catch (error) {
-      console.error('Error in getProfileVersions:', error);
+      this.logger.error('Error in getProfileVersions', LogCategory.BUSINESS, {
+        metadata: { userId, operation: 'getProfileVersions' }
+      }, error as Error);
       throw error;
     }
   }
@@ -480,7 +486,9 @@ export class ProfileRepositoryImpl implements IProfileRepository {
       
       return restoredProfile;
     } catch (error) {
-      console.error('Error in restoreProfileVersion:', error);
+      this.logger.error('Error in restoreProfileVersion', LogCategory.BUSINESS, {
+        metadata: { userId, versionId, operation: 'restoreProfileVersion' }
+      }, error as Error);
       throw error;
     }
   }
@@ -501,7 +509,9 @@ export class ProfileRepositoryImpl implements IProfileRepository {
         completionRate: stats.avgCompletionRate
       };
     } catch (error) {
-      console.error('Error in getProfileAnalytics:', error);
+      this.logger.error('Error in getProfileAnalytics', LogCategory.BUSINESS, {
+        metadata: { operation: 'getProfileAnalytics' }
+      }, error as Error);
       throw error;
     }
   }
@@ -519,7 +529,9 @@ export class ProfileRepositoryImpl implements IProfileRepository {
       }
       return true;
     } catch (error) {
-      console.error('Error in bulkUpdateProfiles:', error);
+      this.logger.error('Error in bulkUpdateProfiles', LogCategory.BUSINESS, {
+        metadata: { operation: 'bulkUpdateProfiles', updateCount: updates.length }
+      }, error as Error);
       return false;
     }
   }
@@ -544,7 +556,9 @@ export class ProfileRepositoryImpl implements IProfileRepository {
 
       return profiles;
     } catch (error) {
-      console.error('Error in exportProfiles:', error);
+      this.logger.error('Error in exportProfiles', LogCategory.BUSINESS, {
+        metadata: { operation: 'exportProfiles', userIds: userIds.join(','), count: userIds.length }
+      }, error as Error);
       throw error;
     }
   }

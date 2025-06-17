@@ -66,7 +66,7 @@ export const useProfileCompleteness = ({
 }: UseProfileCompletenessProps): UseProfileCompletenessReturn => {
   
   // 🏆 ENTERPRISE: Use Cases Integration
-  const _container = useProfileContainer();
+  const { container: _container, accessor: _accessor } = useProfileContainer();
   // const analyzeCompletenessUseCase = useMemo(() => {
   //   try {
   //     return container.getAnalyzeProfileCompletenessUseCase();
@@ -102,7 +102,7 @@ export const useProfileCompleteness = ({
       // 🏆 FALLBACK: Mobile-friendly calculation
       return calculateProfileCompleteness(profile);
     },
-    enabled: !!userId,
+    enabled: !!userId && !!profile, // 🎯 FIX: Only enable when both userId and profile exist
     staleTime: 1000 * 60 * 10, // 🏆 Mobile: 10 minutes for battery efficiency
     gcTime: 1000 * 60 * 30, // 🏆 Mobile: 30 minutes garbage collection
   });
@@ -200,14 +200,16 @@ function calculateProfileCompleteness(profile: UserProfile): ProfileCompleteness
     }
   });
 
-  // Social links bonus
+  // 🎯 FIX: Social links are bonus, not required for 100%
   const socialLinksCount = profile.socialLinks ? Object.keys(profile.socialLinks).length : 0;
-  if (socialLinksCount > 0) {
-    completedWeight += Math.min(socialLinksCount * 2, 10); // Max 10 points
-  }
-  totalWeight += 10;
-
-  const percentage = Math.round((completedWeight / totalWeight) * 100);
+  const socialLinksBonus = socialLinksCount > 0 ? Math.min(socialLinksCount * 2, 10) : 0;
+  
+  // Add social links as bonus points (not counted toward total requirement)
+  const totalCompletedWeight = completedWeight + socialLinksBonus;
+  
+  // Calculate percentage, allowing over 100% with social links bonus
+  const rawPercentage = Math.round((totalCompletedWeight / totalWeight) * 100);
+  const percentage = Math.min(rawPercentage, 100); // Cap at 100% for UI display
 
   // Determine score
   let score: ProfileCompleteness['score'];

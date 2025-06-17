@@ -39,6 +39,11 @@
 
 import {create} from 'zustand';
 import {subscribeWithSelector} from 'zustand/middleware';
+import { LoggerFactory } from '@core/logging/logger.factory';
+import { LogCategory } from '@core/logging/logger.service.interface';
+
+// Logger for feature flags service
+const logger = LoggerFactory.createServiceLogger('FeatureFlags');
 
 // ==========================================
 // 🎯 FEATURE FLAG TYPES
@@ -438,7 +443,10 @@ export const useFeatureFlags = create<FeatureFlagsState>()(
 
         get().updateFlags(remoteFlags);
       } catch (error) {
-        console.error('Failed to refresh feature flags:', error);
+        logger.error('Failed to refresh feature flags', LogCategory.BUSINESS, {
+          service: 'FeatureFlags',
+          metadata: { provider: config.provider, error: (error as Error)?.message || String(error) }
+        });
         set({
           error:
             error instanceof Error ? error.message : 'Failed to refresh flags',
@@ -451,7 +459,10 @@ export const useFeatureFlags = create<FeatureFlagsState>()(
       const flag = flags[flagKey];
 
       if (!flag) {
-        console.warn(`Feature flag '${flagKey}' not found`);
+        logger.warn('Feature flag not found', LogCategory.BUSINESS, {
+          service: 'FeatureFlags',
+          metadata: { flagKey, availableFlags: Object.keys(flags) }
+        });
         return false;
       }
 
@@ -479,7 +490,12 @@ export const useFeatureFlags = create<FeatureFlagsState>()(
     trackFlagUsage: (flagKey: string, enabled: boolean) => {
       // Track flag usage for analytics
       // This would integrate with your analytics service
-      console.log(`Feature flag '${flagKey}' evaluated to: ${enabled}`);
+      if (__DEV__) {
+        logger.info('Feature flag evaluated', LogCategory.BUSINESS, {
+          service: 'FeatureFlags',
+          metadata: { flagKey, enabled, analytics: get().config.enableAnalytics }
+        });
+      }
     },
 
     // Helper method to evaluate flag with targeting rules

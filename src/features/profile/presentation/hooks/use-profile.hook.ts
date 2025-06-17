@@ -37,8 +37,8 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 
 // 🎯 ENTERPRISE: Use Cases Integration
 import { UpdateProfileUseCase } from '../../application/use-cases/profile/update-profile.use-case';
-import { UploadAvatarUseCase } from '../../application/usecases/upload-avatar.usecase';
-import { DeleteAvatarUseCase } from '../../application/usecases/delete-avatar.usecase';
+import { UploadAvatarUseCase } from '../../application/use-cases/avatar/upload-avatar.usecase';
+import { DeleteAvatarUseCase } from '../../application/use-cases/avatar/delete-avatar.usecase';
 import { LoggerFactory } from '@core/logging/logger.factory';
 import { LogCategory } from '@core/logging/logger.service.interface';
 

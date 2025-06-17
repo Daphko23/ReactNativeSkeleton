@@ -30,7 +30,7 @@ import {
   Alert,
 } from 'react-native';
 import { Text, Divider, ActivityIndicator } from 'react-native-paper';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { SafeAreaView } from 'react-native';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
@@ -107,7 +107,8 @@ const LoginScreen = () => {
   const { 
     login, 
     isLoading: isAuthLoading, 
-    error: authError, 
+    error: authError,
+    loginError: authLoginError,  // 🎯 LOGIN-SPECIFIC ERROR FIX
     clearError 
   } = useAuth();
 
@@ -225,8 +226,10 @@ const LoginScreen = () => {
       await login(formData.email, formData.password);
       console.log('[LoginScreen] Login completed successfully via hook');
     } catch (error) {
-      console.error('[LoginScreen] Login failed via hook:', error);
-      // Error handling is done by the useAuth hook
+      // 🎯 UX FIX: Keine Console-Errors für erwartete Business-Fehler
+      // Error-Anzeige erfolgt über die UI (FormErrorText), nicht über Console-Errors
+      console.log('[LoginScreen] Login failed via hook (handled by UI):', (error as Error).message);
+      // Error handling is done by the useAuth hook - UI shows user-friendly message
     }
   }, [isFormValid, login, formData.email, formData.password]);
 
@@ -273,7 +276,9 @@ const LoginScreen = () => {
 
   // ** COMPUTED VALUES FOR UI **
   const isLoading = isAuthLoading || isSocialLoading || isSecurityLoading;
-  const currentError = authError || socialError || securityError;
+  
+  // 🎯 LOGIN ERROR FIX: Kombiniere alle Error-Quellen für UI-Anzeige
+  const currentError = authLoginError || authError || socialError || securityError;
 
   return (
     <SafeAreaView style={styles.container}>

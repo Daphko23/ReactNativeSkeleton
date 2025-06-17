@@ -1,4 +1,6 @@
 import {AuthRepository} from '../../domain/interfaces/auth.repository.interface';
+import { LoggerFactory } from '@core/logging/logger.factory';
+import { LogCategory } from '@core/logging/logger.service.interface';
 
 /**
  * @fileoverview LOGOUT-USECASE: Secure Session Termination Use Case Implementation
@@ -212,6 +214,8 @@ import {AuthRepository} from '../../domain/interfaces/auth.repository.interface'
  */
 
 export class LogoutUseCase {
+  private readonly logger = LoggerFactory.createServiceLogger('LogoutUseCase');
+
   /**
    * Konstruktor für den Logout UseCase.
    * 
@@ -352,7 +356,9 @@ export class LogoutUseCase {
       await this.authRepository.logout();
     } catch (error) {
       // Log logout errors for monitoring
-      console.warn('Logout error:', error);
+                    this.logger.warn('Logout error occurred', LogCategory.BUSINESS, { 
+        metadata: { error: (error as Error)?.message || String(error) }
+      });
       
       // Re-throw critical errors, but most logout errors should be handled gracefully
       if (error instanceof Error && error.message.includes('critical')) {

@@ -10,8 +10,8 @@
 
 import { SupabaseAvatarDataSource } from '../datasources/supabase-avatar.datasource';
 import { AvatarRepositoryImpl } from '../repositories/avatar-repository.impl';
-import { UploadAvatarUseCase } from '../../application/usecases/upload-avatar.usecase';
-import { DeleteAvatarUseCase } from '../../application/usecases/delete-avatar.usecase';
+import { UploadAvatarUseCase } from '../../application/use-cases/avatar/upload-avatar.usecase';
+import { DeleteAvatarUseCase } from '../../application/use-cases/avatar/delete-avatar.usecase';
 
 // Core Services
 import { LoggerFactory as _LoggerFactory } from '../../../../core/logging/logger.factory';

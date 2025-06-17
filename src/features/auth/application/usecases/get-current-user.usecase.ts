@@ -1,5 +1,7 @@
 import {AuthRepository} from '../../domain/interfaces/auth.repository.interface';
 import {AuthUser} from '../../domain/entities/auth-user.entity';
+import { LoggerFactory } from '@core/logging/logger.factory';
+import { LogCategory } from '@core/logging/logger.service.interface';
 
 /**
  * @fileoverview UC-005: Get Current User Session Management Use Case | Enterprise Authentication State
@@ -427,7 +429,11 @@ export class GetCurrentUserUseCase {
       return await this.authRepository.getCurrentUser();
     } catch (error) {
       // Log session validation errors for monitoring
-      console.warn('Session validation failed:', error);
+              // Use LoggerFactory instead of console.warn
+        const logger = LoggerFactory.createServiceLogger('GetCurrentUserUseCase');
+        logger.warn('Session validation failed', LogCategory.BUSINESS, { 
+          metadata: { error: (error as Error)?.message || String(error) }
+        });
       
       // Return null for recoverable errors (user should re-authenticate)
       if (error instanceof Error && 

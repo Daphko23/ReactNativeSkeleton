@@ -94,6 +94,7 @@ import { TokenExpiredError } from '../../domain/errors/token-expired.error';
 import { EmailAlreadyVerifiedError } from '../../domain/errors/email-already-verified.error';
 import { SupabaseAuthErrorMapper } from '../mappers/supabase-auth-error.mapper';
 import { authGDPRAuditService } from '../services/auth-gdpr-audit.service';
+import { isBusinessError } from '../../application/utils/auth-error.utils';
 
 /**
  * @class AuthRepositoryImpl
@@ -238,12 +239,6 @@ export class AuthRepositoryImpl implements AuthRepository {
 
       return user;
     } catch (error) {
-      // Log the failed login attempt
-      this.logger.error('User login failed', LogCategory.SECURITY, {
-        service: 'AuthRepository',
-        metadata: { email, correlationId }
-      }, error as Error);
-
       // 🔒 GDPR Audit: Log failed login
       await authGDPRAuditService.logLoginFailure(
         email,
@@ -251,6 +246,31 @@ export class AuthRepositoryImpl implements AuthRepository {
         1, // retry attempt
         { correlationId }
       );
+
+      // 🎯 UX FIX: Unterscheide zwischen Business-Fehlern und technischen Fehlern
+      // Business-Fehler sind erwartete User-Szenarien und sollten keine Console-Errors triggern
+      if (isBusinessError(error as Error)) {
+        this.logger.warn('User login failed - Business Error', LogCategory.SECURITY, {
+          service: 'AuthRepository',
+          metadata: { 
+            email, 
+            correlationId,
+            errorType: (error as Error).constructor.name,
+            isBusinessError: true
+          }
+        });
+      } else {
+        // Nur echte technische Fehler als Errors loggen
+        this.logger.error('User login failed - Technical Error', LogCategory.SECURITY, {
+          service: 'AuthRepository',
+          metadata: { 
+            email, 
+            correlationId,
+            errorType: (error as Error).constructor.name,
+            isBusinessError: false
+          }
+        }, error as Error);
+      }
 
       // If it's already one of our domain errors, re-throw it
       if (error instanceof MFARequiredError ||
@@ -638,7 +658,10 @@ export class AuthRepositoryImpl implements AuthRepository {
 
       if (error) throw error;
     } catch (error) {
-      console.error('[AuthRepository] Disable MFA error:', error);
+      this.logger.error('Disable MFA error', LogCategory.SECURITY, {
+        service: 'AuthRepository',
+        metadata: { factorId }
+      }, error as Error);
       throw error;
     }
   }
@@ -653,7 +676,10 @@ export class AuthRepositoryImpl implements AuthRepository {
 
       return data.id;
     } catch (error) {
-      console.error('[AuthRepository] Create MFA challenge error:', error);
+      this.logger.error('Create MFA challenge error', LogCategory.SECURITY, {
+        service: 'AuthRepository',
+        metadata: { factorId }
+      }, error as Error);
       throw error;
     }
   }

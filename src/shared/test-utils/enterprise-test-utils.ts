@@ -10,6 +10,12 @@
  * @subcategory Enterprise
  */
 
+import { LoggerFactory } from '@core/logging/logger.factory';
+import { LogCategory } from '@core/logging/logger.service.interface';
+
+// Logger for enterprise test utilities
+const logger = LoggerFactory.createServiceLogger('EnterpriseTestUtils');
+
 /**
  * Performance Metrics Interface
  */
@@ -108,5 +114,12 @@ export const createSecurityTestContext = (): SecurityContext => {
  */
 export const auditErrorExposure = (error: any, context: string): void => {
   // Mock error exposure auditing
-  console.log(`[AUDIT] Error exposure in ${context}:`, error?.message || 'Unknown error');
+  logger.info('Error exposure audit', LogCategory.BUSINESS, {
+    service: 'EnterpriseTestUtils',
+    metadata: { 
+      context, 
+      errorMessage: error?.message || 'Unknown error',
+      auditType: 'error_exposure'
+    }
+  });
 }; 

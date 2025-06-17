@@ -69,4 +69,29 @@ config.resolver.sourceExts = [
   'jsx', 'js', 'ts', 'tsx', 'json', 'svg'
 ];
 
+// Standard Metro Config - keine besonderen Overrides nötig
+
+// Resolver - ensure all node_modules get transpiled
+config.resolver = {
+  ...config.resolver,
+  platforms: ['ios', 'android', 'native', 'web'],
+  sourceExts: [
+    ...config.resolver.sourceExts,
+    'jsx', 'js', 'ts', 'tsx', 'json', 'svg'
+  ],
+  // Stelle sicher dass React Native Libraries korrekt aufgelöst werden
+  assetExts: [...config.resolver.assetExts, 'svg'],
+};
+
+// Server Konfiguration 
+config.server = {
+  ...config.server,
+  enhanceMiddleware: (middleware) => {
+    return (req, res, next) => {
+      // Custom middleware für bundle transformation
+      return middleware(req, res, next);
+    };
+  },
+};
+
 module.exports = config; 

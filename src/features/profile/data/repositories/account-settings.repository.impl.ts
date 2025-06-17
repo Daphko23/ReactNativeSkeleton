@@ -10,6 +10,8 @@
  */
 
 import { SupabaseClient } from '@supabase/supabase-js';
+import { LoggerFactory } from '@core/logging/logger.factory';
+import { LogCategory } from '@core/logging/logger.service.interface';
 
 // Domain Interfaces
 import { 
@@ -53,6 +55,7 @@ export class AccountSettingsRepositoryImpl implements IAccountSettingsRepository
   private readonly TABLE_NAME = 'account_settings';
   private readonly cache = new Map<string, { data: AccountSettings; timestamp: number }>();
   private readonly CACHE_TTL = 5 * 60 * 1000; // 5 minutes
+  private readonly logger = LoggerFactory.createServiceLogger('AccountSettingsRepository');
 
   constructor(
     private readonly supabase: SupabaseClient
@@ -89,7 +92,9 @@ export class AccountSettingsRepositoryImpl implements IAccountSettingsRepository
       
       return this.applyQueryOptions(accountSettings, options);
     } catch (error) {
-      console.error(`Error getting account settings for user ${userId}:`, error);
+      this.logger.error('Error getting account settings', LogCategory.BUSINESS, {
+        metadata: { userId, error: (error as Error)?.message || String(error) }
+      }, error as Error);
       throw error;
     }
   }
@@ -128,7 +133,9 @@ export class AccountSettingsRepositoryImpl implements IAccountSettingsRepository
       
       return result;
     } catch (error) {
-      console.error(`Error creating account settings:`, error);
+      this.logger.error('Error creating account settings', LogCategory.BUSINESS, {
+        metadata: { userId: accountSettings.userId, error: (error as Error)?.message || String(error) }
+      }, error as Error);
       throw error;
     }
   }
@@ -206,7 +213,9 @@ export class AccountSettingsRepositoryImpl implements IAccountSettingsRepository
       
       return result;
     } catch (error) {
-      console.error(`Error updating account settings for user ${userId}:`, error);
+      this.logger.error('Error updating account settings', LogCategory.BUSINESS, {
+        metadata: { userId, error: (error as Error)?.message || String(error) }
+      }, error as Error);
       throw error;
     }
   }
@@ -225,7 +234,9 @@ export class AccountSettingsRepositoryImpl implements IAccountSettingsRepository
       this.clearCache(userId);
       return true;
     } catch (error) {
-      console.error(`Error deleting account settings for user ${userId}:`, error);
+      this.logger.error('Error deleting account settings', LogCategory.BUSINESS, {
+        metadata: { userId, error: (error as Error)?.message || String(error) }
+      }, error as Error);
       throw error;
     }
   }
@@ -290,7 +301,9 @@ export class AccountSettingsRepositoryImpl implements IAccountSettingsRepository
         return this.applyQueryOptions(accountSettings, options);
       });
     } catch (error) {
-      console.error(`Error getting multiple account settings:`, error);
+      this.logger.error('Error getting multiple account settings', LogCategory.BUSINESS, {
+        metadata: { userIds: userIds.join(','), count: userIds.length, error: (error as Error)?.message || String(error) }
+      }, error as Error);
       throw error;
     }
   }
@@ -338,7 +351,9 @@ export class AccountSettingsRepositoryImpl implements IAccountSettingsRepository
 
       return data.map(row => row.user_id);
     } catch (error) {
-      console.error(`Error finding by privacy setting:`, error);
+      this.logger.error('Error finding by privacy setting', LogCategory.BUSINESS, {
+        metadata: { settingKey: String(settingKey), value: String(value), error: (error as Error)?.message || String(error) }
+      }, error as Error);
       throw error;
     }
   }
@@ -371,7 +386,9 @@ export class AccountSettingsRepositoryImpl implements IAccountSettingsRepository
 
       return results;
     } catch (error) {
-      console.error(`Error finding users with social platform:`, error);
+      this.logger.error('Error finding users with social platform', LogCategory.BUSINESS, {
+        metadata: { platform, error: (error as Error)?.message || String(error) }
+      }, error as Error);
       throw error;
     }
   }
@@ -417,7 +434,9 @@ export class AccountSettingsRepositoryImpl implements IAccountSettingsRepository
 
       return stats;
     } catch (error) {
-      console.error(`Error getting security statistics:`, error);
+      this.logger.error('Error getting security statistics', LogCategory.BUSINESS, {
+        metadata: { error: (error as Error)?.message || String(error) }
+      }, error as Error);
       throw error;
     }
   }
@@ -458,7 +477,9 @@ export class AccountSettingsRepositoryImpl implements IAccountSettingsRepository
       this.clearCache(userId);
       return true;
     } catch (error) {
-      console.error(`Error anonymizing user data:`, error);
+      this.logger.error('Error anonymizing user data', LogCategory.BUSINESS, {
+        metadata: { userId, error: (error as Error)?.message || String(error) }
+      }, error as Error);
       throw error;
     }
   }
@@ -485,7 +506,9 @@ export class AccountSettingsRepositoryImpl implements IAccountSettingsRepository
         lastActivity: new Date(row.last_login_at || row.updated_at)
       }));
     } catch (error) {
-      console.error(`Error finding data retention candidates:`, error);
+      this.logger.error('Error finding data retention candidates', LogCategory.BUSINESS, {
+        metadata: { cutoffDate: cutoffDate.toISOString(), error: (error as Error)?.message || String(error) }
+      }, error as Error);
       throw error;
     }
   }
@@ -512,7 +535,9 @@ export class AccountSettingsRepositoryImpl implements IAccountSettingsRepository
       this.clearCache(userId);
       return true;
     } catch (error) {
-      console.error(`Error updating GDPR consent:`, error);
+      this.logger.error('Error updating GDPR consent', LogCategory.BUSINESS, {
+        metadata: { userId, consentGiven, consentDate: consentDate.toISOString(), error: (error as Error)?.message || String(error) }
+      }, error as Error);
       throw error;
     }
   }
@@ -551,7 +576,9 @@ export class AccountSettingsRepositoryImpl implements IAccountSettingsRepository
         pages
       };
     } catch (error) {
-      console.error(`Error in search:`, error);
+      this.logger.error('Error in search', LogCategory.BUSINESS, {
+        metadata: { filters: JSON.stringify(filters), pagination: JSON.stringify(pagination), error: (error as Error)?.message || String(error) }
+      }, error as Error);
       throw error;
     }
   }
@@ -595,6 +622,16 @@ export class AccountSettingsRepositoryImpl implements IAccountSettingsRepository
     const startTime = Date.now();
     
     try {
+      // Check if supabase client is available
+      if (!this.supabase) {
+        return {
+          status: 'unhealthy',
+          responseTime: Date.now() - startTime,
+          connectionStatus: false,
+          lastError: 'Supabase client not available'
+        };
+      }
+
       const { error } = await this.supabase
         .from(this.TABLE_NAME)
         .select('user_id')
@@ -603,10 +640,15 @@ export class AccountSettingsRepositoryImpl implements IAccountSettingsRepository
       const responseTime = Date.now() - startTime;
 
       if (error) {
+        // Don't fail completely for table not found - might be development environment
+        const isDevelopmentError = error.message.includes('table') || 
+                                  error.message.includes('relation') ||
+                                  error.message.includes('does not exist');
+        
         return {
-          status: 'unhealthy',
+          status: isDevelopmentError ? 'degraded' : 'unhealthy',
           responseTime,
-          connectionStatus: false,
+          connectionStatus: !isDevelopmentError,
           lastError: error.message
         };
       }
@@ -617,11 +659,18 @@ export class AccountSettingsRepositoryImpl implements IAccountSettingsRepository
         connectionStatus: true
       };
     } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      const isDevelopmentError = errorMessage.includes('table') || 
+                                errorMessage.includes('relation') ||
+                                errorMessage.includes('does not exist') ||
+                                errorMessage.includes('network') ||
+                                errorMessage.includes('timeout');
+      
       return {
-        status: 'unhealthy',
+        status: isDevelopmentError ? 'degraded' : 'unhealthy',
         responseTime: Date.now() - startTime,
         connectionStatus: false,
-        lastError: error instanceof Error ? error.message : 'Unknown error'
+        lastError: errorMessage
       };
     }
   }

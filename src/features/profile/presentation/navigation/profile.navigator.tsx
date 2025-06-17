@@ -17,6 +17,9 @@ import { useTranslation } from 'react-i18next';
 import { IconButton } from 'react-native-paper';
 import { useTheme } from '@core/theme/theme.system';
 
+// Feature Flag Hook
+import { useFeatureFlag } from '../hooks/use-feature-flag.hook';
+
 // Screens
 import ProfileScreen from '../screens/profile';
 import ProfileEditScreen from '../screens/profile-edit';
@@ -89,6 +92,9 @@ const Stack = createStackNavigator<ProfileStackParamList>();
 export function ProfileNavigator(): React.JSX.Element {
   const { t } = useTranslation();
   const { theme } = useTheme();
+  
+  // 🚀 FEATURE FLAG HOOK
+  const { isScreenEnabled } = useFeatureFlag();
 
   return (
     <Stack.Navigator
@@ -154,22 +160,26 @@ export function ProfileNavigator(): React.JSX.Element {
       />
 
       {/* Privacy Settings Screen */}
-      <Stack.Screen
-        name="PrivacySettings"
-        component={PrivacySettingsScreen}
-        options={{
-          title: t('profile.privacyScreen.title'),
-        }}
-      />
+      {isScreenEnabled('PrivacySettings') && (
+        <Stack.Screen
+          name="PrivacySettings"
+          component={PrivacySettingsScreen}
+          options={{
+            title: t('profile.privacyScreen.title'),
+          }}
+        />
+      )}
 
       {/* Account Settings Screen */}
-      <Stack.Screen
-        name="AccountSettings"
-        component={AccountSettingsScreen}
-        options={{
-          title: t('profile.accountScreen.title'),
-        }}
-      />
+      {isScreenEnabled('AccountSettings') && (
+        <Stack.Screen
+          name="AccountSettings"
+          component={AccountSettingsScreen}
+          options={{
+            title: t('profile.accountScreen.title'),
+          }}
+        />
+      )}
 
       {/* Avatar Upload Screen */}
       <Stack.Screen
@@ -182,31 +192,37 @@ export function ProfileNavigator(): React.JSX.Element {
       />
 
       {/* Skills Management Screen */}
-      <Stack.Screen
-        name="SkillsManagement"
-        component={SkillsManagementScreen}
-        options={{
-          title: t('profile.skillsScreen.title'),
-        }}
-      />
+      {isScreenEnabled('SkillsManagement') && (
+        <Stack.Screen
+          name="SkillsManagement"
+          component={SkillsManagementScreen}
+          options={{
+            title: t('profile.skillsScreen.title'),
+          }}
+        />
+      )}
 
       {/* Social Links Edit Screen */}
-      <Stack.Screen
-        name="SocialLinksEdit"
-        component={SocialLinksEditScreen}
-        options={{
-          title: t('profile.socialLinksScreen.title'),
-        }}
-      />
+      {isScreenEnabled('SocialLinksEdit') && (
+        <Stack.Screen
+          name="SocialLinksEdit"
+          component={SocialLinksEditScreen}
+          options={{
+            title: t('profile.socialLinksScreen.title'),
+          }}
+        />
+      )}
 
       {/* Custom Fields Edit Screen */}
-      <Stack.Screen
-        name="CustomFieldsEdit"
-        component={CustomFieldsEditScreen}
-        options={{
-          title: t('profile.customFieldsScreen.title'),
-        }}
-      />
+      {isScreenEnabled('CustomFieldsEdit') && (
+        <Stack.Screen
+          name="CustomFieldsEdit"
+          component={CustomFieldsEditScreen}
+          options={{
+            title: t('profile.customFieldsScreen.title'),
+          }}
+        />
+      )}
 
     </Stack.Navigator>
   );

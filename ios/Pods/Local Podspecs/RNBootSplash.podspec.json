@@ -1,6 +1,6 @@
 {
   "name": "RNBootSplash",
-  "version": "6.3.8",
+  "version": "6.3.9",
   "license": "MIT",
   "summary": "Display a bootsplash on your app starts. Hide it when you want.",
   "authors": "Mathieu Acthernoene <zoontek@gmail.com>",
@@ -12,7 +12,7 @@
   "requires_arc": true,
   "source": {
     "git": "https://github.com/zoontek/react-native-bootsplash.git",
-    "tag": "6.3.8"
+    "tag": "6.3.9"
   },
   "source_files": "ios/**/*.{h,m,mm}",
   "pod_target_xcconfig": {

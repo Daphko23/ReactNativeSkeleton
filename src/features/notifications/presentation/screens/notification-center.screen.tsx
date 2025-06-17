@@ -27,7 +27,7 @@ import {
   ActivityIndicator,
 } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { SafeAreaView } from 'react-native';
 
 import { useNotifications } from '../hooks/use-notifications.hook';
 import { useTheme, createThemedStyles } from '../../../../core/theme/theme.system';

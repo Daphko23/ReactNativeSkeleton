@@ -15,7 +15,8 @@ import { View, ActivityIndicator, StyleSheet } from 'react-native';
 import { useAuth } from '@features/auth/presentation/hooks';
 
 import { authContainer } from '@features/auth/application/di/auth.container';
-import { profileContainer } from '@features/profile/application/di/profile.container';
+import { initializeProfileContainer } from '@features/profile/application/di/profile.container';
+import { supabase } from '@core/config/supabase.config';
 import { ConsoleLogger } from '@core/logging/console.logger';
 
 // Import Environment entfernt - aktuell nicht verwendet
@@ -301,7 +302,12 @@ export const AppInitializer = ({
         console.log('✅ Auth services initialized');
 
         // 2. Initialize Profile Container DI
-        await profileContainer.initialize();
+        await initializeProfileContainer({
+          supabaseClient: supabase,
+          enableCaching: true,
+          enableLogging: true,
+          environment: 'development'
+        });
         console.log('✅ Profile container initialized');
 
         // 3. Initialize session through auth hooks (check existing auth status)

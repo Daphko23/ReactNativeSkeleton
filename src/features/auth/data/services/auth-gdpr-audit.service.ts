@@ -8,6 +8,11 @@
 
 import { AuthUser } from '../../domain/entities/auth-user.entity';
 import { createClient } from '@supabase/supabase-js';
+import { LoggerFactory } from '@core/logging/logger.factory';
+import { LogCategory } from '@core/logging/logger.service.interface';
+
+// 🏆 ENTERPRISE LOGGER
+const logger = LoggerFactory.createServiceLogger('AuthGDPRAuditService');
 
 // 🔒 SECURITY: Supabase configuration from environment variables
 const supabaseUrl = process.env.SUPABASE_URL;
@@ -15,7 +20,7 @@ const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
 // Validate required environment variables
 if (!supabaseUrl || !supabaseServiceKey) {
-  console.warn('🔒 Auth GDPR Audit: Supabase credentials missing - fallback to memory-only storage');
+  logger.warn('🔒 Auth GDPR Audit: Supabase credentials missing - fallback to memory-only storage', LogCategory.BUSINESS);
 }
 
 // Create Supabase client for backend operations (only if credentials available)
@@ -432,7 +437,9 @@ export class AuthGDPRAuditService {
       try {
         await this.storeAuditEventInDatabase(event);
       } catch (error) {
-        console.warn('Failed to store auth audit event in database:', error);
+        logger.warn('Failed to store auth audit event in database', LogCategory.BUSINESS, { 
+          metadata: { eventId: event.id, userId: event.userId, error: (error as Error)?.message || String(error) } 
+        });
       }
     }
   }

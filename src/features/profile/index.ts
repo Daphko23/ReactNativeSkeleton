@@ -5,9 +5,9 @@
 
 // === APPLICATION LAYER ===
 // ✅ USE CASES - NUR ECHTE BUSINESS LOGIC
-export { ValidateProfileDataUseCase } from './application/usecases/validate-profile-data.usecase';
-export { CalculateProfileCompletionUseCase } from './application/usecases/calculate-profile-completion.usecase';
-export { UpdatePrivacySettingsUseCase } from './application/usecases/update-privacy-settings.usecase';
+export { ValidateProfileDataUseCase } from './application/use-cases/validation/validate-profile-data.usecase';
+export { CalculateProfileCompletionUseCase } from './application/use-cases/completion/calculate-profile-completion.usecase';
+export { UpdatePrivacySettingsUseCase } from './application/use-cases/security/update-privacy-settings.usecase';
 
 // ✅ VALIDATION SCHEMAS
 export { ProfileValidator } from './application/validation/profile.schemas';
@@ -15,9 +15,12 @@ export { ProfileValidator } from './application/validation/profile.schemas';
 // ✅ DI CONTAINER
 export { 
   ProfileContainer, 
-  profileContainer, 
+  initializeProfileContainer,
+  getProfileContainer,
   useProfileContainer,
-  type ProfileContainerConfig
+  type ProfileContainerConfig,
+  type IProfileServiceRegistry,
+  type ServiceHealthStatus
 } from './application/di/profile.container';
 
 // === PRESENTATION LAYER ===

@@ -24,6 +24,9 @@ import { useCustomFieldsQuery } from './use-custom-fields-query.hook';
 import { useProfileCompleteness } from './use-profile-completeness.hook';
 import { useAuth } from '@features/auth/presentation/hooks';
 
+// 🎯 FEATURE FLAG INTEGRATION FIX
+import { useFeatureFlag } from './use-feature-flag.hook';
+
 // 🏆 ENTERPRISE: Use Cases Integration (Essential Only)
 import { useProfileContainer } from '../../application/di/profile.container';
 import { ShareProfileUseCase } from '../../application/use-cases/profile/share-profile.use-case';
@@ -105,18 +108,33 @@ export const useProfileScreen = (navigation?: any): UseProfileScreenReturn => {
   const _queryClient = useQueryClient();
   const { user } = useAuth();
   const userId = user?.id || '';
+  
+  // 🎯 FEATURE FLAG INTEGRATION FIX
+  const { isScreenEnabled } = useFeatureFlag();
 
   // 🏆 CHAMPION: Hook Composition (Reuse existing Champion hooks)
   const profileQuery = useProfileQuery(userId);
   const avatarQuery = useAvatar({ userId });
   const customFieldsQuery = useCustomFieldsQuery(userId);
-  const completion = profileQuery.data ? useProfileCompleteness({ 
-    profile: profileQuery.data, 
+  
+  // 🎯 EMAIL SYNC FIX: Ensure profile.email is synced from auth user
+  const profileWithEmail = useMemo(() => {
+    const profile = profileQuery.data;
+    if (profile && user?.email && !profile.email) {
+      // Auto-sync email from auth user to profile if missing
+      return { ...profile, email: user.email };
+    }
+    return profile;
+  }, [profileQuery.data, user?.email]);
+  
+  // 🎯 HOOK RULES FIX: Always call hooks, never conditionally  
+  const completion = useProfileCompleteness({ 
+    profile: profileWithEmail || null, 
     userId 
-  }) : null;
+  });
   
   // 🏆 ENTERPRISE: Use Cases Integration (Essential Only)
-  const _container = useProfileContainer();
+  const { container: _container, accessor: _accessor } = useProfileContainer();
   const shareProfileUseCase = useMemo(() => new ShareProfileUseCase(), []);
   const exportProfileUseCase = useMemo(() => new ExportProfileUseCase(), []);
 
@@ -196,36 +214,66 @@ export const useProfileScreen = (navigation?: any): UseProfileScreenReturn => {
   }, [userId, navigation]);
 
   const navigateToSettings = useCallback(() => {
-    logger.info('Navigating to profile settings', LogCategory.BUSINESS, { userId });
-    navigation?.navigate('ProfileSettings');
-  }, [userId, navigation]);
+    // 🎯 NAVIGATION FIX: Use correct screen name + Feature Flag Guard
+    if (!isScreenEnabled('AccountSettings')) {
+      logger.warn('Account Settings screen is disabled by feature flag', LogCategory.BUSINESS, { userId });
+      return;
+    }
+    
+    logger.info('Navigating to account settings', LogCategory.BUSINESS, { userId });
+    navigation?.navigate('AccountSettings');  // ✅ KORREKT: AccountSettings statt ProfileSettings
+  }, [userId, navigation, isScreenEnabled]);
 
   const navigateToCustomFields = useCallback(() => {
+    // 🎯 FEATURE FLAG GUARD
+    if (!isScreenEnabled('CustomFieldsEdit')) {
+      logger.warn('Custom Fields Edit screen is disabled by feature flag', LogCategory.BUSINESS, { userId });
+      return;
+    }
+    
     logger.info('Navigating to custom fields', LogCategory.BUSINESS, { userId });
     navigation?.navigate('CustomFieldsEdit');
-  }, [userId, navigation]);
+  }, [userId, navigation, isScreenEnabled]);
 
   const navigateToPrivacySettings = useCallback(() => {
+    // 🎯 FEATURE FLAG GUARD
+    if (!isScreenEnabled('PrivacySettings')) {
+      logger.warn('Privacy Settings screen is disabled by feature flag', LogCategory.BUSINESS, { userId });
+      return;
+    }
+    
     logger.info('Navigating to privacy settings', LogCategory.BUSINESS, { userId });
     navigation?.navigate('PrivacySettings');
-  }, [userId, navigation]);
+  }, [userId, navigation, isScreenEnabled]);
 
   // 🏆 CHAMPION: Additional Navigation Actions (Missing from Profile Screen)
   const navigateToSkillsManagement = useCallback(() => {
+    // 🎯 FEATURE FLAG GUARD
+    if (!isScreenEnabled('SkillsManagement')) {
+      logger.warn('Skills Management screen is disabled by feature flag', LogCategory.BUSINESS, { userId });
+      return;
+    }
+    
     logger.info('Navigating to skills management', LogCategory.BUSINESS, { 
       userId,
       metadata: { action: 'navigate_skills' }
     });
     navigation?.navigate('SkillsManagement');
-  }, [userId, navigation]);
+  }, [userId, navigation, isScreenEnabled]);
 
   const navigateToSocialLinksEdit = useCallback(() => {
+    // 🎯 FEATURE FLAG GUARD
+    if (!isScreenEnabled('SocialLinksEdit')) {
+      logger.warn('Social Links Edit screen is disabled by feature flag', LogCategory.BUSINESS, { userId });
+      return;
+    }
+    
     logger.info('Navigating to social links edit', LogCategory.BUSINESS, { 
       userId,
       metadata: { action: 'navigate_social_links' }
     });
     navigation?.navigate('SocialLinksEdit');
-  }, [userId, navigation]);
+  }, [userId, navigation, isScreenEnabled]);
 
   // 🏆 CHAMPION PROFILE ACTIONS
   const shareProfile = useCallback(async () => {
@@ -260,14 +308,14 @@ export const useProfileScreen = (navigation?: any): UseProfileScreenReturn => {
 
   // 🏆 CHAMPION AVATAR ACTIONS
   const changeAvatar = useCallback(() => {
-    logger.info('Initiating avatar change', LogCategory.BUSINESS, { userId });
-    // Use existing avatar hook's upload functionality
-    // This would typically open an image picker
-    logger.info('Avatar picker action would be triggered', LogCategory.BUSINESS, {
-      userId,
-      metadata: { currentAvatarUrl: avatarQuery.avatarUrl }
+    logger.info('Navigating to avatar upload', LogCategory.BUSINESS, { userId });
+    
+    // Navigate to Avatar Upload Screen with current avatar
+    navigation?.navigate('AvatarUpload', {
+      currentAvatar: avatarQuery.avatarUrl,
+      userId: userId
     });
-  }, [userId, avatarQuery.avatarUrl]);
+  }, [userId, avatarQuery.avatarUrl, navigation]);
 
   const removeAvatar = useCallback(async () => {
     await removeAvatarMutation.mutateAsync();
@@ -303,8 +351,8 @@ export const useProfileScreen = (navigation?: any): UseProfileScreenReturn => {
   return {
     // 🏆 ENTERPRISE STRUCTURE: Grouped by Responsibility
     data: {
-      profile: profileQuery.data,
-      avatar: avatarQuery.avatarUrl,
+      profile: profileWithEmail,
+      avatar: { url: avatarQuery.avatarUrl },  // ✅ FIX: Korrekte Struktur für Profile Screen
       customFields: customFieldsQuery.data || [],
       completion,
       isProfileLoading: profileQuery.isLoading,

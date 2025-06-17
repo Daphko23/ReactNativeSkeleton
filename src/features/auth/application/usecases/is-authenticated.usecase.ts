@@ -1,4 +1,6 @@
 import {AuthRepository} from '../../domain/interfaces/auth.repository.interface';
+import { LoggerFactory } from '@core/logging/logger.factory';
+import { LogCategory } from '@core/logging/logger.service.interface';
 
 /**
  * @fileoverview IS-AUTHENTICATED-USECASE: Authentication Status Verification Use Case
@@ -403,7 +405,11 @@ export class IsAuthenticatedUseCase {
       return user !== null;
     } catch (error) {
       // Log authentication check errors for monitoring
-      console.warn('Authentication status check failed:', error);
+              // Use LoggerFactory instead of console.warn
+        const logger = LoggerFactory.createServiceLogger('IsAuthenticatedUseCase');
+        logger.warn('Authentication status check failed', LogCategory.BUSINESS, { 
+          metadata: { error: (error as Error)?.message || String(error) }
+        });
       
       // On error, assume not authenticated for security
       return false;

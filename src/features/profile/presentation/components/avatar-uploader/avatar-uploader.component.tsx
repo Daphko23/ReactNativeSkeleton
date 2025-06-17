@@ -12,7 +12,7 @@
  * @architecture HOOK-CENTRIC - Components only for UI rendering
  */
 
-import React from 'react';
+import React, { useState } from 'react';
 import {
   View,
   Text,
@@ -78,26 +78,20 @@ export const AvatarUploader: React.FC<AvatarUploaderProps> = ({
     isUploading,
     uploadProgress,
     selectedImage,
-    // showActionSheet,
-    // isLoadingGallery,
-    // isLoadingCamera,
     
     // Actions
     selectFromGallery,
     selectFromCamera,
     uploadAvatar,
-    // deleteAvatar,
+    removeAvatar,
     resetSelection,
     
-    // UI Actions
-    // openActionSheet,
-    // closeActionSheet,
-    
     // Computed States
-    // hasSelectedImage,
-    // canUpload,
     hasAvatar,
   } = useAvatar({ userId });
+  
+  // 🎯 LOCAL UI STATE für Action Sheet
+  const [showActionSheet, setShowActionSheet] = useState(false);
 
   // =============================================================================
   // UI EVENT HANDLERS - DELEGATE TO HOOK
@@ -105,14 +99,16 @@ export const AvatarUploader: React.FC<AvatarUploaderProps> = ({
 
   const handleAvatarPress = () => {
     if (!editable) return;
-    // openActionSheet();
+    setShowActionSheet(true);
   };
 
   const handleGallerySelect = async () => {
+    setShowActionSheet(false);
     await selectFromGallery();
   };
 
   const handleCameraSelect = async () => {
+    setShowActionSheet(false);
     await selectFromCamera();
   };
 
@@ -124,7 +120,8 @@ export const AvatarUploader: React.FC<AvatarUploaderProps> = ({
   };
 
   const handleRemove = async () => {
-    // await deleteAvatar();
+    setShowActionSheet(false);
+    await removeAvatar();
   };
 
   // =============================================================================
@@ -181,10 +178,10 @@ export const AvatarUploader: React.FC<AvatarUploaderProps> = ({
 
   const renderActionSheet = () => (
     <Modal
-      visible={false}
+      visible={showActionSheet}
       transparent
       animationType="slide"
-      onRequestClose={() => {}}
+      onRequestClose={() => setShowActionSheet(false)}
       testID="avatar-action-sheet"
     >
       <View style={styles.modalOverlay}>
@@ -235,7 +232,7 @@ export const AvatarUploader: React.FC<AvatarUploaderProps> = ({
 
           <TouchableOpacity
             style={[styles.actionButton, styles.cancelButton]}
-            onPress={() => {}}
+            onPress={() => setShowActionSheet(false)}
             accessibilityRole="button"
             accessibilityLabel={t('common.cancel')}
             testID="action-sheet-cancel"

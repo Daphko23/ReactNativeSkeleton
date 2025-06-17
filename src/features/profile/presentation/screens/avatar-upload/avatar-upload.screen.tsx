@@ -77,7 +77,7 @@ import React, { useState, useCallback } from 'react';
 import { View, ScrollView, Image } from 'react-native';
 import { Text, ProgressBar, ActivityIndicator, FAB } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { SafeAreaView } from 'react-native';
 import { useTheme } from 'react-native-paper';
 
 // Shared Components
@@ -744,7 +744,7 @@ export function AvatarUploadScreen({ navigation, route }: AvatarUploadScreenProp
   // =============================================================================
 
   return (
-    <SafeAreaView style={styles.container} edges={['bottom', 'left', 'right']}>
+    <SafeAreaView style={styles.container}>
       <ScrollView 
         style={[styles.scrollView, { backgroundColor: theme.colors.background }]}
         contentContainerStyle={styles.content}

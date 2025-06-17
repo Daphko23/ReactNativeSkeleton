@@ -114,7 +114,7 @@ import {
   HelperText,
   Divider,
 } from 'react-native-paper';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { SafeAreaView } from 'react-native';
 import { useTheme } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
 
@@ -782,7 +782,7 @@ export const CustomFieldsEditScreen: React.FC<CustomFieldsEditScreenProps> = ({
     return (
       <SafeAreaView 
         style={[styles.container, styles.loadingContainer]}
-        edges={['bottom', 'left', 'right']}
+
         testID={testIds.LOADING_INDICATOR}
       >
         <ActivityIndicator 
@@ -806,7 +806,7 @@ export const CustomFieldsEditScreen: React.FC<CustomFieldsEditScreenProps> = ({
   return (
     <SafeAreaView 
       style={styles.container}
-      edges={['bottom', 'left', 'right']}
+
       testID={testID || testIds.SCREEN}
     >
       <LoadingOverlay 

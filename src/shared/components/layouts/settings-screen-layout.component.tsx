@@ -12,7 +12,7 @@
 
 import React from 'react';
 import { ScrollView, View, RefreshControlProps } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { SafeAreaView } from 'react-native';
 import { ActivityIndicator, Text, Button, Card } from 'react-native-paper';
 
 import { LoadingOverlay } from '../ui/loading-overlay.component';
@@ -553,7 +553,7 @@ export interface SettingsScreenLayoutProps {
  * @dependencies
  * - react: Core React library
  * - react-native: ScrollView, View, RefreshControlProps
- * - react-native-safe-area-context: SafeAreaView
+ * - react-native: SafeAreaView (native implementation)
  * - react-native-paper: Material Design components
  * - ../ui/loading-overlay.component: Loading state component
  * 
@@ -647,7 +647,6 @@ export const SettingsScreenLayout: React.FC<SettingsScreenLayoutProps> = ({
     return (
       <SafeAreaView 
         style={[styles.container, styles.loadingContainer]}
-        edges={['bottom', 'left', 'right']}
         testID={`${testID}-loading`}
       >
         <ActivityIndicator size="large" color={theme?.colors?.primary} />
@@ -661,7 +660,6 @@ export const SettingsScreenLayout: React.FC<SettingsScreenLayoutProps> = ({
   return (
     <SafeAreaView 
       style={[styles.container, style]}
-      edges={['bottom', 'left', 'right']}
       testID={testID}
     >
       <LoadingOverlay 

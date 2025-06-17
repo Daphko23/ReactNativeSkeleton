@@ -7,13 +7,12 @@
 // 🔍 CORE AUTH HOOKS - Clean Architecture Implementation
 // ====================================================================================
 
-// Primary Authentication Hook - Main entry point
+// Primary Authentication Hook - Main entry point (with integrated Flow Management)
 export { useAuth } from './use-auth.hook';
 export type { UseAuthReturn } from './use-auth.hook';
 
-// Authentication Flow Hook - State management
-export { useAuthFlow } from './use-auth-flow.hook';
-export type { UseAuthFlowReturn } from './use-auth-flow.hook';
+// 🔧 FLOW HOOK INTEGRATED: use-auth-flow.hook.ts has been integrated into use-auth.hook.ts
+// Flow management is now part of the main useAuth hook for better performance
 
 // Password Management Hook
 export { useAuthPassword } from './use-auth-password.hook';
@@ -28,11 +27,12 @@ export { useAuthSocial } from './use-auth-social.hook';
 export type { UseAuthSocialReturn } from './use-auth-social.hook';
 
 // ====================================================================================
-// 🎨 TYPES & ENUMS EXPORT - From Auth Flow Hook
+// 🎨 TYPES & ENUMS EXPORT - From Auth Hook (Flow Types Integrated)
 // ====================================================================================
 
-export { AuthFlowState } from './use-auth-flow.hook';
-export type { AuthFlowState as AuthFlowStep } from './use-auth-flow.hook';
+export { AuthFlowState, AuthFlowType } from './use-auth.hook';
+export type { LoginCredentials, RegisterData, FlowCapabilities } from './use-auth.hook';
+export type { AuthFlowState as AuthFlowStep } from './use-auth.hook';
 
 // ====================================================================================
 // 🔧 LEGACY TYPES REMOVED
@@ -61,13 +61,13 @@ export type { AuthFlowState as AuthFlowStep } from './use-auth-flow.hook';
 // 📋 AVAILABLE HOOKS SUMMARY
 // ====================================================================================
 /*
-✅ useAuth - Main authentication hook with login/logout/register
-✅ useAuthFlow - Authentication state flow management  
+✅ useAuth - Main authentication hook with login/logout/register + Flow Management (INTEGRATED)
 ✅ useAuthPassword - Password reset, strength validation, etc.
 ✅ useAuthSecurity - MFA, biometric, security settings
 ✅ useAuthSocial - Google, Facebook, Apple authentication
 
 🗑️ REMOVED HOOKS (Cleanup completed):
+❌ useAuthFlow - INTEGRATED into useAuth (434 lines eliminated)
 ❌ useAuthComposite - Deleted (was demo/over-engineering)
 ❌ useAuthTesting - Deleted (was demo/testing only)
 */

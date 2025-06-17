@@ -8,7 +8,7 @@ require Pod::Executable.execute_command('node', ['-p',
 platform :ios, '15.5' # Updated for CodePush compatibility
 prepare_react_native_project!
 
-# Disable New Architecture completely
+# JavaScript Engine: Hermes (Standard für React Native 0.79)
 ENV['RCT_NEW_ARCH_ENABLED'] = '0'
 ENV['USE_HERMES'] = '1'
 ENV['USE_FRAMEWORKS'] = 'static'

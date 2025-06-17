@@ -8,18 +8,12 @@
 
 module.exports = {
   presets: [
+    // React Native 0.79 Fix: Nur das Standard Preset verwenden
+    // Zusätzliche Presets verursachen ES6 export Konflikte
     '@react-native/babel-preset',
-    [
-      '@babel/preset-env',
-      {
-        targets: {
-          node: 'current',
-        },
-      },
-    ],
-    '@babel/preset-typescript',
   ],
   plugins: [
+    // Standard React Native Plugins
     [
       'module-resolver',
       {
@@ -48,19 +42,12 @@ module.exports = {
   env: {
     test: {
       presets: [
+        // React Native 0.79 Fix: Verwende auch in Tests nur das Standard Preset
         '@react-native/babel-preset',
-        [
-          '@babel/preset-env',
-          {
-            targets: {
-              node: 'current',
-            },
-            modules: 'commonjs',
-          },
-        ],
-        '@babel/preset-typescript',
       ],
       plugins: [
+        // React Native 0.79 Fix: Entferne transform-modules-commonjs
+        // Verursacht Konflikte mit nativen ES6 exports
         [
           'module-resolver',
           {

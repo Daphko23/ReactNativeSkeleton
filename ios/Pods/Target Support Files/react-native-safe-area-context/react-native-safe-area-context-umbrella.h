@@ -10,6 +10,7 @@
 #endif
 #endif
 
+#import "RNCOnInsetsChangeEvent.h"
 #import "RNCSafeAreaContext.h"
 #import "RNCSafeAreaProvider.h"
 #import "RNCSafeAreaProviderManager.h"

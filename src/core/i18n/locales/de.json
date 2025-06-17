@@ -565,6 +565,16 @@
       "yesterday": "Gestern"
     }
   },
+  "dashboard": {
+    "buyCredits": "Credits kaufen",
+    "dailyBonus": "Täglicher Bonus",
+    "recentTransactions": "Letzte Transaktionen",
+    "noTransactions": "Keine Transaktionen",
+    "noTransactionsMessage": "Deine Credit-Transaktionen werden hier angezeigt"
+  },
+  "yourCredits": "Deine Credits",
+  "creditsLow": "Credits sind niedrig. Lade neue auf!",
+  "dailyBonusMessage": "Komm täglich zurück für Bonus-Credits!",
   "dialogs": {
     "deleteDialog": {
       "content": "Sind Sie sicher, dass Sie dieses Element permanent löschen möchten? Diese Aktion kann nicht rückgängig gemacht werden.",
@@ -944,7 +954,50 @@
         "onsite": "Vor Ort",
         "remote": "Remote"
       },
-      "workLocationPreference": "Arbeitsplatz-Präferenz"
+      "workLocationPreference": "Arbeitsplatz-Präferenz",
+      
+      "sections": {
+        "basicInfo": "Grundinformationen",
+        "contactInfo": "Kontaktinformationen",
+        "customFields": "Benutzerdefinierte Felder",
+        "professionalInfo": "Berufliche Informationen",
+        "socialLinks": "Soziale Links"
+      },
+      
+      "fields": {
+        "firstName": "Vorname",
+        "lastName": "Nachname",
+        "email": "E-Mail",
+        "bio": "Bio",
+        "phone": "Telefon",
+        "location": "Standort",
+        "website": "Website",
+        "company": "Unternehmen",
+        "jobTitle": "Berufsbezeichnung",
+        "industry": "Branche",
+        "workLocation": "Arbeitsort",
+        "linkedIn": "LinkedIn",
+        "twitter": "Twitter",
+        "github": "GitHub",
+        "instagram": "Instagram",
+        "personalWebsite": "Persönliche Website"
+      },
+      
+      "accessibility": {
+        "email": "E-Mail-Adresse eingeben",
+        "bio": "Biografie eingeben",
+        "phone": "Telefonnummer eingeben",
+        "location": "Standort eingeben",
+        "website": "Website-URL eingeben",
+        "company": "Firmenname eingeben",
+        "jobTitle": "Berufsbezeichnung eingeben",
+        "industry": "Branche eingeben",
+        "linkedIn": "LinkedIn-Profil URL eingeben",
+        "twitter": "Twitter-Profil URL eingeben",
+        "github": "GitHub-Profil URL eingeben",
+        "instagram": "Instagram-Profil URL eingeben",
+        "personalWebsite": "Persönliche Website URL eingeben"
+      }
     },
     "mainScreen": {
       "accountSection": "Konto",
@@ -1165,6 +1218,9 @@
         }
       }
     },
+    "screen": {
+      "defaultTitle": "Mein Profil"
+    },
     "socialLinksScreen": {
       "title": "Soziale Links verwalten",
       "add": {
@@ -1204,7 +1260,12 @@
         "youtube": "https://youtube.com/@ihr-kanal",
         "tiktok": "https://tiktok.com/@ihr-username",
         "custom": "https://ihre-website.com",
-        "linkedin": "LinkedIn Benutzername"
+        "linkedin": "LinkedIn Benutzername",
+        "behance": "Behance Benutzername",
+        "dribbble": "Dribbble Benutzername",
+        "medium": "Medium Benutzername",
+        "website": "Website URL",
+        "portfolio": "Portfolio URL"
       },
       "progress": {
         "title": "Social Links Übersicht"
@@ -1230,6 +1291,15 @@
         "linkedin": "Verwenden Sie Ihren LinkedIn-Benutzernamen ohne '/in/' - z.B. 'max-mustermann'",
         "github": "Geben Sie nur Ihren GitHub-Benutzernamen ein - z.B. 'maxmustermann'",
         "twitter": "Verwenden Sie Ihren Twitter-Handle ohne '@' - z.B. 'maxmustermann'",
+        "instagram": "Nur Instagram-Benutzername - z.B. 'max.mustermann'",
+        "facebook": "Verwenden Sie Ihren Facebook-Profilnamen oder Benutzernamen",
+        "youtube": "Ihr YouTube-Kanalname mit '@' - z.B. 'maxmustermann'",
+        "behance": "Ihr Behance-Benutzername - z.B. 'maxmustermann'",
+        "dribbble": "Ihr Dribbble-Benutzername - z.B. 'maxmustermann'",
+        "medium": "Ihr Medium-Benutzername ohne '@' - z.B. 'maxmustermann'",
+        "tiktok": "Ihr TikTok-Handle mit '@' - z.B. '@maxmustermann'",
+        "website": "Vollständige URL Ihrer Website - z.B. 'https://maxmustermann.de'",
+        "portfolio": "Vollständige URL Ihres Portfolios - z.B. 'https://portfolio.maxmustermann.de'",
         "general": {
           "username": "Verwenden Sie nur Ihren Benutzernamen, nicht die vollständige URL",
           "professional": "Fügen Sie zuerst berufliche Profile wie LinkedIn hinzu",

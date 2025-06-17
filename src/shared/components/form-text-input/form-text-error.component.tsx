@@ -350,7 +350,8 @@ export const FormErrorText = ({errorMessage}: FormErrorTextProps) => {
   
   if (!errorMessage) return null;
 
-  console.error('FormErrorText', errorMessage);
+  // 🎯 UX FIX: Debug-Log statt Console-Error um LogBox zu vermeiden
+  console.log('🔴 FormErrorText:', errorMessage);
 
   return <Text style={styles.errorText}>{errorMessage}</Text>;
 };

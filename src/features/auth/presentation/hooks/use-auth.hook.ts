@@ -12,20 +12,110 @@
 
 import { useCallback, useState as _useState, useMemo as _useMemo } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useTranslation } from 'react-i18next';
 import { authContainer } from '../../application/di/auth.container';
 import { AuthUser } from '../../domain/entities/auth-user.entity';
 import { authGDPRAuditService } from '../../data/services/auth-gdpr-audit.service';
 import { LoggerFactory } from '@core/logging/logger.factory';
 import { LogCategory } from '@core/logging/logger.service.interface';
+import { isBusinessError } from '../../application/utils/auth-error.utils';
 
 const logger = LoggerFactory.createServiceLogger('AuthChampion');
+
+/**
+ * Map technical auth errors to user-friendly German messages
+ */
+function mapAuthErrorToUserMessage(error: Error | string, t: any): string {
+  const errorMessage = typeof error === 'string' ? error : error.message;
+  const errorType = typeof error === 'string' ? error : error.constructor.name;
+  
+  // Map specific error types to translation keys
+  if (errorType === 'InvalidCredentialsError' || errorMessage.includes('Invalid credentials')) {
+    return t('auth.loginScreen.errors.invalidCredentials', { 
+      defaultValue: 'Ungültige Anmeldedaten. Bitte versuchen Sie es erneut.' 
+    });
+  }
+  
+  if (errorType === 'UserNotFoundError' || errorMessage.includes('User not found')) {
+    return t('auth.loginScreen.errors.userNotFound', { 
+      defaultValue: 'Benutzer wurde nicht gefunden. Bitte überprüfen Sie Ihre Angaben.' 
+    });
+  }
+  
+  if (errorMessage.includes('Email already in use') || errorMessage.includes('already registered')) {
+    return t('auth.registerScreen.errors.emailAlreadyInUse', { 
+      defaultValue: 'Diese E-Mail-Adresse ist bereits registriert.' 
+    });
+  }
+  
+  if (errorMessage.includes('Password too weak') || errorMessage.includes('weak password')) {
+    return t('auth.registerScreen.errors.weakPassword', { 
+      defaultValue: 'Ihr Passwort ist zu schwach. Bitte wählen Sie ein stärkeres.' 
+    });
+  }
+  
+  if (errorMessage.includes('Email und Passwort sind erforderlich')) {
+    return t('auth.loginScreen.errors.emailRequired', { 
+      defaultValue: 'E-Mail und Passwort sind erforderlich.' 
+    });
+  }
+  
+  if (errorMessage.includes('Auth Container nicht verfügbar')) {
+    return t('auth.loginScreen.errors.generic', { 
+      defaultValue: 'Ein technischer Fehler ist aufgetreten. Bitte versuchen Sie es erneut.' 
+    });
+  }
+  
+  // Default fallback for unknown errors
+  return t('auth.loginScreen.errors.generic', { 
+    defaultValue: 'Ein unbekannter Fehler bei der Anmeldung ist aufgetreten.' 
+  });
+}
 
 // 🏆 CHAMPION QUERY KEYS
 export const authQueryKeys = {
   all: ['auth'] as const,
   user: () => [...authQueryKeys.all, 'user'] as const,
   status: () => [...authQueryKeys.all, 'status'] as const,
+  capabilities: () => [...authQueryKeys.all, 'capabilities'] as const,
 } as const;
+
+// 🏆 AUTH FLOW ENUMS (Integrated from use-auth-flow.hook.ts)
+export enum AuthFlowState {
+  IDLE = 'idle',
+  LOGIN = 'login',
+  REGISTER = 'register',
+  MFA = 'mfa',
+  BIOMETRIC = 'biometric',
+  SUCCESS = 'success',
+  ERROR = 'error'
+}
+
+export enum AuthFlowType {
+  LOGIN = 'login',
+  REGISTER = 'register',
+  PASSWORD_RESET = 'password_reset'
+}
+
+// 🏆 AUTH INTERFACES (Integrated from use-auth-flow.hook.ts)
+export interface LoginCredentials {
+  email: string;
+  password: string;
+}
+
+export interface RegisterData {
+  email: string;
+  password: string;
+  firstName: string;
+  lastName: string;
+}
+
+export interface FlowCapabilities {
+  canUseBiometric: boolean;
+  canUseMFA: boolean;
+  canUseOAuth: boolean;
+  supportedProviders: string[];
+}
 
 // 🏆 CHAMPION CONFIG: Mobile Performance
 const AUTH_CONFIG = {
@@ -38,7 +128,7 @@ const AUTH_CONFIG = {
 
 /**
  * @interface UseAuthReturn
- * @description Champion Return Type für Core Auth Hook
+ * @description Champion Return Type für Core Auth Hook (with Flow Management)
  */
 export interface UseAuthReturn {
   // 🏆 Core Auth Data
@@ -67,6 +157,16 @@ export interface UseAuthReturn {
   getCurrentUser: () => Promise<AuthUser | null>;
   clearError: () => void;
   
+  // 🏆 Flow Management (Integrated from use-auth-flow.hook.ts)
+  currentFlowState: AuthFlowState;
+  flowCapabilities: FlowCapabilities | null;
+  isExecutingFlow: boolean;
+  flowError: string | null;
+  startLogin: (credentials: LoginCredentials) => Promise<void>;
+  startRegister: (data: RegisterData) => Promise<void>;
+  resetFlow: () => void;
+  checkCapabilities: () => Promise<FlowCapabilities>;
+  
   // 🏆 Legacy Compatibility
   resetAuth: () => void;
 }
@@ -84,6 +184,12 @@ export interface UseAuthReturn {
  */
 export const useAuth = (): UseAuthReturn => {
   const queryClient = useQueryClient();
+  const { t } = useTranslation();
+  
+  // 🏆 FLOW MANAGEMENT STATE (Integrated from use-auth-flow.hook.ts)
+  const [currentFlowState, setCurrentFlowState] = _useState<AuthFlowState>(AuthFlowState.IDLE);
+  const [isExecutingFlow, setIsExecutingFlow] = _useState(false);
+  const [flowError, setFlowError] = _useState<string | null>(null);
 
   // 🔍 TANSTACK QUERY: Current User (Champion Pattern)
   const userQuery = useQuery({
@@ -127,6 +233,45 @@ export const useAuth = (): UseAuthReturn => {
     ...AUTH_CONFIG,
   });
 
+  // 🔍 TANSTACK QUERY: Flow Capabilities (Integrated from use-auth-flow.hook.ts)
+  const capabilitiesQuery = useQuery({
+    queryKey: authQueryKeys.capabilities(),
+    queryFn: async (): Promise<FlowCapabilities> => {
+      logger.info('Fetching auth flow capabilities (Integrated)', LogCategory.BUSINESS);
+
+      try {
+        const capabilities: FlowCapabilities = {
+          canUseBiometric: false, // TODO: Real biometric check
+          canUseMFA: true,
+          canUseOAuth: true,
+          supportedProviders: ['google', 'apple'],
+        };
+        
+        logger.info('Auth flow capabilities fetched successfully (Integrated)', LogCategory.BUSINESS, { 
+          metadata: {
+            capabilities: JSON.stringify(capabilities)
+          }
+        });
+        
+        return capabilities;
+      } catch (error) {
+        logger.error('Failed to fetch auth flow capabilities (Integrated)', LogCategory.BUSINESS, {}, error as Error);
+        
+        return {
+          canUseBiometric: false,
+          canUseMFA: false,
+          canUseOAuth: false,
+          supportedProviders: [],
+        };
+      }
+    },
+    staleTime: 1000 * 60 * 5,       // 5 minutes for flow capabilities
+    gcTime: 1000 * 60 * 15,         // 15 minutes garbage collection
+    retry: 0,                       // No retry for capabilities
+    refetchOnWindowFocus: false,    // Battery-friendly
+    refetchOnReconnect: false,      // No network dependency
+  });
+
   // 🏆 CHAMPION MUTATION: Login (Optimistic Updates)
   const loginMutation = useMutation({
     mutationFn: async ({ email, password }: { email: string; password: string }): Promise<AuthUser> => {
@@ -167,12 +312,28 @@ export const useAuth = (): UseAuthReturn => {
         // 🔒 GDPR Audit: Failure
         await authGDPRAuditService.logLoginFailure(email, (error as Error).message, 1, { correlationId });
         
-        logger.error('Login failed (Champion)', LogCategory.BUSINESS, { 
-          correlationId,
-          metadata: {
-            email
-          }
-        }, error as Error);
+        // 🎯 UX FIX: Unterscheide zwischen Business-Fehlern und technischen Fehlern
+        // Business-Fehler sind erwartete User-Szenarien und sollten keine Console-Errors triggern
+        if (isBusinessError(error as Error)) {
+          logger.warn('Login failed - Business Error (Champion)', LogCategory.BUSINESS, { 
+            correlationId,
+            metadata: {
+              email,
+              errorType: (error as Error).constructor.name,
+              isBusinessError: true
+            }
+          });
+        } else {
+          // Nur echte technische Fehler als Errors loggen
+          logger.error('Login failed - Technical Error (Champion)', LogCategory.BUSINESS, { 
+            correlationId,
+            metadata: {
+              email,
+              errorType: (error as Error).constructor.name,
+              isBusinessError: false
+            }
+          }, error as Error);
+        }
         
         throw error;
       }
@@ -208,7 +369,22 @@ export const useAuth = (): UseAuthReturn => {
         queryClient.setQueryData(authQueryKeys.user(), context.previousUser);
       }
       
-      logger.error('Login optimistic update failed, reverted (Champion)', LogCategory.BUSINESS, {}, error as Error);
+      // 🎯 UX FIX: Business-Fehler nicht als Console-Errors loggen
+      if (isBusinessError(error as Error)) {
+        logger.warn('Login optimistic update failed, reverted - Business Error (Champion)', LogCategory.BUSINESS, {
+          metadata: {
+            errorType: (error as Error).constructor.name,
+            isBusinessError: true
+          }
+        });
+      } else {
+        logger.error('Login optimistic update failed, reverted - Technical Error (Champion)', LogCategory.BUSINESS, {
+          metadata: {
+            errorType: (error as Error).constructor.name,
+            isBusinessError: false
+          }
+        }, error as Error);
+      }
     },
   });
 
@@ -333,7 +509,11 @@ export const useAuth = (): UseAuthReturn => {
   const user = userQuery.data || null;
   const isAuthenticated = !!user;
   const isLoading = userQuery.isLoading;
-  const error = userQuery.error?.message || null;
+  
+  // 🏆 ERROR MAPPING: Convert technical errors to user-friendly German messages
+  const error = userQuery.error ? mapAuthErrorToUserMessage(userQuery.error, t) : null;
+  const loginError = loginMutation.error ? mapAuthErrorToUserMessage(loginMutation.error, t) : null;
+  const registerError = registerMutation.error ? mapAuthErrorToUserMessage(registerMutation.error, t) : null;
 
   // 🏆 CHAMPION ACTIONS
   const login = useCallback(async (email: string, password: string): Promise<AuthUser> => {
@@ -396,6 +576,72 @@ export const useAuth = (): UseAuthReturn => {
     queryClient.setQueryData(authQueryKeys.user(), null);
   }, [queryClient]);
 
+  // 🏆 FLOW MANAGEMENT FUNCTIONS (Integrated from use-auth-flow.hook.ts)
+  const startLogin = useCallback(async (credentials: LoginCredentials): Promise<void> => {
+    setIsExecutingFlow(true);
+    setFlowError(null);
+    setCurrentFlowState(AuthFlowState.LOGIN);
+    
+    try {
+      const result = await login(credentials.email, credentials.password);
+      setCurrentFlowState(AuthFlowState.SUCCESS);
+      
+      logger.info('Flow login completed successfully (Integrated)', LogCategory.BUSINESS, { 
+        metadata: {
+          userId: result.id
+        }
+      });
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Login flow failed';
+      setFlowError(errorMessage);
+      setCurrentFlowState(AuthFlowState.ERROR);
+      throw error;
+    } finally {
+      setIsExecutingFlow(false);
+    }
+  }, [login]);
+
+  const startRegister = useCallback(async (data: RegisterData): Promise<void> => {
+    setIsExecutingFlow(true);
+    setFlowError(null);
+    setCurrentFlowState(AuthFlowState.REGISTER);
+    
+    try {
+      await register(data.email, data.password, data.password);
+      setCurrentFlowState(AuthFlowState.SUCCESS);
+      
+      logger.info('Flow register completed successfully (Integrated)', LogCategory.BUSINESS, { 
+        metadata: {
+          email: data.email
+        }
+      });
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Register flow failed';
+      setFlowError(errorMessage);
+      setCurrentFlowState(AuthFlowState.ERROR);
+      throw error;
+    } finally {
+      setIsExecutingFlow(false);
+    }
+  }, [register]);
+
+  const resetFlow = useCallback(() => {
+    logger.info('Resetting auth flow (Integrated)', LogCategory.BUSINESS);
+    
+    setCurrentFlowState(AuthFlowState.IDLE);
+    setIsExecutingFlow(false);
+    setFlowError(null);
+  }, []);
+
+  const checkCapabilities = useCallback(async (): Promise<FlowCapabilities> => {
+    return capabilitiesQuery.data || {
+      canUseBiometric: false,
+      canUseMFA: false,
+      canUseOAuth: false,
+      supportedProviders: [],
+    };
+  }, [capabilitiesQuery.data]);
+
   return {
     // 🏆 Core Auth Data
     user,
@@ -407,10 +653,10 @@ export const useAuth = (): UseAuthReturn => {
     isRegistering: registerMutation.isPending,
     isLoggingOut: logoutMutation.isPending,
     
-    // 🏆 Error Handling
+    // 🏆 Error Handling - User-friendly German messages
     error,
-    loginError: loginMutation.error?.message || null,
-    registerError: registerMutation.error?.message || null,
+    loginError,
+    registerError,
     
     // 🏆 Champion Actions
     login,
@@ -422,6 +668,16 @@ export const useAuth = (): UseAuthReturn => {
     checkAuthStatus,
     getCurrentUser,
     clearError,
+    
+    // 🏆 Flow Management (Integrated from use-auth-flow.hook.ts)
+    currentFlowState,
+    flowCapabilities: capabilitiesQuery.data || null,
+    isExecutingFlow,
+    flowError,
+    startLogin,
+    startRegister,
+    resetFlow,
+    checkCapabilities,
     
     // 🏆 Legacy Compatibility
     resetAuth,

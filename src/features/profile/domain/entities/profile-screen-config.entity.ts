@@ -8,6 +8,7 @@
  * @enum FeatureFlag - Available feature flags for profile screen
  */
 export enum ProfileScreenFeatureFlag {
+  // Background Functionality Flags
   ENABLE_ANALYTICS = 'enable_analytics',
   ENABLE_OFFLINE_MODE = 'enable_offline_mode',
   ENABLE_REAL_TIME = 'enable_real_time',
@@ -15,7 +16,14 @@ export enum ProfileScreenFeatureFlag {
   ENABLE_CUSTOM_FIELDS = 'enable_custom_fields',
   ENABLE_AVATAR_UPLOAD = 'enable_avatar_upload',
   ENABLE_EXPORT = 'enable_export',
-  ENABLE_PERFORMANCE_MONITORING = 'enable_performance_monitoring'
+  ENABLE_PERFORMANCE_MONITORING = 'enable_performance_monitoring',
+
+  // Screen-Level Feature Flags (Build-Time Configuration)
+  ENABLE_ACCOUNT_SETTINGS = 'enable_account_settings',
+  ENABLE_CUSTOM_FIELDS_EDIT = 'enable_custom_fields_edit',
+  ENABLE_PRIVACY_SETTINGS = 'enable_privacy_settings',
+  ENABLE_SKILLS_MANAGEMENT = 'enable_skills_management',
+  ENABLE_SOCIAL_LINKS_EDIT = 'enable_social_links_edit'
 }
 
 /**
@@ -132,6 +140,7 @@ export class ProfileScreenConfiguration {
          // Initialize default feature flags
      this._featureFlags = {
        flags: {
+         // Background Functionality Flags
          [ProfileScreenFeatureFlag.ENABLE_ANALYTICS]: true,
          [ProfileScreenFeatureFlag.ENABLE_OFFLINE_MODE]: true,
          [ProfileScreenFeatureFlag.ENABLE_REAL_TIME]: false,
@@ -139,7 +148,14 @@ export class ProfileScreenConfiguration {
          [ProfileScreenFeatureFlag.ENABLE_CUSTOM_FIELDS]: true,
          [ProfileScreenFeatureFlag.ENABLE_AVATAR_UPLOAD]: true,
          [ProfileScreenFeatureFlag.ENABLE_EXPORT]: false,
-         [ProfileScreenFeatureFlag.ENABLE_PERFORMANCE_MONITORING]: true
+         [ProfileScreenFeatureFlag.ENABLE_PERFORMANCE_MONITORING]: true,
+
+         // Screen-Level Feature Flags (Build-Time Configuration)
+         [ProfileScreenFeatureFlag.ENABLE_ACCOUNT_SETTINGS]: true,
+         [ProfileScreenFeatureFlag.ENABLE_CUSTOM_FIELDS_EDIT]: true,
+         [ProfileScreenFeatureFlag.ENABLE_PRIVACY_SETTINGS]: true,
+         [ProfileScreenFeatureFlag.ENABLE_SKILLS_MANAGEMENT]: true,
+         [ProfileScreenFeatureFlag.ENABLE_SOCIAL_LINKS_EDIT]: true
        },
        overrides: {},
        experiments: {},

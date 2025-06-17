@@ -31,7 +31,7 @@
  * @since 2025-01-23
  */
 
-import { CalculateProfileCompletionUseCase } from '../../../application/usecases/calculate-profile-completion.usecase';
+import { CalculateProfileCompletionUseCase } from '../../../application/use-cases/completion/calculate-profile-completion.usecase';
 import { UserProfile } from '../../../domain/entities/user-profile.entity';
 
 // =============================================================================

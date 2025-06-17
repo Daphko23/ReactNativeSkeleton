@@ -22,6 +22,10 @@ import { AppInitializer } from '@core/app/app-initializer.component';
 // Import i18n configuration
 import './core/i18n/i18n';
 
+// Import and configure LogBox to filter expected business errors
+import { configureLogBox } from './core/config/logbox.config';
+configureLogBox();
+
 /**
  * React Query Client Configuration
  * 
@@ -158,7 +162,7 @@ const linking = {
  * @architecture
  * Provider Hierarchy (from outermost to innermost):
  * 1. ErrorBoundary - Global error handling and recovery
- * 2. SafeAreaProvider - Safe area context for notch/status bar handling
+ * 2. SafeAreaView - Safe area handling for notch/status bar
  * 3. QueryClientProvider - React Query state management
  * 4. ThemeProvider - Theme context and styling system
  * 5. PaperProvider - React Native Paper UI components
@@ -193,7 +197,7 @@ const linking = {
  * @dependencies
  * - react: Core React library
  * - react-native-paper: Material Design components
- * - react-native-safe-area-context: Safe area handling
+ * - react-native: Safe area handling with native SafeAreaView
  * - @tanstack/react-query: State management and caching
  * - ./core/theme/theme.system: Custom theming system
  * - ./core/navigation/app-navigator: Navigation configuration

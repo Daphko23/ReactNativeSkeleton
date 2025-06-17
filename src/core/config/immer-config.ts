@@ -5,13 +5,24 @@
  */
 
 import { enableMapSet } from 'immer';
+import { LoggerFactory } from '@core/logging/logger.factory';
+import { LogCategory } from '@core/logging/logger.service.interface';
+
+// Logger for Immer configuration
+const logger = LoggerFactory.createServiceLogger('ImmerConfig');
 
 // Global Immer Plugin-Initialisierung
-console.log('🔧 Initializing Immer plugins...');
+logger.info('Initializing Immer plugins', LogCategory.BUSINESS, {
+  service: 'ImmerConfig',
+  metadata: { pluginType: 'MapSet', stage: 'initialization' }
+});
 
 // Enable MapSet Plugin für Set/Map Support in Zustand Stores
 enableMapSet();
 
-console.log('✅ Immer MapSet plugin enabled globally');
+logger.info('Immer MapSet plugin enabled globally', LogCategory.BUSINESS, {
+  service: 'ImmerConfig',
+  metadata: { pluginType: 'MapSet', enabled: true, stage: 'completed' }
+});
 
 export const immerInitialized = true; 

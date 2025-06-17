@@ -58,7 +58,7 @@ import {
 
 import { useProfileScreen } from '../../hooks/use-profile-screen.hook';
 import { useAuth } from '@features/auth/presentation/hooks';
-import { EnterpriseAlert } from '../../../../../shared/components/alert';
+import { EnterpriseAlert } from '@shared/components/alert';
 import {
   ProfileHeader,
   ProfileActions,
@@ -69,6 +69,7 @@ import {
   ProfileSkeleton,
 } from '../../components';
 import { createProfileScreenStyles } from './profile.screen.styles';
+import { PROFILE_CONSTANTS } from '../../constants/profile.constants';
 
 /**
  * Props interface for the ProfileScreen component
@@ -220,14 +221,11 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({ navigation, route:
     isRefreshing: refreshing,
   } = ui;
 
-  // 🏆 CHAMPION: Auth Hook für Logout
-  const { logout } = useAuth();
+  // 🏆 CHAMPION: Auth Hook für Logout UND User Data
+  const { logout, user: currentUser } = useAuth();
 
   // 🏆 CHAMPION: Styles mit Theme
   const styles = useMemo(() => createProfileScreenStyles(theme), [theme]);
-
-  // 🎯 COMPUTED VALUES für Backward Compatibility
-  const currentUser = null; // TODO: Get from auth if needed
   const avatarUrl = avatar?.url || null;
   const hasAvatar = !!avatarUrl;
   const shouldShowSkeleton = isAvatarLoading;
@@ -241,22 +239,11 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({ navigation, route:
   const isLoading = isAnyLoading;
   const _hasError = hasAnyError;
   
-  // 🚨 ENTFERNT: Navigation Actions kommen jetzt aus Hook
-  // const navigateToSkillsManagement = () => {
-  //   console.log('Navigate to Skills Management');
-  // };
-  
-  // const navigateToSocialLinksEdit = () => {
-  //   console.log('Navigate to Social Links Edit');
-  // };
-
-  // Import original constants
-  const { PROFILE_CONSTANTS } = require('../constants/profile.constants');
-  const testIds = PROFILE_CONSTANTS.TEST_IDS;
 
   // Auth Hook für Logout Funktionalität
   const { isLoading: isAuthLoading } = useAuth();
 
+  const testIds = PROFILE_CONSTANTS.TEST_IDS;
   /**
    * Secure logout handler with enterprise-grade confirmation and error handling
    * 

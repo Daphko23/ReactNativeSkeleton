@@ -13,6 +13,7 @@
 #import "RNPerformance.h"
 #import "RNPerformanceEntry.h"
 #import "RNPerformanceManager.h"
+#import "RNPerformanceUtils.h"
 
 FOUNDATION_EXPORT double react_native_performanceVersionNumber;
 FOUNDATION_EXPORT const unsigned char react_native_performanceVersionString[];

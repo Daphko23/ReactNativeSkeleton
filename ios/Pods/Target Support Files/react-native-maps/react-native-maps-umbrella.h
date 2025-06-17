@@ -10,40 +10,19 @@
 #endif
 #endif
 
-#import "AIRMap.h"
-#import "AIRMapCallout.h"
-#import "AIRMapCalloutManager.h"
-#import "AIRMapCalloutSubview.h"
-#import "AIRMapCalloutSubviewManager.h"
-#import "AIRMapCircle.h"
-#import "AIRMapCircleManager.h"
-#import "AIRMapCoordinate.h"
-#import "AIRMapLocalTile.h"
-#import "AIRMapLocalTileManager.h"
-#import "AIRMapLocalTileOverlay.h"
-#import "AIRMapManager.h"
-#import "AIRMapMarker.h"
-#import "AIRMapMarkerManager.h"
-#import "AIRMapOverlay.h"
-#import "AIRMapOverlayManager.h"
-#import "AIRMapOverlayRenderer.h"
-#import "AIRMapPolygon.h"
-#import "AIRMapPolygonManager.h"
-#import "AIRMapPolyline.h"
-#import "AIRMapPolylineManager.h"
-#import "AIRMapPolylineRenderer.h"
-#import "AIRMapSnapshot.h"
-#import "AIRMapUrlTile.h"
-#import "AIRMapUrlTileCachedOverlay.h"
-#import "AIRMapUrlTileManager.h"
-#import "AIRMapWMSTile.h"
-#import "AIRMapWMSTileManager.h"
-#import "AIRWeakMapReference.h"
-#import "AIRWeakTimerReference.h"
-#import "SMCalloutView.h"
-#import "RCTComponentData+Maps.h"
+#import "RNMapsAirModuleDelegate.h"
+#import "RNMapsHostVewDelegate.h"
+#import "ComponentDescriptors.h"
+#import "EventEmitters.h"
+#import "Props.h"
+#import "RCTComponentViewHelpers.h"
+#import "RNMapsSpecs.h"
+#import "ShadowNodes.h"
+#import "States.h"
+#import "RNMapsSpecsJSI.h"
+#import "UIView+AirMap.h"
 #import "RCTConvert+AirMap.h"
 
-FOUNDATION_EXPORT double react_native_mapsVersionNumber;
-FOUNDATION_EXPORT const unsigned char react_native_mapsVersionString[];
+FOUNDATION_EXPORT double ReactNativeMapsVersionNumber;
+FOUNDATION_EXPORT const unsigned char ReactNativeMapsVersionString[];
 

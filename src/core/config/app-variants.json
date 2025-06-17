@@ -1,0 +1,72 @@
+{
+  "basic": {
+    "name": "Basic Profile App",
+    "description": "Minimal profile functionality for basic users",
+    "features": {
+      "enable_account_settings": true,
+      "enable_custom_fields_edit": false,
+      "enable_privacy_settings": false,
+      "enable_skills_management": false,
+      "enable_social_links_edit": false,
+      "enable_analytics": false,
+      "enable_export": false,
+      "enable_advanced_sharing": false
+    }
+  },
+  "enterprise": {
+    "name": "Enterprise Profile App",
+    "description": "Full feature set for enterprise customers",
+    "features": {
+      "enable_account_settings": true,
+      "enable_custom_fields_edit": true,
+      "enable_privacy_settings": true,
+      "enable_skills_management": true,
+      "enable_social_links_edit": true,
+      "enable_analytics": true,
+      "enable_export": true,
+      "enable_advanced_sharing": true
+    }
+  },
+  "student": {
+    "name": "Student Profile App",
+    "description": "Profile app tailored for students and academia",
+    "features": {
+      "enable_account_settings": true,
+      "enable_custom_fields_edit": true,
+      "enable_privacy_settings": true,
+      "enable_skills_management": true,
+      "enable_social_links_edit": false,
+      "enable_analytics": false,
+      "enable_export": false,
+      "enable_advanced_sharing": false
+    }
+  },
+  "corporate": {
+    "name": "Corporate Profile App",
+    "description": "Profile app for corporate environments with restricted features",
+    "features": {
+      "enable_account_settings": true,
+      "enable_custom_fields_edit": true,
+      "enable_privacy_settings": true,
+      "enable_skills_management": true,
+      "enable_social_links_edit": false,
+      "enable_analytics": true,
+      "enable_export": false,
+      "enable_advanced_sharing": false
+    }
+  },
+  "premium": {
+    "name": "Premium Profile App", 
+    "description": "Premium features for paid subscribers",
+    "features": {
+      "enable_account_settings": true,
+      "enable_custom_fields_edit": true,
+      "enable_privacy_settings": true,
+      "enable_skills_management": true,
+      "enable_social_links_edit": true,
+      "enable_analytics": true,
+      "enable_export": true,
+      "enable_advanced_sharing": true
+    }
+  }
+} 

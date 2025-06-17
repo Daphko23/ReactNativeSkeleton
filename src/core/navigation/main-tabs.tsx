@@ -15,7 +15,7 @@ import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
 import {createStackNavigator} from '@react-navigation/stack';
 import {MainTabParamList, HomeStackParamList} from './navigation.types';
 import {View, Text, TouchableOpacity} from 'react-native';
-import {SafeAreaView} from 'react-native-safe-area-context';
+import {SafeAreaView} from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
 import { useTranslation } from 'react-i18next';
 import { useTheme } from '../theme/theme.system';
@@ -199,8 +199,7 @@ interface HomeScreenProps {
  * - Navigation starting point
  * 
  * @dependencies
- * - react-native: Core React Native components
- * - react-native-safe-area-context: Safe area handling
+ * - react-native: Core React Native components with native SafeAreaView
  * - react-native-vector-icons: Icon system
  * - ../theme/theme.system: Theme integration
  * 
@@ -759,7 +758,7 @@ export default function MainTabNavigator(): React.ReactElement {
  * - @react-navigation/stack: Stack navigation
  * - react-native-vector-icons: Icon system
  * - react-i18next: Internationalization
- * - react-native-safe-area-context: Safe area handling
+ * - react-native: Native SafeAreaView for safe area handling
  * 
  * @see {@link https://reactnavigation.org/docs/bottom-tab-navigator} React Navigation Docs
  * @see {@link https://material.io/components/bottom-navigation} Material Design Guidelines

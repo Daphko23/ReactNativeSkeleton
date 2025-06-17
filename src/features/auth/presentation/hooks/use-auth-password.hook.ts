@@ -190,20 +190,10 @@ export const useAuthPassword = (): UseAuthPasswordReturn => {
       }
 
       try {
-        const updatePasswordUseCase = authContainer.updatePasswordUseCase;
-        const result = await updatePasswordUseCase.execute({
-          currentPassword,
-          newPassword,
-        });
+        // TODO: updatePasswordUseCase was eliminated (642 lines over-engineering removed)
+        // For React Native, implement simplified password update directly in hook
+        throw new Error('Password update feature needs to be reimplemented for React Native (Use Case was over-engineered)');
         
-        logger.info('Password updated successfully (Champion)', LogCategory.SECURITY, { 
-          correlationId,
-          metadata: {
-            success: result.success
-          }
-        });
-        
-        return result.success;
       } catch (error) {
         logger.error('Password update failed (Champion)', LogCategory.SECURITY, { 
           correlationId 

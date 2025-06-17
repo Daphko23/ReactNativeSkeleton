@@ -92,6 +92,9 @@ import { useProfile } from '../../hooks/use-profile.hook';
 import type { AccountSettingsScreenProps } from '../../types';
 import { ACCOUNT_SETTINGS_TEST_IDS } from '../../types';
 
+// Feature Flag Hook Import
+import { useFeatureFlag } from '../../hooks/use-feature-flag.hook';
+
 // =============================================================================
 // TYPES & INTERFACES
 // =============================================================================
@@ -360,6 +363,12 @@ export const AccountSettingsScreen: React.FC<AccountSettingsScreenProps> = ({
    * @description Encapsulates all profile-related data fetching and state management
    */
   const { profile, isLoading, error } = useProfile();
+  
+  /**
+   * Feature flag hook for build-time configuration
+   * @description Provides access to feature flags to conditionally enable/disable screens
+   */
+  const { isScreenEnabled } = useFeatureFlag();
 
   // Simplified account data based on profile
   const profileSummary = React.useMemo(() => {
@@ -442,6 +451,13 @@ export const AccountSettingsScreen: React.FC<AccountSettingsScreenProps> = ({
    */
   const handleNavigateToPrivacy = (): void => {
     console.log('🔐 Navigate to Privacy Settings');
+    
+    // 🚀 FEATURE FLAG GUARD: Only navigate if screen is enabled
+    if (!isScreenEnabled('PrivacySettings')) {
+      console.warn('Privacy Settings screen is disabled by feature flag');
+      return;
+    }
+    
     navigation.navigate('PrivacySettings');
   };
 
@@ -499,13 +515,14 @@ export const AccountSettingsScreen: React.FC<AccountSettingsScreenProps> = ({
               icon: 'account-edit',
               testID: ACCOUNT_SETTINGS_TEST_IDS.EDIT_PROFILE_BUTTON
             },
-            { 
+            // 🚀 FEATURE FLAG GUARD: Only show privacy button if screen is enabled
+            ...(isScreenEnabled('PrivacySettings') ? [{
               id: 'privacy', 
               label: t?.('profile.accountScreen.actions.privacy', { defaultValue: 'Datenschutz-Einstellungen' }) || 'Datenschutz-Einstellungen',
               description: t?.('profile.accountScreen.actions.privacyDesc', { defaultValue: 'Datenschutz verwalten' }) || 'Datenschutz verwalten',
               icon: 'shield-account',
               testID: ACCOUNT_SETTINGS_TEST_IDS.PRIVACY_SETTINGS_BUTTON
-            },
+            }] : []),
           ]}
           onActionPress={(actionId) => {
             switch (actionId) {

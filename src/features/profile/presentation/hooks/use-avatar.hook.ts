@@ -20,7 +20,7 @@ import { useAuth } from '../../../auth/presentation/hooks/use-auth.hook';
 
 // 🏆 ENTERPRISE ARCHITECTURE
 import { avatarDIContainer } from '../../data/di/avatar-di.container';
-import { UploadAvatarUseCase as _UploadAvatarUseCase } from '../../application/usecases/upload-avatar.usecase';
+import { UploadAvatarUseCase as _UploadAvatarUseCase } from '../../application/use-cases/avatar/upload-avatar.usecase';
 
 const logger = LoggerFactory.createServiceLogger('Avatar');
 
@@ -292,17 +292,38 @@ export const useAvatar = (props?: UseAvatarProps): UseAvatarReturn => {
     await avatarQuery.refetch();
   }, [avatarQuery, userId]);
   
-  // 🏆 CHAMPION MOBILE ACTIONS (Simplified)
+  // 🏆 CHAMPION MOBILE ACTIONS (Real Implementation)
   const selectFromGallery = useCallback(async (): Promise<void> => {
     if (!enableImagePicker) return;
     
     logger.info('Opening gallery for avatar selection', LogCategory.BUSINESS, { userId });
     
     try {
-      // Simplified image picker - implementation would use react-native-image-picker
-      // For now, simulate with mock
-      const mockImagePath = 'file://mock-gallery-image.jpg';
-      setSelectedImage(mockImagePath);
+      // 🎯 REAL IMPLEMENTATION: react-native-image-picker
+      const { launchImageLibrary } = require('react-native-image-picker');
+      
+      const options = {
+        mediaType: 'photo' as const,
+        includeBase64: false,
+        maxHeight: 1000,
+        maxWidth: 1000,
+        quality: 0.8,
+      };
+      
+      launchImageLibrary(options, (response: any) => {
+        if (response.didCancel || response.errorMessage) {
+          if (response.errorMessage) {
+            logger.error('Gallery selection failed', LogCategory.BUSINESS, { userId }, new Error(response.errorMessage));
+          }
+          return;
+        }
+        
+        if (response.assets && response.assets[0]) {
+          const imageUri = response.assets[0].uri;
+          logger.info('Image selected from gallery', LogCategory.BUSINESS, { userId });
+          setSelectedImage(imageUri);
+        }
+      });
     } catch (error) {
       logger.error('Gallery selection failed', LogCategory.BUSINESS, { userId }, error as Error);
       
@@ -319,10 +340,31 @@ export const useAvatar = (props?: UseAvatarProps): UseAvatarReturn => {
     logger.info('Opening camera for avatar capture', LogCategory.BUSINESS, { userId });
     
     try {
-      // Simplified camera picker - implementation would use react-native-image-picker
-      // For now, simulate with mock
-      const mockImagePath = 'file://mock-camera-image.jpg';
-      setSelectedImage(mockImagePath);
+      // 🎯 REAL IMPLEMENTATION: react-native-image-picker  
+      const { launchCamera } = require('react-native-image-picker');
+      
+      const options = {
+        mediaType: 'photo' as const,
+        includeBase64: false,
+        maxHeight: 1000,
+        maxWidth: 1000,
+        quality: 0.8,
+      };
+      
+      launchCamera(options, (response: any) => {
+        if (response.didCancel || response.errorMessage) {
+          if (response.errorMessage) {
+            logger.error('Camera capture failed', LogCategory.BUSINESS, { userId }, new Error(response.errorMessage));
+          }
+          return;
+        }
+        
+        if (response.assets && response.assets[0]) {
+          const imageUri = response.assets[0].uri;
+          logger.info('Image captured from camera', LogCategory.BUSINESS, { userId });
+          setSelectedImage(imageUri);
+        }
+      });
     } catch (error) {
       logger.error('Camera capture failed', LogCategory.BUSINESS, { userId }, error as Error);
       
