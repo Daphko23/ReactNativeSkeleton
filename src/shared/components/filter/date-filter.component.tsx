@@ -347,7 +347,7 @@ const styles = StyleSheet.create({
   label: {
     color: colors.text,
     marginBottom: spacing.xs,
-    ...typography.label,
+    ...typography.labelText.medium,
   },
 });
 

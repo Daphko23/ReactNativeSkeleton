@@ -65,28 +65,7 @@ export class Result<T = any, E = string> {
   }
 }
 
-/**
- * 🏗️ LEGACY COMPATIBILITY LAYER
- * 
- * @deprecated Use Result.success() and Result.error() instead
- * This will be removed in future versions
- */
-export class ResultFactory {
-  /**
-   * @deprecated Use Result.success() instead
-   */
-  static success<T>(value: T): Result<T> {
-    return Result.success(value);
-  }
 
-  /**
-   * @deprecated Use Result.error() instead
-   */
-  static failure<T>(error: Error | string): Result<T, string> {
-    const errorMessage = error instanceof Error ? error.message : error;
-    return Result.error<T>(errorMessage);
-  }
-}
 
 /**
  * 🎯 TYPE ALIASES for common patterns

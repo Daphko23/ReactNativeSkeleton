@@ -13,7 +13,7 @@ export const styles = StyleSheet.create({
     padding: spacing.md,
   },
   title: {
-    ...typography.label,
+    ...typography.labelText.medium,
     color: colors.primary,
     fontSize: 16,
     fontWeight: 'bold',

@@ -147,30 +147,5 @@ export const typography = {
     lineHeight: 22,
   },
   
-  // ==========================================
-  // 🔢 LEGACY COMPATIBILITY (DEPRECATED)
-  // ==========================================
-  /** @deprecated Use heading.h3 instead */
-  titleLarge: {
-    fontSize: 24,
-    fontWeight: 'bold' as const,
-  },
-  
-  /** @deprecated Use labelText.medium instead */
-  label: {
-    fontSize: 14,
-    fontWeight: '500' as const,
-  },
-  
-  /** @deprecated Use text.regular instead */
-  body: {
-    fontSize: 16,
-    fontWeight: '400' as const,
-  },
-  
-  /** @deprecated Use buttonText.medium instead */
-  button: {
-    fontSize: 16,
-    fontWeight: '600' as const,
-  },
+
 };

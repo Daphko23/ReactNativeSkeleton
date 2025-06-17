@@ -9,7 +9,7 @@
 import { ISecurityRepository } from '../../../domain/interfaces/security/security-repository.interface';
 import { LoggerFactory } from '../../../../../core/logging/logger.factory';
 import { LogCategory } from '../../../../../core/logging/logger.service.interface';
-import { Result, ResultFactory as _ResultFactory } from '../../../../../core/types/result.type';
+import { Result } from '../../../../../core/types/result.type';
 import { SecurityThreat, ThreatType as _ThreatType } from '../../../domain/interfaces/security/security-repository.interface';
 
 // Add ThreatLevel export

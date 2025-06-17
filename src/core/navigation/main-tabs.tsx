@@ -227,7 +227,7 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
       {/* Quick Actions */}
       <View style={{width: '100%', maxWidth: 300}}>
         
-        {/* Theme Demo Access - Direkte Navigation zum ThemeDemoScreen */}
+        {/* App Features Info - Removed Demo Navigation */}
         <TouchableOpacity 
           style={{
             backgroundColor: theme.colors.primary, 
@@ -237,72 +237,22 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
             flexDirection: 'row',
             alignItems: 'center'
           }}
-          onPress={() => navigation.navigate('ThemeDemo')}
+          onPress={() => {
+            // Navigation zu ProfileTab für Profile-Features
+            const parentNav = navigation.getParent();
+            if (parentNav) {
+              parentNav.navigate('ProfileTab');
+            }
+          }}
           activeOpacity={0.8}
         >
           <Icon name="color-palette" size={24} color="white" style={{marginRight: 12}} />
           <View style={{flex: 1}}>
             <Text style={{color: 'white', fontSize: 16, fontWeight: '600'}}>
-              Theme Demo
+              Profile Features
             </Text>
             <Text style={{color: 'rgba(255,255,255,0.8)', fontSize: 14, marginTop: 2}}>
-              UI Komponenten testen
-            </Text>
-          </View>
-          <Icon name="chevron-forward" size={20} color="white" />
-        </TouchableOpacity>
-
-        {/* Compliance Demo Access - Navigation zu Profile Compliance Demo */}
-        <TouchableOpacity 
-          style={{
-            backgroundColor: '#34C759', 
-            padding: 16, 
-            borderRadius: 12, 
-            marginBottom: 16,
-            flexDirection: 'row',
-            alignItems: 'center'
-          }}
-          onPress={() => {
-            // Navigation direkt zur Compliance Demo
-            navigation.navigate('ProfileCompliance');
-          }}
-          activeOpacity={0.8}
-        >
-          <Icon name="shield-checkmark" size={24} color="white" style={{marginRight: 12}} />
-          <View style={{flex: 1}}>
-            <Text style={{color: 'white', fontSize: 16, fontWeight: '600'}}>
-              Enterprise Compliance
-            </Text>
-            <Text style={{color: 'rgba(255,255,255,0.8)', fontSize: 14, marginTop: 2}}>
-              GDPR • WCAG 2.2 • Observability
-            </Text>
-          </View>
-          <Icon name="chevron-forward" size={20} color="white" />
-        </TouchableOpacity>
-
-        {/* Auth GDPR Demo Access - Navigation zu Auth GDPR Demo */}
-        <TouchableOpacity 
-          style={{
-            backgroundColor: '#007AFF', 
-            padding: 16, 
-            borderRadius: 12, 
-            marginBottom: 16,
-            flexDirection: 'row',
-            alignItems: 'center'
-          }}
-          onPress={() => {
-            // Navigation direkt zur Auth GDPR Demo
-            navigation.navigate('AuthGDPRDemo');
-          }}
-          activeOpacity={0.8}
-        >
-          <Icon name="lock-closed" size={24} color="white" style={{marginRight: 12}} />
-          <View style={{flex: 1}}>
-            <Text style={{color: 'white', fontSize: 16, fontWeight: '600'}}>
-              Auth GDPR Demo
-            </Text>
-            <Text style={{color: 'rgba(255,255,255,0.8)', fontSize: 14, marginTop: 2}}>
-              Authentication • GDPR Audit
+              Profil verwalten & anpassen
             </Text>
           </View>
           <Icon name="chevron-forward" size={20} color="white" />

@@ -9,7 +9,7 @@
 import { ISecurityRepository } from '../../../domain/interfaces/security/security-repository.interface';
 import { LoggerFactory } from '../../../../../core/logging/logger.factory';
 import { LogCategory } from '../../../../../core/logging/logger.service.interface';
-import { Result, ResultFactory } from '../../../../../core/types/result.type';
+import { Result } from '../../../../../core/types/result.type';
 import {
   SecurityProfile,
   SecurityAction,
@@ -738,45 +738,37 @@ export class ManageSecurityEnterpriseUseCase {
    * ✅ VALIDATE REQUEST
    */
   private validateRequest(request: ManageSecurityRequest): Result<void> {
-    if (!request.userId) {
-      return ResultFactory.failure(new Error('User ID is required'));
+    const { userId, action } = request;
+    const actionId = request.parameters?.actionId as string;
+    const deviceAction = request.parameters?.deviceAction as string;
+    const sessionAction = request.parameters?.sessionAction as string;
+    const mfaAction = request.parameters?.mfaAction as string;
+
+    if (!userId) {
+      return Result.error('User ID is required');
+    }
+    if (!action) {
+      return Result.error('Action is required');
     }
 
-    if (!request.action) {
-      return ResultFactory.failure(new Error('Action is required'));
+    // Check specific action requirements
+    if (action === 'EXECUTE_SECURITY_ACTION' && !actionId) {
+      return Result.error('Action ID is required for EXECUTE_SECURITY_ACTION');
     }
 
-    // Validate action-specific parameters
-    switch (request.action) {
-      case 'EXECUTE_SECURITY_ACTION': {
-        if (!request.parameters?.actionId) {
-          return ResultFactory.failure(new Error('Action ID is required for EXECUTE_SECURITY_ACTION'));
-        }
-        break;
-      }
-
-      case 'MANAGE_DEVICES': {
-        if (!request.parameters?.deviceAction) {
-          return ResultFactory.failure(new Error('Device action is required for MANAGE_DEVICES'));
-        }
-        break;
-      }
-
-      case 'MANAGE_SESSIONS': {
-        if (!request.parameters?.sessionAction) {
-          return ResultFactory.failure(new Error('Session action is required for MANAGE_SESSIONS'));
-        }
-        break;
-      }
-
-      case 'MANAGE_MFA': {
-        if (!request.parameters?.mfaAction) {
-          return ResultFactory.failure(new Error('MFA action is required for MANAGE_MFA'));
-        }
-        break;
-      }
+    if (action === 'MANAGE_DEVICES' && !deviceAction) {
+      return Result.error('Device action is required for MANAGE_DEVICES');
     }
 
-    return ResultFactory.success(undefined);
+    if (action === 'MANAGE_SESSIONS' && !sessionAction) {
+      return Result.error('Session action is required for MANAGE_SESSIONS');
+    }
+
+    if (action === 'MANAGE_MFA' && !mfaAction) {
+      return Result.error('MFA action is required for MANAGE_MFA');
+    }
+    
+    // All validation passed
+    return Result.success(undefined);
   }
 }
