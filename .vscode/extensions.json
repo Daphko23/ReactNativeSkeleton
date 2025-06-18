@@ -1,0 +1,35 @@
+{
+  "recommendations": [
+    // Code Formatierung
+    "esbenp.prettier-vscode",
+    "dbaeumer.vscode-eslint",
+    
+    // TypeScript & React
+    "ms-vscode.vscode-typescript-next",
+    "bradlc.vscode-tailwindcss",
+    "ms-vscode.vscode-json",
+    
+    // React Native
+    "msjsdiag.vscode-react-native",
+    "ms-react-native.vscode-react-native-preview",
+    
+    // Utility Extensions
+    "ms-vscode.vscode-npm-script",
+    "christian-kohler.npm-intellisense",
+    "christian-kohler.path-intellisense",
+    "formulahendry.auto-rename-tag",
+    "bradlc.vscode-styled-components",
+    
+    // Git
+    "eamodio.gitlens",
+    
+    // Testing
+    "orta.vscode-jest",
+    
+    // Markdown
+    "yzhang.markdown-all-in-one",
+    
+    // Theme (optional)
+    "GitHub.github-vscode-theme"
+  ]
+}

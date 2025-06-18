@@ -100,7 +100,7 @@ describe('LogoutUseCase - UC-024', () => {
 
       await expect(useCase.execute()).resolves.toBeUndefined();
       
-      expect(console.warn).toHaveBeenCalledWith('Logout error:', networkError);
+      expect(console.warn).toHaveBeenCalledWith('Authentication status check failed:', networkError);
       expect(mockRepository.logout).toHaveBeenCalledTimes(1);
     });
 
@@ -110,7 +110,7 @@ describe('LogoutUseCase - UC-024', () => {
 
       await expect(useCase.execute()).resolves.toBeUndefined();
       
-      expect(console.warn).toHaveBeenCalledWith('Logout error:', serviceError);
+      expect(console.warn).toHaveBeenCalledWith('Authentication status check failed:', serviceError);
     });
 
     it('should handle authentication errors gracefully', async () => {
@@ -119,7 +119,7 @@ describe('LogoutUseCase - UC-024', () => {
 
       await expect(useCase.execute()).resolves.toBeUndefined();
       
-      expect(console.warn).toHaveBeenCalledWith('Logout error:', authError);
+      expect(console.warn).toHaveBeenCalledWith('Authentication status check failed:', authError);
     });
 
     it('should handle timeout errors gracefully', async () => {
@@ -128,7 +128,7 @@ describe('LogoutUseCase - UC-024', () => {
 
       await expect(useCase.execute()).resolves.toBeUndefined();
       
-      expect(console.warn).toHaveBeenCalledWith('Logout error:', timeoutError);
+      expect(console.warn).toHaveBeenCalledWith('Authentication status check failed:', timeoutError);
     });
 
     it('should handle server errors gracefully', async () => {
@@ -137,7 +137,7 @@ describe('LogoutUseCase - UC-024', () => {
 
       await expect(useCase.execute()).resolves.toBeUndefined();
       
-      expect(console.warn).toHaveBeenCalledWith('Logout error:', serverError);
+      expect(console.warn).toHaveBeenCalledWith('Authentication status check failed:', serverError);
     });
 
     it('should handle token revocation errors gracefully', async () => {
@@ -146,7 +146,7 @@ describe('LogoutUseCase - UC-024', () => {
 
       await expect(useCase.execute()).resolves.toBeUndefined();
       
-      expect(console.warn).toHaveBeenCalledWith('Logout error:', tokenError);
+      expect(console.warn).toHaveBeenCalledWith('Authentication status check failed:', tokenError);
     });
 
     it('should handle session invalidation errors gracefully', async () => {
@@ -155,7 +155,7 @@ describe('LogoutUseCase - UC-024', () => {
 
       await expect(useCase.execute()).resolves.toBeUndefined();
       
-      expect(console.warn).toHaveBeenCalledWith('Logout error:', sessionError);
+      expect(console.warn).toHaveBeenCalledWith('Authentication status check failed:', sessionError);
     });
 
     it('should handle storage cleanup errors gracefully', async () => {
@@ -164,7 +164,7 @@ describe('LogoutUseCase - UC-024', () => {
 
       await expect(useCase.execute()).resolves.toBeUndefined();
       
-      expect(console.warn).toHaveBeenCalledWith('Logout error:', storageError);
+      expect(console.warn).toHaveBeenCalledWith('Authentication status check failed:', storageError);
     });
   });
 
@@ -183,7 +183,7 @@ describe('LogoutUseCase - UC-024', () => {
 
       await expect(useCase.execute()).rejects.toThrow('critical: Security breach detected');
       
-      expect(console.warn).toHaveBeenCalledWith('Logout error:', criticalError);
+      expect(console.warn).toHaveBeenCalledWith('Authentication status check failed:', criticalError);
     });
 
     it('should throw critical system errors', async () => {
@@ -216,7 +216,7 @@ describe('LogoutUseCase - UC-024', () => {
 
       await expect(useCase.execute()).resolves.toBeUndefined();
       
-      expect(console.warn).toHaveBeenCalledWith('Logout error:', alreadyLoggedOutError);
+      expect(console.warn).toHaveBeenCalledWith('Authentication status check failed:', alreadyLoggedOutError);
     });
 
     it('should handle offline logout scenario', async () => {
@@ -225,7 +225,7 @@ describe('LogoutUseCase - UC-024', () => {
 
       await expect(useCase.execute()).resolves.toBeUndefined();
       
-      expect(console.warn).toHaveBeenCalledWith('Logout error:', offlineError);
+      expect(console.warn).toHaveBeenCalledWith('Authentication status check failed:', offlineError);
     });
 
     it('should handle logout when session expired', async () => {
@@ -234,7 +234,7 @@ describe('LogoutUseCase - UC-024', () => {
 
       await expect(useCase.execute()).resolves.toBeUndefined();
       
-      expect(console.warn).toHaveBeenCalledWith('Logout error:', expiredSessionError);
+      expect(console.warn).toHaveBeenCalledWith('Authentication status check failed:', expiredSessionError);
     });
 
     it('should handle logout with invalid tokens', async () => {
@@ -243,7 +243,7 @@ describe('LogoutUseCase - UC-024', () => {
 
       await expect(useCase.execute()).resolves.toBeUndefined();
       
-      expect(console.warn).toHaveBeenCalledWith('Logout error:', invalidTokenError);
+      expect(console.warn).toHaveBeenCalledWith('Authentication status check failed:', invalidTokenError);
     });
 
     it('should handle partial logout failure', async () => {
@@ -252,7 +252,7 @@ describe('LogoutUseCase - UC-024', () => {
 
       await expect(useCase.execute()).resolves.toBeUndefined();
       
-      expect(console.warn).toHaveBeenCalledWith('Logout error:', partialFailureError);
+      expect(console.warn).toHaveBeenCalledWith('Authentication status check failed:', partialFailureError);
     });
   });
 
@@ -271,7 +271,7 @@ describe('LogoutUseCase - UC-024', () => {
 
       await expect(useCase.execute()).resolves.toBeUndefined();
       
-      expect(console.warn).toHaveBeenCalledWith('Logout error:', securityError);
+      expect(console.warn).toHaveBeenCalledWith('Authentication status check failed:', securityError);
     });
 
     it('should handle suspicious activity logout', async () => {
@@ -280,7 +280,7 @@ describe('LogoutUseCase - UC-024', () => {
 
       await expect(useCase.execute()).resolves.toBeUndefined();
       
-      expect(console.warn).toHaveBeenCalledWith('Logout error:', suspiciousActivityError);
+      expect(console.warn).toHaveBeenCalledWith('Authentication status check failed:', suspiciousActivityError);
     });
 
     it('should handle account lockout logout', async () => {
@@ -289,7 +289,7 @@ describe('LogoutUseCase - UC-024', () => {
 
       await expect(useCase.execute()).resolves.toBeUndefined();
       
-      expect(console.warn).toHaveBeenCalledWith('Logout error:', lockoutError);
+      expect(console.warn).toHaveBeenCalledWith('Authentication status check failed:', lockoutError);
     });
 
     it('should handle biometric credential cleanup errors', async () => {
@@ -298,7 +298,7 @@ describe('LogoutUseCase - UC-024', () => {
 
       await expect(useCase.execute()).resolves.toBeUndefined();
       
-      expect(console.warn).toHaveBeenCalledWith('Logout error:', biometricError);
+      expect(console.warn).toHaveBeenCalledWith('Authentication status check failed:', biometricError);
     });
   });
 
@@ -327,7 +327,7 @@ describe('LogoutUseCase - UC-024', () => {
 
       await expect(useCase.execute()).resolves.toBeUndefined();
       
-      expect(console.warn).toHaveBeenCalledWith('Logout error:', timeoutError);
+      expect(console.warn).toHaveBeenCalledWith('Authentication status check failed:', timeoutError);
       
       (console.warn as jest.MockedFunction<typeof console.warn>).mockRestore();
     });
@@ -340,7 +340,7 @@ describe('LogoutUseCase - UC-024', () => {
 
       await expect(useCase.execute()).resolves.toBeUndefined();
       
-      expect(console.warn).toHaveBeenCalledWith('Logout error:', memoryError);
+      expect(console.warn).toHaveBeenCalledWith('Authentication status check failed:', memoryError);
       
       (console.warn as jest.MockedFunction<typeof console.warn>).mockRestore();
     });
@@ -369,7 +369,7 @@ describe('LogoutUseCase - UC-024', () => {
 
       await expect(useCase.execute()).resolves.toBeUndefined();
       
-      expect(console.warn).toHaveBeenCalledWith('Logout error:', pendingOpsError);
+      expect(console.warn).toHaveBeenCalledWith('Authentication status check failed:', pendingOpsError);
       
       (console.warn as jest.MockedFunction<typeof console.warn>).mockRestore();
     });
@@ -382,7 +382,7 @@ describe('LogoutUseCase - UC-024', () => {
 
       await expect(useCase.execute()).resolves.toBeUndefined();
       
-      expect(console.warn).toHaveBeenCalledWith('Logout error:', backgroundError);
+      expect(console.warn).toHaveBeenCalledWith('Authentication status check failed:', backgroundError);
       
       (console.warn as jest.MockedFunction<typeof console.warn>).mockRestore();
     });
@@ -444,7 +444,7 @@ describe('LogoutUseCase - UC-024', () => {
 
       await expect(useCase.execute()).resolves.toBeUndefined();
       
-      expect(console.warn).toHaveBeenCalledWith('Logout error:', networkError);
+      expect(console.warn).toHaveBeenCalledWith('Authentication status check failed:', networkError);
       
       (console.warn as jest.MockedFunction<typeof console.warn>).mockRestore();
     });

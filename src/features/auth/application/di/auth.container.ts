@@ -2,29 +2,29 @@
  * @fileoverview AUTH-CONTAINER-001: Enterprise Auth DI Container - Industry Standard 2025
  * @description Application Layer DI Container für Authentication Feature nach Profile Feature Pattern.
  * Implementiert Clean Architecture mit sauberer Dependency Injection für alle Auth Operations.
- * 
+ *
  * @businessRule BR-500: Consistent DI Container pattern across all features
  * @businessRule BR-501: Clean Architecture separation with Application Layer DI
  * @businessRule BR-502: Enterprise service lifecycle management
  * @businessRule BR-503: Testing-friendly dependency injection
- * 
+ *
  * @architecture Clean Architecture Application Layer
  * @architecture Dependency Injection Container Pattern
  * @architecture Lazy Loading für Performance Optimization
  * @architecture Testing utilities für Mock Integration
- * 
+ *
  * @performance Lazy loading für alle Services und UseCases
  * @performance Singleton pattern für Container Instance
  * @performance Memory-efficient service instantiation
- * 
+ *
  * @security Secure service initialization
  * @security Proper error handling in service creation
  * @security Enterprise logging für alle service operations
- * 
+ *
  * @compliance Industry Standard 2025 - Enterprise DI Container
  * @compliance Clean Architecture - Application Layer Pattern
  * @compliance SOLID Principles - Dependency Inversion
- * 
+ *
  * @since 2.1.0
  * @version 2.1.0 - Industry Standard 2025 Compliance
  * @author ReactNativeSkeleton Enterprise Team
@@ -61,7 +61,7 @@ import { GetCurrentUserUseCase } from '../usecases/get-current-user.usecase';
 
 // 🗑️ ELIMINATED USE CASES (5.424 Zeilen Over-Engineering removed):
 // ❌ UpdatePasswordUseCase - deleted (642 lines)
-// ❌ EnableMFAUseCase - deleted (511 lines)  
+// ❌ EnableMFAUseCase - deleted (511 lines)
 // ❌ VerifyMFAUseCase - deleted (607 lines)
 // ❌ EnableBiometricUseCase - deleted (531 lines)
 // ❌ AuthenticateWithBiometricUseCase - deleted (459 lines)
@@ -100,19 +100,19 @@ interface AuthContainerOptions {
 /**
  * @class AuthContainer
  * @description Enterprise Authentication DI Container
- * 
+ *
  * Application Layer Dependency Injection Container für alle Authentication Operations.
  * Implementiert Clean Architecture Pattern mit sauberer Trennung zwischen Domain,
  * Application und Data Layers. Bietet Lazy Loading, Testing Support und Enterprise
  * Configuration Management.
- * 
+ *
  * **Key Features:**
  * - **Clean Architecture**: Saubere Schichtentrennung mit DI Container
  * - **Lazy Loading**: Performance-optimierte Service Instantiation
  * - **Enterprise Features**: MFA, Biometric, OAuth, Compliance, Security
  * - **Testing Support**: Mock injection und Container reset
  * - **Configuration Management**: Environment-specific options
- * 
+ *
  * **Usage Pattern (nach Profile Feature Pattern):**
  * ```typescript
  * // Container Initialization
@@ -121,30 +121,30 @@ interface AuthContainerOptions {
  *   enableMFA: true,
  *   enableBiometric: true
  * });
- * 
+ *
  * // Service Access
  * const loginUseCase = authContainer.loginUseCase;
  * const authService = authContainer.authService;
- * 
+ *
  * // Testing
  * authContainer.setAuthRepository(mockRepository);
  * ```
- * 
+ *
  * @implements Clean Architecture Application Layer Pattern
  * @implements Enterprise DI Container Standards
- * 
+ *
  * @businessRule BR-500: Consistent DI pattern across features
  * @businessRule BR-501: Clean service lifecycle management
  * @businessRule BR-502: Enterprise configuration support
  * @businessRule BR-503: Testing-friendly design
- * 
+ *
  * @since 2.1.0
  */
 class AuthContainer {
   // ==========================================
   // 🏗️ DATA LAYER DEPENDENCIES
   // ==========================================
-  
+
   private _authDatasource: AuthSupabaseDatasource | null = null;
   private _authRepository: AuthRepository | null = null;
   private _biometricService: BiometricAuthServiceImpl | null = null;
@@ -157,13 +157,13 @@ class AuthContainer {
   // ==========================================
   // 🎯 APPLICATION LAYER DEPENDENCIES
   // ==========================================
-  
+
   // AuthOrchestratorService removed - Hooks use Container directly
 
   // ==========================================
   // 🔧 USE CASES (6 Essential UseCases after Over-Engineering Elimination)
   // ==========================================
-  
+
   // Essential Authentication UseCases (React Native-appropriate complexity)
   private _loginWithEmailUseCase: LoginWithEmailUseCase | null = null;
   private _registerWithEmailUseCase: RegisterWithEmailUseCase | null = null;
@@ -186,7 +186,7 @@ class AuthContainer {
   // ==========================================
   // ⚙️ CONFIGURATION & LIFECYCLE
   // ==========================================
-  
+
   private _options: AuthContainerOptions = {};
   private _isInitialized = false;
   private _logger: ILoggerService | null = null;
@@ -198,7 +198,7 @@ class AuthContainer {
   /**
    * @getter authDatasource
    * @description Get Supabase authentication datasource mit lazy initialization
-   * 
+   *
    * @businessRule BR-623: Datasource verfügbar auch ohne Container-Initialisierung
    * @businessRule BR-624: Default Supabase-Client bei fehlender Konfiguration
    */
@@ -219,7 +219,7 @@ class AuthContainer {
           enableAnalytics: false,
         };
       }
-      
+
       this._authDatasource = new AuthSupabaseDatasource();
     }
     return this._authDatasource;
@@ -240,7 +240,7 @@ class AuthContainer {
         logger
       );
       logger?.info('Auth repository initialized', undefined, {
-        service: 'AuthContainer'
+        service: 'AuthContainer',
       });
     }
     return this._authRepository;
@@ -257,7 +257,7 @@ class AuthContainer {
       const logger = this._logger || this.createFallbackLogger();
       this._biometricService = new BiometricAuthServiceImpl(logger);
       logger?.info('Biometric service initialized', undefined, {
-        service: 'AuthContainer'
+        service: 'AuthContainer',
       });
     }
     return this._biometricService;
@@ -273,24 +273,30 @@ class AuthContainer {
       const logger = this._logger || this.createFallbackLogger();
       const oauthConfig = {
         google: {
-          webClientId: process.env.GOOGLE_WEB_CLIENT_ID || 'mock-google-client-id',
-          iosClientId: process.env.GOOGLE_IOS_CLIENT_ID || 'mock-google-ios-client-id',
-          androidClientId: process.env.GOOGLE_ANDROID_CLIENT_ID || 'mock-google-android-client-id'
+          webClientId:
+            process.env.GOOGLE_WEB_CLIENT_ID || 'mock-google-client-id',
+          iosClientId:
+            process.env.GOOGLE_IOS_CLIENT_ID || 'mock-google-ios-client-id',
+          androidClientId:
+            process.env.GOOGLE_ANDROID_CLIENT_ID ||
+            'mock-google-android-client-id',
         },
         apple: {
           clientId: process.env.APPLE_CLIENT_ID || 'mock-apple-client-id',
           redirectUrl: process.env.APPLE_REDIRECT_URL || 'mock-apple-redirect',
-          enabled: true
+          enabled: true,
         },
         microsoft: {
-          clientId: process.env.MICROSOFT_CLIENT_ID || 'mock-microsoft-client-id',
-          redirectUrl: process.env.MICROSOFT_REDIRECT_URL || 'mock-microsoft-redirect',
-          scopes: ['openid', 'profile', 'email']
-        }
+          clientId:
+            process.env.MICROSOFT_CLIENT_ID || 'mock-microsoft-client-id',
+          redirectUrl:
+            process.env.MICROSOFT_REDIRECT_URL || 'mock-microsoft-redirect',
+          scopes: ['openid', 'profile', 'email'],
+        },
       };
       this._oauthService = new OAuthServiceImpl(oauthConfig, logger);
       logger?.info('OAuth service initialized', undefined, {
-        service: 'AuthContainer'
+        service: 'AuthContainer',
       });
     }
     return this._oauthService;
@@ -306,7 +312,7 @@ class AuthContainer {
       const logger = this._logger || this.createFallbackLogger();
       this._mfaService = new MFAServiceImpl(logger);
       logger?.info('MFA service initialized', undefined, {
-        service: 'AuthContainer'
+        service: 'AuthContainer',
       });
     }
     return this._mfaService;
@@ -322,7 +328,7 @@ class AuthContainer {
       const logger = this._logger || this.createFallbackLogger();
       this._passwordPolicyService = new PasswordPolicyServiceImpl(logger);
       logger?.info('Password policy service initialized', undefined, {
-        service: 'AuthContainer'
+        service: 'AuthContainer',
       });
     }
     return this._passwordPolicyService;
@@ -336,49 +342,13 @@ class AuthContainer {
   get advancedSecurityService(): AdvancedSecurityServiceImpl {
     if (!this._advancedSecurityService) {
       const logger = this._logger || this.createFallbackLogger();
-             this._advancedSecurityService = new AdvancedSecurityServiceImpl(
-         logger,
-         {
-           encryption: {
-             algorithm: 'AES-256',
-             keyLength: 256
-           },
-           mfa: {
-             enabled: true,
-             methods: ['totp', 'sms'],
-             backupCodes: 10
-           },
-           session: {
-             timeout: 3600000,
-             maxConcurrent: 5
-           },
-           biometric: {
-             enabled: true,
-             fallbackToPin: true
-           },
-           advancedThreats: {
-             enabled: true,
-             ml: {
-               enabled: true,
-               models: ['anomaly-detection', 'threat-assessment']
-             }
-           },
-           audit: {
-             enabled: true,
-             retention: 90
-           },
-           compliance: {
-             gdpr: true,
-             hipaa: false,
-             sox: false
-           },
-           enableThreatAssessment: true,
-           enableDeviceFingerprinting: true,
-           enableLocationMonitoring: true
-         }
-       );
+      this._advancedSecurityService = new AdvancedSecurityServiceImpl(logger, {
+        enableThreatAssessment: true,
+        enableDeviceFingerprinting: true,
+        enableLocationMonitoring: true,
+      });
       logger?.info('Advanced security service initialized', undefined, {
-        service: 'AuthContainer'
+        service: 'AuthContainer',
       });
     }
     return this._advancedSecurityService;
@@ -392,9 +362,9 @@ class AuthContainer {
   get complianceService(): ComplianceServiceImpl {
     if (!this._complianceService) {
       const logger = this._logger || this.createFallbackLogger();
-             this._complianceService = new ComplianceServiceImpl(logger);
+      this._complianceService = new ComplianceServiceImpl(logger);
       logger?.info('Compliance service initialized', undefined, {
-        service: 'AuthContainer'
+        service: 'AuthContainer',
       });
     }
     return this._complianceService;
@@ -416,7 +386,9 @@ class AuthContainer {
    */
   get loginWithEmailUseCase(): LoginWithEmailUseCase {
     if (!this._loginWithEmailUseCase) {
-      this._loginWithEmailUseCase = new LoginWithEmailUseCase(this.authRepository);
+      this._loginWithEmailUseCase = new LoginWithEmailUseCase(
+        this.authRepository
+      );
     }
     return this._loginWithEmailUseCase;
   }
@@ -427,7 +399,9 @@ class AuthContainer {
    */
   get registerWithEmailUseCase(): RegisterWithEmailUseCase {
     if (!this._registerWithEmailUseCase) {
-      this._registerWithEmailUseCase = new RegisterWithEmailUseCase(this.authRepository);
+      this._registerWithEmailUseCase = new RegisterWithEmailUseCase(
+        this.authRepository
+      );
     }
     return this._registerWithEmailUseCase;
   }
@@ -449,7 +423,9 @@ class AuthContainer {
    */
   get passwordResetUseCase(): PasswordResetUseCase {
     if (!this._passwordResetUseCase) {
-      this._passwordResetUseCase = new PasswordResetUseCase(this.authRepository);
+      this._passwordResetUseCase = new PasswordResetUseCase(
+        this.authRepository
+      );
     }
     return this._passwordResetUseCase;
   }
@@ -460,7 +436,9 @@ class AuthContainer {
    */
   get isAuthenticatedUseCase(): IsAuthenticatedUseCase {
     if (!this._isAuthenticatedUseCase) {
-      this._isAuthenticatedUseCase = new IsAuthenticatedUseCase(this.authRepository);
+      this._isAuthenticatedUseCase = new IsAuthenticatedUseCase(
+        this.authRepository
+      );
     }
     return this._isAuthenticatedUseCase;
   }
@@ -471,14 +449,16 @@ class AuthContainer {
    */
   get getCurrentUserUseCase(): GetCurrentUserUseCase {
     if (!this._getCurrentUserUseCase) {
-      this._getCurrentUserUseCase = new GetCurrentUserUseCase(this.authRepository);
+      this._getCurrentUserUseCase = new GetCurrentUserUseCase(
+        this.authRepository
+      );
     }
     return this._getCurrentUserUseCase;
   }
 
   // 🗑️ ELIMINATED GETTERS (9 Over-Engineering UseCase Getters removed)
   // ❌ updatePasswordUseCase - deleted (UC-007: 642 lines)
-  // ❌ enableMFAUseCase - deleted (UC-008: 511 lines)  
+  // ❌ enableMFAUseCase - deleted (UC-008: 511 lines)
   // ❌ verifyMFAUseCase - deleted (UC-009: 607 lines)
   // ❌ enableBiometricUseCase - deleted (UC-010: 531 lines)
   // ❌ authenticateWithBiometricUseCase - deleted (UC-011: 459 lines)
@@ -486,7 +466,7 @@ class AuthContainer {
   // ❌ hasPermissionUseCase - deleted (UC-013: 703 lines)
   // ❌ getActiveSessionsUseCase - deleted (UC-014: 656 lines)
   // ❌ checkSuspiciousActivityUseCase - deleted (UC-015: 691 lines)
-  
+
   // ✅ REMAINING: 6 Essential Use Cases for React Native
 
   // ==========================================
@@ -496,11 +476,11 @@ class AuthContainer {
   /**
    * @method initialize
    * @description Initialize Auth Container mit Enterprise Configuration
-   * 
+   *
    * @param {AuthContainerOptions} options - Container configuration options
    * @param {ILoggerService} logger - Enterprise logger service
    * @returns {Promise<void>} Promise resolving when initialization complete
-   * 
+   *
    * @example Container Initialization
    * ```typescript
    * await authContainer.initialize({
@@ -513,7 +493,7 @@ class AuthContainer {
    * ```
    */
   async initialize(
-    options: AuthContainerOptions = {}, 
+    options: AuthContainerOptions = {},
     logger?: ILoggerService
   ): Promise<void> {
     if (this._isInitialized) {
@@ -538,14 +518,14 @@ class AuthContainer {
     // AuthOrchestratorService removed - No longer needed for initialization
 
     this._isInitialized = true;
-    
+
     this._logger?.info('Auth Container initialized successfully', undefined, {
       service: 'AuthContainer',
       metadata: {
         options: this._options,
         useCasesCount: 6, // Reduced from 15 (9 over-engineered use cases eliminated)
-        servicesCount: 7
-      }
+        servicesCount: 7,
+      },
     });
   }
 
@@ -553,10 +533,10 @@ class AuthContainer {
    * @method isReady
    * @description Check if container is initialized and ready
    * @returns {boolean} True if container is ready for use
-   * 
+   *
    * RACE-CONDITION FIX: Container ist IMMER ready - Services werden lazy initialisiert
    * Das vermeidet Race-Conditions zwischen App-Initialization und Hook-Usage
-   * 
+   *
    * @businessRule BR-620: Container bereit ohne vollständige Initialisierung
    * @businessRule BR-621: Lazy service initialization on demand
    * @businessRule BR-622: Graceful fallback zu Default-Konfiguration
@@ -589,32 +569,58 @@ class AuthContainer {
   private createFallbackLogger(): ILoggerService {
     // 🏆 ENTERPRISE FIX: Use proper Logger Factory instead of console.*
     const logger = LoggerFactory.createServiceLogger('AuthContainerFallback');
-    
+
     return {
       info: (message: string, category?: any, context?: any) => {
-        logger.info(`[AuthContainer] ${message}`, category || LogCategory.BUSINESS, { metadata: context });
+        logger.info(
+          `[AuthContainer] ${message}`,
+          category || LogCategory.BUSINESS,
+          { metadata: context }
+        );
       },
       warn: (message: string, category?: any, context?: any) => {
-        logger.warn(`[AuthContainer] ${message}`, category || LogCategory.BUSINESS, { metadata: context });
+        logger.warn(
+          `[AuthContainer] ${message}`,
+          category || LogCategory.BUSINESS,
+          { metadata: context }
+        );
       },
-      error: (message: string, category?: any, context?: any, error?: Error) => {
+      error: (
+        message: string,
+        category?: any,
+        context?: any,
+        error?: Error
+      ) => {
         // 🎯 UX FIX: Unterscheide zwischen Business-Fehlern und technischen Fehlern
         if (error && isBusinessError(error)) {
           // Business-Fehler als Warnings loggen, nicht als Console-Errors
-          logger.warn(`[AuthContainer] ${message} (Business Error)`, category || LogCategory.BUSINESS, { metadata: context });
+          logger.warn(
+            `[AuthContainer] ${message} (Business Error)`,
+            category || LogCategory.BUSINESS,
+            { metadata: context }
+          );
         } else {
           // Nur echte technische Fehler als Console-Errors
-          logger.error(`[AuthContainer] ${message}`, category || LogCategory.BUSINESS, { metadata: context }, error);
+          logger.error(
+            `[AuthContainer] ${message}`,
+            category || LogCategory.BUSINESS,
+            { metadata: context },
+            error
+          );
         }
       },
       debug: (message: string, category?: any, context?: any) => {
-        logger.debug(`[AuthContainer] ${message}`, category || LogCategory.BUSINESS, { metadata: context });
+        logger.debug(
+          `[AuthContainer] ${message}`,
+          category || LogCategory.BUSINESS,
+          { metadata: context }
+        );
       },
       logSecurity: (message: string, securityContext: any, context?: any) => {
-        logger.info(`[AuthContainer] ${message}`, LogCategory.SECURITY, { 
-          metadata: { securityContext, ...context }
+        logger.info(`[AuthContainer] ${message}`, LogCategory.SECURITY, {
+          metadata: { securityContext, ...context },
         });
-      }
+      },
     } as ILoggerService;
   }
 
@@ -659,7 +665,7 @@ class AuthContainer {
     this._passwordResetUseCase = null;
     this._isAuthenticatedUseCase = null;
     this._getCurrentUserUseCase = null;
-    
+
     // 🗑️ ELIMINATED RESET (9 Over-Engineering UseCase resets removed)
     // ❌ this._updatePasswordUseCase = null;
     // ❌ this._enableMFAUseCase = null;
@@ -675,7 +681,7 @@ class AuthContainer {
   /**
    * @method reset
    * @description Reset all container dependencies (für Testing)
-   * 
+   *
    * @example Testing Reset
    * ```typescript
    * beforeEach(() => {
@@ -713,11 +719,11 @@ class AuthContainer {
 /**
  * @constant authContainer
  * @description Singleton Auth Container Instance
- * 
+ *
  * Globale Singleton-Instanz des Auth Containers für konsistente
  * Dependency Injection im gesamten Auth Feature. Folgt dem
  * Profile Feature Pattern für einheitliche Architektur.
- * 
+ *
  * @example Auth Container Usage
  * ```typescript
  * // Initialization
@@ -725,15 +731,15 @@ class AuthContainer {
  *   enableAdvancedSecurity: true,
  *   enableMFA: true
  * }, logger);
- * 
+ *
  * // UseCase Access
  * const loginUseCase = authContainer.loginWithEmailUseCase;
  * const user = await loginUseCase.execute({ email, password });
- * 
+ *
  * // Service Access
  * const authService = authContainer.authOrchestratorService;
  * ```
- * 
+ *
  * @since 2.1.0
  */
 export const authContainer = new AuthContainer();
@@ -748,4 +754,4 @@ export { AuthContainer };
  * @type AuthContainerOptions
  * @description Configuration options export
  */
-export type { AuthContainerOptions }; 
+export type { AuthContainerOptions };

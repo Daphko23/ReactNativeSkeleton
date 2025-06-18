@@ -1,0 +1,822 @@
+/**
+ * @file use-auth-flow.hook.test.ts
+ * @description Comprehensive tests for useAuthFlow Hook
+ * Tests authentication flow orchestration, state management, and enterprise compliance
+ */
+
+import React from 'react';
+import { renderHook, act } from '@testing-library/react-native';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { useAuthFlow } from '../../../presentation/hooks/use-auth-flow.hook';
+
+// Mock the logger service first
+const mockLogger = {
+  info: jest.fn(),
+  error: jest.fn(),
+  warn: jest.fn(),
+  debug: jest.fn(),
+};
+
+jest.mock('@core/logging/logger.service', () => ({
+  logger: mockLogger,
+}));
+
+// Mock the auth services and dependencies
+jest.mock('../../../application/usecases/login-with-email.usecase', () => ({
+  LoginWithEmailUseCase: jest.fn().mockImplementation(() => ({
+    execute: jest.fn(),
+  })),
+}));
+
+jest.mock('../../../application/usecases/register-with-email.usecase', () => ({
+  RegisterWithEmailUseCase: jest.fn().mockImplementation(() => ({
+    execute: jest.fn(),
+  })),
+}));
+
+jest.mock('../../../application/usecases/logout.usecase', () => ({
+  LogoutUseCase: jest.fn().mockImplementation(() => ({
+    execute: jest.fn(),
+  })),
+}));
+
+jest.mock('../../../presentation/hooks/use-auth.hook', () => ({
+  useAuth: jest.fn(),
+}));
+
+import { LoginWithEmailUseCase } from '../../../application/usecases/login-with-email.usecase';
+import { RegisterWithEmailUseCase } from '../../../application/usecases/register-with-email.usecase';
+import { LogoutUseCase } from '../../../application/usecases/logout.usecase';
+import { useAuth } from '../../../presentation/hooks/use-auth.hook';
+
+// Create a QueryClient test wrapper
+const createQueryClient = () => new QueryClient({
+  defaultOptions: {
+    queries: {
+      retry: false,
+      gcTime: 0,
+    },
+    mutations: {
+      retry: false,
+    },
+  },
+});
+
+const QueryWrapper: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const queryClient = createQueryClient();
+  return (
+    <QueryClientProvider client={queryClient}>
+      {children}
+    </QueryClientProvider>
+  );
+};
+
+// Create mock instances for the UseCases
+const mockLoginUseCaseInstance = {
+  execute: jest.fn(),
+};
+
+const mockRegisterUseCaseInstance = {
+  execute: jest.fn(),
+};
+
+const mockLogoutUseCaseInstance = {
+  execute: jest.fn(),
+};
+
+// Setup the mocks to return our instances
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+const mockLoginUseCase = LoginWithEmailUseCase as jest.MockedClass<
+  typeof LoginWithEmailUseCase
+>;
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+const mockRegisterUseCase = RegisterWithEmailUseCase as jest.MockedClass<
+  typeof RegisterWithEmailUseCase
+>;
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+const mockLogoutUseCase = LogoutUseCase as jest.MockedClass<
+  typeof LogoutUseCase
+>;
+
+// Make the constructors return our mock instances
+(LoginWithEmailUseCase as any).mockImplementation(
+  () => mockLoginUseCaseInstance
+);
+(RegisterWithEmailUseCase as any).mockImplementation(
+  () => mockRegisterUseCaseInstance
+);
+(LogoutUseCase as any).mockImplementation(() => mockLogoutUseCaseInstance);
+
+const mockUseAuth = useAuth as jest.MockedFunction<typeof useAuth>;
+
+describe('useAuthFlow - ENTERPRISE AUTHENTICATION ORCHESTRATION', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+
+    // Mock useAuth to return typical auth state
+    mockUseAuth.mockReturnValue({
+      user: null,
+      isAuthenticated: false,
+      isLoading: false,
+      error: null,
+      login: jest.fn(),
+      logout: jest.fn(),
+      getCurrentUser: jest.fn(),
+    } as any);
+  });
+
+  describe('🎯 Authentication Flow Operations', () => {
+    describe('login', () => {
+      it('should handle successful login flow', async () => {
+        mockLoginUseCaseInstance.execute.mockResolvedValueOnce({
+          success: true,
+          data: { id: 'user-123', email: 'test@example.com' } as any,
+          error: undefined,
+        });
+
+        const { result } = renderHook(() => useAuthFlow(), { wrapper: QueryWrapper });
+
+        await act(async () => {
+          await result.current.login('test@example.com', 'password123');
+        });
+
+        expect(mockLoginUseCaseInstance.execute).toHaveBeenCalledWith({
+          email: 'test@example.com',
+          password: 'password123',
+        });
+        expect(result.current.loading).toBe(false);
+        expect(result.current.error).toBeNull();
+      });
+
+      it('should handle login failure with error state', async () => {
+        const _loginError = new Error('Invalid credentials');
+        mockLoginUseCaseInstance.execute.mockResolvedValueOnce({
+          success: false,
+          data: undefined,
+          error: 'Invalid credentials',
+        });
+
+        const { result } = renderHook(() => useAuthFlow(), { wrapper: QueryWrapper });
+
+        await act(async () => {
+          await result.current.login('test@example.com', 'wrongpassword');
+        });
+
+        expect(result.current.loading).toBe(false);
+        expect(result.current.error).toBe('Invalid credentials');
+      });
+
+      it('should handle network errors during login', async () => {
+        mockLoginUseCaseInstance.execute.mockRejectedValueOnce(
+          new Error('Network error')
+        );
+
+        const { result } = renderHook(() => useAuthFlow(), { wrapper: QueryWrapper });
+
+        await act(async () => {
+          await result.current.login('test@example.com', 'password123');
+        });
+
+        expect(result.current.loading).toBe(false);
+        expect(result.current.error).toBe('Network error');
+      });
+
+      it('should validate email format before login attempt', async () => {
+        const { result } = renderHook(() => useAuthFlow(), { wrapper: QueryWrapper });
+
+        await act(async () => {
+          await result.current.login('invalid-email', 'password123');
+        });
+
+        expect(mockLoginUseCaseInstance.execute).not.toHaveBeenCalled();
+        expect(result.current.error).toMatch(/email format/i);
+      });
+
+      it('should validate password requirements before login', async () => {
+        const { result } = renderHook(() => useAuthFlow(), { wrapper: QueryWrapper });
+
+        await act(async () => {
+          await result.current.login('test@example.com', '');
+        });
+
+        expect(mockLoginUseCaseInstance.execute).not.toHaveBeenCalled();
+        expect(result.current.error).toMatch(/password.*required/i);
+      });
+
+      it('should set loading state during login process', async () => {
+        let resolveLogin: (value: any) => void;
+        const loginPromise = new Promise(resolve => {
+          resolveLogin = resolve;
+        });
+
+        mockLoginUseCaseInstance.execute.mockReturnValue(loginPromise);
+
+        const { result } = renderHook(() => useAuthFlow(), { wrapper: QueryWrapper });
+
+        // Start login
+        act(() => {
+          result.current.login('test@example.com', 'password123');
+        });
+
+        // Should be loading
+        expect(result.current.loading).toBe(true);
+
+        // Complete login
+        await act(async () => {
+          resolveLogin!({
+            success: true,
+            data: { id: 'user-123', email: 'test@example.com' } as any,
+            error: undefined,
+          });
+          await loginPromise;
+        });
+
+        // Should not be loading
+        expect(result.current.loading).toBe(false);
+      });
+
+      it('should handle rate limiting scenarios', async () => {
+        mockLoginUseCaseInstance.execute.mockResolvedValueOnce({
+          success: false,
+          data: undefined,
+          error: 'Rate limit exceeded. Please try again later.',
+        });
+
+        const { result } = renderHook(() => useAuthFlow(), { wrapper: QueryWrapper });
+
+        await act(async () => {
+          await result.current.login('test@example.com', 'password123');
+        });
+
+        expect(result.current.error).toBe(
+          'Rate limit exceeded. Please try again later.'
+        );
+      });
+
+      it('should handle account locked scenarios', async () => {
+        mockLoginUseCaseInstance.execute.mockResolvedValueOnce({
+          success: false,
+          data: undefined,
+          error: 'Account temporarily locked due to multiple failed attempts',
+        });
+
+        const { result } = renderHook(() => useAuthFlow(), { wrapper: QueryWrapper });
+
+        await act(async () => {
+          await result.current.login('test@example.com', 'password123');
+        });
+
+        expect(result.current.error).toBe(
+          'Account temporarily locked due to multiple failed attempts'
+        );
+      });
+    });
+
+    describe('register', () => {
+      it('should handle successful registration flow', async () => {
+        mockRegisterUseCaseInstance.execute.mockResolvedValueOnce({
+          success: true,
+          data: { id: 'user-456', email: 'newuser@example.com' },
+          error: undefined,
+        });
+
+        const { result } = renderHook(() => useAuthFlow(), { wrapper: QueryWrapper });
+
+        await act(async () => {
+          await result.current.register(
+            'newuser@example.com',
+            'securePassword123'
+          );
+        });
+
+        expect(mockRegisterUseCaseInstance.execute).toHaveBeenCalledWith({
+          email: 'newuser@example.com',
+          password: 'securePassword123',
+        });
+        expect(result.current.loading).toBe(false);
+        expect(result.current.error).toBeNull();
+      });
+
+      it('should handle registration failure with validation errors', async () => {
+        mockRegisterUseCaseInstance.execute.mockResolvedValueOnce({
+          success: false,
+          data: undefined,
+          error: 'Email already exists',
+        });
+
+        const { result } = renderHook(() => useAuthFlow(), { wrapper: QueryWrapper });
+
+        await act(async () => {
+          await result.current.register('existing@example.com', 'password123');
+        });
+
+        expect(result.current.error).toBe('Email already exists');
+      });
+
+      it('should validate password strength during registration', async () => {
+        const { result } = renderHook(() => useAuthFlow(), { wrapper: QueryWrapper });
+
+        await act(async () => {
+          await result.current.register('test@example.com', 'weak');
+        });
+
+        expect(mockRegisterUseCaseInstance.execute).not.toHaveBeenCalled();
+        expect(result.current.error).toMatch(/password.*requirements/i);
+      });
+
+      it('should handle email confirmation requirements', async () => {
+        mockRegisterUseCaseInstance.execute.mockResolvedValueOnce({
+          success: true,
+          data: {
+            id: 'user-456',
+            email: 'newuser@example.com',
+            emailVerified: false,
+          },
+          error: undefined,
+        });
+
+        const { result } = renderHook(() => useAuthFlow(), { wrapper: QueryWrapper });
+
+        await act(async () => {
+          await result.current.register(
+            'newuser@example.com',
+            'securePassword123'
+          );
+        });
+
+        expect(result.current.error).toBeNull();
+        // Could check for email confirmation message in success state
+      });
+
+      it('should handle weak password errors', async () => {
+        mockRegisterUseCaseInstance.execute.mockResolvedValueOnce({
+          success: false,
+          data: undefined,
+          error: 'Password does not meet security requirements',
+        });
+
+        const { result } = renderHook(() => useAuthFlow(), { wrapper: QueryWrapper });
+
+        await act(async () => {
+          await result.current.register('test@example.com', 'simple123');
+        });
+
+        expect(result.current.error).toBe(
+          'Password does not meet security requirements'
+        );
+      });
+
+      it('should handle terms of service validation', async () => {
+        const { result } = renderHook(() => useAuthFlow(), { wrapper: QueryWrapper });
+
+        await act(async () => {
+          await result.current.register(
+            'test@example.com',
+            'securePassword123',
+            false
+          );
+        });
+
+        expect(mockRegisterUseCaseInstance.execute).not.toHaveBeenCalled();
+        expect(result.current.error).toMatch(/terms.*service/i);
+      });
+
+      it('should set loading state during registration process', async () => {
+        let resolveRegister: (value: any) => void;
+        const registerPromise = new Promise(resolve => {
+          resolveRegister = resolve;
+        });
+
+        mockRegisterUseCaseInstance.execute.mockReturnValue(registerPromise);
+
+        const { result } = renderHook(() => useAuthFlow(), { wrapper: QueryWrapper });
+
+        // Start registration
+        act(() => {
+          result.current.register('test@example.com', 'password123');
+        });
+
+        // Should be loading
+        expect(result.current.loading).toBe(true);
+
+        // Complete registration
+        await act(async () => {
+          resolveRegister!({
+            success: true,
+            data: { id: 'user-456', email: 'test@example.com' },
+            error: undefined,
+          });
+          await registerPromise;
+        });
+
+        // Should not be loading
+        expect(result.current.loading).toBe(false);
+      });
+    });
+
+    describe('logout', () => {
+      it('should handle successful logout flow', async () => {
+        mockLogoutUseCaseInstance.execute.mockResolvedValueOnce({
+          success: true,
+          data: undefined,
+          error: undefined,
+        });
+
+        // Mock authenticated state
+        mockUseAuth.mockReturnValue({
+          user: { id: 'user-123', email: 'test@example.com' } as any,
+          isLoading: false,
+          error: null,
+          isAuthenticated: true,
+        } as any);
+
+        const { result } = renderHook(() => useAuthFlow(), { wrapper: QueryWrapper });
+
+        await act(async () => {
+          await result.current.logout();
+        });
+
+        expect(mockLogoutUseCaseInstance.execute).toHaveBeenCalled();
+        expect(result.current.loading).toBe(false);
+        expect(result.current.error).toBeNull();
+      });
+
+      it('should handle logout failure gracefully', async () => {
+        mockLogoutUseCaseInstance.execute.mockResolvedValueOnce({
+          success: false,
+          data: undefined,
+          error: 'Logout failed',
+        });
+
+        const { result } = renderHook(() => useAuthFlow(), { wrapper: QueryWrapper });
+
+        await act(async () => {
+          await result.current.logout();
+        });
+
+        expect(result.current.error).toBe('Logout failed');
+      });
+
+      it('should handle network errors during logout', async () => {
+        mockLogoutUseCaseInstance.execute.mockRejectedValueOnce(
+          new Error('Network error')
+        );
+
+        const { result } = renderHook(() => useAuthFlow(), { wrapper: QueryWrapper });
+
+        await act(async () => {
+          await result.current.logout();
+        });
+
+        expect(result.current.error).toBe('Network error');
+      });
+
+      it('should handle logout when not authenticated', async () => {
+        mockUseAuth.mockReturnValue({
+          user: null,
+          isLoading: false,
+          error: null,
+          isAuthenticated: false,
+        } as any);
+
+        const { result } = renderHook(() => useAuthFlow(), { wrapper: QueryWrapper });
+
+        await act(async () => {
+          await result.current.logout();
+        });
+
+        // Should not call logout use case if not authenticated
+        expect(mockLogoutUseCaseInstance.execute).not.toHaveBeenCalled();
+        expect(result.current.error).toBeNull();
+      });
+
+      it('should set loading state during logout process', async () => {
+        let resolveLogout: (value: any) => void;
+        const logoutPromise = new Promise(resolve => {
+          resolveLogout = resolve;
+        });
+
+        mockLogoutUseCaseInstance.execute.mockReturnValue(logoutPromise);
+
+        const { result } = renderHook(() => useAuthFlow(), { wrapper: QueryWrapper });
+
+        // Start logout
+        act(() => {
+          result.current.logout();
+        });
+
+        // Should be loading
+        expect(result.current.loading).toBe(true);
+
+        // Complete logout
+        await act(async () => {
+          resolveLogout!({
+            success: true,
+            data: undefined,
+            error: undefined,
+          });
+          await logoutPromise;
+        });
+
+        // Should not be loading
+        expect(result.current.loading).toBe(false);
+      });
+    });
+  });
+
+  describe('🔄 State Management', () => {
+    describe('clearError', () => {
+      it('should clear error state', async () => {
+        // Set an error first
+        mockLoginUseCaseInstance.execute.mockResolvedValueOnce({
+          success: false,
+          data: undefined,
+          error: 'Login failed',
+        });
+
+        const { result } = renderHook(() => useAuthFlow(), { wrapper: QueryWrapper });
+
+        // Trigger error
+        await act(async () => {
+          await result.current.login('test@example.com', 'wrongpassword');
+        });
+
+        expect(result.current.error).toBe('Login failed');
+
+        // Clear error
+        act(() => {
+          result.current.clearError();
+        });
+
+        expect(result.current.error).toBeNull();
+      });
+    });
+
+    describe('reset', () => {
+      it('should reset all auth flow state', async () => {
+        // Set some state first
+        mockLoginUseCaseInstance.execute.mockResolvedValueOnce({
+          success: false,
+          data: undefined,
+          error: 'Login failed',
+        });
+
+        const { result } = renderHook(() => useAuthFlow(), { wrapper: QueryWrapper });
+
+        // Trigger error and loading
+        await act(async () => {
+          await result.current.login('test@example.com', 'wrongpassword');
+        });
+
+        expect(result.current.error).toBe('Login failed');
+
+        // Reset state
+        act(() => {
+          result.current.reset();
+        });
+
+        expect(result.current.error).toBeNull();
+        expect(result.current.loading).toBe(false);
+      });
+    });
+  });
+
+  describe('⚡ Performance & Concurrency', () => {
+    it('should handle concurrent login attempts gracefully', async () => {
+      mockLoginUseCaseInstance.execute
+        .mockResolvedValueOnce({
+          success: true,
+          data: { id: 'user-123', email: 'test@example.com' } as any,
+          error: undefined,
+        })
+        .mockResolvedValueOnce({
+          success: false,
+          data: undefined,
+          error: 'Login already in progress',
+        });
+
+      const { result } = renderHook(() => useAuthFlow(), { wrapper: QueryWrapper });
+
+      // Start concurrent login attempts
+      const promise1 = act(async () => {
+        await result.current.login('test@example.com', 'password123');
+      });
+
+      const promise2 = act(async () => {
+        await result.current.login('test@example.com', 'password123');
+      });
+
+      await Promise.all([promise1, promise2]);
+
+      // Should handle concurrency gracefully
+      expect(result.current.loading).toBe(false);
+    });
+
+    it('should handle rapid successive operations', async () => {
+      mockLoginUseCaseInstance.execute.mockResolvedValue({
+        success: true,
+        data: { id: 'user-123', email: 'test@example.com' } as any,
+        error: undefined,
+      });
+
+      mockLogoutUseCaseInstance.execute.mockResolvedValue({
+        success: true,
+        data: undefined,
+        error: undefined,
+      });
+
+      const { result } = renderHook(() => useAuthFlow(), { wrapper: QueryWrapper });
+
+      // Rapid login/logout sequence
+      await act(async () => {
+        await result.current.login('test@example.com', 'password123');
+        await result.current.logout();
+        await result.current.login('test@example.com', 'password123');
+      });
+
+      expect(result.current.loading).toBe(false);
+      expect(result.current.error).toBeNull();
+    });
+
+    it('should handle memory cleanup on unmount', () => {
+      const { unmount } = renderHook(() => useAuthFlow(), { wrapper: QueryWrapper });
+
+      // Should not throw when unmounting
+      expect(() => unmount()).not.toThrow();
+    });
+  });
+
+  describe('🛡️ Security & Validation', () => {
+    it('should sanitize email input', async () => {
+      const { result } = renderHook(() => useAuthFlow(), { wrapper: QueryWrapper });
+
+      await act(async () => {
+        await result.current.login('  Test@Example.COM  ', 'password123');
+      });
+
+      expect(mockLoginUseCaseInstance.execute).toHaveBeenCalledWith({
+        email: 'test@example.com',
+        password: 'password123',
+      });
+    });
+
+    it('should prevent XSS in authentication inputs', async () => {
+      const maliciousEmail = 'test@example.com<script>alert("xss")</script>';
+
+      const { result } = renderHook(() => useAuthFlow(), { wrapper: QueryWrapper });
+
+      await act(async () => {
+        await result.current.login(maliciousEmail, 'password123');
+      });
+
+      expect(result.current.error).toMatch(/invalid.*email/i);
+      expect(mockLoginUseCaseInstance.execute).not.toHaveBeenCalled();
+    });
+
+    it('should handle SQL injection attempts safely', async () => {
+      const sqlInjection = "'; DROP TABLE users; --";
+
+      const { result } = renderHook(() => useAuthFlow(), { wrapper: QueryWrapper });
+
+      await act(async () => {
+        await result.current.login(sqlInjection, 'password123');
+      });
+
+      expect(result.current.error).toMatch(/invalid.*email/i);
+      expect(mockLoginUseCaseInstance.execute).not.toHaveBeenCalled();
+    });
+
+    it('should enforce minimum password requirements', async () => {
+      const weakPasswords = ['123', 'abc', 'password', '12345'];
+
+      const { result } = renderHook(() => useAuthFlow(), { wrapper: QueryWrapper });
+
+      for (const weakPassword of weakPasswords) {
+        await act(async () => {
+          await result.current.register('test@example.com', weakPassword);
+        });
+
+        expect(result.current.error).toMatch(/password.*requirements/i);
+        expect(mockRegisterUseCaseInstance.execute).not.toHaveBeenCalled();
+
+        // Clear error for next test
+        act(() => {
+          result.current.clearError();
+        });
+      }
+    });
+
+    it('should handle international characters in email', async () => {
+      const internationalEmail = 'тест@пример.рф';
+
+      mockLoginUseCaseInstance.execute.mockResolvedValueOnce({
+        success: true,
+        data: { id: 'user-123', email: internationalEmail },
+        error: undefined,
+      });
+
+      const { result } = renderHook(() => useAuthFlow(), { wrapper: QueryWrapper });
+
+      await act(async () => {
+        await result.current.login(internationalEmail, 'password123');
+      });
+
+      expect(mockLoginUseCaseInstance.execute).toHaveBeenCalledWith({
+        email: internationalEmail,
+        password: 'password123',
+      });
+      expect(result.current.error).toBeNull();
+    });
+  });
+
+  describe('🏢 Enterprise Features', () => {
+    it('should support enterprise email domains', async () => {
+      const enterpriseEmails = [
+        'admin@company.corp',
+        'user@enterprise.internal',
+        'service@system.local',
+      ];
+
+      const { result } = renderHook(() => useAuthFlow(), { wrapper: QueryWrapper });
+
+      for (const email of enterpriseEmails) {
+        mockLoginUseCaseInstance.execute.mockResolvedValueOnce({
+          success: true,
+          data: { id: 'user-123', email },
+          error: undefined,
+        });
+
+        await act(async () => {
+          await result.current.login(email, 'password123');
+        });
+
+        expect(mockLoginUseCaseInstance.execute).toHaveBeenCalledWith({
+          email,
+          password: 'password123',
+        });
+        expect(result.current.error).toBeNull();
+
+        // Clear for next test
+        act(() => {
+          result.current.clearError();
+        });
+      }
+    });
+
+    it('should handle SSO integration scenarios', async () => {
+      mockLoginUseCaseInstance.execute.mockResolvedValueOnce({
+        success: false,
+        data: undefined,
+        error: 'SSO_REQUIRED',
+      });
+
+      const { result } = renderHook(() => useAuthFlow(), { wrapper: QueryWrapper });
+
+      await act(async () => {
+        await result.current.login('user@sso-company.com', 'password123');
+      });
+
+      expect(result.current.error).toBe('SSO_REQUIRED');
+    });
+
+    it('should handle MFA requirements', async () => {
+      mockLoginUseCaseInstance.execute.mockResolvedValueOnce({
+        success: false,
+        data: undefined,
+        error: 'MFA_REQUIRED',
+      });
+
+      const { result } = renderHook(() => useAuthFlow(), { wrapper: QueryWrapper });
+
+      await act(async () => {
+        await result.current.login('mfa-user@example.com', 'password123');
+      });
+
+      expect(result.current.error).toBe('MFA_REQUIRED');
+    });
+
+    it('should support GDPR compliance data handling', async () => {
+      const gdprUser = {
+        id: 'user-123',
+        email: 'gdpr-user@example.com',
+        gdprConsent: true,
+        dataProcessingConsent: true,
+      };
+
+      mockLoginUseCaseInstance.execute.mockResolvedValueOnce({
+        success: true,
+        data: gdprUser,
+        error: undefined,
+      });
+
+      const { result } = renderHook(() => useAuthFlow(), { wrapper: QueryWrapper });
+
+      await act(async () => {
+        await result.current.login('gdpr-user@example.com', 'password123');
+      });
+
+      expect(result.current.error).toBeNull();
+      // GDPR data should be handled appropriately
+    });
+  });
+});

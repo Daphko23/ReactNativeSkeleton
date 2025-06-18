@@ -1,10 +1,10 @@
 /**
  * @fileoverview Environment Feature Flag Configuration
- * 
+ *
  * @description Environment-based feature flag management system that loads
  * configuration from process.env variables and provides different app variants.
  * Supports build-time feature toggling for different deployment environments.
- * 
+ *
  * @module FeatureFlagsEnv
  * @since 1.0.0
  * @author Enterprise Development Team
@@ -22,7 +22,12 @@ const logger = LoggerFactory.createServiceLogger('FeatureFlagsEnv');
 /**
  * App Variant Types
  */
-export type AppVariant = 'development' | 'basic' | 'premium' | 'enterprise' | 'demo';
+export type AppVariant =
+  | 'development'
+  | 'basic'
+  | 'premium'
+  | 'enterprise'
+  | 'demo';
 
 /**
  * Environment Feature Flag Configuration
@@ -102,10 +107,10 @@ const DEVELOPMENT_CONFIG: EnvironmentFeatureFlags = {
   debugMode: true,
   screens: {
     enableAccountSettings: true,
-    enableCustomFieldsEdit: true,    // ✅ AKTIVIERT FÜR DEVELOPMENT
-    enablePrivacySettings: true,     // ✅ AKTIVIERT FÜR DEVELOPMENT
-    enableSkillsManagement: true,    // ✅ AKTIVIERT FÜR DEVELOPMENT
-    enableSocialLinksEdit: true,     // ✅ AKTIVIERT FÜR DEVELOPMENT
+    enableCustomFieldsEdit: true, // ✅ AKTIVIERT FÜR DEVELOPMENT
+    enablePrivacySettings: true, // ✅ AKTIVIERT FÜR DEVELOPMENT
+    enableSkillsManagement: true, // ✅ AKTIVIERT FÜR DEVELOPMENT
+    enableSocialLinksEdit: true, // ✅ AKTIVIERT FÜR DEVELOPMENT
   },
   background: {
     enableAnalytics: true,
@@ -288,8 +293,9 @@ function loadBooleanFlag(envKey: string, defaultValue: boolean): boolean {
  * Loads app variant from environment variable
  */
 function loadAppVariant(): AppVariant {
-  const envVariant = process.env.APP_VARIANT || process.env.NODE_ENV || 'development';
-  
+  const envVariant =
+    process.env.APP_VARIANT || process.env.NODE_ENV || 'development';
+
   switch (envVariant) {
     case 'development':
       return 'development';
@@ -305,8 +311,14 @@ function loadAppVariant(): AppVariant {
       logger.warn('Unknown app variant, defaulting to development', undefined, {
         metadata: {
           envVariant,
-          availableVariants: ['development', 'basic', 'premium', 'enterprise', 'demo']
-        }
+          availableVariants: [
+            'development',
+            'basic',
+            'premium',
+            'enterprise',
+            'demo',
+          ],
+        },
       });
       return 'development';
   }
@@ -317,7 +329,7 @@ function loadAppVariant(): AppVariant {
  */
 function loadEnvironmentFeatureFlags(): EnvironmentFeatureFlags {
   const appVariant = loadAppVariant();
-  
+
   // Get base configuration for app variant
   let baseConfig: EnvironmentFeatureFlags;
   switch (appVariant) {
@@ -332,64 +344,199 @@ function loadEnvironmentFeatureFlags(): EnvironmentFeatureFlags {
       baseConfig = DEVELOPMENT_CONFIG;
       break;
   }
-  
+
   // Override with environment variables if present
   return {
     appVariant,
     debugMode: loadBooleanFlag('DEBUG_MODE', baseConfig.debugMode),
-    
+
     screens: {
-      enableAccountSettings: loadBooleanFlag('ENABLE_ACCOUNT_SETTINGS', baseConfig.screens.enableAccountSettings),
-      enableCustomFieldsEdit: loadBooleanFlag('ENABLE_CUSTOM_FIELDS_EDIT', baseConfig.screens.enableCustomFieldsEdit),
-      enablePrivacySettings: loadBooleanFlag('ENABLE_PRIVACY_SETTINGS', baseConfig.screens.enablePrivacySettings),
-      enableSkillsManagement: loadBooleanFlag('ENABLE_SKILLS_MANAGEMENT', baseConfig.screens.enableSkillsManagement),
-      enableSocialLinksEdit: loadBooleanFlag('ENABLE_SOCIAL_LINKS_EDIT', baseConfig.screens.enableSocialLinksEdit),
+      enableAccountSettings: loadBooleanFlag(
+        'ENABLE_ACCOUNT_SETTINGS',
+        baseConfig.screens.enableAccountSettings
+      ),
+      enableCustomFieldsEdit: loadBooleanFlag(
+        'ENABLE_CUSTOM_FIELDS_EDIT',
+        baseConfig.screens.enableCustomFieldsEdit
+      ),
+      enablePrivacySettings: loadBooleanFlag(
+        'ENABLE_PRIVACY_SETTINGS',
+        baseConfig.screens.enablePrivacySettings
+      ),
+      enableSkillsManagement: loadBooleanFlag(
+        'ENABLE_SKILLS_MANAGEMENT',
+        baseConfig.screens.enableSkillsManagement
+      ),
+      enableSocialLinksEdit: loadBooleanFlag(
+        'ENABLE_SOCIAL_LINKS_EDIT',
+        baseConfig.screens.enableSocialLinksEdit
+      ),
     },
-    
+
     background: {
-      enableAnalytics: loadBooleanFlag('ENABLE_ANALYTICS', baseConfig.background.enableAnalytics),
-      enablePerformanceMonitoring: loadBooleanFlag('ENABLE_PERFORMANCE_MONITORING', baseConfig.background.enablePerformanceMonitoring),
-      enableAuditLogging: loadBooleanFlag('ENABLE_AUDIT_LOGGING', baseConfig.background.enableAuditLogging),
-      enableBackgroundSync: loadBooleanFlag('ENABLE_BACKGROUND_SYNC', baseConfig.background.enableBackgroundSync),
-      enableRealTimeUpdates: loadBooleanFlag('ENABLE_REAL_TIME_UPDATES', baseConfig.background.enableRealTimeUpdates),
-      enableOfflineMode: loadBooleanFlag('ENABLE_OFFLINE_MODE', baseConfig.background.enableOfflineMode),
-      enableCloudBackup: loadBooleanFlag('ENABLE_CLOUD_BACKUP', baseConfig.background.enableCloudBackup),
-      enableOptimisticUpdates: loadBooleanFlag('ENABLE_OPTIMISTIC_UPDATES', baseConfig.background.enableOptimisticUpdates),
-      enableProfileVersioning: loadBooleanFlag('ENABLE_PROFILE_VERSIONING', baseConfig.background.enableProfileVersioning),
-      enableCachePreloading: loadBooleanFlag('ENABLE_CACHE_PRELOADING', baseConfig.background.enableCachePreloading),
-      enableEncryption: loadBooleanFlag('ENABLE_ENCRYPTION', baseConfig.background.enableEncryption),
-      enableBiometricAuth: loadBooleanFlag('ENABLE_BIOMETRIC_AUTH', baseConfig.background.enableBiometricAuth),
-      enableSessionManagement: loadBooleanFlag('ENABLE_SESSION_MANAGEMENT', baseConfig.background.enableSessionManagement),
-      enableGdprCompliance: loadBooleanFlag('ENABLE_GDPR_COMPLIANCE', baseConfig.background.enableGdprCompliance),
-      enableAutoCompletion: loadBooleanFlag('ENABLE_AUTO_COMPLETION', baseConfig.background.enableAutoCompletion),
-      enableDuplicateDetection: loadBooleanFlag('ENABLE_DUPLICATE_DETECTION', baseConfig.background.enableDuplicateDetection),
-      enableDataValidation: loadBooleanFlag('ENABLE_DATA_VALIDATION', baseConfig.background.enableDataValidation),
-      enableSmartSuggestions: loadBooleanFlag('ENABLE_SMART_SUGGESTIONS', baseConfig.background.enableSmartSuggestions),
+      enableAnalytics: loadBooleanFlag(
+        'ENABLE_ANALYTICS',
+        baseConfig.background.enableAnalytics
+      ),
+      enablePerformanceMonitoring: loadBooleanFlag(
+        'ENABLE_PERFORMANCE_MONITORING',
+        baseConfig.background.enablePerformanceMonitoring
+      ),
+      enableAuditLogging: loadBooleanFlag(
+        'ENABLE_AUDIT_LOGGING',
+        baseConfig.background.enableAuditLogging
+      ),
+      enableBackgroundSync: loadBooleanFlag(
+        'ENABLE_BACKGROUND_SYNC',
+        baseConfig.background.enableBackgroundSync
+      ),
+      enableRealTimeUpdates: loadBooleanFlag(
+        'ENABLE_REAL_TIME_UPDATES',
+        baseConfig.background.enableRealTimeUpdates
+      ),
+      enableOfflineMode: loadBooleanFlag(
+        'ENABLE_OFFLINE_MODE',
+        baseConfig.background.enableOfflineMode
+      ),
+      enableCloudBackup: loadBooleanFlag(
+        'ENABLE_CLOUD_BACKUP',
+        baseConfig.background.enableCloudBackup
+      ),
+      enableOptimisticUpdates: loadBooleanFlag(
+        'ENABLE_OPTIMISTIC_UPDATES',
+        baseConfig.background.enableOptimisticUpdates
+      ),
+      enableProfileVersioning: loadBooleanFlag(
+        'ENABLE_PROFILE_VERSIONING',
+        baseConfig.background.enableProfileVersioning
+      ),
+      enableCachePreloading: loadBooleanFlag(
+        'ENABLE_CACHE_PRELOADING',
+        baseConfig.background.enableCachePreloading
+      ),
+      enableEncryption: loadBooleanFlag(
+        'ENABLE_ENCRYPTION',
+        baseConfig.background.enableEncryption
+      ),
+      enableBiometricAuth: loadBooleanFlag(
+        'ENABLE_BIOMETRIC_AUTH',
+        baseConfig.background.enableBiometricAuth
+      ),
+      enableSessionManagement: loadBooleanFlag(
+        'ENABLE_SESSION_MANAGEMENT',
+        baseConfig.background.enableSessionManagement
+      ),
+      enableGdprCompliance: loadBooleanFlag(
+        'ENABLE_GDPR_COMPLIANCE',
+        baseConfig.background.enableGdprCompliance
+      ),
+      enableAutoCompletion: loadBooleanFlag(
+        'ENABLE_AUTO_COMPLETION',
+        baseConfig.background.enableAutoCompletion
+      ),
+      enableDuplicateDetection: loadBooleanFlag(
+        'ENABLE_DUPLICATE_DETECTION',
+        baseConfig.background.enableDuplicateDetection
+      ),
+      enableDataValidation: loadBooleanFlag(
+        'ENABLE_DATA_VALIDATION',
+        baseConfig.background.enableDataValidation
+      ),
+      enableSmartSuggestions: loadBooleanFlag(
+        'ENABLE_SMART_SUGGESTIONS',
+        baseConfig.background.enableSmartSuggestions
+      ),
     },
-    
+
     ui: {
-      showCompletionBanner: loadBooleanFlag('SHOW_COMPLETION_BANNER', baseConfig.ui.showCompletionBanner),
-      showEnhancementSuggestions: loadBooleanFlag('SHOW_ENHANCEMENT_SUGGESTIONS', baseConfig.ui.showEnhancementSuggestions),
-      showQuickActions: loadBooleanFlag('SHOW_QUICK_ACTIONS', baseConfig.ui.showQuickActions),
-      showSecurityStatus: loadBooleanFlag('SHOW_SECURITY_STATUS', baseConfig.ui.showSecurityStatus),
-      showPermissionsPanel: loadBooleanFlag('SHOW_PERMISSIONS_PANEL', baseConfig.ui.showPermissionsPanel),
-      showCustomFields: loadBooleanFlag('SHOW_CUSTOM_FIELDS', baseConfig.ui.showCustomFields),
-      showSocialLinks: loadBooleanFlag('SHOW_SOCIAL_LINKS', baseConfig.ui.showSocialLinks),
-      showProfessionalInfo: loadBooleanFlag('SHOW_PROFESSIONAL_INFO', baseConfig.ui.showProfessionalInfo),
-      showSkillsManagement: loadBooleanFlag('SHOW_SKILLS_MANAGEMENT', baseConfig.ui.showSkillsManagement),
-      showAvatarUpload: loadBooleanFlag('SHOW_AVATAR_UPLOAD', baseConfig.ui.showAvatarUpload),
-      showProfileAnalytics: loadBooleanFlag('SHOW_PROFILE_ANALYTICS', baseConfig.ui.showProfileAnalytics),
-      showExportOptions: loadBooleanFlag('SHOW_EXPORT_OPTIONS', baseConfig.ui.showExportOptions),
-      showSharingOptions: loadBooleanFlag('SHOW_SHARING_OPTIONS', baseConfig.ui.showSharingOptions),
-      showTemplateSelector: loadBooleanFlag('SHOW_TEMPLATE_SELECTOR', baseConfig.ui.showTemplateSelector),
-      showPrivacyControls: loadBooleanFlag('SHOW_PRIVACY_CONTROLS', baseConfig.ui.showPrivacyControls),
-      showValidationPreview: loadBooleanFlag('SHOW_VALIDATION_PREVIEW', baseConfig.ui.showValidationPreview),
-      showBulkOperations: loadBooleanFlag('SHOW_BULK_OPERATIONS', baseConfig.ui.showBulkOperations),
-      showVersionHistory: loadBooleanFlag('SHOW_VERSION_HISTORY', baseConfig.ui.showVersionHistory),
-      showTabNavigation: loadBooleanFlag('SHOW_TAB_NAVIGATION', baseConfig.ui.showTabNavigation),
-      showFloatingActions: loadBooleanFlag('SHOW_FLOATING_ACTIONS', baseConfig.ui.showFloatingActions),
-      showBreadcrumbs: loadBooleanFlag('SHOW_BREADCRUMBS', baseConfig.ui.showBreadcrumbs),
-      showSectionCollapse: loadBooleanFlag('SHOW_SECTION_COLLAPSE', baseConfig.ui.showSectionCollapse),
+      showCompletionBanner: loadBooleanFlag(
+        'SHOW_COMPLETION_BANNER',
+        baseConfig.ui.showCompletionBanner
+      ),
+      showEnhancementSuggestions: loadBooleanFlag(
+        'SHOW_ENHANCEMENT_SUGGESTIONS',
+        baseConfig.ui.showEnhancementSuggestions
+      ),
+      showQuickActions: loadBooleanFlag(
+        'SHOW_QUICK_ACTIONS',
+        baseConfig.ui.showQuickActions
+      ),
+      showSecurityStatus: loadBooleanFlag(
+        'SHOW_SECURITY_STATUS',
+        baseConfig.ui.showSecurityStatus
+      ),
+      showPermissionsPanel: loadBooleanFlag(
+        'SHOW_PERMISSIONS_PANEL',
+        baseConfig.ui.showPermissionsPanel
+      ),
+      showCustomFields: loadBooleanFlag(
+        'SHOW_CUSTOM_FIELDS',
+        baseConfig.ui.showCustomFields
+      ),
+      showSocialLinks: loadBooleanFlag(
+        'SHOW_SOCIAL_LINKS',
+        baseConfig.ui.showSocialLinks
+      ),
+      showProfessionalInfo: loadBooleanFlag(
+        'SHOW_PROFESSIONAL_INFO',
+        baseConfig.ui.showProfessionalInfo
+      ),
+      showSkillsManagement: loadBooleanFlag(
+        'SHOW_SKILLS_MANAGEMENT',
+        baseConfig.ui.showSkillsManagement
+      ),
+      showAvatarUpload: loadBooleanFlag(
+        'SHOW_AVATAR_UPLOAD',
+        baseConfig.ui.showAvatarUpload
+      ),
+      showProfileAnalytics: loadBooleanFlag(
+        'SHOW_PROFILE_ANALYTICS',
+        baseConfig.ui.showProfileAnalytics
+      ),
+      showExportOptions: loadBooleanFlag(
+        'SHOW_EXPORT_OPTIONS',
+        baseConfig.ui.showExportOptions
+      ),
+      showSharingOptions: loadBooleanFlag(
+        'SHOW_SHARING_OPTIONS',
+        baseConfig.ui.showSharingOptions
+      ),
+      showTemplateSelector: loadBooleanFlag(
+        'SHOW_TEMPLATE_SELECTOR',
+        baseConfig.ui.showTemplateSelector
+      ),
+      showPrivacyControls: loadBooleanFlag(
+        'SHOW_PRIVACY_CONTROLS',
+        baseConfig.ui.showPrivacyControls
+      ),
+      showValidationPreview: loadBooleanFlag(
+        'SHOW_VALIDATION_PREVIEW',
+        baseConfig.ui.showValidationPreview
+      ),
+      showBulkOperations: loadBooleanFlag(
+        'SHOW_BULK_OPERATIONS',
+        baseConfig.ui.showBulkOperations
+      ),
+      showVersionHistory: loadBooleanFlag(
+        'SHOW_VERSION_HISTORY',
+        baseConfig.ui.showVersionHistory
+      ),
+      showTabNavigation: loadBooleanFlag(
+        'SHOW_TAB_NAVIGATION',
+        baseConfig.ui.showTabNavigation
+      ),
+      showFloatingActions: loadBooleanFlag(
+        'SHOW_FLOATING_ACTIONS',
+        baseConfig.ui.showFloatingActions
+      ),
+      showBreadcrumbs: loadBooleanFlag(
+        'SHOW_BREADCRUMBS',
+        baseConfig.ui.showBreadcrumbs
+      ),
+      showSectionCollapse: loadBooleanFlag(
+        'SHOW_SECTION_COLLAPSE',
+        baseConfig.ui.showSectionCollapse
+      ),
     },
   };
 }
@@ -407,7 +554,7 @@ export class EnvironmentFeatureFlagService {
 
   private constructor() {
     this.config = loadEnvironmentFeatureFlags();
-    
+
     logger.info('Environment feature flags loaded');
   }
 
@@ -416,7 +563,8 @@ export class EnvironmentFeatureFlagService {
    */
   public static getInstance(): EnvironmentFeatureFlagService {
     if (!EnvironmentFeatureFlagService.instance) {
-      EnvironmentFeatureFlagService.instance = new EnvironmentFeatureFlagService();
+      EnvironmentFeatureFlagService.instance =
+        new EnvironmentFeatureFlagService();
     }
     return EnvironmentFeatureFlagService.instance;
   }
@@ -438,21 +586,27 @@ export class EnvironmentFeatureFlagService {
   /**
    * Check if screen is enabled
    */
-  public isScreenEnabled(screen: keyof EnvironmentFeatureFlags['screens']): boolean {
+  public isScreenEnabled(
+    screen: keyof EnvironmentFeatureFlags['screens']
+  ): boolean {
     return this.config.screens[screen];
   }
 
   /**
    * Check if background feature is enabled
    */
-  public isBackgroundFeatureEnabled(feature: keyof EnvironmentFeatureFlags['background']): boolean {
+  public isBackgroundFeatureEnabled(
+    feature: keyof EnvironmentFeatureFlags['background']
+  ): boolean {
     return this.config.background[feature];
   }
 
   /**
    * Check if UI component should be shown
    */
-  public shouldShowUIComponent(component: keyof EnvironmentFeatureFlags['ui']): boolean {
+  public shouldShowUIComponent(
+    component: keyof EnvironmentFeatureFlags['ui']
+  ): boolean {
     return this.config.ui[component];
   }
 
@@ -468,7 +622,7 @@ export class EnvironmentFeatureFlagService {
    */
   public reloadConfig(): void {
     this.config = loadEnvironmentFeatureFlags();
-    
+
     logger.info('Environment feature flags reloaded');
   }
 }
@@ -477,5 +631,6 @@ export class EnvironmentFeatureFlagService {
 // EXPORTS
 // =============================================================================
 
-export const environmentFeatureFlags = EnvironmentFeatureFlagService.getInstance();
-export default environmentFeatureFlags; 
+export const environmentFeatureFlags =
+  EnvironmentFeatureFlagService.getInstance();
+export default environmentFeatureFlags;

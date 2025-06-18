@@ -1,6 +1,6 @@
 /**
  * @fileoverview Enterprise Profile Edit Screen - 100% Hook-Centric Architecture
- * 
+ *
  * 🚀 MIGRATED TO REACT NATIVE 2025 ENTERPRISE STANDARDS
  * ✅ 100% Hook-Centric - ALL Business Logic in Specialized Hooks
  * ✅ Enterprise Use Cases Integration for Validation
@@ -9,28 +9,16 @@
  */
 
 import React, { useLayoutEffect } from 'react';
-import {
-  KeyboardAvoidingView,
-  Platform,
-  ScrollView,
-  View,
-} from 'react-native';
-import {
-  IconButton,
-  Text,
-} from 'react-native-paper';
+import { KeyboardAvoidingView, Platform, ScrollView, View } from 'react-native';
+import { IconButton, Text } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
 import { useNavigation } from '@react-navigation/native';
 
 // Shared Components
-import {
-  FormSection,
-  FormField,
-  LoadingOverlay,
-} from '@shared/components';
+import { FormSection, FormField, LoadingOverlay } from '@shared/components';
 
 // Core Services
-import { AlertService } from '@core/services';
+import { AlertService } from '../../../../../core/services/alert.service';
 
 // Core Imports
 import { useTheme } from '@core/theme/theme.system';
@@ -42,9 +30,7 @@ import { useCustomFieldsManager } from '../../hooks/use-custom-fields-query.hook
 import { useAuth } from '@features/auth/presentation/hooks';
 
 // Types & Constants
-import {
-  PROFILE_EDIT_TEST_IDS,
-} from '../../types';
+import { PROFILE_EDIT_TEST_IDS } from '../../types';
 
 // Components
 import { ProfessionalInfoSection } from './components/professional-info-section.component';
@@ -70,13 +56,13 @@ const AuthPermissions = {
 
 /**
  * 🚀 ENTERPRISE PROFILE EDIT SCREEN - 100% Hook-Centric Architecture
- * 
+ *
  * ✅ HOOK-CENTRIC EXCELLENCE:
  * - useProfileForm: Form Management + Enterprise Validation + Use Cases
  * - useSocialLinksEdit: Social Links Management + TanStack Query
  * - useCustomFieldsManager: Custom Fields CRUD + Server State
  * - Screen: ONLY UI Rendering - NO Business Logic
- * 
+ *
  * ✅ CLEAN ARCHITECTURE:
  * - Presentation Layer: Pure UI Rendering
  * - Application Layer: Use Cases in Hooks
@@ -98,14 +84,24 @@ export default function ProfileEditScreen() {
   const { permissions } = mockUseAuth();
   const canEditProfile = permissions.includes(AuthPermissions.PROFILE_UPDATE);
 
-  const styles = React.useMemo(() => createProfileEditScreenStyles(theme), [theme]);
+  const styles = React.useMemo(
+    () => createProfileEditScreenStyles(theme),
+    [theme]
+  );
 
   // 🎯 COMPUTED STATES - From Hooks Only
-  const isLoading = profileForm.isLoading || customFieldsManager.isLoading || socialLinksEdit.isLoading;
+  const isLoading =
+    profileForm.isLoading ||
+    customFieldsManager.isLoading ||
+    socialLinksEdit.isLoading;
   const isSubmitting = profileForm.isSubmitting || socialLinksEdit.isSaving;
-  const hasChanges = profileForm.isDirty || customFieldsManager.hasChanges || socialLinksEdit.hasChanges;
+  const hasChanges =
+    profileForm.isDirty ||
+    customFieldsManager.hasChanges ||
+    socialLinksEdit.hasChanges;
   const isValid = profileForm.isValid && socialLinksEdit.isValid;
-  const error = profileForm.error || customFieldsManager.error || socialLinksEdit.error;
+  const error =
+    profileForm.error || customFieldsManager.error || socialLinksEdit.error;
 
   // 🚀 ENTERPRISE SAVE HANDLER - Pure Hook Delegation
   const handleSavePress = async () => {
@@ -117,13 +113,15 @@ export default function ProfileEditScreen() {
     try {
       // 🎯 ENTERPRISE: All Business Logic in Hooks
       const profileSuccess = await profileForm.handleSubmit();
-      
+
       if (socialLinksEdit.hasChanges) {
         await socialLinksEdit.save();
       }
-      
+
       if (customFieldsManager.hasChanges) {
-        await customFieldsManager.updateCustomFields(customFieldsManager.customFields);
+        await customFieldsManager.updateCustomFields(
+          customFieldsManager.customFields
+        );
       }
 
       if (profileSuccess) {
@@ -147,7 +145,14 @@ export default function ProfileEditScreen() {
         />
       ),
     });
-  }, [navigation, hasChanges, isLoading, isSubmitting, isValid, handleSavePress]);
+  }, [
+    navigation,
+    hasChanges,
+    isLoading,
+    isSubmitting,
+    isValid,
+    handleSavePress,
+  ]);
 
   // Permission Check
   if (!canEditProfile) {
@@ -172,15 +177,17 @@ export default function ProfileEditScreen() {
         overlay
       />
 
-      <ScrollView style={styles.scrollView} contentContainerStyle={styles.scrollContent}>
-        
+      <ScrollView
+        style={styles.scrollView}
+        contentContainerStyle={styles.scrollContent}
+      >
         {/* 🎯 BASIC INFORMATION SECTION - Hook-Managed */}
         <FormSection title={t('profile.editScreen.sections.basicInfo')}>
           {/* First Name */}
           <FormField
             label={t('profile.editScreen.fields.firstName')}
             value={profileForm.formData.firstName}
-            onChangeText={(value) => profileForm.setValue('firstName', value)}
+            onChangeText={value => profileForm.setValue('firstName', value)}
             error={profileForm.fieldErrors.firstName}
             testID={PROFILE_EDIT_TEST_IDS.FIRST_NAME_INPUT}
           />
@@ -189,7 +196,7 @@ export default function ProfileEditScreen() {
           <FormField
             label={t('profile.editScreen.fields.lastName')}
             value={profileForm.formData.lastName}
-            onChangeText={(value) => profileForm.setValue('lastName', value)}
+            onChangeText={value => profileForm.setValue('lastName', value)}
             error={profileForm.fieldErrors.lastName}
             testID={PROFILE_EDIT_TEST_IDS.LAST_NAME_INPUT}
           />
@@ -198,7 +205,7 @@ export default function ProfileEditScreen() {
           <FormField
             label={t('profile.editScreen.fields.email')}
             value={profileForm.formData.email}
-            onChangeText={(value) => profileForm.setValue('email', value)}
+            onChangeText={value => profileForm.setValue('email', value)}
             error={profileForm.fieldErrors.email}
             keyboardType="email-address"
             autoCapitalize="none"
@@ -210,7 +217,7 @@ export default function ProfileEditScreen() {
           <FormField
             label={t('profile.editScreen.fields.bio')}
             value={profileForm.formData.bio}
-            onChangeText={(value) => profileForm.setValue('bio', value)}
+            onChangeText={value => profileForm.setValue('bio', value)}
             error={profileForm.fieldErrors.bio}
             multiline
             numberOfLines={4}
@@ -226,7 +233,7 @@ export default function ProfileEditScreen() {
           <FormField
             label={t('profile.editScreen.fields.phone')}
             value={profileForm.formData.phone || ''}
-            onChangeText={(value) => profileForm.setValue('phone', value)}
+            onChangeText={value => profileForm.setValue('phone', value)}
             error={profileForm.fieldErrors.phone}
             keyboardType="phone-pad"
             accessibilityLabel={t('profile.editScreen.accessibility.phone')}
@@ -237,7 +244,7 @@ export default function ProfileEditScreen() {
           <FormField
             label={t('profile.editScreen.fields.location')}
             value={profileForm.formData.location || ''}
-            onChangeText={(value) => profileForm.setValue('location', value)}
+            onChangeText={value => profileForm.setValue('location', value)}
             error={profileForm.fieldErrors.location}
             accessibilityLabel={t('profile.editScreen.accessibility.location')}
             testID={PROFILE_EDIT_TEST_IDS.LOCATION_INPUT}
@@ -247,7 +254,7 @@ export default function ProfileEditScreen() {
           <FormField
             label={t('profile.editScreen.fields.website')}
             value={profileForm.formData.website || ''}
-            onChangeText={(value) => profileForm.setValue('website', value)}
+            onChangeText={value => profileForm.setValue('website', value)}
             error={profileForm.fieldErrors.website}
             keyboardType="url"
             autoCapitalize="none"
@@ -272,17 +279,29 @@ export default function ProfileEditScreen() {
         {/* 🎯 CUSTOM FIELDS SECTION - Hook-Managed */}
         {customFieldsManager.customFields.length > 0 && (
           <FormSection title={t('profile.editScreen.sections.customFields')}>
-            {customFieldsManager.customFields.map((field) => (
+            {customFieldsManager.customFields.map(field => (
               <FormField
                 key={field.key}
                 label={field.label || field.key}
                 value={field.value}
-                onChangeText={(value) => customFieldsManager.updateField(field.key, value)}
+                onChangeText={value =>
+                  customFieldsManager.updateField(field.key, value)
+                }
                 placeholder={field.placeholder}
                 error={customFieldsManager.fieldErrors[field.key]?.[0]}
                 multiline={field.type === 'textarea'}
-                keyboardType={field.type === 'email' ? 'email-address' : field.type === 'phone' ? 'phone-pad' : 'default'}
-                autoCapitalize={field.type === 'email' || field.type === 'url' ? 'none' : 'sentences'}
+                keyboardType={
+                  field.type === 'email'
+                    ? 'email-address'
+                    : field.type === 'phone'
+                      ? 'phone-pad'
+                      : 'default'
+                }
+                autoCapitalize={
+                  field.type === 'email' || field.type === 'url'
+                    ? 'none'
+                    : 'sentences'
+                }
                 testID={`profile-edit-custom-${field.key}`}
               />
             ))}
@@ -295,8 +314,7 @@ export default function ProfileEditScreen() {
             <Text style={styles.errorText}>{error}</Text>
           </View>
         )}
-
       </ScrollView>
     </KeyboardAvoidingView>
   );
-} 
+}

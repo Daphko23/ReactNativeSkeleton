@@ -166,7 +166,7 @@ describe('GetCurrentUserUseCase - UC-005', () => {
       const result = await useCase.execute();
 
       expect(result).toBeNull();
-      expect(console.warn).toHaveBeenCalledWith('Session validation failed:', tokenError);
+      expect(console.warn).toHaveBeenCalledWith('Authentication status check failed:', tokenError);
     });
 
     it('should return null for session errors', async () => {
@@ -176,7 +176,7 @@ describe('GetCurrentUserUseCase - UC-005', () => {
       const result = await useCase.execute();
 
       expect(result).toBeNull();
-      expect(console.warn).toHaveBeenCalledWith('Session validation failed:', sessionError);
+      expect(console.warn).toHaveBeenCalledWith('Authentication status check failed:', sessionError);
     });
 
     it('should return null for expired token errors', async () => {
@@ -186,7 +186,7 @@ describe('GetCurrentUserUseCase - UC-005', () => {
       const result = await useCase.execute();
 
       expect(result).toBeNull();
-      expect(console.warn).toHaveBeenCalledWith('Session validation failed:', expiredError);
+      expect(console.warn).toHaveBeenCalledWith('Authentication status check failed:', expiredError);
     });
 
     it('should return null for access token issues', async () => {
@@ -196,7 +196,7 @@ describe('GetCurrentUserUseCase - UC-005', () => {
       const result = await useCase.execute();
 
       expect(result).toBeNull();
-      expect(console.warn).toHaveBeenCalledWith('Session validation failed:', accessTokenError);
+      expect(console.warn).toHaveBeenCalledWith('Authentication status check failed:', accessTokenError);
     });
 
     it('should return null for refresh token issues', async () => {
@@ -206,7 +206,7 @@ describe('GetCurrentUserUseCase - UC-005', () => {
       const result = await useCase.execute();
 
       expect(result).toBeNull();
-      expect(console.warn).toHaveBeenCalledWith('Session validation failed:', refreshTokenError);
+      expect(console.warn).toHaveBeenCalledWith('Authentication status check failed:', refreshTokenError);
     });
 
     it('should return null for JWT token errors', async () => {
@@ -216,7 +216,7 @@ describe('GetCurrentUserUseCase - UC-005', () => {
       const result = await useCase.execute();
 
       expect(result).toBeNull();
-      expect(console.warn).toHaveBeenCalledWith('Session validation failed:', jwtError);
+      expect(console.warn).toHaveBeenCalledWith('Authentication status check failed:', jwtError);
     });
 
     it('should return null for session timeout errors (skipped due to Jest/Babel issue)', () => {
@@ -240,7 +240,7 @@ describe('GetCurrentUserUseCase - UC-005', () => {
 
       await expect(useCase.execute()).rejects.toThrow('Network request failed');
       
-      expect(console.warn).toHaveBeenCalledWith('Session validation failed:', networkError);
+      expect(console.warn).toHaveBeenCalledWith('Authentication status check failed:', networkError);
     });
 
     it('should throw database errors', async () => {
@@ -295,7 +295,7 @@ describe('GetCurrentUserUseCase - UC-005', () => {
       const result = await useCase.execute();
 
       expect(result).toBeNull();
-      expect(console.warn).toHaveBeenCalledWith('Session validation failed:', hijackingError);
+      expect(console.warn).toHaveBeenCalledWith('Authentication status check failed:', hijackingError);
     });
 
     it('should handle suspicious activity detection', async () => {
@@ -305,7 +305,7 @@ describe('GetCurrentUserUseCase - UC-005', () => {
       const result = await useCase.execute();
 
       expect(result).toBeNull();
-      expect(console.warn).toHaveBeenCalledWith('Session validation failed:', suspiciousError);
+      expect(console.warn).toHaveBeenCalledWith('Authentication status check failed:', suspiciousError);
     });
 
     it('should handle concurrent session limits', async () => {
@@ -315,7 +315,7 @@ describe('GetCurrentUserUseCase - UC-005', () => {
       const result = await useCase.execute();
 
       expect(result).toBeNull();
-      expect(console.warn).toHaveBeenCalledWith('Session validation failed:', concurrentError);
+      expect(console.warn).toHaveBeenCalledWith('Authentication status check failed:', concurrentError);
     });
 
     it('should handle account lockout scenarios', async () => {
@@ -325,7 +325,7 @@ describe('GetCurrentUserUseCase - UC-005', () => {
       const result = await useCase.execute();
 
       expect(result).toBeNull();
-      expect(console.warn).toHaveBeenCalledWith('Session validation failed:', lockoutError);
+      expect(console.warn).toHaveBeenCalledWith('Authentication status check failed:', lockoutError);
     });
 
     it('should handle forced logout events (skipped due to Jest/Babel issue)', () => {
@@ -380,7 +380,7 @@ describe('GetCurrentUserUseCase - UC-005', () => {
       const result = await useCase.execute();
 
       expect(result).toBeNull();
-      expect(console.warn).toHaveBeenCalledWith('Session validation failed:', concurrentLimitError);
+      expect(console.warn).toHaveBeenCalledWith('Authentication status check failed:', concurrentLimitError);
       
       (console.warn as jest.MockedFunction<typeof console.warn>).mockRestore();
     });
@@ -575,7 +575,7 @@ describe('GetCurrentUserUseCase - UC-005', () => {
       const result = await useCase.execute();
 
       expect(result).toBeNull();
-      expect(console.warn).toHaveBeenCalledWith('Session validation failed:', cacheError);
+      expect(console.warn).toHaveBeenCalledWith('Authentication status check failed:', cacheError);
       
       (console.warn as jest.MockedFunction<typeof console.warn>).mockRestore();
     });

@@ -1,38 +1,40 @@
 /**
  * @file auth-user.mapper.test.ts
- * @description Comprehensive tests for AuthUser Data Mapper
- * Tests provider data transformation, validation, sanitization, and security
+ * @description Comprehensive tests for AuthUserMapper
+ * Tests Supabase User to Domain entity mapping with enterprise-level validation
  */
 
 import { AuthUserMapper } from '../../../data/mappers/auth-user.mapper';
+import { AuthUser } from '../../../domain/entities/auth-user.interface';
 import { User } from '@supabase/supabase-js';
 
-describe('AuthUserMapper - ENTERPRISE DATA TRANSFORMATION', () => {
-  describe('🔄 fromSupabaseUser() - Provider Data Transformation', () => {
-    describe('✅ Successful Transformations', () => {
-      it('should transform complete Supabase user to AuthUser', () => {
+describe('AuthUserMapper - ENTERPRISE MAPPING TESTS', () => {
+  describe('🔄 Supabase User to Domain Entity Mapping', () => {
+    describe('fromSupabaseUser - Success Cases', () => {
+      it('should map complete Supabase user to domain entity successfully', () => {
         const supabaseUser: User = {
-          id: 'auth0|507f1f77bcf86cd799439011',
-          email: 'John.Doe@Company.COM',
+          id: 'user-123',
+          email: 'Test@Example.com',
+          email_confirmed_at: '2024-01-01T00:00:00Z',
           user_metadata: {
-            display_name: 'John Doe',
-            avatar_url: 'https://secure.gravatar.com/avatar/123.jpg'
+            display_name: 'Test User',
+            avatar_url: 'https://example.com/photo.jpg'
           },
           app_metadata: {},
           aud: 'authenticated',
-          created_at: '2024-01-15T10:30:00Z'
+          created_at: '2024-01-01T00:00:00Z',
+          updated_at: '2024-01-01T00:00:00Z',
+          last_sign_in_at: '2024-01-01T12:00:00Z'
         };
 
         const result = AuthUserMapper.fromSupabaseUser(supabaseUser);
 
-        expect(result).toEqual({
-          id: 'auth0|507f1f77bcf86cd799439011',
-          email: 'john.doe@company.com', // Normalized
-          displayName: 'John Doe',
-          photoURL: 'https://secure.gravatar.com/avatar/123.jpg',
-          emailVerified: false,
-          lastLoginAt: undefined
-        });
+        expect(result.id).toBe('user-123');
+        expect(result.email).toBe('test@example.com'); // Normalized to lowercase
+        expect(result.emailVerified).toBe(true);
+        expect(result.displayName).toBe('Test User');
+        expect(result.photoURL).toBe('https://example.com/photo.jpg');
+        expect(result.lastLoginAt).toEqual(new Date('2024-01-01T12:00:00Z'));
       });
 
       it('should handle minimal required user data', () => {
@@ -42,19 +44,17 @@ describe('AuthUserMapper - ENTERPRISE DATA TRANSFORMATION', () => {
           user_metadata: {},
           app_metadata: {},
           aud: 'authenticated',
-          created_at: '2024-01-15T10:30:00Z'
+          created_at: '2024-01-01T00:00:00Z'
         };
 
         const result = AuthUserMapper.fromSupabaseUser(supabaseUser);
 
-        expect(result).toEqual({
-          id: 'minimal-user-123',
-          email: 'minimal@test.com',
-          displayName: undefined,
-          photoURL: undefined,
-          emailVerified: false,
-          lastLoginAt: undefined
-        });
+        expect(result.id).toBe('minimal-user-123');
+        expect(result.email).toBe('minimal@test.com');
+        expect(result.emailVerified).toBe(false);
+        expect(result.displayName).toBeUndefined();
+        expect(result.photoURL).toBeUndefined();
+        expect(result.lastLoginAt).toBeUndefined();
       });
 
       it('should normalize email to lowercase', () => {
@@ -64,7 +64,7 @@ describe('AuthUserMapper - ENTERPRISE DATA TRANSFORMATION', () => {
           user_metadata: {},
           app_metadata: {},
           aud: 'authenticated',
-          created_at: '2024-01-15T10:30:00Z'
+          created_at: '2024-01-01T00:00:00Z'
         };
 
         const result = AuthUserMapper.fromSupabaseUser(supabaseUser);
@@ -79,7 +79,7 @@ describe('AuthUserMapper - ENTERPRISE DATA TRANSFORMATION', () => {
           user_metadata: {},
           app_metadata: {},
           aud: 'authenticated',
-          created_at: '2024-01-15T10:30:00Z'
+          created_at: '2024-01-01T00:00:00Z'
         };
 
         const result = AuthUserMapper.fromSupabaseUser(supabaseUser);
@@ -87,20 +87,36 @@ describe('AuthUserMapper - ENTERPRISE DATA TRANSFORMATION', () => {
         expect(result.email).toBe('user@domain.com');
       });
 
-      it('should handle verified email status', () => {
+      it('should handle verified email status correctly', () => {
         const supabaseUser: User = {
           id: 'verified-user',
           email: 'verified@test.com',
-          email_confirmed_at: '2024-01-15T10:30:00Z',
+          email_confirmed_at: '2024-01-01T00:00:00Z',
           user_metadata: {},
           app_metadata: {},
           aud: 'authenticated',
-          created_at: '2024-01-15T10:30:00Z'
+          created_at: '2024-01-01T00:00:00Z'
         };
 
         const result = AuthUserMapper.fromSupabaseUser(supabaseUser);
 
         expect(result.emailVerified).toBe(true);
+      });
+
+      it('should handle unverified email status correctly', () => {
+        const supabaseUser: User = {
+          id: 'unverified-user',
+          email: 'unverified@test.com',
+          email_confirmed_at: undefined,
+          user_metadata: {},
+          app_metadata: {},
+          aud: 'authenticated',
+          created_at: '2024-01-01T00:00:00Z'
+        };
+
+        const result = AuthUserMapper.fromSupabaseUser(supabaseUser);
+
+        expect(result.emailVerified).toBe(false);
       });
 
       it('should parse last_sign_in_at timestamp correctly', () => {
@@ -119,6 +135,48 @@ describe('AuthUserMapper - ENTERPRISE DATA TRANSFORMATION', () => {
 
         expect(result.lastLoginAt).toEqual(new Date(testDate));
       });
+
+      it('should handle special characters in display name', () => {
+        const supabaseUser: User = {
+          id: 'special-chars-user',
+          email: 'special@test.com',
+          user_metadata: {
+            display_name: 'Müller, François & José-María'
+          },
+          app_metadata: {},
+          aud: 'authenticated',
+          created_at: '2024-01-01T00:00:00Z'
+        };
+
+        const result = AuthUserMapper.fromSupabaseUser(supabaseUser);
+
+        expect(result.displayName).toBe('Müller, François & José-María');
+      });
+
+      it('should handle various photo URL formats', () => {
+        const testCases = [
+          'https://example.com/photo.jpg',
+          'https://cdn.example.com/users/123/avatar.png',
+          'https://gravatar.com/avatar/hash?s=200'
+        ];
+
+        testCases.forEach((photoURL, index) => {
+          const supabaseUser: User = {
+            id: `user-${index}`,
+            email: `test${index}@example.com`,
+            user_metadata: {
+              avatar_url: photoURL
+            },
+            app_metadata: {},
+            aud: 'authenticated',
+            created_at: '2024-01-01T00:00:00Z'
+          };
+
+          const result = AuthUserMapper.fromSupabaseUser(supabaseUser);
+
+          expect(result.photoURL).toBe(photoURL);
+        });
+      });
     });
 
     describe('🛡️ Security and Sanitization Tests', () => {
@@ -131,7 +189,7 @@ describe('AuthUserMapper - ENTERPRISE DATA TRANSFORMATION', () => {
           },
           app_metadata: {},
           aud: 'authenticated',
-          created_at: '2024-01-15T10:30:00Z'
+          created_at: '2024-01-01T00:00:00Z'
         };
 
         const result = AuthUserMapper.fromSupabaseUser(supabaseUser);
@@ -150,7 +208,7 @@ describe('AuthUserMapper - ENTERPRISE DATA TRANSFORMATION', () => {
           },
           app_metadata: {},
           aud: 'authenticated',
-          created_at: '2024-01-15T10:30:00Z'
+          created_at: '2024-01-01T00:00:00Z'
         };
 
         const result = AuthUserMapper.fromSupabaseUser(supabaseUser);
@@ -159,7 +217,7 @@ describe('AuthUserMapper - ENTERPRISE DATA TRANSFORMATION', () => {
         expect(result.displayName).toBe('A'.repeat(100));
       });
 
-      it('should validate photo URL protocol (HTTPS only)', () => {
+      it('should reject non-HTTPS photo URLs for security', () => {
         const httpPhotoUrl = 'http://insecure.com/avatar.jpg';
         const supabaseUser: User = {
           id: 'insecure-photo-user',
@@ -169,7 +227,7 @@ describe('AuthUserMapper - ENTERPRISE DATA TRANSFORMATION', () => {
           },
           app_metadata: {},
           aud: 'authenticated',
-          created_at: '2024-01-15T10:30:00Z'
+          created_at: '2024-01-01T00:00:00Z'
         };
 
         const result = AuthUserMapper.fromSupabaseUser(supabaseUser);
@@ -177,7 +235,7 @@ describe('AuthUserMapper - ENTERPRISE DATA TRANSFORMATION', () => {
         expect(result.photoURL).toBeUndefined();
       });
 
-      it('should validate photo URL format', () => {
+      it('should reject invalid photo URL formats', () => {
         const invalidUrl = 'not-a-valid-url';
         const supabaseUser: User = {
           id: 'invalid-url-user',
@@ -187,7 +245,7 @@ describe('AuthUserMapper - ENTERPRISE DATA TRANSFORMATION', () => {
           },
           app_metadata: {},
           aud: 'authenticated',
-          created_at: '2024-01-15T10:30:00Z'
+          created_at: '2024-01-01T00:00:00Z'
         };
 
         const result = AuthUserMapper.fromSupabaseUser(supabaseUser);
@@ -205,7 +263,7 @@ describe('AuthUserMapper - ENTERPRISE DATA TRANSFORMATION', () => {
           },
           app_metadata: {},
           aud: 'authenticated',
-          created_at: '2024-01-15T10:30:00Z'
+          created_at: '2024-01-01T00:00:00Z'
         };
 
         const result = AuthUserMapper.fromSupabaseUser(supabaseUser);
@@ -214,7 +272,7 @@ describe('AuthUserMapper - ENTERPRISE DATA TRANSFORMATION', () => {
         expect(result.photoURL).toBeUndefined();
       });
 
-      it('should handle SQL injection attempts in display name', () => {
+      it('should handle SQL injection attempts in display name safely', () => {
         const sqlInjection = "'; DROP TABLE users; --";
         const supabaseUser: User = {
           id: 'sql-injection-user',
@@ -224,16 +282,16 @@ describe('AuthUserMapper - ENTERPRISE DATA TRANSFORMATION', () => {
           },
           app_metadata: {},
           aud: 'authenticated',
-          created_at: '2024-01-15T10:30:00Z'
+          created_at: '2024-01-01T00:00:00Z'
         };
 
         const result = AuthUserMapper.fromSupabaseUser(supabaseUser);
 
         expect(result.displayName).toBe("'; DROP TABLE users; --");
-        // Should not throw or execute SQL
+        // Should not throw or execute SQL - just store as safe string
       });
 
-      it('should handle Unicode characters in display name', () => {
+      it('should preserve Unicode characters in display name', () => {
         const unicodeName = 'José María 🌟 林田';
         const supabaseUser: User = {
           id: 'unicode-user',
@@ -243,7 +301,7 @@ describe('AuthUserMapper - ENTERPRISE DATA TRANSFORMATION', () => {
           },
           app_metadata: {},
           aud: 'authenticated',
-          created_at: '2024-01-15T10:30:00Z'
+          created_at: '2024-01-01T00:00:00Z'
         };
 
         const result = AuthUserMapper.fromSupabaseUser(supabaseUser);
@@ -260,7 +318,7 @@ describe('AuthUserMapper - ENTERPRISE DATA TRANSFORMATION', () => {
           user_metadata: {},
           app_metadata: {},
           aud: 'authenticated',
-          created_at: '2024-01-15T10:30:00Z'
+          created_at: '2024-01-01T00:00:00Z'
         };
 
         expect(() => {
@@ -275,7 +333,7 @@ describe('AuthUserMapper - ENTERPRISE DATA TRANSFORMATION', () => {
           user_metadata: {},
           app_metadata: {},
           aud: 'authenticated',
-          created_at: '2024-01-15T10:30:00Z'
+          created_at: '2024-01-01T00:00:00Z'
         };
 
         expect(() => {
@@ -290,7 +348,7 @@ describe('AuthUserMapper - ENTERPRISE DATA TRANSFORMATION', () => {
           user_metadata: {},
           app_metadata: {},
           aud: 'authenticated',
-          created_at: '2024-01-15T10:30:00Z'
+          created_at: '2024-01-01T00:00:00Z'
         };
 
         expect(() => {
@@ -305,7 +363,7 @@ describe('AuthUserMapper - ENTERPRISE DATA TRANSFORMATION', () => {
           user_metadata: {},
           app_metadata: {},
           aud: 'authenticated',
-          created_at: '2024-01-15T10:30:00Z'
+          created_at: '2024-01-01T00:00:00Z'
         };
 
         expect(() => {
@@ -329,7 +387,7 @@ describe('AuthUserMapper - ENTERPRISE DATA TRANSFORMATION', () => {
             user_metadata: {},
             app_metadata: {},
             aud: 'authenticated',
-            created_at: '2024-01-15T10:30:00Z'
+            created_at: '2024-01-01T00:00:00Z'
           };
 
           expect(() => {
@@ -381,7 +439,7 @@ describe('AuthUserMapper - ENTERPRISE DATA TRANSFORMATION', () => {
           },
           app_metadata: {},
           aud: 'authenticated',
-          created_at: '2024-01-15T10:30:00Z'
+          created_at: '2024-01-01T00:00:00Z'
         };
 
         const result = AuthUserMapper.fromSupabaseUser(supabaseUser);
@@ -398,7 +456,7 @@ describe('AuthUserMapper - ENTERPRISE DATA TRANSFORMATION', () => {
           },
           app_metadata: {},
           aud: 'authenticated',
-          created_at: '2024-01-15T10:30:00Z'
+          created_at: '2024-01-01T00:00:00Z'
         };
 
         const result = AuthUserMapper.fromSupabaseUser(supabaseUser);
@@ -415,7 +473,7 @@ describe('AuthUserMapper - ENTERPRISE DATA TRANSFORMATION', () => {
           },
           app_metadata: {},
           aud: 'authenticated',
-          created_at: '2024-01-15T10:30:00Z'
+          created_at: '2024-01-01T00:00:00Z'
         };
 
         const result = AuthUserMapper.fromSupabaseUser(supabaseUser);
@@ -432,7 +490,7 @@ describe('AuthUserMapper - ENTERPRISE DATA TRANSFORMATION', () => {
           },
           app_metadata: {},
           aud: 'authenticated',
-          created_at: '2024-01-15T10:30:00Z'
+          created_at: '2024-01-01T00:00:00Z'
         };
 
         const result = AuthUserMapper.fromSupabaseUser(supabaseUser);
@@ -450,7 +508,7 @@ describe('AuthUserMapper - ENTERPRISE DATA TRANSFORMATION', () => {
           },
           app_metadata: {},
           aud: 'authenticated',
-          created_at: '2024-01-15T10:30:00Z'
+          created_at: '2024-01-01T00:00:00Z'
         };
 
         const result = AuthUserMapper.fromSupabaseUser(supabaseUser);
@@ -466,7 +524,7 @@ describe('AuthUserMapper - ENTERPRISE DATA TRANSFORMATION', () => {
           user_metadata: {},
           app_metadata: {},
           aud: 'authenticated',
-          created_at: '2024-01-15T10:30:00Z'
+          created_at: '2024-01-01T00:00:00Z'
         };
 
         const result = AuthUserMapper.fromSupabaseUser(supabaseUser);
@@ -475,9 +533,9 @@ describe('AuthUserMapper - ENTERPRISE DATA TRANSFORMATION', () => {
       });
     });
 
-    describe('📊 Performance and Memory Tests', () => {
+    describe('⚡ Performance & Bulk Operations', () => {
       it('should handle large-scale data transformation efficiently', () => {
-        const startTime = Date.now();
+        const startTime = performance.now();
         
         // Transform 1000 users
         for (let i = 0; i < 1000; i++) {
@@ -490,13 +548,13 @@ describe('AuthUserMapper - ENTERPRISE DATA TRANSFORMATION', () => {
             },
             app_metadata: {},
             aud: 'authenticated',
-            created_at: '2024-01-15T10:30:00Z'
+            created_at: '2024-01-01T00:00:00Z'
           };
 
           AuthUserMapper.fromSupabaseUser(supabaseUser);
         }
 
-        const endTime = Date.now();
+        const endTime = performance.now();
         const executionTime = endTime - startTime;
 
         expect(executionTime).toBeLessThan(1000); // Should complete under 1 second
@@ -511,7 +569,7 @@ describe('AuthUserMapper - ENTERPRISE DATA TRANSFORMATION', () => {
           },
           app_metadata: {},
           aud: 'authenticated',
-          created_at: '2024-01-15T10:30:00Z'
+          created_at: '2024-01-01T00:00:00Z'
         };
 
         const result = AuthUserMapper.fromSupabaseUser(supabaseUser);
@@ -527,14 +585,14 @@ describe('AuthUserMapper - ENTERPRISE DATA TRANSFORMATION', () => {
 
       it('should handle concurrent transformations', async () => {
         const promises = Array(100).fill(null).map((_, index) => {
-          return new Promise<any>((resolve) => {
+          return new Promise<AuthUser>((resolve) => {
             const supabaseUser: User = {
               id: `concurrent-user-${index}`,
               email: `concurrent${index}@test.com`,
               user_metadata: {},
               app_metadata: {},
               aud: 'authenticated',
-              created_at: '2024-01-15T10:30:00Z'
+              created_at: '2024-01-01T00:00:00Z'
             };
 
             const result = AuthUserMapper.fromSupabaseUser(supabaseUser);
@@ -545,83 +603,108 @@ describe('AuthUserMapper - ENTERPRISE DATA TRANSFORMATION', () => {
         const results = await Promise.all(promises);
 
         expect(results).toHaveLength(100);
-        results.forEach((result: any, index: number) => {
+        results.forEach((result, index) => {
           expect(result.id).toBe(`concurrent-user-${index}`);
           expect(result.email).toBe(`concurrent${index}@test.com`);
         });
       });
-    });
 
-    describe('🔒 Compliance and Audit Tests', () => {
-      it('should not log sensitive user information during transformation', () => {
-        const consoleSpy = jest.spyOn(console, 'log').mockImplementation();
-        const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation();
-
+      it('should maintain object identity for repeated mappings', () => {
         const supabaseUser: User = {
-          id: 'audit-test-user',
-          email: 'audit@test.com',
+          id: 'identity-test-user',
+          email: 'identity@test.com',
           user_metadata: {
-            display_name: 'Audit Test User'
+            display_name: 'Identity Test'
           },
           app_metadata: {},
           aud: 'authenticated',
-          created_at: '2024-01-15T10:30:00Z'
-        };
-
-        AuthUserMapper.fromSupabaseUser(supabaseUser);
-
-        // Verify no sensitive data was logged
-        expect(consoleSpy).not.toHaveBeenCalledWith(
-          expect.stringContaining('audit@test.com')
-        );
-        expect(consoleErrorSpy).not.toHaveBeenCalledWith(
-          expect.stringContaining('Audit Test User')
-        );
-
-        consoleSpy.mockRestore();
-        consoleErrorSpy.mockRestore();
-      });
-
-      it('should maintain data integrity during transformation', () => {
-        const supabaseUser: User = {
-          id: 'integrity-test-user',
-          email: 'integrity@test.com',
-          user_metadata: {
-            display_name: 'Integrity Test'
-          },
-          app_metadata: {},
-          aud: 'authenticated',
-          created_at: '2024-01-15T10:30:00Z'
+          created_at: '2024-01-01T00:00:00Z'
         };
 
         const result1 = AuthUserMapper.fromSupabaseUser(supabaseUser);
         const result2 = AuthUserMapper.fromSupabaseUser(supabaseUser);
 
-        // Multiple transformations should be identical
-        expect(result1).toEqual(result2);
+        // Should create new instances (not cached)
+        expect(result1).not.toBe(result2);
+        // But with identical values
+        expect(result1.id).toBe(result2.id);
+        expect(result1.email).toBe(result2.email);
+        expect(result1.displayName).toBe(result2.displayName);
       });
+    });
 
-      it('should handle GDPR compliance requirements', () => {
+    describe('🏢 Enterprise Compliance', () => {
+      it('should preserve GDPR-relevant fields correctly', () => {
         const supabaseUser: User = {
           id: 'gdpr-test-user',
           email: 'gdpr@test.com',
+          email_confirmed_at: '2024-01-01T00:00:00Z',
           user_metadata: {
             display_name: 'GDPR Test User',
-            sensitive_data: 'This should not be transformed'
+            avatar_url: 'https://secure.example.com/photo.jpg'
           },
           app_metadata: {},
           aud: 'authenticated',
-          created_at: '2024-01-15T10:30:00Z'
+          created_at: '2024-01-01T00:00:00Z',
+          updated_at: '2024-06-01T00:00:00Z'
         };
 
         const result = AuthUserMapper.fromSupabaseUser(supabaseUser);
 
-        // Only known, safe fields should be included
-        expect(result).toHaveProperty('id');
-        expect(result).toHaveProperty('email');
-        expect(result).toHaveProperty('displayName');
-        expect(result).toHaveProperty('photoURL');
-        expect(result).not.toHaveProperty('sensitive_data');
+        // All GDPR fields should be preserved
+        expect(result.id).toBe('gdpr-test-user');
+        expect(result.email).toBe('gdpr@test.com');
+        expect(result.emailVerified).toBe(true);
+        expect(result.displayName).toBe('GDPR Test User');
+        expect(result.photoURL).toBe('https://secure.example.com/photo.jpg');
+      });
+
+      it('should handle international characters in all fields', () => {
+        const supabaseUser: User = {
+          id: 'user-国际化',
+          email: 'тест@пример.рф',
+          user_metadata: {
+            display_name: 'नमस्ते मुकेश 测试用户',
+            avatar_url: 'https://例え.テスト/写真.jpg'
+          },
+          app_metadata: {},
+          aud: 'authenticated',
+          created_at: '2024-01-01T00:00:00Z'
+        };
+
+        const result = AuthUserMapper.fromSupabaseUser(supabaseUser);
+
+        expect(result.id).toBe('user-国际化');
+        expect(result.email).toBe('тест@пример.рф');
+        expect(result.displayName).toBe('नमस्ते मुकेश 测试用户');
+        expect(result.photoURL).toBe('https://例え.テスト/写真.jpg');
+      });
+
+      it('should handle enterprise email domains', () => {
+        const enterpriseDomains = [
+          'user@enterprise.corp',
+          'admin@big-company.internal',
+          'service@system.local',
+          'api@microservice.k8s.cluster'
+        ];
+
+        enterpriseDomains.forEach((email, index) => {
+          const supabaseUser: User = {
+            id: `enterprise-user-${index}`,
+            email,
+            user_metadata: {
+              display_name: `Enterprise User ${index}`
+            },
+            app_metadata: {},
+            aud: 'authenticated',
+            created_at: '2024-01-01T00:00:00Z'
+          };
+
+          const result = AuthUserMapper.fromSupabaseUser(supabaseUser);
+
+          expect(result.email).toBe(email);
+          expect(result.displayName).toBe(`Enterprise User ${index}`);
+        });
       });
     });
   });

@@ -81,13 +81,10 @@ import { SafeAreaView } from 'react-native';
 import { useTheme } from 'react-native-paper';
 
 // Shared Components
-import { 
-  InfoCard,
-  ActionCard,
-} from '@shared/components';
+import { InfoCard, ActionCard } from '@shared/components';
 
 // Core Services
-import { AlertService } from '@core/services';
+import { AlertService } from '@core/services/alert.service';
 import type { ActionItem } from '@shared/components/cards/types/card.types';
 
 // Hooks
@@ -158,13 +155,9 @@ type _UploadState = 'idle' | 'selecting' | 'uploading' | 'success' | 'error';
 // IMAGE HANDLING FUNCTIONS
 // =============================================================================
 
-
-
 // =============================================================================
 // UPLOAD & REMOVAL OPERATIONS
 // =============================================================================
-
-
 
 // =============================================================================
 // ACTION HANDLERS
@@ -230,36 +223,36 @@ const _handleMainAction = (_actionId: string): void => {
 // RENDER FUNCTIONS
 // =============================================================================
 
- /**
-  * Renders avatar preview component
-  *
-  * @function renderAvatarPreview
-  * @since 1.0.0
-  * @description Renders the avatar preview with conditional content based on
-  * selection state, including placeholder, selected image, and loading states.
-  *
-  * Rendering Logic:
-  * - Shows selected image with optimization
-  * - Displays camera FAB for initial selection
-  * - Handles loading states with activity indicators
-  * - Provides edit functionality for selected images
-  *
-  * Accessibility Features:
-  * - Descriptive labels for screen readers
-  * - Focus management during state changes
-  * - High contrast support
-  * - Touch target optimization
-  *
-  * @returns {React.ReactElement} Rendered avatar preview component
-  *
-  * @example
-  * ```tsx
-  * // Usage in preview section
-  * <View style={styles.avatarContainer}>
-  *   {renderAvatarPreview()}
-  * </View>
-  * ```
-  */
+/**
+ * Renders avatar preview component
+ *
+ * @function renderAvatarPreview
+ * @since 1.0.0
+ * @description Renders the avatar preview with conditional content based on
+ * selection state, including placeholder, selected image, and loading states.
+ *
+ * Rendering Logic:
+ * - Shows selected image with optimization
+ * - Displays camera FAB for initial selection
+ * - Handles loading states with activity indicators
+ * - Provides edit functionality for selected images
+ *
+ * Accessibility Features:
+ * - Descriptive labels for screen readers
+ * - Focus management during state changes
+ * - High contrast support
+ * - Touch target optimization
+ *
+ * @returns {React.ReactElement} Rendered avatar preview component
+ *
+ * @example
+ * ```tsx
+ * // Usage in preview section
+ * <View style={styles.avatarContainer}>
+ *   {renderAvatarPreview()}
+ * </View>
+ * ```
+ */
 
 // =============================================================================
 // MAIN COMPONENT
@@ -358,7 +351,10 @@ const _handleMainAction = (_actionId: string): void => {
  * @see {@link AvatarUploadScreenProps} For complete props interface
  * @see {@link createAvatarUploadScreenStyles} For styling implementation
  */
-export function AvatarUploadScreen({ navigation, route }: AvatarUploadScreenProps) {
+export function AvatarUploadScreen({
+  navigation,
+  route,
+}: AvatarUploadScreenProps) {
   // =============================================================================
   // DEPENDENCIES & HOOKS
   // =============================================================================
@@ -374,7 +370,7 @@ export function AvatarUploadScreen({ navigation, route }: AvatarUploadScreenProp
    * @description Provides theme configuration with dark/light mode support
    */
   const theme = useTheme();
-  
+
   /**
    * Avatar management hook for data operations
    * @description Unified Avatar Hook für Avatar Data Management
@@ -393,9 +389,11 @@ export function AvatarUploadScreen({ navigation, route }: AvatarUploadScreenProp
    */
   const [avatarService] = useState(() => new AvatarService());
   const [imagePickerService] = useState(() => new ImagePickerService());
-  
+
   // Local state for upload operations
-  const [selectedImage, setSelectedImage] = useState<string | null>(route.params?.currentAvatar || null);
+  const [selectedImage, setSelectedImage] = useState<string | null>(
+    route.params?.currentAvatar || null
+  );
   const [isUploading, setIsUploading] = useState(false);
   const [isSelecting, setIsSelecting] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
@@ -420,7 +418,7 @@ export function AvatarUploadScreen({ navigation, route }: AvatarUploadScreenProp
         cropperCircleOverlay: true,
         mediaType: 'photo',
         includeBase64: false,
-        quality: 0.8
+        quality: 0.8,
       });
       setSelectedImage(result.path);
     } catch (error) {
@@ -441,7 +439,7 @@ export function AvatarUploadScreen({ navigation, route }: AvatarUploadScreenProp
         cropperCircleOverlay: true,
         mediaType: 'photo',
         includeBase64: false,
-        quality: 0.8
+        quality: 0.8,
       });
       setSelectedImage(result.path);
     } catch (error) {
@@ -452,7 +450,11 @@ export function AvatarUploadScreen({ navigation, route }: AvatarUploadScreenProp
     }
   }, [imagePickerService]);
 
-  const uploadAvatar = useCallback(async (): Promise<{ success: boolean; error?: string; avatarUrl?: string }> => {
+  const uploadAvatar = useCallback(async (): Promise<{
+    success: boolean;
+    error?: string;
+    avatarUrl?: string;
+  }> => {
     if (!selectedImage) {
       return { success: false, error: 'No image selected' };
     }
@@ -463,10 +465,10 @@ export function AvatarUploadScreen({ navigation, route }: AvatarUploadScreenProp
 
     setIsUploading(true);
     setUploadProgress(0);
-    
+
     try {
       const userId = currentUser.id;
-      
+
       const result = await avatarService.uploadAvatar({
         userId,
         file: {
@@ -475,18 +477,18 @@ export function AvatarUploadScreen({ navigation, route }: AvatarUploadScreenProp
           size: 1024 * 1024, // 1MB default
           mime: 'image/jpeg',
           width: 500,
-          height: 500
+          height: 500,
         },
-        onProgress: (progress) => {
+        onProgress: progress => {
           setUploadProgress(progress);
-        }
+        },
       });
-      
+
       return result;
     } catch (error) {
       return {
         success: false,
-        error: error instanceof Error ? error.message : 'Upload failed'
+        error: error instanceof Error ? error.message : 'Upload failed',
       };
     } finally {
       setIsUploading(false);
@@ -503,7 +505,7 @@ export function AvatarUploadScreen({ navigation, route }: AvatarUploadScreenProp
     try {
       const userId = currentUser.id;
       const result = await avatarService.deleteAvatar(userId);
-      
+
       if (result.success) {
         setSelectedImage(null);
         return true;
@@ -527,16 +529,19 @@ export function AvatarUploadScreen({ navigation, route }: AvatarUploadScreenProp
       title: t('avatar.select.title'),
       message: t('avatar.select.message'),
       buttons: [
-        { text: t('common.cancel', { defaultValue: 'Abbrechen' }), style: 'cancel' },
+        {
+          text: t('common.cancel', { defaultValue: 'Abbrechen' }),
+          style: 'cancel',
+        },
         {
           text: t('avatar.select.camera'),
-          onPress: handleCamera
+          onPress: handleCamera,
         },
         {
           text: t('avatar.select.gallery'),
-          onPress: handleGallery
-        }
-      ]
+          onPress: handleGallery,
+        },
+      ],
     });
   };
 
@@ -547,7 +552,7 @@ export function AvatarUploadScreen({ navigation, route }: AvatarUploadScreenProp
       if (error.message !== 'User cancelled image selection') {
         AlertService.error({
           title: t('avatar.error.camera.title'),
-          message: error.message || t('avatar.error.camera.message')
+          message: error.message || t('avatar.error.camera.message'),
         });
       }
     }
@@ -560,7 +565,7 @@ export function AvatarUploadScreen({ navigation, route }: AvatarUploadScreenProp
       if (error.message !== 'User cancelled image selection') {
         AlertService.error({
           title: t('avatar.error.gallery.title'),
-          message: error.message || t('avatar.error.gallery.message')
+          message: error.message || t('avatar.error.gallery.message'),
         });
       }
     }
@@ -576,14 +581,14 @@ export function AvatarUploadScreen({ navigation, route }: AvatarUploadScreenProp
         // Invalidate avatar cache after successful upload
         console.log('Avatar upload successful, refreshing avatar cache...');
         await refreshAvatarAfterUpload();
-        
+
         AlertService.success({
           title: t('avatar.upload.success.title'),
           message: t('avatar.upload.success.message'),
           onPress: () => {
             // Navigate back after cache refresh
             navigation.goBack();
-          }
+          },
         });
       } else {
         throw new Error(result.error || 'Upload failed');
@@ -591,7 +596,7 @@ export function AvatarUploadScreen({ navigation, route }: AvatarUploadScreenProp
     } catch (error: any) {
       AlertService.error({
         title: t('avatar.upload.error.title'),
-        message: error?.message || t('avatar.upload.error.message')
+        message: error?.message || t('avatar.upload.error.message'),
       });
     }
   };
@@ -608,21 +613,23 @@ export function AvatarUploadScreen({ navigation, route }: AvatarUploadScreenProp
           const success = await removeAvatar();
           if (success) {
             // Invalidate avatar cache after successful removal
-            console.log('Avatar removal successful, refreshing avatar cache...');
+            console.log(
+              'Avatar removal successful, refreshing avatar cache...'
+            );
             await refreshAvatarAfterUpload();
           } else {
             AlertService.error({
               title: t('avatar.error.title'),
-              message: t('avatar.error.remove.message')
+              message: t('avatar.error.remove.message'),
             });
           }
         } catch (error: any) {
           AlertService.error({
             title: t('avatar.error.title'),
-            message: error?.message || t('avatar.error.remove.message')
+            message: error?.message || t('avatar.error.remove.message'),
           });
         }
-      }
+      },
     });
   };
 
@@ -671,16 +678,20 @@ export function AvatarUploadScreen({ navigation, route }: AvatarUploadScreenProp
       accessibilityLabel: t('avatar.select.accessibilityLabel'),
       accessibilityHint: t('avatar.select.accessibilityHint'),
     },
-    ...(selectedImage ? [{
-      id: 'removeImage',
-      label: t('avatar.remove.action'),
-      description: t('avatar.remove.description'),
-      icon: 'delete',
-      iconColor: '#EF5350',
-      disabled: isUploading,
-      accessibilityLabel: t('avatar.remove.accessibilityLabel'),
-      accessibilityHint: t('avatar.remove.accessibilityHint'),
-    }] : []),
+    ...(selectedImage
+      ? [
+          {
+            id: 'removeImage',
+            label: t('avatar.remove.action'),
+            description: t('avatar.remove.description'),
+            icon: 'delete',
+            iconColor: '#EF5350',
+            disabled: isUploading,
+            accessibilityLabel: t('avatar.remove.accessibilityLabel'),
+            accessibilityHint: t('avatar.remove.accessibilityHint'),
+          },
+        ]
+      : []),
   ];
 
   /**
@@ -745,19 +756,21 @@ export function AvatarUploadScreen({ navigation, route }: AvatarUploadScreenProp
 
   return (
     <SafeAreaView style={styles.container}>
-      <ScrollView 
-        style={[styles.scrollView, { backgroundColor: theme.colors.background }]}
+      <ScrollView
+        style={[
+          styles.scrollView,
+          { backgroundColor: theme.colors.background },
+        ]}
         contentContainerStyle={styles.content}
         showsVerticalScrollIndicator={false}
         bounces={true}
         testID="avatar-upload-screen"
       >
-        
         {/* Avatar Preview Section */}
         <InfoCard
           title={t('avatar.current.title')}
           description={
-            selectedImage 
+            selectedImage
               ? t('avatar.current.selected')
               : t('avatar.current.description')
           }
@@ -768,14 +781,12 @@ export function AvatarUploadScreen({ navigation, route }: AvatarUploadScreenProp
           {isSelecting ? (
             <View style={styles.loadingContainer}>
               <ActivityIndicator size="large" />
-              <Text style={styles.loadingText}>
-                {t('avatar.selecting')}
-              </Text>
+              <Text style={styles.loadingText}>{t('avatar.selecting')}</Text>
             </View>
           ) : (
             <View style={styles.avatarContainer}>
               {renderAvatarPreview()}
-              
+
               {selectedImage && !isUploading && (
                 <FAB
                   icon="pencil"
@@ -859,4 +870,4 @@ AvatarUploadScreen.displayName = 'AvatarUploadScreen';
  * Default export for convenient importing
  * @description Enables both named and default import patterns for flexibility
  */
-export default AvatarUploadScreen; 
+export default AvatarUploadScreen;
