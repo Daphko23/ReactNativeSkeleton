@@ -290,31 +290,68 @@ export default function AppNavigator({
   const { isAuthenticated, user, isLoading } = useAuth();
   const { theme, isDark } = useTheme();
 
+  // 🔥 CRITICAL FIX: Force re-render on all auth state changes
+  // useMemo ensures component re-renders when any auth dependency changes
+  const authState = React.useMemo(
+    () => ({
+      isAuthenticated,
+      user,
+      isLoading,
+      timestamp: Date.now(),
+    }),
+    [isAuthenticated, user, isLoading]
+  );
+
   // 🔥 DEBUG: Auth State Logging
   console.log('[AppNavigator] Auth State Debug:', {
-    isAuthenticated,
-    hasUser: !!user,
-    userId: user?.id,
-    userEmail: user?.email ? `${user.email.substring(0, 3)}***` : undefined,
-    isLoading,
+    isAuthenticated: authState.isAuthenticated,
+    hasUser: !!authState.user,
+    userId: authState.user?.id,
+    userEmail: authState.user?.email
+      ? `${authState.user.email.substring(0, 3)}***`
+      : undefined,
+    isLoading: authState.isLoading,
     timestamp: new Date().toISOString(),
   });
 
   // 🔥 LOGOUT FIX: Stabiler Auth State Key ohne Date.now()
   // 🔥 CRITICAL FIX: Berücksichtige isLoading State für korrekte Navigation
-  const isUserAuthenticated =
-    isAuthenticated && !!user && !!user.id && !isLoading;
+  const isUserAuthenticated = React.useMemo(() => {
+    return (
+      authState.isAuthenticated &&
+      !!authState.user &&
+      !!authState.user.id &&
+      !authState.isLoading
+    );
+  }, [authState.isAuthenticated, authState.user, authState.isLoading]);
 
   // 🔥 DEBUG: Navigation Decision Logging
   console.log('[AppNavigator] Navigation Decision:', {
-    isAuthenticated,
-    hasUser: !!user,
-    userId: user?.id,
-    isLoading,
+    isAuthenticated: authState.isAuthenticated,
+    hasUser: !!authState.user,
+    userId: authState.user?.id,
+    isLoading: authState.isLoading,
     isUserAuthenticated,
     willRenderMain: isUserAuthenticated,
     willRenderAuth: !isUserAuthenticated,
   });
+
+  // 🔥 FORCE RE-RENDER: Track auth state changes with useEffect
+  React.useEffect(() => {
+    console.log('[AppNavigator] Auth State Effect Triggered:', {
+      isAuthenticated: authState.isAuthenticated,
+      hasUser: !!authState.user,
+      userId: authState.user?.id,
+      isLoading: authState.isLoading,
+      isUserAuthenticated,
+      timestamp: new Date().toISOString(),
+    });
+  }, [
+    authState.isAuthenticated,
+    authState.user?.id,
+    authState.isLoading,
+    isUserAuthenticated,
+  ]);
 
   /**
    * Custom navigation theme configuration.
@@ -341,9 +378,17 @@ export default function AppNavigator({
     },
   };
 
+  // 🔥 STABLE KEY: Only changes when auth state actually changes
+  const navigatorKey = React.useMemo(() => {
+    return `auth-${isUserAuthenticated ? 'authenticated' : 'guest'}-${authState.user?.id || 'none'}`;
+  }, [isUserAuthenticated, authState.user?.id]);
+
   return (
     <NavigationContainer linking={linking} theme={navigationTheme}>
-      <Stack.Navigator screenOptions={{ headerShown: false }}>
+      <Stack.Navigator
+        key={navigatorKey}
+        screenOptions={{ headerShown: false }}
+      >
         {isUserAuthenticated ? (
           <Stack.Screen name="Main" component={MainTabNavigator} />
         ) : (
