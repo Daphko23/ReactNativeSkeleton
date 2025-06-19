@@ -290,32 +290,28 @@ export default function AppNavigator({
   const { isAuthenticated, user, isLoading } = useAuth();
   const { theme, isDark } = useTheme();
 
+  // 🔥 RENDER TRACKING: Zähle AppNavigator Renders
+  const renderCountRef = React.useRef(0);
+  renderCountRef.current += 1;
+  console.log(`[AppNavigator] 🔄 RENDER #${renderCountRef.current}`);
+
   // Simple auth state - no complex event system needed
 
-  // 🔥 EINFACHE LÖSUNG: Auth State berechnen - keine komplexen Events nötig
+  // 🔥 ULTIMATE DEBUG: Löse das Auth State Problem
   const isUserAuthenticated = React.useMemo(() => {
     const result = isAuthenticated && !!user && !!user.id && !isLoading;
 
-    // 🔥 DEBUG: Auth State Logging
-    console.log('[AppNavigator] Auth State Debug:', {
+    // 🔥 ULTRA DEBUG: Auth State Logging
+    console.log('[AppNavigator] 🚨 FULL AUTH STATE DEBUG:', {
       isAuthenticated,
       hasUser: !!user,
       userId: user?.id,
       userEmail: user?.email ? `${user.email.substring(0, 3)}***` : undefined,
       isLoading,
+      userObject: user ? 'EXISTS' : 'NULL',
       result,
+      willNavigateTo: result ? 'MAIN' : 'AUTH',
       timestamp: new Date().toISOString(),
-    });
-
-    // 🔥 DEBUG: Navigation Decision Logging
-    console.log('[AppNavigator] Navigation Decision:', {
-      isAuthenticated,
-      hasUser: !!user,
-      userId: user?.id,
-      isLoading,
-      isUserAuthenticated: result,
-      willRenderMain: result,
-      willRenderAuth: !result,
     });
 
     return result;
@@ -358,18 +354,43 @@ export default function AppNavigator({
     [isDark, theme]
   );
 
-  // 🎯 EINFACHSTE LÖSUNG: NavigationContainer Reset bei Auth Änderung
-  const navigationKey = React.useMemo(() => {
-    return isUserAuthenticated ? 'nav-authenticated' : 'nav-guest';
+  // 🚀 FINALE LÖSUNG: Programmatische Navigation ohne Key-Reset
+  const navigationRef = React.useRef<any>(null);
+  const currentRouteRef = React.useRef<string | null>(null);
+  
+  // 🔥 NAVIGATION CONTROLLER: Navigiere automatisch bei Auth Änderungen
+  React.useEffect(() => {
+    if (!navigationRef.current) return;
+    
+    const targetRoute = isUserAuthenticated ? 'Main' : 'Auth';
+    const currentRoute = currentRouteRef.current;
+    
+    console.log(`[AppNavigator] 🎯 Navigation Controller: ${currentRoute} -> ${targetRoute}`);
+    
+    if (currentRoute !== targetRoute) {
+      console.log(`[AppNavigator] 🚀 Navigating to: ${targetRoute}`);
+      
+      navigationRef.current.reset({
+        index: 0,
+        routes: [{ name: targetRoute }],
+      });
+      
+      currentRouteRef.current = targetRoute;
+    }
   }, [isUserAuthenticated]);
   
-  console.log(`[AppNavigator] 🚀 Resetting navigation with key: ${navigationKey}, initial route: ${isUserAuthenticated ? 'Main' : 'Auth'}`);
+  console.log(`[AppNavigator] 🚀 Rendering with target: ${isUserAuthenticated ? 'Main' : 'Auth'}`);
   
   return (
     <NavigationContainer
-      key={navigationKey}
+      ref={navigationRef}
       linking={linking}
       theme={navigationTheme}
+      onReady={() => {
+        const initialRoute = isUserAuthenticated ? 'Main' : 'Auth';
+        currentRouteRef.current = initialRoute;
+        console.log(`[AppNavigator] 🎯 Navigation Ready: ${initialRoute}`);
+      }}
     >
       <Stack.Navigator 
         initialRouteName={isUserAuthenticated ? 'Main' : 'Auth'}
