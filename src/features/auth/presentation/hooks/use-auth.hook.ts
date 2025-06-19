@@ -428,6 +428,15 @@ export const useAuth = (): UseAuthReturn => {
       queryClient.invalidateQueries({ queryKey: authQueryKeys.user() });
       queryClient.refetchQueries({ queryKey: authQueryKeys.user() });
 
+      // 🚀 ADDITIONAL FIX: Force immediate auth state propagation
+      // Ensures all components immediately see the authenticated state
+      queryClient.invalidateQueries({ queryKey: authQueryKeys.all });
+
+      // Force synchronous update for immediate navigation
+      setTimeout(() => {
+        queryClient.setQueryData(authQueryKeys.user(), user);
+      }, 0);
+
       // Invalidate related queries
       queryClient.invalidateQueries({ queryKey: authQueryKeys.status() });
 
@@ -646,6 +655,18 @@ export const useAuth = (): UseAuthReturn => {
 
       // 🔥 NAVIGATION FIX: Force immediate UI update nach Login
       queryClient.setQueryData(authQueryKeys.user(), user);
+
+      // 🚀 ENHANCED FIX: Multiple sync strategies for immediate navigation
+      // 1. Immediate query data set
+      queryClient.setQueryData(authQueryKeys.user(), user);
+
+      // 2. Force all auth queries to refresh immediately
+      queryClient.invalidateQueries({ queryKey: authQueryKeys.all });
+
+      // 3. Synchronous update in next tick
+      Promise.resolve().then(() => {
+        queryClient.setQueryData(authQueryKeys.user(), user);
+      });
 
       logger.info(
         'Login action completed with immediate auth state sync (Champion)',

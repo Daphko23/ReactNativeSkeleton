@@ -293,6 +293,11 @@ export default function AppNavigator({
   // 🔥 NAVIGATION FIX: Simple Auth State Key für Re-renders
   const authStateKey = `${isAuthenticated}-${user?.id || 'none'}`;
 
+  // 🚀 ENHANCED FIX: Robust auth state detection
+  // Multiple checks to ensure proper navigation state
+  const isUserAuthenticated = isAuthenticated && !!user && !!user.id;
+  const authKey = `auth-${isUserAuthenticated ? 'true' : 'false'}-${user?.id || 'guest'}-${Date.now()}`;
+
   /**
    * Custom navigation theme configuration.
    * Maps application theme colors to React Navigation theme structure.
@@ -348,11 +353,8 @@ export default function AppNavigator({
 
   return (
     <NavigationContainer linking={linking} theme={navigationTheme}>
-      <Stack.Navigator
-        key={authStateKey}
-        screenOptions={{ headerShown: false }}
-      >
-        {isAuthenticated ? (
+      <Stack.Navigator key={authKey} screenOptions={{ headerShown: false }}>
+        {isUserAuthenticated ? (
           <Stack.Screen name="Main" component={MainTabNavigator} />
         ) : (
           <Stack.Screen name="Auth" component={AuthNavigator} />

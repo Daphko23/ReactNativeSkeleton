@@ -2,17 +2,17 @@
  * @fileoverview LOGIN-SCREEN: Hook-Centric Enterprise Login Screen
  * @description Enterprise Login Screen mit Hook-Centric Architecture (Migration V2→Main).
  * Nutzt spezialisierte Auth Hooks für optimale Trennung von Business Logic und UI.
- * 
+ *
  * @businessRule BR-600: Hook-centric authentication architecture
  * @businessRule BR-601: Specialized hooks for different auth concerns
  * @businessRule BR-602: Optimized component re-rendering patterns
  * @businessRule BR-603: Enhanced developer experience with clean separation
- * 
+ *
  * @architecture React functional component with specialized auth hooks
  * @architecture Clear separation: Hooks = Logic, Components = UI/UX
  * @architecture Optimal performance through selective re-rendering
  * @architecture Enterprise-grade code maintainability
- * 
+ *
  * @since 3.0.0
  * @version 3.0.0
  * @author ReactNativeSkeleton Phase3 Team
@@ -42,10 +42,10 @@ import { FormErrorText } from '@shared/components/form-text-input/form-text-erro
 import { createLoginScreenStyles } from './login.screen.styles';
 
 // ** HOOK-CENTRIC ARCHITECTURE - PHASE 3 **
-import { 
+import {
   useAuth,
-  useAuthSocial, 
-  useAuthSecurity 
+  useAuthSocial,
+  useAuthSecurity,
 } from '@features/auth/presentation/hooks';
 
 // ** SHARED INFRASTRUCTURE **
@@ -83,7 +83,7 @@ interface TouchedFields {
 /**
  * @component LoginScreen
  * @description Hook-Centric Enterprise Login Screen
- * 
+ *
  * ARCHITECTURE IMPROVEMENTS:
  * ✅ useAuth() - Core login functionality
  * ✅ useAuthSocial() - Google/Apple OAuth specialized hook
@@ -91,11 +91,11 @@ interface TouchedFields {
  * ✅ Reduced complexity: From 200+ lines to focused UI logic
  * ✅ Better performance: Selective re-rendering through hook optimization
  * ✅ Enhanced maintainability: Clear separation of concerns
- * 
+ *
  * FEATURES:
  * - Email/Password authentication with validation
  * - Biometric authentication (Face ID, Touch ID, Fingerprint)
- * - OAuth social login (Google, Apple) 
+ * - OAuth social login (Google, Apple)
  * - Real-time form validation
  * - Loading states and error handling
  * - Accessibility support
@@ -104,19 +104,19 @@ interface TouchedFields {
 const LoginScreen = () => {
   // ** HOOK-CENTRIC ARCHITECTURE - PHASE 3 **
   // Core authentication logic
-  const { 
-    login, 
-    isLoading: isAuthLoading, 
+  const {
+    login,
+    isLoading: isAuthLoading,
     error: authError,
-    loginError: authLoginError,  // 🎯 LOGIN-SPECIFIC ERROR FIX
-    clearError 
+    loginError: authLoginError, // 🎯 LOGIN-SPECIFIC ERROR FIX
+    clearError,
   } = useAuth();
 
   // Social authentication specialized hook
   const {
     loginWithGoogle,
     isLoading: isSocialLoading,
-    error: socialError
+    error: socialError,
   } = useAuthSocial();
 
   // Security & biometric specialized hook
@@ -124,7 +124,7 @@ const LoginScreen = () => {
     isBiometricEnabled: isBiometricAvailable,
     isLoadingMfa: isSecurityLoading,
     securityError,
-    clearSecurityError: _clearSecurityError
+    clearSecurityError: _clearSecurityError,
   } = useAuthSecurity();
 
   // Mock functions for missing properties
@@ -141,7 +141,8 @@ const LoginScreen = () => {
 
   // ** SHARED INFRASTRUCTURE **
   const authT = useAuthTranslations();
-  const navigation = useNavigation<NativeStackNavigationProp<AuthStackParamList>>();
+  const navigation =
+    useNavigation<NativeStackNavigationProp<AuthStackParamList>>();
   const { theme } = useTheme();
   const styles = createLoginScreenStyles(theme);
 
@@ -150,7 +151,9 @@ const LoginScreen = () => {
     email: '',
     password: '',
   });
-  const [validationErrors, setValidationErrors] = useState<ValidationErrors>({});
+  const [validationErrors, setValidationErrors] = useState<ValidationErrors>(
+    {}
+  );
   const [touchedFields, setTouchedFields] = useState<TouchedFields>({
     email: false,
     password: false,
@@ -183,7 +186,7 @@ const LoginScreen = () => {
    */
   const validateForm = useCallback(() => {
     const errors: ValidationErrors = {};
-    
+
     // Email validation
     if (!formData.email) {
       errors.email = authT.validation.emailRequired;
@@ -199,17 +202,24 @@ const LoginScreen = () => {
     }
 
     setValidationErrors(errors);
-    setIsFormValid(Object.keys(errors).length === 0 && !!formData.email && !!formData.password);
+    setIsFormValid(
+      Object.keys(errors).length === 0 &&
+        !!formData.email &&
+        !!formData.password
+    );
   }, [formData, authT]);
 
   /**
    * Update form field value and mark as touched
    */
-  const updateFormField = useCallback((field: keyof LoginFormData, value: string) => {
-    setFormData(prev => ({ ...prev, [field]: value }));
-    setTouchedFields(prev => ({ ...prev, [field]: true }));
-    clearError();
-  }, [clearError]);
+  const updateFormField = useCallback(
+    (field: keyof LoginFormData, value: string) => {
+      setFormData(prev => ({ ...prev, [field]: value }));
+      setTouchedFields(prev => ({ ...prev, [field]: true }));
+      clearError();
+    },
+    [clearError]
+  );
 
   // ** AUTHENTICATION HANDLERS - USING HOOKS **
   /**
@@ -221,26 +231,44 @@ const LoginScreen = () => {
       return;
     }
 
-    console.log('[LoginScreen] Starting login with useAuth hook for:', formData.email);
+    console.log(
+      '[LoginScreen] Starting login with useAuth hook for:',
+      formData.email
+    );
     try {
       await login(formData.email, formData.password);
       console.log('[LoginScreen] Login completed successfully via hook');
+
+      // 🚀 NAVIGATION FIX: Direct navigation nach erfolgreichem Login
+      // Löst Race Condition zwischen TanStack Query Updates und Navigation
+      console.log('[LoginScreen] Triggering direct navigation to Main app');
+      navigation.reset({
+        index: 0,
+        routes: [{ name: 'Main' } as any],
+      });
     } catch (error) {
       // 🎯 UX FIX: Keine Console-Errors für erwartete Business-Fehler
       // Error-Anzeige erfolgt über die UI (FormErrorText), nicht über Console-Errors
-      console.log('[LoginScreen] Login failed via hook (handled by UI):', (error as Error).message);
+      console.log(
+        '[LoginScreen] Login failed via hook (handled by UI):',
+        (error as Error).message
+      );
       // Error handling is done by the useAuth hook - UI shows user-friendly message
     }
-  }, [isFormValid, login, formData.email, formData.password]);
+  }, [isFormValid, login, formData.email, formData.password, navigation]);
 
   /**
    * Handle biometric login using useAuthSecurity hook
    */
   const handleBiometricLogin = useCallback(async () => {
-    console.log('[LoginScreen] Starting biometric authentication via useAuthSecurity hook');
+    console.log(
+      '[LoginScreen] Starting biometric authentication via useAuthSecurity hook'
+    );
     try {
       await authenticateWithBiometric();
-      console.log('[LoginScreen] Biometric authentication completed successfully');
+      console.log(
+        '[LoginScreen] Biometric authentication completed successfully'
+      );
     } catch (error) {
       console.error('[LoginScreen] Biometric authentication failed:', error);
       Alert.alert(
@@ -276,9 +304,10 @@ const LoginScreen = () => {
 
   // ** COMPUTED VALUES FOR UI **
   const isLoading = isAuthLoading || isSocialLoading || isSecurityLoading;
-  
+
   // 🎯 LOGIN ERROR FIX: Kombiniere alle Error-Quellen für UI-Anzeige
-  const currentError = authLoginError || authError || socialError || securityError;
+  const currentError =
+    authLoginError || authError || socialError || securityError;
 
   return (
     <SafeAreaView style={styles.container}>
@@ -305,11 +334,14 @@ const LoginScreen = () => {
             <FormTextInput
               label={authT.login.emailLabel}
               value={formData.email}
-              onChangeText={(value) => updateFormField('email', value)}
+              onChangeText={value => updateFormField('email', value)}
               keyboardType="email-address"
               autoCapitalize="none"
               autoCorrect={false}
-              error={(touchedFields.email && !!validationErrors.email) || !!currentError}
+              error={
+                (touchedFields.email && !!validationErrors.email) ||
+                !!currentError
+              }
             />
             {touchedFields.email && validationErrors.email && (
               <Text style={styles.validationError}>
@@ -320,9 +352,12 @@ const LoginScreen = () => {
             <FormTextInput
               label={authT.login.passwordLabel}
               value={formData.password}
-              onChangeText={(value) => updateFormField('password', value)}
+              onChangeText={value => updateFormField('password', value)}
               secureTextEntry
-              error={(touchedFields.password && !!validationErrors.password) || !!currentError}
+              error={
+                (touchedFields.password && !!validationErrors.password) ||
+                !!currentError
+              }
             />
             {touchedFields.password && validationErrors.password && (
               <Text style={styles.validationError}>
@@ -345,7 +380,7 @@ const LoginScreen = () => {
             <View style={styles.biometricContainer}>
               <Divider style={styles.divider} />
               <Text style={styles.orText}>{authT.login.orText}</Text>
-              
+
               <TouchableOpacity
                 style={styles.biometricButton}
                 onPress={handleBiometricLogin}
@@ -369,7 +404,7 @@ const LoginScreen = () => {
           <View style={styles.oauthContainer}>
             <Divider style={styles.divider} />
             <Text style={styles.socialText}>{authT.login.socialText}</Text>
-            
+
             <View style={styles.socialButtonsContainer}>
               <TouchableOpacity
                 style={[styles.socialButton, styles.googleButton]}
@@ -388,7 +423,12 @@ const LoginScreen = () => {
 
               <TouchableOpacity
                 style={[styles.socialButton, styles.appleButton]}
-                onPress={() => Alert.alert('Apple Login', 'Using useAuthSocial Hook - Coming Soon')}
+                onPress={() =>
+                  Alert.alert(
+                    'Apple Login',
+                    'Using useAuthSocial Hook - Coming Soon'
+                  )
+                }
                 disabled={isSocialLoading}
               >
                 <Text style={styles.socialIcon}>🍎</Text>
@@ -403,9 +443,7 @@ const LoginScreen = () => {
               onPress={() => navigation.navigate('Register')}
               style={styles.linkContainer}
             >
-              <Text style={styles.linkText}>
-                {authT.navigation.noAccount}
-              </Text>
+              <Text style={styles.linkText}>{authT.navigation.noAccount}</Text>
             </TouchableOpacity>
 
             <TouchableOpacity
@@ -433,4 +471,4 @@ const LoginScreen = () => {
   );
 };
 
-export default withGuestGuard(LoginScreen); 
+export default withGuestGuard(LoginScreen);
