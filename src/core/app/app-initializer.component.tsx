@@ -261,22 +261,35 @@ export const AppInitializer = ({
     hasInitialized: false,
   });
 
-  // 🔥 CRITICAL FIX: React to auth state changes - force ready state when auth is clear
+  // 🔥 CONTINUOUS FIX: Always react to auth state changes after initialization
   useEffect(() => {
-    // If we have clear auth state (either authenticated or not), and init is done, set ready
-    if (initializationState.current.hasInitialized && !isLoading) {
+    // Always set ready when auth state is clear (after initial setup)
+    if (initializationState.current.hasInitialized) {
       console.log(
-        '🔥 AppInitializer: Auth state is clear, setting ready=true',
+        '🔥 AppInitializer: Auth state change detected, updating ready state',
         {
           isAuthenticated,
           hasUser: !!user,
           isLoading,
+          currentReady: isReady,
+          willSetReady: true,
           timestamp: new Date().toISOString(),
         }
       );
       setIsReady(true);
     }
-  }, [isAuthenticated, user, isLoading]);
+  }, [isAuthenticated, user?.id, isLoading, isReady]);
+
+  // 🔥 FORCE RE-RENDER: Force component update on every auth state change
+  const [forceUpdateCounter, setForceUpdateCounter] = useState(0);
+  useEffect(() => {
+    if (initializationState.current.hasInitialized) {
+      console.log(
+        '🔥 AppInitializer: Forcing re-render due to auth state change'
+      );
+      setForceUpdateCounter(prev => prev + 1);
+    }
+  }, [isAuthenticated, user?.id, isLoading]);
 
   useEffect(() => {
     // 🔥 PREVENT DOUBLE INITIALIZATION
@@ -405,6 +418,7 @@ export const AppInitializer = ({
     isAuthenticated,
     hasUser: !!user,
     isLoading,
+    forceUpdateCounter,
     willRenderChildren: isReady,
     timestamp: new Date().toISOString(),
   });
