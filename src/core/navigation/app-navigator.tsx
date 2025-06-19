@@ -358,27 +358,25 @@ export default function AppNavigator({
     [isDark, theme]
   );
 
-  // 🔥 EINFACHE LÖSUNG: Eine NavigationContainer, konditionelle Navigation mit stabilem Key
-  const stackKey = React.useMemo(() => {
-    return isUserAuthenticated ? 'authenticated-stack' : 'guest-stack';
+  // 🎯 EINFACHSTE LÖSUNG: NavigationContainer Reset bei Auth Änderung
+  const navigationKey = React.useMemo(() => {
+    return isUserAuthenticated ? 'nav-authenticated' : 'nav-guest';
   }, [isUserAuthenticated]);
   
-  console.log(`[AppNavigator] 🚀 Rendering ${isUserAuthenticated ? 'MAIN' : 'AUTH'} Stack (key: ${stackKey})`);
+  console.log(`[AppNavigator] 🚀 Resetting navigation with key: ${navigationKey}, initial route: ${isUserAuthenticated ? 'Main' : 'Auth'}`);
   
   return (
     <NavigationContainer
+      key={navigationKey}
       linking={linking}
       theme={navigationTheme}
     >
       <Stack.Navigator 
-        key={stackKey}
+        initialRouteName={isUserAuthenticated ? 'Main' : 'Auth'}
         screenOptions={{ headerShown: false }}
       >
-        {isUserAuthenticated ? (
-          <Stack.Screen name="Main" component={MainTabNavigator} />
-        ) : (
-          <Stack.Screen name="Auth" component={AuthNavigator} />
-        )}
+        <Stack.Screen name="Auth" component={AuthNavigator} />
+        <Stack.Screen name="Main" component={MainTabNavigator} />
       </Stack.Navigator>
     </NavigationContainer>
   );
