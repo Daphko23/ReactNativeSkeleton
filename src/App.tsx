@@ -232,35 +232,77 @@ function App(): React.JSX.Element {
 }
 
 /**
- * App Root Component with Auth State Key-based Re-mounting
+ * Navigation Controller with Event-Based System
  *
- * This component ensures complete re-mounting of the AppInitializer
- * and AppNavigator when auth state changes, solving React closure
- * and state propagation issues.
+ * This component uses a global navigation event system that bypasses
+ * React state dependencies and directly controls navigation.
  */
 function AppRoot(): React.JSX.Element {
-  // 🔥 AGGRESSIVE FIX: Get auth state directly for key-based re-mounting
+  const [navigationState, setNavigationState] = React.useState<{
+    isAuthenticated: boolean;
+    userId?: string;
+    isLoading: boolean;
+    lastUpdate: number;
+  }>({
+    isAuthenticated: false,
+    userId: undefined,
+    isLoading: true,
+    lastUpdate: Date.now(),
+  });
+
+  // 🔥 ULTIMATE FIX: Direct Auth State Observer with Event Emission
   const { isAuthenticated, user, isLoading } =
     require('@features/auth/presentation/hooks').useAuth();
 
-  // 🔥 AGGRESSIVE KEY: Force complete re-mount on auth state changes
-  const appKey = React.useMemo(() => {
-    const authStatus = isAuthenticated ? 'authenticated' : 'guest';
-    const userId = user?.id || 'none';
-    const loadingStatus = isLoading ? 'loading' : 'ready';
-    return `app-${authStatus}-${userId}-${loadingStatus}`;
+  React.useEffect(() => {
+    const newState = {
+      isAuthenticated,
+      userId: user?.id,
+      isLoading,
+      lastUpdate: Date.now(),
+    };
+
+    console.log('🚀 AppRoot: Navigation Event Triggered', {
+      oldState: navigationState,
+      newState,
+      willUpdate: true,
+      timestamp: new Date().toISOString(),
+    });
+
+    setNavigationState(newState);
+
+    // 🔥 EMIT GLOBAL NAVIGATION EVENT
+    if (typeof window !== 'undefined') {
+      window.dispatchEvent(
+        new CustomEvent('auth-navigation-change', {
+          detail: newState,
+        })
+      );
+    }
   }, [isAuthenticated, user?.id, isLoading]);
 
-  console.log('🔥 AppRoot: Key-based re-mounting with key:', appKey, {
-    isAuthenticated,
-    hasUser: !!user,
-    userId: user?.id,
-    isLoading,
+  // 🔥 STABLE KEY: Only update on actual navigation state changes
+  const navigationKey = React.useMemo(() => {
+    const authStatus = navigationState.isAuthenticated
+      ? 'authenticated'
+      : 'guest';
+    const userId = navigationState.userId || 'none';
+    const loadingStatus = navigationState.isLoading ? 'loading' : 'ready';
+    return `nav-${authStatus}-${userId}-${loadingStatus}`;
+  }, [
+    navigationState.isAuthenticated,
+    navigationState.userId,
+    navigationState.isLoading,
+  ]);
+
+  console.log('🔥 AppRoot: Navigation State Applied:', {
+    navigationKey,
+    state: navigationState,
     timestamp: new Date().toISOString(),
   });
 
   return (
-    <AppInitializer key={appKey}>
+    <AppInitializer key={navigationKey}>
       <AppNavigator linking={linking} />
     </AppInitializer>
   );

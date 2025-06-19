@@ -290,11 +290,35 @@ export default function AppNavigator({
   const { isAuthenticated, user, isLoading } = useAuth();
   const { theme, isDark } = useTheme();
 
+  // 🔥 ULTIMATE FIX: Additional Global Event Listener as Fallback
+  const [globalNavState, setGlobalNavState] = React.useState<{
+    lastUpdate: number;
+  }>({ lastUpdate: 0 });
+
+  React.useEffect(() => {
+    const handleGlobalNavEvent = (event: any) => {
+      console.log(
+        '🌍 AppNavigator: Global Navigation Event Received:',
+        event.detail
+      );
+      setGlobalNavState({ lastUpdate: Date.now() });
+    };
+
+    if (typeof window !== 'undefined') {
+      window.addEventListener('auth-navigation-change', handleGlobalNavEvent);
+      return () =>
+        window.removeEventListener(
+          'auth-navigation-change',
+          handleGlobalNavEvent
+        );
+    }
+  }, []);
+
   // 🔥 RADICAL FIX: Berechne Auth State mit garantierter Re-Render Reaktion
   const isUserAuthenticated = React.useMemo(() => {
     const result = isAuthenticated && !!user && !!user.id && !isLoading;
 
-    // 🔥 DEBUG: Auth State Logging
+    // 🔥 DEBUG: Auth State Logging (now includes global nav state)
     console.log('[AppNavigator] Auth State Debug:', {
       isAuthenticated,
       hasUser: !!user,
@@ -302,6 +326,7 @@ export default function AppNavigator({
       userEmail: user?.email ? `${user.email.substring(0, 3)}***` : undefined,
       isLoading,
       result,
+      globalNavUpdate: globalNavState.lastUpdate,
       timestamp: new Date().toISOString(),
     });
 
@@ -317,9 +342,9 @@ export default function AppNavigator({
     });
 
     return result;
-  }, [isAuthenticated, user, isLoading]);
+  }, [isAuthenticated, user, isLoading, globalNavState.lastUpdate]);
 
-  // 🔥 FORCE RE-RENDER: Track auth state changes with useEffect
+  // 🔥 FORCE RE-RENDER: Track auth state changes with useEffect (including global events)
   React.useEffect(() => {
     console.log('[AppNavigator] Auth State Effect Triggered:', {
       isAuthenticated,
@@ -327,9 +352,16 @@ export default function AppNavigator({
       userId: user?.id,
       isLoading,
       isUserAuthenticated,
+      globalNavUpdate: globalNavState.lastUpdate,
       timestamp: new Date().toISOString(),
     });
-  }, [isAuthenticated, user?.id, isLoading, isUserAuthenticated]);
+  }, [
+    isAuthenticated,
+    user?.id,
+    isLoading,
+    isUserAuthenticated,
+    globalNavState.lastUpdate,
+  ]);
 
   /**
    * Custom navigation theme configuration.

@@ -261,6 +261,33 @@ export const AppInitializer = ({
     hasInitialized: false,
   });
 
+  // 🔥 ULTIMATE BACKUP: Global Event Listener for Navigation Changes
+  const [globalEventCounter, setGlobalEventCounter] = useState(0);
+
+  React.useEffect(() => {
+    const handleGlobalNavEvent = (event: any) => {
+      console.log(
+        '🌍 AppInitializer: Global Navigation Event Received:',
+        event.detail
+      );
+      setGlobalEventCounter(prev => prev + 1);
+
+      // Force ready state when global event occurs
+      if (initializationState.current.hasInitialized) {
+        setIsReady(true);
+      }
+    };
+
+    if (typeof window !== 'undefined') {
+      window.addEventListener('auth-navigation-change', handleGlobalNavEvent);
+      return () =>
+        window.removeEventListener(
+          'auth-navigation-change',
+          handleGlobalNavEvent
+        );
+    }
+  }, []);
+
   // 🔥 CONTINUOUS FIX: Always react to auth state changes after initialization
   useEffect(() => {
     // Always set ready when auth state is clear (after initial setup)
@@ -419,6 +446,7 @@ export const AppInitializer = ({
     hasUser: !!user,
     isLoading,
     forceUpdateCounter,
+    globalEventCounter,
     willRenderChildren: isReady,
     timestamp: new Date().toISOString(),
   });
