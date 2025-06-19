@@ -298,7 +298,15 @@ export default function AppNavigator({
 
   // Simple auth state - no complex event system needed
 
-  // 🔥 ULTIMATE DEBUG: Löse das Auth State Problem
+  // 🔥 FIX: Auth State mit Counter für garantierte Re-Computation
+  const [authChangeCounter, setAuthChangeCounter] = React.useState(0);
+  
+  // Force useMemo re-computation bei jedem Auth State Change
+  React.useEffect(() => {
+    setAuthChangeCounter(prev => prev + 1);
+    console.log('[AppNavigator] 🔄 Auth Change Counter Updated:', authChangeCounter + 1);
+  }, [isAuthenticated, user?.id, isLoading]);
+  
   const isUserAuthenticated = React.useMemo(() => {
     const result = isAuthenticated && !!user && !!user.id && !isLoading;
 
@@ -312,11 +320,12 @@ export default function AppNavigator({
       userObject: user ? 'EXISTS' : 'NULL',
       result,
       willNavigateTo: result ? 'MAIN' : 'AUTH',
+      authChangeCounter,
       timestamp: new Date().toISOString(),
     });
 
     return result;
-  }, [isAuthenticated, user, isLoading]);
+  }, [isAuthenticated, user, isLoading, authChangeCounter]);
 
   // 🔥 HOOK INSTANCE DEBUG: Verfolge ALLE Auth State Änderungen
   React.useEffect(() => {
@@ -381,21 +390,25 @@ export default function AppNavigator({
 
   console.log(`[AppNavigator] 🚀 Rendering with target: ${isUserAuthenticated ? 'Main' : 'Auth'}`);
   
+  // 🔥 LOADING COMPONENT: Externe Komponente für Performance
+  const LoadingScreen = React.useMemo(() => {
+    return function LoadingScreenComponent() {
+      return (
+        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+          <ActivityIndicator size="large" />
+          <Text style={{ marginTop: 16 }}>Loading...</Text>
+        </View>
+      );
+    };
+  }, []);
+  
   // 🔥 LOADING STATE: Wenn noch geladen wird, Loading Screen zeigen
   if (isLoading) {
     console.log('[AppNavigator] 🔄 Showing loading state...');
     return (
       <NavigationContainer linking={linking} theme={navigationTheme}>
         <Stack.Navigator screenOptions={{ headerShown: false }}>
-          <Stack.Screen 
-            name="Loading" 
-            component={() => (
-              <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-                <ActivityIndicator size="large" />
-                <Text style={{ marginTop: 16 }}>Loading...</Text>
-              </View>
-            )} 
-          />
+          <Stack.Screen name="Loading" component={LoadingScreen} />
         </Stack.Navigator>
       </NavigationContainer>
     );
