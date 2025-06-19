@@ -232,77 +232,13 @@ function App(): React.JSX.Element {
 }
 
 /**
- * Navigation Controller with Event-Based System
+ * Simple App Root with Direct Auth State
  *
- * This component uses a global navigation event system that bypasses
- * React state dependencies and directly controls navigation.
+ * Clean and simple implementation without complex event systems.
  */
 function AppRoot(): React.JSX.Element {
-  const [navigationState, setNavigationState] = React.useState<{
-    isAuthenticated: boolean;
-    userId?: string;
-    isLoading: boolean;
-    lastUpdate: number;
-  }>({
-    isAuthenticated: false,
-    userId: undefined,
-    isLoading: true,
-    lastUpdate: Date.now(),
-  });
-
-  // 🔥 ULTIMATE FIX: Direct Auth State Observer with Event Emission
-  const { isAuthenticated, user, isLoading } =
-    require('@features/auth/presentation/hooks').useAuth();
-
-  React.useEffect(() => {
-    const newState = {
-      isAuthenticated,
-      userId: user?.id,
-      isLoading,
-      lastUpdate: Date.now(),
-    };
-
-    console.log('🚀 AppRoot: Navigation Event Triggered', {
-      oldState: navigationState,
-      newState,
-      willUpdate: true,
-      timestamp: new Date().toISOString(),
-    });
-
-    setNavigationState(newState);
-
-    // 🔥 EMIT GLOBAL NAVIGATION EVENT
-    if (typeof window !== 'undefined') {
-      window.dispatchEvent(
-        new CustomEvent('auth-navigation-change', {
-          detail: newState,
-        })
-      );
-    }
-  }, [isAuthenticated, user?.id, isLoading]);
-
-  // 🔥 STABLE KEY: Only update on actual navigation state changes
-  const navigationKey = React.useMemo(() => {
-    const authStatus = navigationState.isAuthenticated
-      ? 'authenticated'
-      : 'guest';
-    const userId = navigationState.userId || 'none';
-    const loadingStatus = navigationState.isLoading ? 'loading' : 'ready';
-    return `nav-${authStatus}-${userId}-${loadingStatus}`;
-  }, [
-    navigationState.isAuthenticated,
-    navigationState.userId,
-    navigationState.isLoading,
-  ]);
-
-  console.log('🔥 AppRoot: Navigation State Applied:', {
-    navigationKey,
-    state: navigationState,
-    timestamp: new Date().toISOString(),
-  });
-
   return (
-    <AppInitializer key={navigationKey}>
+    <AppInitializer>
       <AppNavigator linking={linking} />
     </AppInitializer>
   );

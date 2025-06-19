@@ -261,36 +261,10 @@ export const AppInitializer = ({
     hasInitialized: false,
   });
 
-  // 🔥 ULTIMATE BACKUP: Global Event Listener for Navigation Changes
-  const [globalEventCounter, setGlobalEventCounter] = useState(0);
+  // Einfache State-Verwaltung ohne komplexe Events
 
-  React.useEffect(() => {
-    const handleGlobalNavEvent = (event: any) => {
-      console.log(
-        '🌍 AppInitializer: Global Navigation Event Received:',
-        event.detail
-      );
-      setGlobalEventCounter(prev => prev + 1);
-
-      // Force ready state when global event occurs
-      if (initializationState.current.hasInitialized) {
-        setIsReady(true);
-      }
-    };
-
-    if (typeof window !== 'undefined') {
-      window.addEventListener('auth-navigation-change', handleGlobalNavEvent);
-      return () =>
-        window.removeEventListener(
-          'auth-navigation-change',
-          handleGlobalNavEvent
-        );
-    }
-  }, []);
-
-  // 🔥 CONTINUOUS FIX: Always react to auth state changes after initialization
+  // 🔥 EINFACHE LÖSUNG: Nach Initialisierung immer ready
   useEffect(() => {
-    // Always set ready when auth state is clear (after initial setup)
     if (initializationState.current.hasInitialized) {
       console.log(
         '🔥 AppInitializer: Auth state change detected, updating ready state',
@@ -307,16 +281,7 @@ export const AppInitializer = ({
     }
   }, [isAuthenticated, user?.id, isLoading, isReady]);
 
-  // 🔥 FORCE RE-RENDER: Force component update on every auth state change
-  const [forceUpdateCounter, setForceUpdateCounter] = useState(0);
-  useEffect(() => {
-    if (initializationState.current.hasInitialized) {
-      console.log(
-        '🔥 AppInitializer: Forcing re-render due to auth state change'
-      );
-      setForceUpdateCounter(prev => prev + 1);
-    }
-  }, [isAuthenticated, user?.id, isLoading]);
+  // Einfaches Re-Rendering ohne Force-Updates
 
   useEffect(() => {
     // 🔥 PREVENT DOUBLE INITIALIZATION
@@ -437,7 +402,7 @@ export const AppInitializer = ({
     i18n.changeLanguage(deviceLocale);
   }, []);
 
-  // 🔥 DEBUG: Show initialization state
+  // 🔥 DEBUG: Einfache Initialisierungs-Zustand Anzeige
   console.log('🔥 AppInitializer Render Decision:', {
     isReady,
     isInitializing: initializationState.current.isInitializing,
@@ -445,8 +410,6 @@ export const AppInitializer = ({
     isAuthenticated,
     hasUser: !!user,
     isLoading,
-    forceUpdateCounter,
-    globalEventCounter,
     willRenderChildren: isReady,
     timestamp: new Date().toISOString(),
   });

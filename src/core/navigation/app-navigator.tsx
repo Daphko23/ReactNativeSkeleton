@@ -290,35 +290,13 @@ export default function AppNavigator({
   const { isAuthenticated, user, isLoading } = useAuth();
   const { theme, isDark } = useTheme();
 
-  // 🔥 ULTIMATE FIX: Additional Global Event Listener as Fallback
-  const [globalNavState, setGlobalNavState] = React.useState<{
-    lastUpdate: number;
-  }>({ lastUpdate: 0 });
+  // Simple auth state - no complex event system needed
 
-  React.useEffect(() => {
-    const handleGlobalNavEvent = (event: any) => {
-      console.log(
-        '🌍 AppNavigator: Global Navigation Event Received:',
-        event.detail
-      );
-      setGlobalNavState({ lastUpdate: Date.now() });
-    };
-
-    if (typeof window !== 'undefined') {
-      window.addEventListener('auth-navigation-change', handleGlobalNavEvent);
-      return () =>
-        window.removeEventListener(
-          'auth-navigation-change',
-          handleGlobalNavEvent
-        );
-    }
-  }, []);
-
-  // 🔥 RADICAL FIX: Berechne Auth State mit garantierter Re-Render Reaktion
+  // 🔥 EINFACHE LÖSUNG: Auth State berechnen - keine komplexen Events nötig
   const isUserAuthenticated = React.useMemo(() => {
     const result = isAuthenticated && !!user && !!user.id && !isLoading;
 
-    // 🔥 DEBUG: Auth State Logging (now includes global nav state)
+    // 🔥 DEBUG: Auth State Logging
     console.log('[AppNavigator] Auth State Debug:', {
       isAuthenticated,
       hasUser: !!user,
@@ -326,7 +304,6 @@ export default function AppNavigator({
       userEmail: user?.email ? `${user.email.substring(0, 3)}***` : undefined,
       isLoading,
       result,
-      globalNavUpdate: globalNavState.lastUpdate,
       timestamp: new Date().toISOString(),
     });
 
@@ -342,9 +319,9 @@ export default function AppNavigator({
     });
 
     return result;
-  }, [isAuthenticated, user, isLoading, globalNavState.lastUpdate]);
+  }, [isAuthenticated, user, isLoading]);
 
-  // 🔥 FORCE RE-RENDER: Track auth state changes with useEffect (including global events)
+  // 🔥 EINFACHES TRACKING: Auth State Änderungen verfolgen
   React.useEffect(() => {
     console.log('[AppNavigator] Auth State Effect Triggered:', {
       isAuthenticated,
@@ -352,7 +329,6 @@ export default function AppNavigator({
       userId: user?.id,
       isLoading,
       isUserAuthenticated,
-      globalNavUpdate: globalNavState.lastUpdate,
       timestamp: new Date().toISOString(),
     });
   }, [
@@ -360,7 +336,6 @@ export default function AppNavigator({
     user?.id,
     isLoading,
     isUserAuthenticated,
-    globalNavState.lastUpdate,
   ]);
 
   /**
@@ -383,33 +358,27 @@ export default function AppNavigator({
     [isDark, theme]
   );
 
-  // 🚀 RADICAL NAVIGATION RESTRUCTURE: Separate NavigationContainers
-  // This guarantees complete isolation and immediate auth state reaction
-
-  if (isUserAuthenticated) {
-    console.log('[AppNavigator] 🚀 Rendering MAIN NavigationContainer');
-    return (
-      <NavigationContainer
-        key="main-app-authenticated"
-        linking={linking}
-        theme={navigationTheme}
-      >
-        <Stack.Navigator screenOptions={{ headerShown: false }}>
-          <Stack.Screen name="Main" component={MainTabNavigator} />
-        </Stack.Navigator>
-      </NavigationContainer>
-    );
-  }
-
-  console.log('[AppNavigator] 🔐 Rendering AUTH NavigationContainer');
+  // 🔥 EINFACHE LÖSUNG: Eine NavigationContainer, konditionelle Navigation mit stabilem Key
+  const stackKey = React.useMemo(() => {
+    return isUserAuthenticated ? 'authenticated-stack' : 'guest-stack';
+  }, [isUserAuthenticated]);
+  
+  console.log(`[AppNavigator] 🚀 Rendering ${isUserAuthenticated ? 'MAIN' : 'AUTH'} Stack (key: ${stackKey})`);
+  
   return (
     <NavigationContainer
-      key="auth-flow-guest"
       linking={linking}
       theme={navigationTheme}
     >
-      <Stack.Navigator screenOptions={{ headerShown: false }}>
-        <Stack.Screen name="Auth" component={AuthNavigator} />
+      <Stack.Navigator 
+        key={stackKey}
+        screenOptions={{ headerShown: false }}
+      >
+        {isUserAuthenticated ? (
+          <Stack.Screen name="Main" component={MainTabNavigator} />
+        ) : (
+          <Stack.Screen name="Auth" component={AuthNavigator} />
+        )}
       </Stack.Navigator>
     </NavigationContainer>
   );
