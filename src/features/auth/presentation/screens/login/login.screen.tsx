@@ -239,23 +239,17 @@ const LoginScreen = () => {
       await login(formData.email, formData.password);
       console.log('[LoginScreen] Login completed successfully via hook');
 
-      // 🚀 NAVIGATION FIX: Direct navigation nach erfolgreichem Login
-      // Löst Race Condition zwischen TanStack Query Updates und Navigation
-      console.log('[LoginScreen] Triggering direct navigation to Main app');
-      navigation.reset({
-        index: 0,
-        routes: [{ name: 'Main' } as any],
-      });
-    } catch (error) {
-      // 🎯 UX FIX: Keine Console-Errors für erwartete Business-Fehler
-      // Error-Anzeige erfolgt über die UI (FormErrorText), nicht über Console-Errors
+      // 🚀 NAVIGATION FIX: App Navigator wechselt automatisch basierend auf Auth State
+      // Keine direkte Navigation nötig - der App Navigator erkennt isAuthenticated=true
+      // und wechselt automatisch vom Auth Navigator zum Main Navigator
       console.log(
-        '[LoginScreen] Login failed via hook (handled by UI):',
-        (error as Error).message
+        '[LoginScreen] App Navigator will handle navigation automatically based on auth state'
       );
-      // Error handling is done by the useAuth hook - UI shows user-friendly message
+    } catch (error: any) {
+      console.error('[LoginScreen] Login failed via hook:', error);
+      // Error handling wird vom useAuth Hook gehandhabt - UI zeigt benutzerfreundliche Nachricht
     }
-  }, [isFormValid, login, formData.email, formData.password, navigation]);
+  }, [isFormValid, formData.email, formData.password, login]);
 
   /**
    * Handle biometric login using useAuthSecurity hook
