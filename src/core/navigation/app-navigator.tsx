@@ -301,13 +301,17 @@ export default function AppNavigator({
   });
 
   // 🔥 LOGOUT FIX: Stabiler Auth State Key ohne Date.now()
-  const isUserAuthenticated = isAuthenticated && !!user && !!user.id;
-  const authKey = `auth-${isUserAuthenticated ? 'true' : 'false'}-${user?.id || 'guest'}`;
+  // 🔥 CRITICAL FIX: Berücksichtige isLoading State für korrekte Navigation
+  const isUserAuthenticated =
+    isAuthenticated && !!user && !!user.id && !isLoading;
 
   // 🔥 DEBUG: Navigation Decision Logging
   console.log('[AppNavigator] Navigation Decision:', {
+    isAuthenticated,
+    hasUser: !!user,
+    userId: user?.id,
+    isLoading,
     isUserAuthenticated,
-    authKey,
     willRenderMain: isUserAuthenticated,
     willRenderAuth: !isUserAuthenticated,
   });
