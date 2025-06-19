@@ -317,9 +317,9 @@ export default function AppNavigator({
     return result;
   }, [isAuthenticated, user, isLoading]);
 
-  // 🔥 EINFACHES TRACKING: Auth State Änderungen verfolgen
+  // 🔥 HOOK INSTANCE DEBUG: Verfolge ALLE Auth State Änderungen
   React.useEffect(() => {
-    console.log('[AppNavigator] Auth State Effect Triggered:', {
+    console.log('[AppNavigator] 🚨 AUTH STATE EFFECT TRIGGERED:', {
       isAuthenticated,
       hasUser: !!user,
       userId: user?.id,
@@ -333,6 +333,30 @@ export default function AppNavigator({
     isLoading,
     isUserAuthenticated,
   ]);
+
+  // 🔥 HOOK INSTANCE DEBUG: Verfolge RAW Hook Values
+  React.useEffect(() => {
+    console.log('[AppNavigator] 🔍 RAW HOOK VALUES CHANGED:', {
+      isAuthenticated,
+      user: user ? 'EXISTS' : 'NULL',
+      userId: user?.id,
+      isLoading,
+      timestamp: new Date().toISOString(),
+    });
+  }, [isAuthenticated, user, isLoading]);
+
+  // 🔥 FORCE RE-RENDER DEBUG: Jede Auth State Änderung loggen
+  const [debugCounter, setDebugCounter] = React.useState(0);
+  React.useEffect(() => {
+    setDebugCounter(prev => prev + 1);
+    console.log('[AppNavigator] 🚀 FORCE RE-RENDER TRIGGERED:', {
+      counter: debugCounter + 1,
+      isAuthenticated,
+      hasUser: !!user,
+      isUserAuthenticated,
+      timestamp: new Date().toISOString(),
+    });
+  }, [isAuthenticated, user, isLoading]);
 
   /**
    * Custom navigation theme configuration.
