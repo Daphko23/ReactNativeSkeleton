@@ -10,7 +10,7 @@
  * ✅ Clean Interface: Simplified Champion API
  */
 
-import { useCallback, useState as _useState, useMemo as _useMemo } from 'react';
+import { useCallback, useState as _useState, useMemo, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 import { authContainer } from '../../application/di/auth.container';
@@ -634,13 +634,40 @@ export const useAuth = (): UseAuthReturn => {
 
   // 🏆 CHAMPION COMPUTED VALUES (Memoized for Performance)
   const user = userQuery.data || null;
-  const isAuthenticated = !!user;
-  const isLoading = userQuery.isLoading;
+  const isLoading = userQuery.isLoading || userQuery.isRefetching;
+  const error = userQuery.error?.message || null;
+
+  const isAuthenticated = useMemo(() => {
+    const result = !!user && !!user.id;
+
+    // 🔥 DEBUG: Auth State Computation
+    console.log('[useAuth] Auth State Computation:', {
+      hasUser: !!user,
+      userId: user?.id,
+      userEmail: user?.email ? `${user.email.substring(0, 3)}***` : undefined,
+      result: result,
+      queryData: !!userQuery.data,
+      queryLoading: userQuery.isLoading,
+      queryError: !!userQuery.error,
+      timestamp: new Date().toISOString(),
+    });
+
+    return result;
+  }, [user, userQuery.data, userQuery.isLoading, userQuery.error]);
+
+  // 🔥 DEBUG: Track Auth State Changes
+  useEffect(() => {
+    console.log('[useAuth] Auth State Changed:', {
+      isAuthenticated,
+      hasUser: !!user,
+      userId: user?.id,
+      isLoading,
+      error: !!error,
+      timestamp: new Date().toISOString(),
+    });
+  }, [isAuthenticated, user?.id, isLoading, error]);
 
   // 🏆 ERROR MAPPING: Convert technical errors to user-friendly German messages
-  const error = userQuery.error
-    ? mapAuthErrorToUserMessage(userQuery.error, t)
-    : null;
   const loginError = loginMutation.error
     ? mapAuthErrorToUserMessage(loginMutation.error, t)
     : null;

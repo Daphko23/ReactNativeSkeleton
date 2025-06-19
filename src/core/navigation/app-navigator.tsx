@@ -290,9 +290,27 @@ export default function AppNavigator({
   const { isAuthenticated, user, isLoading } = useAuth();
   const { theme, isDark } = useTheme();
 
+  // 🔥 DEBUG: Auth State Logging
+  console.log('[AppNavigator] Auth State Debug:', {
+    isAuthenticated,
+    hasUser: !!user,
+    userId: user?.id,
+    userEmail: user?.email ? `${user.email.substring(0, 3)}***` : undefined,
+    isLoading,
+    timestamp: new Date().toISOString(),
+  });
+
   // 🔥 LOGOUT FIX: Stabiler Auth State Key ohne Date.now()
   const isUserAuthenticated = isAuthenticated && !!user && !!user.id;
   const authKey = `auth-${isUserAuthenticated ? 'true' : 'false'}-${user?.id || 'guest'}`;
+
+  // 🔥 DEBUG: Navigation Decision Logging
+  console.log('[AppNavigator] Navigation Decision:', {
+    isUserAuthenticated,
+    authKey,
+    willRenderMain: isUserAuthenticated,
+    willRenderAuth: !isUserAuthenticated,
+  });
 
   /**
    * Custom navigation theme configuration.
