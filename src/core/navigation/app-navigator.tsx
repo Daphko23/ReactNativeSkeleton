@@ -11,6 +11,7 @@
  */
 
 import React from 'react';
+import { View, Text, ActivityIndicator } from 'react-native';
 import {
   NavigationContainer,
   LinkingOptions,
@@ -379,6 +380,26 @@ export default function AppNavigator({
   );
 
   console.log(`[AppNavigator] 🚀 Rendering with target: ${isUserAuthenticated ? 'Main' : 'Auth'}`);
+  
+  // 🔥 LOADING STATE: Wenn noch geladen wird, Loading Screen zeigen
+  if (isLoading) {
+    console.log('[AppNavigator] 🔄 Showing loading state...');
+    return (
+      <NavigationContainer linking={linking} theme={navigationTheme}>
+        <Stack.Navigator screenOptions={{ headerShown: false }}>
+          <Stack.Screen 
+            name="Loading" 
+            component={() => (
+              <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+                <ActivityIndicator size="large" />
+                <Text style={{ marginTop: 16 }}>Loading...</Text>
+              </View>
+            )} 
+          />
+        </Stack.Navigator>
+      </NavigationContainer>
+    );
+  }
   
   // 🎯 ALLEREINFACHSTE LÖSUNG: Konditionelle Screens - kein Reset, keine Refs
   return (
