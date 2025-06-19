@@ -354,50 +354,20 @@ export default function AppNavigator({
     [isDark, theme]
   );
 
-  // 🚀 FINALE LÖSUNG: Programmatische Navigation ohne Key-Reset
-  const navigationRef = React.useRef<any>(null);
-  const currentRouteRef = React.useRef<string | null>(null);
-  
-  // 🔥 NAVIGATION CONTROLLER: Navigiere automatisch bei Auth Änderungen
-  React.useEffect(() => {
-    if (!navigationRef.current) return;
-    
-    const targetRoute = isUserAuthenticated ? 'Main' : 'Auth';
-    const currentRoute = currentRouteRef.current;
-    
-    console.log(`[AppNavigator] 🎯 Navigation Controller: ${currentRoute} -> ${targetRoute}`);
-    
-    if (currentRoute !== targetRoute) {
-      console.log(`[AppNavigator] 🚀 Navigating to: ${targetRoute}`);
-      
-      navigationRef.current.reset({
-        index: 0,
-        routes: [{ name: targetRoute }],
-      });
-      
-      currentRouteRef.current = targetRoute;
-    }
-  }, [isUserAuthenticated]);
-  
   console.log(`[AppNavigator] 🚀 Rendering with target: ${isUserAuthenticated ? 'Main' : 'Auth'}`);
   
+  // 🎯 ALLEREINFACHSTE LÖSUNG: Konditionelle Screens - kein Reset, keine Refs
   return (
     <NavigationContainer
-      ref={navigationRef}
       linking={linking}
       theme={navigationTheme}
-      onReady={() => {
-        const initialRoute = isUserAuthenticated ? 'Main' : 'Auth';
-        currentRouteRef.current = initialRoute;
-        console.log(`[AppNavigator] 🎯 Navigation Ready: ${initialRoute}`);
-      }}
     >
-      <Stack.Navigator 
-        initialRouteName={isUserAuthenticated ? 'Main' : 'Auth'}
-        screenOptions={{ headerShown: false }}
-      >
-        <Stack.Screen name="Auth" component={AuthNavigator} />
-        <Stack.Screen name="Main" component={MainTabNavigator} />
+      <Stack.Navigator screenOptions={{ headerShown: false }}>
+        {isUserAuthenticated ? (
+          <Stack.Screen name="Main" component={MainTabNavigator} />
+        ) : (
+          <Stack.Screen name="Auth" component={AuthNavigator} />
+        )}
       </Stack.Navigator>
     </NavigationContainer>
   );
