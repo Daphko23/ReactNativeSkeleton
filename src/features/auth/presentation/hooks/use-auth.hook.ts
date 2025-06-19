@@ -653,7 +653,7 @@ export const useAuth = (): UseAuthReturn => {
     });
 
     return result;
-  }, [user, userQuery.data, userQuery.isLoading, userQuery.error]);
+  }, [user]); // 🔥 FIX: Nur user dependency - andere sind redundant und verursachen Probleme
 
   // 🔥 DEBUG: Track Auth State Changes
   useEffect(() => {

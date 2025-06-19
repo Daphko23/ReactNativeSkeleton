@@ -339,7 +339,7 @@ export default function AppNavigator({
 
   return (
     <NavigationContainer linking={linking} theme={navigationTheme}>
-      <Stack.Navigator key={authKey} screenOptions={{ headerShown: false }}>
+      <Stack.Navigator screenOptions={{ headerShown: false }}>
         {isUserAuthenticated ? (
           <Stack.Screen name="Main" component={MainTabNavigator} />
         ) : (
