@@ -290,110 +290,94 @@ export default function AppNavigator({
   const { isAuthenticated, user, isLoading } = useAuth();
   const { theme, isDark } = useTheme();
 
-  // 🔥 CRITICAL FIX: Force re-render on all auth state changes
-  // useMemo ensures component re-renders when any auth dependency changes
-  const authState = React.useMemo(
-    () => ({
-      isAuthenticated,
-      user,
-      isLoading,
-      timestamp: Date.now(),
-    }),
-    [isAuthenticated, user, isLoading]
-  );
-
-  // 🔥 DEBUG: Auth State Logging
-  console.log('[AppNavigator] Auth State Debug:', {
-    isAuthenticated: authState.isAuthenticated,
-    hasUser: !!authState.user,
-    userId: authState.user?.id,
-    userEmail: authState.user?.email
-      ? `${authState.user.email.substring(0, 3)}***`
-      : undefined,
-    isLoading: authState.isLoading,
-    timestamp: new Date().toISOString(),
-  });
-
-  // 🔥 LOGOUT FIX: Stabiler Auth State Key ohne Date.now()
-  // 🔥 CRITICAL FIX: Berücksichtige isLoading State für korrekte Navigation
+  // 🔥 RADICAL FIX: Berechne Auth State mit garantierter Re-Render Reaktion
   const isUserAuthenticated = React.useMemo(() => {
-    return (
-      authState.isAuthenticated &&
-      !!authState.user &&
-      !!authState.user.id &&
-      !authState.isLoading
-    );
-  }, [authState.isAuthenticated, authState.user, authState.isLoading]);
+    const result = isAuthenticated && !!user && !!user.id && !isLoading;
 
-  // 🔥 DEBUG: Navigation Decision Logging
-  console.log('[AppNavigator] Navigation Decision:', {
-    isAuthenticated: authState.isAuthenticated,
-    hasUser: !!authState.user,
-    userId: authState.user?.id,
-    isLoading: authState.isLoading,
-    isUserAuthenticated,
-    willRenderMain: isUserAuthenticated,
-    willRenderAuth: !isUserAuthenticated,
-  });
+    // 🔥 DEBUG: Auth State Logging
+    console.log('[AppNavigator] Auth State Debug:', {
+      isAuthenticated,
+      hasUser: !!user,
+      userId: user?.id,
+      userEmail: user?.email ? `${user.email.substring(0, 3)}***` : undefined,
+      isLoading,
+      result,
+      timestamp: new Date().toISOString(),
+    });
+
+    // 🔥 DEBUG: Navigation Decision Logging
+    console.log('[AppNavigator] Navigation Decision:', {
+      isAuthenticated,
+      hasUser: !!user,
+      userId: user?.id,
+      isLoading,
+      isUserAuthenticated: result,
+      willRenderMain: result,
+      willRenderAuth: !result,
+    });
+
+    return result;
+  }, [isAuthenticated, user, isLoading]);
 
   // 🔥 FORCE RE-RENDER: Track auth state changes with useEffect
   React.useEffect(() => {
     console.log('[AppNavigator] Auth State Effect Triggered:', {
-      isAuthenticated: authState.isAuthenticated,
-      hasUser: !!authState.user,
-      userId: authState.user?.id,
-      isLoading: authState.isLoading,
+      isAuthenticated,
+      hasUser: !!user,
+      userId: user?.id,
+      isLoading,
       isUserAuthenticated,
       timestamp: new Date().toISOString(),
     });
-  }, [
-    authState.isAuthenticated,
-    authState.user?.id,
-    authState.isLoading,
-    isUserAuthenticated,
-  ]);
+  }, [isAuthenticated, user?.id, isLoading, isUserAuthenticated]);
 
   /**
    * Custom navigation theme configuration.
    * Maps application theme colors to React Navigation theme structure.
-   *
-   * @constant navigationTheme
-   * @since 1.0.0
-   * @description
-   * Creates a navigation theme object that integrates seamlessly with
-   * React Navigation's theming system, ensuring consistent visual
-   * appearance across all navigation elements including headers,
-   * tab bars, and screen backgrounds.
    */
-  const navigationTheme = {
-    ...(isDark ? DarkTheme : DefaultTheme),
-    colors: {
-      ...(isDark ? DarkTheme.colors : DefaultTheme.colors),
-      primary: theme.colors.primary,
-      background: theme.colors.background,
-      card: theme.colors.surface,
-      text: theme.colors.text,
-      border: theme.colors.border,
-      notification: theme.colors.error,
-    },
-  };
+  const navigationTheme = React.useMemo(
+    () => ({
+      ...(isDark ? DarkTheme : DefaultTheme),
+      colors: {
+        ...(isDark ? DarkTheme.colors : DefaultTheme.colors),
+        primary: theme.colors.primary,
+        background: theme.colors.background,
+        card: theme.colors.surface,
+        text: theme.colors.text,
+        border: theme.colors.border,
+        notification: theme.colors.error,
+      },
+    }),
+    [isDark, theme]
+  );
 
-  // 🔥 STABLE KEY: Only changes when auth state actually changes
-  const navigatorKey = React.useMemo(() => {
-    return `auth-${isUserAuthenticated ? 'authenticated' : 'guest'}-${authState.user?.id || 'none'}`;
-  }, [isUserAuthenticated, authState.user?.id]);
+  // 🚀 RADICAL NAVIGATION RESTRUCTURE: Separate NavigationContainers
+  // This guarantees complete isolation and immediate auth state reaction
 
-  return (
-    <NavigationContainer linking={linking} theme={navigationTheme}>
-      <Stack.Navigator
-        key={navigatorKey}
-        screenOptions={{ headerShown: false }}
+  if (isUserAuthenticated) {
+    console.log('[AppNavigator] 🚀 Rendering MAIN NavigationContainer');
+    return (
+      <NavigationContainer
+        key="main-app-authenticated"
+        linking={linking}
+        theme={navigationTheme}
       >
-        {isUserAuthenticated ? (
+        <Stack.Navigator screenOptions={{ headerShown: false }}>
           <Stack.Screen name="Main" component={MainTabNavigator} />
-        ) : (
-          <Stack.Screen name="Auth" component={AuthNavigator} />
-        )}
+        </Stack.Navigator>
+      </NavigationContainer>
+    );
+  }
+
+  console.log('[AppNavigator] 🔐 Rendering AUTH NavigationContainer');
+  return (
+    <NavigationContainer
+      key="auth-flow-guest"
+      linking={linking}
+      theme={navigationTheme}
+    >
+      <Stack.Navigator screenOptions={{ headerShown: false }}>
+        <Stack.Screen name="Auth" component={AuthNavigator} />
       </Stack.Navigator>
     </NavigationContainer>
   );
