@@ -17,7 +17,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ThemeProvider } from './core/theme/theme.system';
 import AppNavigator from './core/navigation/app-navigator';
 import { ErrorBoundary } from '@shared/errors/error-boundary';
-import { AppInitializer } from '@core/app/app-initializer.component';
+// AppInitializer entfernt - direkte Navigation für Hook Instance Isolation Fix
 
 // Import i18n configuration
 import './core/i18n/i18n';
@@ -232,15 +232,13 @@ function App(): React.JSX.Element {
 }
 
 /**
- * Simple App Root with Direct Auth State
+ * 🚀 DRASTISCHE VEREINFACHUNG: Direkte Navigation ohne AppInitializer
  *
- * Clean and simple implementation without complex event systems.
+ * Eliminiert Hook Instance Isolation durch direkten AppNavigator Aufruf.
  */
 function AppRoot(): React.JSX.Element {
   return (
-    <AppInitializer>
-      <AppNavigator linking={linking} />
-    </AppInitializer>
+    <AppNavigator linking={linking} />
   );
 }
 
