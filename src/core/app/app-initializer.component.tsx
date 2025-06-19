@@ -251,7 +251,8 @@ interface AppInitializerProps {
 export const AppInitializer = ({
   children,
 }: AppInitializerProps): React.JSX.Element => {
-  const { checkAuthStatus, getCurrentUser } = useAuth();
+  const { checkAuthStatus, getCurrentUser, isAuthenticated, user, isLoading } =
+    useAuth();
   const [isReady, setIsReady] = useState(false);
 
   // 🔥 RACE CONDITION FIX: Use useRef to prevent double initialization
@@ -259,6 +260,23 @@ export const AppInitializer = ({
     isInitializing: false,
     hasInitialized: false,
   });
+
+  // 🔥 CRITICAL FIX: React to auth state changes - force ready state when auth is clear
+  useEffect(() => {
+    // If we have clear auth state (either authenticated or not), and init is done, set ready
+    if (initializationState.current.hasInitialized && !isLoading) {
+      console.log(
+        '🔥 AppInitializer: Auth state is clear, setting ready=true',
+        {
+          isAuthenticated,
+          hasUser: !!user,
+          isLoading,
+          timestamp: new Date().toISOString(),
+        }
+      );
+      setIsReady(true);
+    }
+  }, [isAuthenticated, user, isLoading]);
 
   useEffect(() => {
     // 🔥 PREVENT DOUBLE INITIALIZATION
@@ -379,8 +397,21 @@ export const AppInitializer = ({
     i18n.changeLanguage(deviceLocale);
   }, []);
 
+  // 🔥 DEBUG: Show initialization state
+  console.log('🔥 AppInitializer Render Decision:', {
+    isReady,
+    isInitializing: initializationState.current.isInitializing,
+    hasInitialized: initializationState.current.hasInitialized,
+    isAuthenticated,
+    hasUser: !!user,
+    isLoading,
+    willRenderChildren: isReady,
+    timestamp: new Date().toISOString(),
+  });
+
   // Render loading state during initialization
   if (!isReady) {
+    console.log('🔄 AppInitializer: Rendering loading state...');
     return (
       <View style={styles.loader}>
         <ActivityIndicator size="large" />
@@ -389,6 +420,7 @@ export const AppInitializer = ({
   }
 
   // Render main application after initialization
+  console.log('✅ AppInitializer: Rendering children (AppNavigator)...');
   return <>{children}</>;
 };
 
