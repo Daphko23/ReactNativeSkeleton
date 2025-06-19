@@ -431,63 +431,33 @@ export const useGuestGuard = (
     [status, isGuest]
   );
 
-  // Log auth state changes
-  useEffect(() => {
-    logger.info('Auth state change detected', LogCategory.BUSINESS, {
-      service: 'GuestGuard',
-      metadata: {
-        isAuthenticated,
-        isLoading: authLoading,
-        hasUser: !!user,
-        userEmail: user?.email ? '***@***.***' : undefined, // Masked for privacy
-        hasRedirected: hasRedirected.current,
-      },
-    });
-  }, [isAuthenticated, authLoading, user]);
+  // 🔥 LOGOUT FIX: Simplifizierten Auth State Tracking ohne Loops
+  const prevAuthState = useRef(isAuthenticated);
 
   useEffect(() => {
-    logger.info('Navigation effect triggered', LogCategory.BUSINESS, {
-      service: 'GuestGuard',
-      metadata: {
-        isAuthenticated,
-        isLoading: authLoading,
-        hasUser: !!user,
-        userEmail: user?.email ? '***@***.***' : undefined, // Masked for privacy
-        hasRedirected: hasRedirected.current,
-      },
-    });
-
-    // 🔥 NAVIGATION FIX: Guest Guard sollte KEINE Navigation übernehmen
-    // Die Navigation wird vom App Navigator basierend auf isAuthenticated gehandhabt
-    if (isAuthenticated && !authLoading && !hasRedirected.current) {
-      hasRedirected.current = true;
-
-      logger.info(
-        '🔥 Guest Guard detects authenticated user - letting App Navigator handle navigation',
-        LogCategory.BUSINESS,
-        {
-          service: 'GuestGuard',
-          metadata: {
-            solution: 'App Navigator handles auth state changes',
-            isAuthenticated,
-            hasUser: !!user,
-          },
-        }
-      );
-
-      // 🔥 ENTFERNT: Direkte Navigation - App Navigator übernimmt das
-      // Guest Guard sollte nur Guest-Access-Checks machen, keine Navigation
-    }
-
-    // Reset redirect flag when user logs out
-    if (!isAuthenticated && !authLoading) {
-      logger.info('Resetting redirect flag on logout', LogCategory.BUSINESS, {
+    // Nur loggen bei tatsächlichen Auth State Changes, nicht bei jedem Render
+    if (prevAuthState.current !== isAuthenticated) {
+      logger.info('Auth state change detected', LogCategory.BUSINESS, {
         service: 'GuestGuard',
-        metadata: { action: 'reset_flag' },
+        metadata: {
+          wasAuthenticated: prevAuthState.current,
+          isAuthenticated,
+          hasUser: !!user,
+        },
       });
-      hasRedirected.current = false;
+
+      prevAuthState.current = isAuthenticated;
+
+      // Reset redirect flag nur einmal bei Logout
+      if (!isAuthenticated) {
+        hasRedirected.current = false;
+        logger.info('Resetting redirect flag on logout', LogCategory.BUSINESS, {
+          service: 'GuestGuard',
+          metadata: { action: 'reset_flag' },
+        });
+      }
     }
-  }, [isAuthenticated, authLoading, user]);
+  }, [isAuthenticated, user?.id]); // 🔥 FIX: Nur bei echten Changes, nicht authLoading
 
   return {
     // 🏆 Guest Status

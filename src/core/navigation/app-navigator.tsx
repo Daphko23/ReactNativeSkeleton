@@ -290,13 +290,9 @@ export default function AppNavigator({
   const { isAuthenticated, user, isLoading } = useAuth();
   const { theme, isDark } = useTheme();
 
-  // 🔥 NAVIGATION FIX: Simple Auth State Key für Re-renders
-  const authStateKey = `${isAuthenticated}-${user?.id || 'none'}`;
-
-  // 🚀 ENHANCED FIX: Robust auth state detection
-  // Multiple checks to ensure proper navigation state
+  // 🔥 LOGOUT FIX: Stabiler Auth State Key ohne Date.now()
   const isUserAuthenticated = isAuthenticated && !!user && !!user.id;
-  const authKey = `auth-${isUserAuthenticated ? 'true' : 'false'}-${user?.id || 'guest'}-${Date.now()}`;
+  const authKey = `auth-${isUserAuthenticated ? 'true' : 'false'}-${user?.id || 'guest'}`;
 
   /**
    * Custom navigation theme configuration.
@@ -305,39 +301,11 @@ export default function AppNavigator({
    * @constant navigationTheme
    * @since 1.0.0
    * @description
-   * Creates a navigation theme object that adapts to the current app theme,
-   * ensuring consistent styling across all navigation elements.
-   *
-   * @theme_mapping
-   * - **primary**: App primary color for active states
-   * - **background**: App background color for screens
-   * - **card**: App surface color for navigation bars
-   * - **text**: App text color for labels
-   * - **border**: App border color for separators
-   * - **notification**: App error color for badges
-   *
-   * @dark_mode_support
-   * - Automatically switches between light and dark themes
-   * - Maintains consistency with app theme system
-   * - Preserves accessibility in both modes
-   *
-   * @example
-   * Theme structure:
-   * ```tsx
-   * {
-   *   dark: isDark,
-   *   colors: {
-   *     primary: '#007AFF',
-   *     background: '#FFFFFF',
-   *     card: '#F2F2F7',
-   *     text: '#000000',
-   *     border: '#C6C6C8',
-   *     notification: '#FF3B30'
-   *   }
-   * }
-   * ```
+   * Creates a navigation theme object that integrates seamlessly with
+   * React Navigation's theming system, ensuring consistent visual
+   * appearance across all navigation elements including headers,
+   * tab bars, and screen backgrounds.
    */
-  // Create custom navigation theme based on app theme
   const navigationTheme = {
     ...(isDark ? DarkTheme : DefaultTheme),
     colors: {
