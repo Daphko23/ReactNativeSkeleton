@@ -222,14 +222,47 @@ function App(): React.JSX.Element {
         <QueryClientProvider client={queryClient}>
           <ThemeProvider>
             <PaperProvider>
-              <AppInitializer>
-                <AppNavigator linking={linking} />
-              </AppInitializer>
+              <AppRoot />
             </PaperProvider>
           </ThemeProvider>
         </QueryClientProvider>
       </SafeAreaProvider>
     </ErrorBoundary>
+  );
+}
+
+/**
+ * App Root Component with Auth State Key-based Re-mounting
+ *
+ * This component ensures complete re-mounting of the AppInitializer
+ * and AppNavigator when auth state changes, solving React closure
+ * and state propagation issues.
+ */
+function AppRoot(): React.JSX.Element {
+  // 🔥 AGGRESSIVE FIX: Get auth state directly for key-based re-mounting
+  const { isAuthenticated, user, isLoading } =
+    require('@features/auth/presentation/hooks').useAuth();
+
+  // 🔥 AGGRESSIVE KEY: Force complete re-mount on auth state changes
+  const appKey = React.useMemo(() => {
+    const authStatus = isAuthenticated ? 'authenticated' : 'guest';
+    const userId = user?.id || 'none';
+    const loadingStatus = isLoading ? 'loading' : 'ready';
+    return `app-${authStatus}-${userId}-${loadingStatus}`;
+  }, [isAuthenticated, user?.id, isLoading]);
+
+  console.log('🔥 AppRoot: Key-based re-mounting with key:', appKey, {
+    isAuthenticated,
+    hasUser: !!user,
+    userId: user?.id,
+    isLoading,
+    timestamp: new Date().toISOString(),
+  });
+
+  return (
+    <AppInitializer key={appKey}>
+      <AppNavigator linking={linking} />
+    </AppInitializer>
   );
 }
 
