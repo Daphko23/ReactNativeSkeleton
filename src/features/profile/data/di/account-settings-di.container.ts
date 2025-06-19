@@ -1,22 +1,33 @@
-import { SupabaseAccountSettingsDataSource } from '../datasources/supabase-account-settings.datasource';
-import { AccountSettingsRepositoryImpl } from '../repositories/account-settings-repository.impl';
+/**
+ * @fileoverview ACCOUNT SETTINGS DI CONTAINER - Enterprise Dependency Injection
+ * @description Account Settings Dependency Injection Container nach Enterprise Standards
+ * 
+ * @version 2025.1.0
+ * @since Enterprise Industry Standard 2025
+ */
+
+import { AccountSettingsRepositoryImpl } from '../repositories/account-settings.repository.impl';
+import { StorageService } from '@core/services/storage.service';
+import { LoggerFactory } from '@core/logging/logger.factory';
 
 /**
- * AccountSettingsDIContainer
- *
+ * Account Settings Dependency Injection Container
+ * 
  * @description
- * Dependency Injection Container für AccountSettings Feature.
- * Stellt Singleton-Instanzen für DataSource, Repository und UseCases bereit.
+ * Enterprise DI Container für Account Settings Domain Services.
+ * Implementiert Dependency Injection Pattern für lose Kopplung.
  */
-export class AccountSettingsDIContainer {
+class AccountSettingsDIContainer {
   private static instance: AccountSettingsDIContainer;
-
-  // Data Layer
-  private _accountSettingsDataSource?: SupabaseAccountSettingsDataSource;
-  private _accountSettingsRepository?: AccountSettingsRepositoryImpl;
+  
+  // Repository instances
+  private accountSettingsRepository?: AccountSettingsRepositoryImpl;
 
   private constructor() {}
 
+  /**
+   * Singleton Instance
+   */
   public static getInstance(): AccountSettingsDIContainer {
     if (!AccountSettingsDIContainer.instance) {
       AccountSettingsDIContainer.instance = new AccountSettingsDIContainer();
@@ -24,30 +35,29 @@ export class AccountSettingsDIContainer {
     return AccountSettingsDIContainer.instance;
   }
 
-  public getAccountSettingsDataSource(): SupabaseAccountSettingsDataSource {
-    if (!this._accountSettingsDataSource) {
-      this._accountSettingsDataSource = new SupabaseAccountSettingsDataSource();
-    }
-    return this._accountSettingsDataSource;
-  }
-
+  /**
+   * Get Account Settings Repository
+   */
   public getAccountSettingsRepository(): AccountSettingsRepositoryImpl {
-    if (!this._accountSettingsRepository) {
-      this._accountSettingsRepository = new AccountSettingsRepositoryImpl(
-        this.getAccountSettingsDataSource()
+    if (!this.accountSettingsRepository) {
+      const storageService = StorageService.getInstance();
+      const logger = LoggerFactory.createServiceLogger('AccountSettingsRepository');
+      
+      this.accountSettingsRepository = new AccountSettingsRepositoryImpl(
+        storageService,
+        logger
       );
     }
-    return this._accountSettingsRepository;
+    return this.accountSettingsRepository;
   }
 
   /**
    * Reset all instances (for testing)
    */
   public reset(): void {
-    this._accountSettingsDataSource = undefined;
-    this._accountSettingsRepository = undefined;
+    this.accountSettingsRepository = undefined;
   }
 }
 
-// Singleton Export
-export const accountSettingsDIContainer = AccountSettingsDIContainer.getInstance(); 
+// Export singleton instance
+export const accountSettingsDIContainer = AccountSettingsDIContainer.getInstance();

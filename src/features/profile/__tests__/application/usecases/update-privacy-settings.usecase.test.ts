@@ -3,7 +3,7 @@
  * @description Comprehensive test coverage für UpdatePrivacySettingsUseCase mit
  * Enterprise GDPR Compliance, Privacy Controls und Security Testing.
  * Implementiert Auth Feature Test Patterns für 9/10 Enterprise-Level Coverage.
- * 
+ *
  * @version 1.0.0
  * @since 1.0.0
  * @author ReactNativeSkeleton Enterprise Team
@@ -11,7 +11,7 @@
  * @namespace Features.Profile.Tests.Application.UseCases
  * @category ProfileManagement
  * @subcategory Use Case Tests
- * 
+ *
  * @testCategories
  * - **Input Validation Tests:** User ID und settings parameter validation
  * - **Privacy Update Tests:** Privacy settings modification workflow
@@ -21,25 +21,45 @@
  * - **Performance Tests:** Settings update speed und optimization
  * - **Security Tests:** Privacy settings security validation
  * - **Integration Tests:** End-to-end privacy workflow testing
- * 
+ *
  * @compliance
  * - **GDPR Article 7:** Consent management implementation testing
  * - **GDPR Article 13:** Information provision validation
  * - **Privacy by Design:** Default privacy settings testing
  * - **Security Controls:** Privacy settings authorization testing
- * 
+ *
  * @since 2025-01-23
  */
 
 import { UpdatePrivacySettingsUseCase } from '../../../application/use-cases/security/update-privacy-settings.usecase';
-import { PrivacySettings, UserProfile } from '../../../domain/entities/user-profile.entity';
-import { IProfileRepository } from '../../../data/repositories/profile.repository.impl';
+import {
+  PrivacySettings,
+  UserProfile,
+} from '../../../domain/entities/user-profile.entity';
+
+// Mock Profile Repository Interface
+interface IProfileRepository {
+  getProfile(userId: string): Promise<UserProfile | null>;
+  updateProfile(
+    userId: string,
+    updates: Partial<UserProfile>
+  ): Promise<UserProfile>;
+  deleteProfile(userId: string): Promise<void>;
+  searchProfiles?: any;
+  getProfileHistory?: any;
+  createProfileVersion?: any;
+  getProfileVersions?: any;
+  restoreProfileVersion?: any;
+  getProfileAnalytics?: any;
+  bulkUpdateProfiles?: any;
+  exportProfiles?: any;
+}
 
 // Mock GDPR audit service
 jest.mock('@core/compliance/gdpr-audit.service', () => ({
   gdprAuditService: {
-    logDataUpdate: jest.fn().mockResolvedValue(undefined)
-  }
+    logDataUpdate: jest.fn().mockResolvedValue(undefined),
+  },
 }));
 
 describe('UpdatePrivacySettingsUseCase', () => {
@@ -77,32 +97,31 @@ describe('UpdatePrivacySettingsUseCase', () => {
       emailNotifications: true,
       pushNotifications: true,
       marketingCommunications: false,
-      fieldPrivacy: {}
-    }
+      fieldPrivacy: {},
+    },
   };
 
   const createMockProfileRepository = (): jest.Mocked<IProfileRepository> => ({
     // Profile CRUD
-    createProfile: jest.fn(),
     getProfile: jest.fn(),
     updateProfile: jest.fn(),
     deleteProfile: jest.fn(),
-    
+
     // Profile Search
     searchProfiles: jest.fn(),
-    
+
     // History & Versioning
     getProfileHistory: jest.fn(),
     createProfileVersion: jest.fn(),
     getProfileVersions: jest.fn(),
     restoreProfileVersion: jest.fn(),
-    
+
     // Analytics & Statistics
     getProfileAnalytics: jest.fn(),
-    
+
     // Bulk Operations
     bulkUpdateProfiles: jest.fn(),
-    exportProfiles: jest.fn()
+    exportProfiles: jest.fn(),
   });
 
   beforeEach(() => {
@@ -120,15 +139,15 @@ describe('UpdatePrivacySettingsUseCase', () => {
       const userId = 'user-123';
       const settingsUpdate: Partial<PrivacySettings> = {
         profileVisibility: 'public',
-        emailVisibility: 'friends'
+        emailVisibility: 'friends',
       };
 
       const updatedProfile = {
         ...mockUserProfile,
         privacySettings: {
           ...mockUserProfile.privacySettings!,
-          ...settingsUpdate
-        }
+          ...settingsUpdate,
+        },
       };
 
       mockProfileRepository.getProfile.mockResolvedValue(mockUserProfile);
@@ -140,7 +159,7 @@ describe('UpdatePrivacySettingsUseCase', () => {
       // Assert
       expect(mockProfileRepository.getProfile).toHaveBeenCalledWith(userId);
       expect(mockProfileRepository.updateProfile).toHaveBeenCalledWith(userId, {
-        privacySettings: expect.objectContaining(settingsUpdate)
+        privacySettings: expect.objectContaining(settingsUpdate),
       });
       expect(result).toEqual(updatedProfile.privacySettings);
     });
@@ -149,13 +168,15 @@ describe('UpdatePrivacySettingsUseCase', () => {
       // Arrange
       const userId = 'user-123';
       const settingsUpdate: Partial<PrivacySettings> = {
-        profileVisibility: 'public'
+        profileVisibility: 'public',
       };
 
       mockProfileRepository.getProfile.mockResolvedValue(null);
 
       // Act & Assert
-      await expect(useCase.execute(userId, settingsUpdate)).rejects.toThrow('Profile not found');
+      await expect(useCase.execute(userId, settingsUpdate)).rejects.toThrow(
+        'Profile not found'
+      );
     });
 
     it('should validate business rules - third party sharing requires analytics', async () => {
@@ -163,7 +184,7 @@ describe('UpdatePrivacySettingsUseCase', () => {
       const userId = 'user-123';
       const settingsUpdate: Partial<PrivacySettings> = {
         allowAnalytics: false,
-        allowThirdPartySharing: true
+        allowThirdPartySharing: true,
       };
 
       mockProfileRepository.getProfile.mockResolvedValue(mockUserProfile);
@@ -179,7 +200,7 @@ describe('UpdatePrivacySettingsUseCase', () => {
       const userId = 'user-123';
       const settingsUpdate: Partial<PrivacySettings> = {
         marketingCommunications: true,
-        emailNotifications: false
+        emailNotifications: false,
       };
 
       mockProfileRepository.getProfile.mockResolvedValue(mockUserProfile);

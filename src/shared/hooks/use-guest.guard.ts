@@ -10,11 +10,11 @@
  * @subcategory Authentication
  */
 
-import {useEffect, useRef} from 'react';
-import {CommonActions, useNavigation} from '@react-navigation/native';
-import type {StackNavigationProp} from '@react-navigation/stack';
-import {useAuth} from '@features/auth/presentation/hooks';
-import type {RootStackParamList} from '@core/navigation/navigation.types';
+import { useEffect, useRef } from 'react';
+import { CommonActions, useNavigation } from '@react-navigation/native';
+import type { StackNavigationProp } from '@react-navigation/stack';
+import { useAuth } from '@features/auth/presentation/hooks';
+import type { RootStackParamList } from '@core/navigation/navigation.types';
 import { useCallback, useMemo } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { LoggerFactory } from '@core/logging/logger.factory';
@@ -24,11 +24,11 @@ const logger = LoggerFactory.createServiceLogger('GuestGuardChampion');
 
 /**
  * @fileoverview Guest Guard Hook - CHAMPION
- * 
+ *
  * 🏆 CHAMPION STANDARDS 2025:
  * ✅ Single Responsibility: Guest guard only
  * ✅ TanStack Query + Use Cases: Guest state caching
- * ✅ Optimistic Updates: Instant guest feedback  
+ * ✅ Optimistic Updates: Instant guest feedback
  * ✅ Mobile Performance: Battery-friendly checks
  * ✅ Enterprise Logging: Guest audit trails
  * ✅ Clean Interface: Essential guest operations
@@ -44,11 +44,11 @@ export const guestGuardQueryKeys = {
 
 // 🏆 CHAMPION CONFIG: Mobile Performance
 const GUEST_CONFIG = {
-  staleTime: 1000 * 60 * 5,       // 🏆 Mobile: 5 minutes for guest status
-  gcTime: 1000 * 60 * 15,         // 🏆 Mobile: 15 minutes garbage collection
-  retry: 1,                       // 🏆 Mobile: Single retry for guest checks
-  refetchOnWindowFocus: false,    // 🏆 Mobile: Battery-friendly
-  refetchOnReconnect: true,       // 🏆 Mobile: Recheck on network
+  staleTime: 1000 * 60 * 5, // 🏆 Mobile: 5 minutes for guest status
+  gcTime: 1000 * 60 * 15, // 🏆 Mobile: 15 minutes garbage collection
+  retry: 1, // 🏆 Mobile: Single retry for guest checks
+  refetchOnWindowFocus: false, // 🏆 Mobile: Battery-friendly
+  refetchOnReconnect: true, // 🏆 Mobile: Recheck on network
 } as const;
 
 /**
@@ -98,24 +98,24 @@ export interface UseGuestGuardReturn {
   isGuest: boolean;
   status: GuestStatus | null;
   capabilities: GuestCapabilities | null;
-  
+
   // 🏆 Champion Loading States
   isLoading: boolean;
   isCheckingGuest: boolean;
-  
+
   // 🏆 Error Handling
   error: string | null;
   guestError: string | null;
-  
+
   // 🏆 Champion Actions (Essential Only)
   checkGuestAccess: (feature?: string) => Promise<boolean>;
   requireAuth: () => void;
   createGuestSession: () => Promise<string>;
-  
+
   // 🏆 Mobile Performance Helpers
   refreshGuestStatus: () => Promise<void>;
   clearGuestError: () => void;
-  
+
   // 🏆 Guest Management
   hasCapability: (capability: string) => boolean;
   canAccessFeature: (feature: string) => boolean;
@@ -124,7 +124,7 @@ export interface UseGuestGuardReturn {
 
 /**
  * 🏆 CHAMPION GUEST GUARD HOOK
- * 
+ *
  * ✅ CHAMPION PATTERNS:
  * - Single Responsibility: Guest guard only
  * - TanStack Query: Optimized guest status caching
@@ -133,7 +133,9 @@ export interface UseGuestGuardReturn {
  * - Enterprise Logging: Guest audit trails
  * - Clean Interface: Essential guest operations
  */
-export const useGuestGuard = (config?: GuestGuardConfig): UseGuestGuardReturn => {
+export const useGuestGuard = (
+  config?: GuestGuardConfig
+): UseGuestGuardReturn => {
   const queryClient = useQueryClient();
   const { user, isAuthenticated, isLoading: authLoading } = useAuth();
   const navigation = useNavigation<StackNavigationProp<RootStackParamList>>();
@@ -144,13 +146,17 @@ export const useGuestGuard = (config?: GuestGuardConfig): UseGuestGuardReturn =>
     queryKey: guestGuardQueryKeys.status(),
     queryFn: async (): Promise<GuestStatus> => {
       const correlationId = `guest_guard_status_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-      
-      logger.info('Checking guest guard status (Champion)', LogCategory.BUSINESS, { correlationId });
+
+      logger.info(
+        'Checking guest guard status (Champion)',
+        LogCategory.BUSINESS,
+        { correlationId }
+      );
 
       try {
         const isGuest = !isAuthenticated;
         const allowGuestAccess = config?.allowGuestAccess !== false;
-        
+
         // Default guest capabilities
         const capabilities: GuestCapabilities = {
           canBrowse: allowGuestAccess,
@@ -162,21 +168,18 @@ export const useGuestGuard = (config?: GuestGuardConfig): UseGuestGuardReturn =>
             'settings',
             'favorites',
             'messaging',
-            'social'
+            'social',
           ],
-          allowedRoutes: allowGuestAccess ? [
-            '/home',
-            '/browse',
-            '/search',
-            '/about',
-            '/contact'
-          ] : []
+          allowedRoutes: allowGuestAccess
+            ? ['/home', '/browse', '/search', '/about', '/contact']
+            : [],
         };
 
         // Generate guest session ID if needed
-        const sessionId = isGuest && allowGuestAccess ? 
-          `guest_${Date.now()}_${Math.random().toString(36).substr(2, 9)}` : 
-          null;
+        const sessionId =
+          isGuest && allowGuestAccess
+            ? `guest_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
+            : null;
 
         const status: GuestStatus = {
           isGuest,
@@ -186,17 +189,26 @@ export const useGuestGuard = (config?: GuestGuardConfig): UseGuestGuardReturn =>
           sessionId,
         };
 
-        logger.info('Guest guard status checked successfully (Champion)', LogCategory.BUSINESS, { 
-          correlationId,
-          metadata: { isGuest, allowGuestAccess, sessionId }
-        });
+        logger.info(
+          'Guest guard status checked successfully (Champion)',
+          LogCategory.BUSINESS,
+          {
+            correlationId,
+            metadata: { isGuest, allowGuestAccess, sessionId },
+          }
+        );
 
         return status;
       } catch (error) {
-        logger.error('Guest guard status check failed (Champion)', LogCategory.BUSINESS, { 
-          correlationId 
-        }, error as Error);
-        
+        logger.error(
+          'Guest guard status check failed (Champion)',
+          LogCategory.BUSINESS,
+          {
+            correlationId,
+          },
+          error as Error
+        );
+
         // Fallback to restricted guest
         return {
           isGuest: !isAuthenticated,
@@ -237,61 +249,80 @@ export const useGuestGuard = (config?: GuestGuardConfig): UseGuestGuardReturn =>
   }, [status]);
 
   // 🏆 CHAMPION ACTIONS
-  const checkGuestAccess = useCallback(async (feature?: string): Promise<boolean> => {
-    const correlationId = `guest_access_check_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-    
-    logger.info('Checking guest access (Champion)', LogCategory.BUSINESS, { 
-      correlationId,
-      metadata: { feature, isGuest }
-    });
+  const checkGuestAccess = useCallback(
+    async (feature?: string): Promise<boolean> => {
+      const correlationId = `guest_access_check_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
 
-    try {
-      if (!isGuest) {
-        // Authenticated users have full access
-        return true;
-      }
-
-      if (!status?.isAllowed) {
-        logger.warn('Guest access denied - not allowed (Champion)', LogCategory.BUSINESS, { 
-          correlationId
-        });
-        return false;
-      }
-
-      if (feature && status.capabilities.restrictedFeatures.includes(feature)) {
-        logger.warn('Guest access denied - restricted feature (Champion)', LogCategory.BUSINESS, { 
-          correlationId,
-          metadata: { feature }
-        });
-        
-        if (config?.onAuthRequired) {
-          config.onAuthRequired();
-        }
-        
-        return false;
-      }
-
-      logger.info('Guest access granted (Champion)', LogCategory.BUSINESS, { 
+      logger.info('Checking guest access (Champion)', LogCategory.BUSINESS, {
         correlationId,
-        metadata: { feature }
+        metadata: { feature, isGuest },
       });
 
-      return true;
-    } catch (error) {
-      logger.error('Guest access check failed (Champion)', LogCategory.BUSINESS, { 
-        correlationId,
-        metadata: { feature }
-      }, error as Error);
-      return false;
-    }
-  }, [isGuest, status, config]);
+      try {
+        if (!isGuest) {
+          // Authenticated users have full access
+          return true;
+        }
+
+        if (!status?.isAllowed) {
+          logger.warn(
+            'Guest access denied - not allowed (Champion)',
+            LogCategory.BUSINESS,
+            {
+              correlationId,
+            }
+          );
+          return false;
+        }
+
+        if (
+          feature &&
+          status.capabilities.restrictedFeatures.includes(feature)
+        ) {
+          logger.warn(
+            'Guest access denied - restricted feature (Champion)',
+            LogCategory.BUSINESS,
+            {
+              correlationId,
+              metadata: { feature },
+            }
+          );
+
+          if (config?.onAuthRequired) {
+            config.onAuthRequired();
+          }
+
+          return false;
+        }
+
+        logger.info('Guest access granted (Champion)', LogCategory.BUSINESS, {
+          correlationId,
+          metadata: { feature },
+        });
+
+        return true;
+      } catch (error) {
+        logger.error(
+          'Guest access check failed (Champion)',
+          LogCategory.BUSINESS,
+          {
+            correlationId,
+            metadata: { feature },
+          },
+          error as Error
+        );
+        return false;
+      }
+    },
+    [isGuest, status, config]
+  );
 
   const requireAuth = useCallback(() => {
     const correlationId = `guest_require_auth_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-    
-    logger.info('Auth required for guest (Champion)', LogCategory.BUSINESS, { 
+
+    logger.info('Auth required for guest (Champion)', LogCategory.BUSINESS, {
       correlationId,
-      metadata: { isGuest }
+      metadata: { isGuest },
     });
 
     if (config?.onAuthRequired) {
@@ -301,26 +332,37 @@ export const useGuestGuard = (config?: GuestGuardConfig): UseGuestGuardReturn =>
 
   const createGuestSession = useCallback(async (): Promise<string> => {
     const correlationId = `guest_session_create_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-    
-    logger.info('Creating guest session (Champion)', LogCategory.BUSINESS, { correlationId });
+
+    logger.info('Creating guest session (Champion)', LogCategory.BUSINESS, {
+      correlationId,
+    });
 
     try {
       const sessionId = `guest_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-      
+
       // Refresh status with new session
       await guestStatusQuery.refetch();
-      
-      logger.info('Guest session created successfully (Champion)', LogCategory.BUSINESS, { 
-        correlationId,
-        metadata: { sessionId }
-      });
+
+      logger.info(
+        'Guest session created successfully (Champion)',
+        LogCategory.BUSINESS,
+        {
+          correlationId,
+          metadata: { sessionId },
+        }
+      );
 
       return sessionId;
     } catch (error) {
-      logger.error('Guest session creation failed (Champion)', LogCategory.BUSINESS, { 
-        correlationId 
-      }, error as Error);
-      
+      logger.error(
+        'Guest session creation failed (Champion)',
+        LogCategory.BUSINESS,
+        {
+          correlationId,
+        },
+        error as Error
+      );
+
       return `fallback_guest_${Date.now()}`;
     }
   }, [guestStatusQuery]);
@@ -332,45 +374,62 @@ export const useGuestGuard = (config?: GuestGuardConfig): UseGuestGuardReturn =>
   }, [guestStatusQuery]);
 
   const clearGuestError = useCallback(() => {
-    queryClient.setQueryData(guestGuardQueryKeys.status(), guestStatusQuery.data);
+    queryClient.setQueryData(
+      guestGuardQueryKeys.status(),
+      guestStatusQuery.data
+    );
   }, [queryClient, guestStatusQuery.data]);
 
   // 🏆 GUEST MANAGEMENT HELPERS
-  const hasCapability = useCallback((capability: string): boolean => {
-    if (!isGuest) return true; // Authenticated users have all capabilities
-    
-    const caps = capabilities;
-    if (!caps) return false;
+  const hasCapability = useCallback(
+    (capability: string): boolean => {
+      if (!isGuest) return true; // Authenticated users have all capabilities
 
-    switch (capability) {
-      case 'browse': return caps.canBrowse;
-      case 'search': return caps.canSearch;
-      case 'viewPublic': return caps.canViewPublic;
-      case 'basicFeatures': return caps.canUseBasicFeatures;
-      default: return false;
-    }
-  }, [isGuest, capabilities]);
+      const caps = capabilities;
+      if (!caps) return false;
 
-  const canAccessFeature = useCallback((feature: string): boolean => {
-    if (!isGuest) return true; // Authenticated users can access all features
-    
-    if (!capabilities) return false;
-    
-    return !capabilities.restrictedFeatures.includes(feature);
-  }, [isGuest, capabilities]);
-
-  const trackGuestAction = useCallback((action: string) => {
-    const correlationId = `guest_action_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-    
-    logger.info('Guest action tracked (Champion)', LogCategory.BUSINESS, { 
-      correlationId,
-      metadata: { 
-        action,
-        sessionId: status?.sessionId,
-        isGuest
+      switch (capability) {
+        case 'browse':
+          return caps.canBrowse;
+        case 'search':
+          return caps.canSearch;
+        case 'viewPublic':
+          return caps.canViewPublic;
+        case 'basicFeatures':
+          return caps.canUseBasicFeatures;
+        default:
+          return false;
       }
-    });
-  }, [status, isGuest]);
+    },
+    [isGuest, capabilities]
+  );
+
+  const canAccessFeature = useCallback(
+    (feature: string): boolean => {
+      if (!isGuest) return true; // Authenticated users can access all features
+
+      if (!capabilities) return false;
+
+      return !capabilities.restrictedFeatures.includes(feature);
+    },
+    [isGuest, capabilities]
+  );
+
+  const trackGuestAction = useCallback(
+    (action: string) => {
+      const correlationId = `guest_action_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+
+      logger.info('Guest action tracked (Champion)', LogCategory.BUSINESS, {
+        correlationId,
+        metadata: {
+          action,
+          sessionId: status?.sessionId,
+          isGuest,
+        },
+      });
+    },
+    [status, isGuest]
+  );
 
   // Log auth state changes
   useEffect(() => {
@@ -381,8 +440,8 @@ export const useGuestGuard = (config?: GuestGuardConfig): UseGuestGuardReturn =>
         isLoading: authLoading,
         hasUser: !!user,
         userEmail: user?.email ? '***@***.***' : undefined, // Masked for privacy
-        hasRedirected: hasRedirected.current
-      }
+        hasRedirected: hasRedirected.current,
+      },
     });
   }, [isAuthenticated, authLoading, user]);
 
@@ -394,54 +453,41 @@ export const useGuestGuard = (config?: GuestGuardConfig): UseGuestGuardReturn =>
         isLoading: authLoading,
         hasUser: !!user,
         userEmail: user?.email ? '***@***.***' : undefined, // Masked for privacy
-        hasRedirected: hasRedirected.current
-      }
+        hasRedirected: hasRedirected.current,
+      },
     });
-    
+
+    // 🔥 NAVIGATION FIX: Guest Guard sollte KEINE Navigation übernehmen
+    // Die Navigation wird vom App Navigator basierend auf isAuthenticated gehandhabt
     if (isAuthenticated && !authLoading && !hasRedirected.current) {
       hasRedirected.current = true;
-      
-      logger.info('Redirecting authenticated user to main app', LogCategory.BUSINESS, {
-        service: 'GuestGuard',
-        metadata: { destination: 'Main -> HomeTab' }
-      });
-      
-      // Use setTimeout to ensure navigation stack is ready
-      setTimeout(() => {
-        logger.info('Executing navigation dispatch', LogCategory.BUSINESS, {
+
+      logger.info(
+        '🔥 Guest Guard detects authenticated user - letting App Navigator handle navigation',
+        LogCategory.BUSINESS,
+        {
           service: 'GuestGuard',
-          metadata: { action: 'CommonActions.reset' }
-        });
-        
-        try {
-          navigation.dispatch(
-            CommonActions.reset({
-              index: 0,
-              routes: [{name: 'Main', params: {screen: 'HomeTab'}}],
-            })
-          );
-          
-          logger.info('Navigation dispatch successful', LogCategory.BUSINESS, {
-            service: 'GuestGuard',
-            metadata: { result: 'success' }
-          });
-        } catch (error) {
-          logger.error('Navigation dispatch failed', LogCategory.BUSINESS, {
-            service: 'GuestGuard'
-          }, error as Error);
+          metadata: {
+            solution: 'App Navigator handles auth state changes',
+            isAuthenticated,
+            hasUser: !!user,
+          },
         }
-      }, 100);
+      );
+
+      // 🔥 ENTFERNT: Direkte Navigation - App Navigator übernimmt das
+      // Guest Guard sollte nur Guest-Access-Checks machen, keine Navigation
     }
-    
+
     // Reset redirect flag when user logs out
     if (!isAuthenticated && !authLoading) {
       logger.info('Resetting redirect flag on logout', LogCategory.BUSINESS, {
         service: 'GuestGuard',
-        metadata: { action: 'reset_flag' }
+        metadata: { action: 'reset_flag' },
       });
       hasRedirected.current = false;
     }
-  }, [isAuthenticated, authLoading, user, navigation]);
+  }, [isAuthenticated, authLoading, user]);
 
   return {
     // 🏆 Guest Status
@@ -449,24 +495,24 @@ export const useGuestGuard = (config?: GuestGuardConfig): UseGuestGuardReturn =>
     isGuest,
     status,
     capabilities,
-    
+
     // 🏆 Champion Loading States
     isLoading,
     isCheckingGuest: guestStatusQuery.isLoading,
-    
+
     // 🏆 Error Handling
     error,
     guestError: error,
-    
+
     // 🏆 Champion Actions
     checkGuestAccess,
     requireAuth,
     createGuestSession,
-    
+
     // 🏆 Mobile Performance Helpers
     refreshGuestStatus,
     clearGuestError,
-    
+
     // 🏆 Guest Management
     hasCapability,
     canAccessFeature,

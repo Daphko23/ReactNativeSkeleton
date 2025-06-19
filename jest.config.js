@@ -95,7 +95,7 @@ module.exports = {
   },
   
   transformIgnorePatterns: [
-    'node_modules/(?!(react-native|@react-native|react-native-.*|@tanstack/.*|@react-navigation|@supabase|uuid|lodash-es|base64-arraybuffer|react-hook-form|@hookform|immer|zustand|use-immer|zod|yup|i18next|react-i18next|@react-native-async-storage|@react-native-community|@invertase|@sentry|axios|date-fns|@testing-library)/)',
+    'node_modules/(?!(react-native|@react-native|react-native-.*|@tanstack/.*|@react-navigation|@supabase|uuid|lodash-es|base64-arraybuffer|react-hook-form|@hookform|immer|zustand|use-immer|zod|yup|i18next|react-i18next|@react-native-async-storage|@react-native-community|@invertase|@sentry|axios|date-fns|@testing-library|@react-native-google-signin)/)',
   ],
   
   moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx', 'json'],

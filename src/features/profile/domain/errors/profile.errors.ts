@@ -3,11 +3,11 @@
  * @description Comprehensive Profile Domain Error System mit hierarchischen Error Types,
  * Internationalization Support, Error Codes und Enterprise Monitoring Integration.
  * Implementiert Domain-driven Design Error Handling Patterns mit Clean Architecture.
- * 
+ *
  * Dieses Error System bietet typisierte, strukturierte Fehlerbehandlung für alle
  * Profile-bezogenen Business Logic und Data Operations mit vollständiger
  * Compliance-Integration und User Experience Optimization.
- * 
+ *
  * @version 2.0.0
  * @since 1.0.0
  * @author ReactNativeSkeleton Enterprise Team
@@ -15,39 +15,39 @@
  * @namespace Features.Profile.Domain.Errors
  * @category Error Management
  * @subcategory Domain Errors
- * 
+ *
  * @architecture
  * - **Error Hierarchy:** Base ProfileError mit spezialisierten Subtypen
  * - **Error Codes:** Numerische Codes für API/System Integration
  * - **I18n Support:** Internationalization keys für User Messages
  * - **Context Data:** Strukturierte Error Context für Debugging
  * - **Monitoring Integration:** Error Tracking und Analytics Support
- * 
+ *
  * @security
  * - **PII Protection:** Keine sensitive Daten in Error Messages
  * - **Error Sanitization:** Sichere Error Messages für Client
  * - **Access Control:** Error Details basierend auf User Permissions
  * - **Audit Logging:** Error Events für Security Monitoring
- * 
+ *
  * @compliance
  * - **GDPR:** Privacy-compliant error handling ohne PII exposure
  * - **SOC 2:** Enterprise error management standards
  * - **ISO 27001:** Information security error handling
  * - **Accessibility:** WCAG-compliant error messages
- * 
+ *
  * @patterns
  * - **Error Hierarchy Pattern:** Base class mit specialized subtypes
  * - **Factory Pattern:** Error creation mit standardized metadata
  * - **Strategy Pattern:** Error handling strategies für different contexts
  * - **Observer Pattern:** Error event notification system
- * 
+ *
  * @usage
  * ```typescript
  * // Throwing domain-specific errors
  * throw new ProfileNotFoundError('user-123', { source: 'database' });
  * throw new ProfileValidationError({ firstName: ['Required field'] });
  * throw new ProfileAccessDeniedError('user-123', 'user-456', 'insufficient_permissions');
- * 
+ *
  * // Error handling with type checking
  * try {
  *   await profileService.getProfile(userId);
@@ -59,19 +59,19 @@
  *   }
  * }
  * ```
- * 
+ *
  * @monitoring
  * - **Error Rate:** Track error frequency by type
  * - **Error Context:** Monitor error conditions and patterns
  * - **User Impact:** Measure error impact on user experience
  * - **Resolution Time:** Track error resolution metrics
- * 
+ *
  * @todo
  * - Add ML-based Error Pattern Detection (Q2 2025)
  * - Implement Real-time Error Analytics (Q3 2025)
  * - Add Predictive Error Prevention (Q4 2025)
  * - Integrate Voice Assistant Error Reporting (Q1 2026)
- * 
+ *
  * @changelog
  * - 2.0.0: Complete Enterprise Error System Redesign
  * - v1.5.0: Added I18n Support und Context Enhancement
@@ -151,7 +151,6 @@ export enum ProfileErrorCode {
   // 1500-1599: Profile Infrastructure Errors
   PROFILE_SERVICE_UNAVAILABLE = 1501,
   PROFILE_DATABASE_ERROR = 1502,
-  PROFILE_CACHE_ERROR = 1503,
   PROFILE_STORAGE_ERROR = 1504,
   PROFILE_NETWORK_ERROR = 1505,
   PROFILE_TIMEOUT_ERROR = 1506,
@@ -162,13 +161,12 @@ export enum ProfileErrorCode {
   PROFILE_AVATAR_UPLOAD_FAILED = 1602,
   PROFILE_SOCIAL_SYNC_FAILED = 1603,
   PROFILE_NOTIFICATION_FAILED = 1604,
-  PROFILE_ANALYTICS_ERROR = 1605
 }
 
 /**
  * @class ProfileError
  * @description Base class für alle Profile Domain Errors
- * 
+ *
  * Implementiert standardisierte Error Structure mit Error Codes,
  * Internationalization Support und Context Information für
  * Enterprise-level Error Handling und Monitoring.
@@ -208,7 +206,7 @@ export class ProfileError extends Error {
     this.i18nKey = i18nKey;
     this.context = {
       ...context,
-      timestamp: context.timestamp || new Date()
+      timestamp: context.timestamp || new Date(),
     };
     this.timestamp = new Date();
     this.severity = severity;
@@ -223,7 +221,7 @@ export class ProfileError extends Error {
 
   /**
    * Serialize error for logging/monitoring.
-   * 
+   *
    * @returns Serialized error object
    */
   toJSON(): object {
@@ -237,13 +235,13 @@ export class ProfileError extends Error {
       severity: this.severity,
       isUserFacing: this.isUserFacing,
       isRetryable: this.isRetryable,
-      stack: this.stack
+      stack: this.stack,
     };
   }
 
   /**
    * Get user-friendly error message.
-   * 
+   *
    * @param locale - User locale (default: 'en')
    * @returns Localized error message
    */
@@ -256,7 +254,7 @@ export class ProfileError extends Error {
 /**
  * @class ProfileNotFoundError
  * @description Error thrown when requested profile does not exist
- * 
+ *
  * **Use Cases:**
  * - Profile retrieval for non-existent user
  * - Update operations on deleted profiles
@@ -282,7 +280,7 @@ export class ProfileNotFoundError extends ProfileError {
 /**
  * @class ProfileAccessDeniedError
  * @description Error thrown when user lacks permission to access profile
- * 
+ *
  * **Use Cases:**
  * - Cross-user profile access without permission
  * - Insufficient role permissions
@@ -294,8 +292,8 @@ export class ProfileAccessDeniedError extends ProfileError {
   public readonly accessType: string;
 
   constructor(
-    userId: string, 
-    requestingUserId: string, 
+    userId: string,
+    requestingUserId: string,
     accessType: string = 'read',
     context: ErrorContext = {}
   ) {
@@ -317,7 +315,7 @@ export class ProfileAccessDeniedError extends ProfileError {
 /**
  * @class ProfileValidationError
  * @description Error thrown when profile data validation fails
- * 
+ *
  * **Use Cases:**
  * - Invalid email format
  * - Required field missing
@@ -327,7 +325,10 @@ export class ProfileAccessDeniedError extends ProfileError {
 export class ProfileValidationError extends ProfileError {
   public readonly validationErrors: Record<string, string[]>;
 
-  constructor(validationErrors: Record<string, string[]>, context: ErrorContext = {}) {
+  constructor(
+    validationErrors: Record<string, string[]>,
+    context: ErrorContext = {}
+  ) {
     const errorCount = Object.keys(validationErrors).length;
     super(
       `Profile validation failed with ${errorCount} error(s)`,
@@ -345,7 +346,7 @@ export class ProfileValidationError extends ProfileError {
 /**
  * @class ProfileUpdateFailedError
  * @description Error thrown when profile update operation fails
- * 
+ *
  * **Use Cases:**
  * - Database update failures
  * - Network connectivity issues
@@ -357,8 +358,8 @@ export class ProfileUpdateFailedError extends ProfileError {
   public readonly attemptedChanges: string[];
 
   constructor(
-    userId: string, 
-    attemptedChanges: string[], 
+    userId: string,
+    attemptedChanges: string[],
     cause?: Error,
     context: ErrorContext = {}
   ) {
@@ -379,7 +380,7 @@ export class ProfileUpdateFailedError extends ProfileError {
 /**
  * @class ProfileDeleteFailedError
  * @description Error thrown when profile deletion operation fails
- * 
+ *
  * **Use Cases:**
  * - Database deletion failures
  * - Backup creation failures
@@ -391,7 +392,7 @@ export class ProfileDeleteFailedError extends ProfileError {
   public readonly deletionStrategy: string;
 
   constructor(
-    userId: string, 
+    userId: string,
     deletionStrategy: string,
     cause?: Error,
     context: ErrorContext = {}
@@ -413,7 +414,7 @@ export class ProfileDeleteFailedError extends ProfileError {
 /**
  * @class ProfileVersionConflictError
  * @description Error thrown when concurrent profile modifications conflict
- * 
+ *
  * **Use Cases:**
  * - Optimistic locking conflicts
  * - Concurrent update attempts
@@ -425,8 +426,8 @@ export class ProfileVersionConflictError extends ProfileError {
   public readonly actualVersion: number;
 
   constructor(
-    userId: string, 
-    expectedVersion: number, 
+    userId: string,
+    expectedVersion: number,
     actualVersion: number,
     context: ErrorContext = {}
   ) {
@@ -448,7 +449,7 @@ export class ProfileVersionConflictError extends ProfileError {
 /**
  * @class ProfileDuplicateEmailError
  * @description Error thrown when attempting to use already registered email
- * 
+ *
  * **Use Cases:**
  * - Email address already in use
  * - Business rule: unique email requirement
@@ -474,7 +475,7 @@ export class ProfileDuplicateEmailError extends ProfileError {
 /**
  * @class ProfilePrivacyViolationError
  * @description Error thrown when operation violates privacy settings
- * 
+ *
  * **Use Cases:**
  * - GDPR compliance violations
  * - Privacy setting violations
@@ -487,8 +488,8 @@ export class ProfilePrivacyViolationError extends ProfileError {
   public readonly requestedField: string;
 
   constructor(
-    userId: string, 
-    violationType: string, 
+    userId: string,
+    violationType: string,
     requestedField: string,
     context: ErrorContext = {}
   ) {
@@ -510,7 +511,7 @@ export class ProfilePrivacyViolationError extends ProfileError {
 /**
  * @class ProfileServiceUnavailableError
  * @description Error thrown when profile service is unavailable
- * 
+ *
  * **Use Cases:**
  * - Database connectivity issues
  * - Service maintenance periods
@@ -520,7 +521,10 @@ export class ProfilePrivacyViolationError extends ProfileError {
 export class ProfileServiceUnavailableError extends ProfileError {
   public readonly serviceName: string;
 
-  constructor(serviceName: string = 'ProfileService', context: ErrorContext = {}) {
+  constructor(
+    serviceName: string = 'ProfileService',
+    context: ErrorContext = {}
+  ) {
     super(
       `Profile service unavailable: ${serviceName}`,
       ProfileErrorCode.PROFILE_SERVICE_UNAVAILABLE,
@@ -537,7 +541,7 @@ export class ProfileServiceUnavailableError extends ProfileError {
 /**
  * @class ProfileAuthorizationError
  * @description Error thrown when authorization check fails
- * 
+ *
  * **Use Cases:**
  * - Invalid authentication tokens
  * - Insufficient permissions
@@ -549,7 +553,7 @@ export class ProfileAuthorizationError extends ProfileError {
   public readonly requiredPermission: string;
 
   constructor(
-    userId: string, 
+    userId: string,
     requiredPermission: string,
     context: ErrorContext = {}
   ) {
@@ -570,7 +574,7 @@ export class ProfileAuthorizationError extends ProfileError {
 /**
  * @class ProfileIncompleteError
  * @description Error thrown when profile is incomplete for required operation
- * 
+ *
  * **Use Cases:**
  * - Required fields missing for operation
  * - Profile completion requirements
@@ -580,7 +584,11 @@ export class ProfileIncompleteError extends ProfileError {
   public readonly userId: string;
   public readonly missingFields: string[];
 
-  constructor(userId: string, missingFields: string[], context: ErrorContext = {}) {
+  constructor(
+    userId: string,
+    missingFields: string[],
+    context: ErrorContext = {}
+  ) {
     super(
       `Profile incomplete for user ${userId}: missing ${missingFields.join(', ')}`,
       ProfileErrorCode.PROFILE_INCOMPLETE,
@@ -598,7 +606,7 @@ export class ProfileIncompleteError extends ProfileError {
 /**
  * @class ProfileGDPRComplianceError
  * @description Error thrown when GDPR compliance requirements are violated
- * 
+ *
  * **Use Cases:**
  * - Data retention policy violations
  * - Consent requirement failures
@@ -611,8 +619,8 @@ export class ProfileGDPRComplianceError extends ProfileError {
   public readonly gdprArticle: string;
 
   constructor(
-    userId: string, 
-    complianceIssue: string, 
+    userId: string,
+    complianceIssue: string,
     gdprArticle: string,
     context: ErrorContext = {}
   ) {
@@ -634,7 +642,7 @@ export class ProfileGDPRComplianceError extends ProfileError {
 /**
  * @class ProfileRateLimitError
  * @description Error thrown when rate limits are exceeded
- * 
+ *
  * **Use Cases:**
  * - Too many profile update requests
  * - API rate limiting
@@ -647,8 +655,8 @@ export class ProfileRateLimitError extends ProfileError {
   public readonly resetTime: Date;
 
   constructor(
-    userId: string, 
-    limitType: string, 
+    userId: string,
+    limitType: string,
     resetTime: Date,
     context: ErrorContext = {}
   ) {
@@ -670,7 +678,7 @@ export class ProfileRateLimitError extends ProfileError {
 /**
  * @function isProfileError
  * @description Type guard to check if error is a ProfileError
- * 
+ *
  * @param error - Error to check
  * @returns Whether error is a ProfileError instance
  */
@@ -681,7 +689,7 @@ export function isProfileError(error: any): error is ProfileError {
 /**
  * @function getProfileErrorByCode
  * @description Get error class by error code
- * 
+ *
  * @param code - Profile error code
  * @returns Error class constructor or null
  */
@@ -695,10 +703,12 @@ export function getProfileErrorByCode(code: ProfileErrorCode): any | null {
     [ProfileErrorCode.PROFILE_VERSION_CONFLICT]: ProfileVersionConflictError,
     [ProfileErrorCode.PROFILE_DUPLICATE_EMAIL]: ProfileDuplicateEmailError,
     [ProfileErrorCode.PROFILE_PRIVACY_VIOLATION]: ProfilePrivacyViolationError,
-    [ProfileErrorCode.PROFILE_SERVICE_UNAVAILABLE]: ProfileServiceUnavailableError,
+    [ProfileErrorCode.PROFILE_SERVICE_UNAVAILABLE]:
+      ProfileServiceUnavailableError,
     [ProfileErrorCode.PROFILE_UNAUTHORIZED]: ProfileAuthorizationError,
     [ProfileErrorCode.PROFILE_INCOMPLETE]: ProfileIncompleteError,
-    [ProfileErrorCode.PROFILE_GDPR_COMPLIANCE_FAILED]: ProfileGDPRComplianceError,
+    [ProfileErrorCode.PROFILE_GDPR_COMPLIANCE_FAILED]:
+      ProfileGDPRComplianceError,
     [ProfileErrorCode.PROFILE_RATE_LIMITED]: ProfileRateLimitError,
   };
 
@@ -715,7 +725,7 @@ export const PROFILE_ERROR_CATEGORIES = {
     ProfileErrorCode.PROFILE_ACCESS_DENIED,
     ProfileErrorCode.PROFILE_UNAUTHORIZED,
     ProfileErrorCode.PROFILE_FORBIDDEN,
-    ProfileErrorCode.PROFILE_RATE_LIMITED
+    ProfileErrorCode.PROFILE_RATE_LIMITED,
   ],
   VALIDATION: [
     ProfileErrorCode.PROFILE_VALIDATION_FAILED,
@@ -725,7 +735,7 @@ export const PROFILE_ERROR_CATEGORIES = {
     ProfileErrorCode.PROFILE_INVALID_SOCIAL_LINKS,
     ProfileErrorCode.PROFILE_FIELD_TOO_LONG,
     ProfileErrorCode.PROFILE_FIELD_REQUIRED,
-    ProfileErrorCode.PROFILE_INVALID_FORMAT
+    ProfileErrorCode.PROFILE_INVALID_FORMAT,
   ],
   OPERATIONS: [
     ProfileErrorCode.PROFILE_UPDATE_FAILED,
@@ -734,7 +744,7 @@ export const PROFILE_ERROR_CATEGORIES = {
     ProfileErrorCode.PROFILE_BACKUP_FAILED,
     ProfileErrorCode.PROFILE_RESTORE_FAILED,
     ProfileErrorCode.PROFILE_SYNC_FAILED,
-    ProfileErrorCode.PROFILE_MIGRATION_FAILED
+    ProfileErrorCode.PROFILE_MIGRATION_FAILED,
   ],
   BUSINESS: [
     ProfileErrorCode.PROFILE_VERSION_CONFLICT,
@@ -742,22 +752,21 @@ export const PROFILE_ERROR_CATEGORIES = {
     ProfileErrorCode.PROFILE_INCOMPLETE,
     ProfileErrorCode.PROFILE_ALREADY_DELETED,
     ProfileErrorCode.PROFILE_VERIFICATION_REQUIRED,
-    ProfileErrorCode.PROFILE_SUSPENSION_ACTIVE
+    ProfileErrorCode.PROFILE_SUSPENSION_ACTIVE,
   ],
   PRIVACY: [
     ProfileErrorCode.PROFILE_PRIVACY_VIOLATION,
     ProfileErrorCode.PROFILE_GDPR_COMPLIANCE_FAILED,
     ProfileErrorCode.PROFILE_DATA_RETENTION_VIOLATION,
     ProfileErrorCode.PROFILE_CONSENT_REQUIRED,
-    ProfileErrorCode.PROFILE_ANONYMIZATION_FAILED
+    ProfileErrorCode.PROFILE_ANONYMIZATION_FAILED,
   ],
   INFRASTRUCTURE: [
     ProfileErrorCode.PROFILE_SERVICE_UNAVAILABLE,
     ProfileErrorCode.PROFILE_DATABASE_ERROR,
-    ProfileErrorCode.PROFILE_CACHE_ERROR,
     ProfileErrorCode.PROFILE_STORAGE_ERROR,
     ProfileErrorCode.PROFILE_NETWORK_ERROR,
     ProfileErrorCode.PROFILE_TIMEOUT_ERROR,
-    ProfileErrorCode.PROFILE_RESOURCE_EXHAUSTED
-  ]
-} as const; 
+    ProfileErrorCode.PROFILE_RESOURCE_EXHAUSTED,
+  ],
+} as const;

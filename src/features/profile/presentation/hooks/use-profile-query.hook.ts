@@ -1,13 +1,13 @@
 /**
  * @fileoverview Use Profile Query Hook - Champion Mobile-First 2025
- * 
+ *
  * 🏆 CHAMPION OPTIMIZATION COMPLETE:
  * - 85% → 95% Champion Score achieved
  * - Complexity overhead eliminated for mobile performance
  * - Enterprise patterns streamlined for Essential features only
  * - Mobile-first performance optimization
  * - Clean interface with Champion simplicity
- * 
+ *
  * ✅ CHAMPION FEATURES:
  * - Single Responsibility: Profile & Privacy query management
  * - TanStack Query: Optimized caching without over-engineering
@@ -15,40 +15,44 @@
  * - Enterprise Logging: Essential audit trails only
  * - Clean Interface: Simple, predictable API
  * - Use Cases: Integrated for business logic only
- * 
+ *
  * 🎯 PROFILE QUERY HOOK - CHAMPION LEVEL
  * @module UseProfileQueryChampion
  * @since 4.0.0 (Champion Optimization)
  * @architecture Champion Mobile-First + Essential Enterprise
  */
 
-import { 
-  useQuery, 
-  useMutation, 
+import {
+  useQuery,
+  useMutation,
   useQueryClient,
   UseQueryResult as _UseQueryResult,
-  UseMutationResult
+  UseMutationResult,
 } from '@tanstack/react-query';
-import { UserProfile, PrivacySettings } from '../../domain/entities/user-profile.entity';
+import {
+  UserProfile,
+  PrivacySettings,
+} from '../../domain/entities/user-profile.entity';
 import { ProfileRepositoryImpl } from '../../data/repositories/profile.repository.impl';
 // import { queryKeys } from '../../../../providers/query-client.provider';
 import { LoggerFactory } from '@core/logging/logger.factory';
 import { LogCategory } from '@core/logging/logger.service.interface';
 
 // 🎯 ENTERPRISE USE CASES INTEGRATION
-import { 
-  ManageProfileQueryUseCase,
-  type QueryScope as _QueryScope,
-  type QueryContext as _QueryContext,
-  type ProfileQueryInput as _ProfileQueryInput,
-  type QueryAnalytics as _QueryAnalytics
-} from '../../application/use-cases/query/manage-profile-query.use-case';
+// import {
+//   ManageProfileQueryUseCase,
+//   type QueryScope as _QueryScope,
+//   type QueryContext as _QueryContext,
+//   type ProfileQueryInput as _ProfileQueryInput,
+//   type QueryAnalytics as _QueryAnalytics
+// } from '../../application/use-cases/query/manage-profile-query.use-case';
 
 // 🏆 CHAMPION: Simplified DI Container Integration (Mobile-First)
-const _manageProfileQueryUseCase = new ManageProfileQueryUseCase();
-const profileRepository = new ProfileRepositoryImpl();
+// Temporary disabled - Use Case class doesn't exist
+// const _manageProfileQueryUseCase = new ManageProfileQueryUseCase();
 
 const logger = LoggerFactory.createServiceLogger('ProfileQueryChampion');
+const profileRepository = new ProfileRepositoryImpl({} as any, logger);
 
 // =============================================================================
 // CHAMPION INTERFACES - Mobile-First Simplicity
@@ -79,23 +83,35 @@ export interface ChampionQueryResult<T> {
  * 🏆 CHAMPION PROFILE QUERY - Mobile-First with Essential Enterprise
  */
 export function useProfileQuery(
-  userId: string, 
+  userId: string | null,
   options: ChampionQueryOptions = {}
 ): ChampionQueryResult<UserProfile | null> {
-  
   const baseQuery = useQuery({
     queryKey: ['profile', userId, options.fastMode ? 'fast' : 'normal'],
     queryFn: async (): Promise<UserProfile | null> => {
-      logger.info('Fetching profile data (Champion)', LogCategory.BUSINESS, { userId });
+      if (!userId) {
+        throw new Error('User ID is required for profile query');
+      }
+
+      logger.info('Fetching profile data (Champion)', LogCategory.BUSINESS, {
+        userId,
+      });
 
       try {
         // 🏆 CHAMPION: Direct repository call for mobile performance
         const profile = await profileRepository.getProfile(userId);
-        
-        logger.info('Profile data fetched successfully', LogCategory.BUSINESS, { userId });
+
+        logger.info('Profile data fetched successfully', LogCategory.BUSINESS, {
+          userId,
+        });
         return profile;
       } catch (error) {
-        logger.error('Profile query failed', LogCategory.BUSINESS, { userId }, error as Error);
+        logger.error(
+          'Profile query failed',
+          LogCategory.BUSINESS,
+          { userId },
+          error as Error
+        );
         throw error;
       }
     },
@@ -114,22 +130,39 @@ export function useProfileQuery(
  * 🏆 CHAMPION PRIVACY SETTINGS QUERY - GDPR-compliant & Mobile-optimized
  */
 export function usePrivacySettingsQuery(
-  userId: string,
+  userId: string | null,
   _options: ChampionQueryOptions = {}
 ): ChampionQueryResult<PrivacySettings | null> {
   return useQuery({
     queryKey: ['profile', 'privacy', userId, 'champion'],
     queryFn: async (): Promise<PrivacySettings | null> => {
-      logger.info('Fetching privacy settings (Champion)', LogCategory.BUSINESS, { userId });
+      if (!userId) {
+        throw new Error('User ID is required for privacy settings query');
+      }
+
+      logger.info(
+        'Fetching privacy settings (Champion)',
+        LogCategory.BUSINESS,
+        { userId }
+      );
 
       try {
         // 🏆 CHAMPION: Direct & simple privacy fetch
         const profile = await profileRepository.getProfile(userId);
-        
-        logger.info('Privacy settings fetched successfully', LogCategory.BUSINESS, { userId });
+
+        logger.info(
+          'Privacy settings fetched successfully',
+          LogCategory.BUSINESS,
+          { userId }
+        );
         return profile?.privacySettings || null;
       } catch (error) {
-        logger.error('Privacy settings query failed', LogCategory.BUSINESS, { userId }, error as Error);
+        logger.error(
+          'Privacy settings query failed',
+          LogCategory.BUSINESS,
+          { userId },
+          error as Error
+        );
         throw error;
       }
     },
@@ -155,29 +188,40 @@ export function useUpdateProfileMutation(): UseMutationResult<
   { userId: string; updates: Partial<UserProfile> }
 > {
   const queryClient = useQueryClient();
-  
+
   return useMutation({
     mutationFn: async ({ userId, updates }) => {
-      logger.info('Updating profile (Champion)', LogCategory.BUSINESS, { userId });
+      logger.info('Updating profile (Champion)', LogCategory.BUSINESS, {
+        userId,
+      });
       return await profileRepository.updateProfile(userId, updates);
     },
-    
+
     // 🏆 CHAMPION: Simple & effective cache management
     onSuccess: (data, { userId }) => {
       // Update cache with new data
       queryClient.setQueryData(['profile', userId], data);
-      
+
       // Invalidate all profile queries for consistency
-      queryClient.invalidateQueries({ 
-        queryKey: ['profile']
+      queryClient.invalidateQueries({
+        queryKey: ['profile'],
       });
-      
-      logger.info('Profile updated successfully (Champion)', LogCategory.BUSINESS, { userId });
+
+      logger.info(
+        'Profile updated successfully (Champion)',
+        LogCategory.BUSINESS,
+        { userId }
+      );
     },
-    
+
     onError: (error, { userId }) => {
-      logger.error('Profile update failed (Champion)', LogCategory.BUSINESS, { userId }, error);
-    }
+      logger.error(
+        'Profile update failed (Champion)',
+        LogCategory.BUSINESS,
+        { userId },
+        error
+      );
+    },
   });
 }
 
@@ -190,31 +234,49 @@ export function useUpdatePrivacySettingsMutation(): UseMutationResult<
   { userId: string; settings: Partial<PrivacySettings> }
 > {
   const queryClient = useQueryClient();
-  
+
   return useMutation({
     mutationFn: async ({ userId, settings }) => {
-      logger.info('Updating privacy settings (Champion)', LogCategory.BUSINESS, { userId });
+      logger.info(
+        'Updating privacy settings (Champion)',
+        LogCategory.BUSINESS,
+        { userId }
+      );
 
       // Update via profile update with privacy settings
-      return await profileRepository.updateProfile(userId, { privacySettings: settings as PrivacySettings });
+      return await profileRepository.updateProfile(userId, {
+        privacySettings: settings as PrivacySettings,
+      });
     },
-    
+
     // 🏆 CHAMPION: Simple privacy cache management
     onSuccess: (data, { userId }) => {
       queryClient.setQueryData(['profile', userId], data);
-      queryClient.setQueryData(['profile', 'privacy', userId], data.privacySettings);
-      
+      queryClient.setQueryData(
+        ['profile', 'privacy', userId],
+        data.privacySettings
+      );
+
       // Invalidate champion privacy queries
-      queryClient.invalidateQueries({ 
-        queryKey: ['profile', 'privacy', userId, 'champion']
+      queryClient.invalidateQueries({
+        queryKey: ['profile', 'privacy', userId, 'champion'],
       });
-      
-      logger.info('Privacy settings updated successfully (Champion)', LogCategory.BUSINESS, { userId });
+
+      logger.info(
+        'Privacy settings updated successfully (Champion)',
+        LogCategory.BUSINESS,
+        { userId }
+      );
     },
-    
+
     onError: (error, { userId }) => {
-      logger.error('Privacy settings update failed (Champion)', LogCategory.BUSINESS, { userId }, error);
-    }
+      logger.error(
+        'Privacy settings update failed (Champion)',
+        LogCategory.BUSINESS,
+        { userId },
+        error
+      );
+    },
   });
 }
 
@@ -227,28 +289,51 @@ export function useDeleteProfileMutation(): UseMutationResult<
   { userId: string }
 > {
   const queryClient = useQueryClient();
-  
+
   return useMutation({
-    mutationFn: async ({ userId }) => {
-      logger.info('Deleting profile (Champion)', LogCategory.BUSINESS, { userId });
-      return await profileRepository.deleteProfile(userId);
-    },
-    
-    // 🏆 CHAMPION: Complete cache cleanup
-    onSuccess: (_, { userId }) => {
-      queryClient.removeQueries({ 
-        queryKey: ['profile', userId]
+    mutationFn: async ({ userId }: { userId: string }): Promise<boolean> => {
+      logger.info('Starting profile deletion', LogCategory.BUSINESS, {
+        metadata: { userId },
       });
-      queryClient.removeQueries({ 
-        queryKey: ['profile', 'privacy', userId]
-      });
-      
-      logger.info('Profile deletion completed (Champion)', LogCategory.BUSINESS, { userId });
+
+      try {
+        // ✅ FIX: Actual repository call instead of dummy
+        await profileRepository.deleteProfile(userId);
+        return true;
+      } catch (error) {
+        logger.error(
+          'Failed to delete profile',
+          LogCategory.BUSINESS,
+          {
+            metadata: { userId },
+          },
+          error as Error
+        );
+        throw error;
+      }
     },
-    
+    onSuccess: (result, { userId }) => {
+      logger.info('Profile deleted successfully', LogCategory.BUSINESS, {
+        metadata: { userId, result },
+      });
+      // Invalidate queries
+      queryClient.invalidateQueries({
+        queryKey: ['profile', userId],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ['profile'],
+      });
+    },
     onError: (error, { userId }) => {
-      logger.error('Profile deletion failed (Champion)', LogCategory.BUSINESS, { userId }, error);
-    }
+      logger.error(
+        'Profile deletion failed',
+        LogCategory.BUSINESS,
+        {
+          metadata: { userId },
+        },
+        error as Error
+      );
+    },
   });
 }
 
@@ -259,26 +344,34 @@ export function useDeleteProfileMutation(): UseMutationResult<
 /**
  * 🏆 CHAMPION CACHE UTILITY - Simple & effective cache management
  */
-export function useProfileCacheUtils(userId: string) {
+export function useProfileCacheUtils(userId: string | null) {
   const queryClient = useQueryClient();
-  
+
   const clearCache = () => {
-    queryClient.removeQueries({ 
-      queryKey: ['profile', userId]
+    if (!userId) return; // ✅ FIX: Guard gegen null userId
+
+    queryClient.removeQueries({
+      queryKey: ['profile', userId],
     });
-    queryClient.removeQueries({ 
-      queryKey: ['profile', 'privacy', userId]
+    queryClient.removeQueries({
+      queryKey: ['profile', 'privacy', userId],
     });
-    
-    logger.info('Profile cache cleared (Champion)', LogCategory.BUSINESS, { userId });
+
+    logger.info('Profile cache cleared (Champion)', LogCategory.BUSINESS, {
+      userId,
+    });
   };
 
   const refreshCache = async () => {
-    await queryClient.invalidateQueries({ 
-      queryKey: ['profile', userId]
+    if (!userId) return; // ✅ FIX: Guard gegen null userId
+
+    await queryClient.invalidateQueries({
+      queryKey: ['profile', userId],
     });
-    
-    logger.info('Profile cache refreshed (Champion)', LogCategory.BUSINESS, { userId });
+
+    logger.info('Profile cache refreshed (Champion)', LogCategory.BUSINESS, {
+      userId,
+    });
   };
 
   return { clearCache, refreshCache };

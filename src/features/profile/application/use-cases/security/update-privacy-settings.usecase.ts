@@ -1,7 +1,7 @@
 /**
  * Update Privacy Settings Use Case - Application Layer
  * Handles the business logic for privacy settings updates
- * 
+ *
  * ✅ OPTIMIZED: Direct Repository usage instead of redundant Service layer
  * ✅ GDPR Audit Integration for Enterprise Compliance
  */
@@ -13,14 +13,19 @@ import { LoggerFactory } from '@core/logging/logger.factory';
 import { LogCategory } from '@core/logging/logger.service.interface';
 
 export class UpdatePrivacySettingsUseCase {
-  private readonly logger = LoggerFactory.createServiceLogger('UpdatePrivacySettingsUseCase');
+  private readonly logger = LoggerFactory.createServiceLogger(
+    'UpdatePrivacySettingsUseCase'
+  );
 
   constructor(private profileRepository: IProfileRepository) {}
 
   /**
    * Update privacy settings with business logic validation
    */
-  async execute(userId: string, settings: Partial<PrivacySettings>): Promise<PrivacySettings> {
+  async execute(
+    userId: string,
+    settings: Partial<PrivacySettings>
+  ): Promise<PrivacySettings> {
     try {
       // 🎯 BUSINESS LOGIC: Validate privacy settings before update
       this.validatePrivacySettings(settings);
@@ -57,13 +62,16 @@ export class UpdatePrivacySettingsUseCase {
         // Override with existing settings
         ...currentProfile.privacySettings,
         // Override with new settings
-        ...settings
+        ...settings,
       };
 
       // Update profile with new privacy settings
-      const updatedProfile = await this.profileRepository.updateProfile(userId, {
-        privacySettings: updatedSettings
-      });
+      const updatedProfile = await this.profileRepository.updateProfile(
+        userId,
+        {
+          privacySettings: updatedSettings,
+        }
+      );
 
       // 🔒 GDPR Audit: Log privacy settings update
       await gdprAuditService.logDataUpdate(
@@ -74,16 +82,23 @@ export class UpdatePrivacySettingsUseCase {
         {
           correlationId: `update-privacy-usecase-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
           previousSettings: currentProfile.privacySettings,
-          newSettings: updatedSettings
+          newSettings: updatedSettings,
         }
       );
 
       return updatedProfile.privacySettings!;
     } catch (error) {
-      this.logger.error('Failed to update privacy settings', LogCategory.BUSINESS, {
-        metadata: { userId, settings: JSON.stringify(settings) }
-      }, error as Error);
-      throw new Error('Unable to update privacy settings');
+      this.logger.error(
+        'Failed to update privacy settings',
+        LogCategory.BUSINESS,
+        {
+          metadata: { userId, settings: JSON.stringify(settings) },
+        },
+        error as Error
+      );
+
+      // Re-throw the original error to preserve specific error messages
+      throw error;
     }
   }
 
@@ -92,18 +107,31 @@ export class UpdatePrivacySettingsUseCase {
    */
   private validatePrivacySettings(settings: Partial<PrivacySettings>): void {
     // Business rule: Profile visibility cannot be more restrictive than email visibility
-    if (settings.profileVisibility === 'public' && settings.emailVisibility === 'private') {
+    if (
+      settings.profileVisibility === 'public' &&
+      settings.emailVisibility === 'private'
+    ) {
       // This is allowed - email can be private while profile is public
     }
 
     // Business rule: If analytics are disabled, third party sharing must also be disabled
-    if (settings.allowAnalytics === false && settings.allowThirdPartySharing === true) {
-      throw new Error('Third party sharing cannot be enabled when analytics are disabled');
+    if (
+      settings.allowAnalytics === false &&
+      settings.allowThirdPartySharing === true
+    ) {
+      throw new Error(
+        'Third party sharing cannot be enabled when analytics are disabled'
+      );
     }
 
     // Business rule: Marketing communications require email notifications
-    if (settings.marketingCommunications === true && settings.emailNotifications === false) {
-      throw new Error('Email notifications must be enabled for marketing communications');
+    if (
+      settings.marketingCommunications === true &&
+      settings.emailNotifications === false
+    ) {
+      throw new Error(
+        'Email notifications must be enabled for marketing communications'
+      );
     }
   }
-} 
+}

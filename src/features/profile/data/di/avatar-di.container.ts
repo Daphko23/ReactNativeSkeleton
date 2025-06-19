@@ -1,46 +1,47 @@
 /**
- * @fileoverview Avatar Dependency Injection Container
- * 
- * ✅ ENTERPRISE DI CONTAINER:
- * - Repository Pattern Registration
- * - Use Cases Dependency Injection
- * - Service Layer Configuration
- * - Clean Architecture Compliance
+ * @fileoverview AVATAR DI CONTAINER - Enterprise Dependency Injection
+ * @description Avatar Domain Dependency Injection Container nach Enterprise Standards
+ *
+ * @version 2025.1.0
+ * @since Enterprise Industry Standard 2025
  */
 
-import { SupabaseAvatarDataSource } from '../datasources/supabase-avatar.datasource';
+import { IAvatarDataSource } from '../../domain/interfaces/avatar-datasource.interface';
 import { AvatarRepositoryImpl } from '../repositories/avatar-repository.impl';
+import { SupabaseAvatarDataSource } from '../datasources/supabase-avatar.datasource';
+import { AvatarService as _AvatarService } from '../services/avatar.service';
+import { StorageService as _StorageService } from '@core/services/storage.service';
+import { LoggerFactory } from '@core/logging/logger.factory';
+import { LogCategory as _LogCategory } from '@core/logging/logger.service.interface';
 import { UploadAvatarUseCase } from '../../application/use-cases/avatar/upload-avatar.usecase';
 import { DeleteAvatarUseCase } from '../../application/use-cases/avatar/delete-avatar.usecase';
-
-// Core Services
-import { LoggerFactory as _LoggerFactory } from '@core/logging/logger.factory';
-import { GDPRAuditService } from '@core/compliance/gdpr-audit.service';
+import { ImagePickerService } from '../services/image-picker.service';
 
 /**
- * Avatar Feature DI Container
- * 
- * ✅ ENTERPRISE ARCHITECTURE:
- * - Singleton Pattern for Container
- * - Lazy Loading für Performance
- * - Clean Architecture Layer Registration
+ * Avatar Dependency Injection Container
+ *
+ * @description
+ * Enterprise DI Container für Avatar Domain Services und Use Cases.
+ * Implementiert Dependency Injection Pattern für lose Kopplung.
  */
 class AvatarDIContainer {
   private static instance: AvatarDIContainer;
-  
-  // Data Layer
-  private _avatarDataSource?: SupabaseAvatarDataSource;
-  private _avatarRepository?: AvatarRepositoryImpl;
-  
-  // Application Layer
-  private _uploadAvatarUseCase?: UploadAvatarUseCase;
-  private _deleteAvatarUseCase?: DeleteAvatarUseCase;
-  
-  // Core Services
-  private _gdprAuditService?: GDPRAuditService;
+
+  // Repository instances
+  private avatarRepository?: AvatarRepositoryImpl;
+
+  // Service instances
+  private imagePickerService?: ImagePickerService;
+
+  // Use Case instances
+  private uploadAvatarUseCase?: UploadAvatarUseCase;
+  private deleteAvatarUseCase?: DeleteAvatarUseCase;
 
   private constructor() {}
 
+  /**
+   * Singleton Instance
+   */
   public static getInstance(): AvatarDIContainer {
     if (!AvatarDIContainer.instance) {
       AvatarDIContainer.instance = new AvatarDIContainer();
@@ -48,61 +49,87 @@ class AvatarDIContainer {
     return AvatarDIContainer.instance;
   }
 
-  // 🎯 DATA LAYER REGISTRATION
-  public getAvatarDataSource(): SupabaseAvatarDataSource {
-    if (!this._avatarDataSource) {
-      this._avatarDataSource = new SupabaseAvatarDataSource();
-    }
-    return this._avatarDataSource;
-  }
-
+  /**
+   * Get Avatar Repository
+   */
   public getAvatarRepository(): AvatarRepositoryImpl {
-    if (!this._avatarRepository) {
-      this._avatarRepository = new AvatarRepositoryImpl(
-        this.getAvatarDataSource()
+    if (!this.avatarRepository) {
+      const logger = LoggerFactory.createServiceLogger('AvatarRepository');
+
+      // Avatar DataSource konfigurieren
+      const avatarDataSource: IAvatarDataSource =
+        new SupabaseAvatarDataSource();
+
+      this.avatarRepository = new AvatarRepositoryImpl(
+        avatarDataSource,
+        logger
       );
     }
-    return this._avatarRepository;
+    return this.avatarRepository;
   }
 
-  // 🎯 APPLICATION LAYER REGISTRATION
+  /**
+   * Get Image Picker Service
+   */
+  public getImagePickerService(): ImagePickerService {
+    if (!this.imagePickerService) {
+      this.imagePickerService = new ImagePickerService();
+    }
+    return this.imagePickerService;
+  }
+
+  /**
+   * Get Upload Avatar Use Case
+   */
   public getUploadAvatarUseCase(): UploadAvatarUseCase {
-    if (!this._uploadAvatarUseCase) {
-      this._uploadAvatarUseCase = new UploadAvatarUseCase(
-        this.getAvatarRepository()
-      );
+    if (!this.uploadAvatarUseCase) {
+      const repository = this.getAvatarRepository();
+      this.uploadAvatarUseCase = new UploadAvatarUseCase(repository);
     }
-    return this._uploadAvatarUseCase;
+    return this.uploadAvatarUseCase;
   }
 
+  /**
+   * Get Delete Avatar Use Case
+   */
   public getDeleteAvatarUseCase(): DeleteAvatarUseCase {
-    if (!this._deleteAvatarUseCase) {
-      this._deleteAvatarUseCase = new DeleteAvatarUseCase(
-        this.getAvatarRepository()
-      );
+    if (!this.deleteAvatarUseCase) {
+      const repository = this.getAvatarRepository();
+      this.deleteAvatarUseCase = new DeleteAvatarUseCase(repository);
     }
-    return this._deleteAvatarUseCase;
-  }
-
-  // 🎯 CORE SERVICES REGISTRATION
-  private getGDPRAuditService(): GDPRAuditService {
-    if (!this._gdprAuditService) {
-      this._gdprAuditService = new GDPRAuditService();
-    }
-    return this._gdprAuditService;
+    return this.deleteAvatarUseCase;
   }
 
   /**
    * Reset all instances (for testing)
    */
   public reset(): void {
-    this._avatarDataSource = undefined;
-    this._avatarRepository = undefined;
-    this._uploadAvatarUseCase = undefined;
-    this._deleteAvatarUseCase = undefined;
-    this._gdprAuditService = undefined;
+    this.avatarRepository = undefined;
+    this.imagePickerService = undefined;
+    this.uploadAvatarUseCase = undefined;
+    this.deleteAvatarUseCase = undefined;
+    // Reset completed successfully
+  }
+
+  configure(): void {
+    if (!this.avatarRepository) {
+      try {
+        const logger = LoggerFactory.createServiceLogger('AvatarRepository');
+
+        // Avatar DataSource konfigurieren
+        const avatarDataSource: IAvatarDataSource =
+          new SupabaseAvatarDataSource();
+
+        this.avatarRepository = new AvatarRepositoryImpl(
+          avatarDataSource,
+          logger
+        );
+      } catch {
+        throw new Error('Failed to configure Avatar DI Container');
+      }
+    }
   }
 }
 
-// Export Singleton Instance
-export const avatarDIContainer = AvatarDIContainer.getInstance(); 
+// Export singleton instance
+export const avatarDIContainer = AvatarDIContainer.getInstance();

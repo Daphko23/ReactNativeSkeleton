@@ -12,7 +12,7 @@ export interface UserProfile {
   displayName: string;
   avatar?: string;
   bio?: string;
-  
+
   // Contact & Location
   location?: string;
   website?: string;
@@ -21,22 +21,22 @@ export interface UserProfile {
   timeZone?: string;
   language?: string;
   currency?: string;
-  
+
   // Preferences
   theme?: 'light' | 'dark' | 'system';
   notifications?: NotificationPreferences;
   accessibility?: AccessibilitySettings;
   privacySettings?: PrivacySettings;
-  
+
   // Social Links (erweiterbar)
   socialLinks?: SocialLinks;
-  
+
   // Professional Info (erweiterbar)
   professional?: ProfessionalInfo;
-  
+
   // Custom Fields (für projektspezifische Erweiterungen)
   customFields?: Record<string, any>;
-  
+
   // Metadata
   createdAt: Date;
   updatedAt: Date;
@@ -87,7 +87,13 @@ export interface ProfessionalInfo {
   custom?: Record<string, any>;
 }
 
-export type ExperienceLevel = 'entry' | 'junior' | 'mid' | 'senior' | 'lead' | 'executive';
+export type ExperienceLevel =
+  | 'entry'
+  | 'junior'
+  | 'mid'
+  | 'senior'
+  | 'lead'
+  | 'executive';
 
 export interface PrivacySettings {
   // Profile Visibility Controls
@@ -97,30 +103,30 @@ export interface PrivacySettings {
   locationVisibility: 'public' | 'private' | 'friends';
   socialLinksVisibility: 'public' | 'private' | 'friends';
   professionalInfoVisibility: 'public' | 'private' | 'friends';
-  
+
   // Social Interaction Controls
   allowDirectMessages: boolean;
   allowFriendRequests: boolean;
-  
+
   // Online Presence Controls
   showOnlineStatus: boolean;
   showLastActive: boolean;
-  
+
   // Discovery & Search Controls
   searchVisibility: boolean;
   directoryListing: boolean;
   allowProfileViews: boolean;
-  
+
   // Analytics & Tracking Controls (GDPR Compliance)
   allowAnalytics: boolean;
   allowThirdPartySharing: boolean;
   trackProfileViews: boolean;
-  
+
   // Communication Preferences
   emailNotifications: boolean;
   pushNotifications: boolean;
   marketingCommunications: boolean;
-  
+
   // Field-level privacy (erweiterbar)
   fieldPrivacy?: Record<string, 'public' | 'private' | 'friends'>;
 }
@@ -149,20 +155,21 @@ export interface ProfileValidationResult {
   warnings: Record<string, string[]>;
 }
 
-// Für erweiterte Profile Features
-export interface ProfileAnalytics {
-  profileViews: number;
-  profileViewsToday: number;
-  searchAppearances: number;
-  connectionRequests: number;
-  profileCompleteness: number;
-  lastUpdated: Date;
-}
+// Für erweiterte Profile Features - ProfileAnalytics ENTFERNT (Enterprise Analytics → Admin Panel)
 
 export interface CustomFieldDefinition {
   key: string;
   label: string;
-  type: 'text' | 'number' | 'date' | 'select' | 'multiselect' | 'boolean' | 'url' | 'phone' | 'location';
+  type:
+    | 'text'
+    | 'number'
+    | 'date'
+    | 'select'
+    | 'multiselect'
+    | 'boolean'
+    | 'url'
+    | 'phone'
+    | 'location';
   required: boolean;
   validation?: {
     pattern?: string;
@@ -172,4 +179,4 @@ export interface CustomFieldDefinition {
   };
   privacy: 'public' | 'private' | 'friends';
   order: number;
-} 
+}

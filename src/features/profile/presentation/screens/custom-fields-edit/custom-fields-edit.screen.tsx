@@ -94,14 +94,14 @@
  * ```
  */
 
-import React, { useLayoutEffect, useCallback, useMemo, useState } from 'react';
-import {
-  View,
-  ScrollView,
-  Alert,
-  Text,
-
-} from 'react-native';
+import React, {
+  useLayoutEffect,
+  useCallback,
+  useMemo,
+  useState,
+  useEffect,
+} from 'react';
+import { View, ScrollView, Alert, Text } from 'react-native';
 import {
   Card,
   TextInput,
@@ -113,16 +113,16 @@ import {
   Button,
   HelperText,
   Divider,
+  Banner,
 } from 'react-native-paper';
 import { SafeAreaView } from 'react-native';
 import { useTheme } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
+import { LoggerFactory } from '@core/logging/logger.factory';
+import { LogCategory } from '@core/logging/logger.service.interface';
 
 // Shared Components
-import { 
-  LoadingOverlay,
-  ActionCard
-} from '@shared/components';
+import { LoadingOverlay, ActionCard } from '@shared/components';
 import { EmptyList } from '@shared/components/empty-state/empty-list.component';
 
 // Business Logic
@@ -132,9 +132,9 @@ import { useCustomFieldsManager } from '../../hooks/use-custom-fields-query.hook
 import { createCustomFieldsEditScreenStyles } from './custom-fields-edit.screen.styles';
 
 // Types
-import { 
-  CustomFieldsEditScreenProps, 
-  CustomFieldType, 
+import {
+  CustomFieldsEditScreenProps,
+  CustomFieldType,
   DEFAULT_FIELD_TYPES,
   CustomField,
   CustomFieldTemplate,
@@ -151,7 +151,13 @@ import {
  * @since 1.0.0
  * @description Defines the possible operations that can be performed on custom fields
  */
-type _FieldOperation = 'add' | 'edit' | 'delete' | 'reorder' | 'duplicate' | 'validate';
+type _FieldOperation =
+  | 'add'
+  | 'edit'
+  | 'delete'
+  | 'reorder'
+  | 'duplicate'
+  | 'validate';
 
 /**
  * Template category enumeration
@@ -160,7 +166,12 @@ type _FieldOperation = 'add' | 'edit' | 'delete' | 'reorder' | 'duplicate' | 'va
  * @since 1.0.0
  * @description Defines the available template categories for organization
  */
-type TemplateCategory = 'personal' | 'professional' | 'contact' | 'other' | 'all';
+type TemplateCategory =
+  | 'personal'
+  | 'professional'
+  | 'contact'
+  | 'other'
+  | 'all';
 
 /**
  * Field validation state interface
@@ -488,16 +499,32 @@ const _renderFieldValidation = (
  * @see {@link CustomField} For field data structure
  * @see {@link CustomFieldTemplate} For template data structure
  */
-export const CustomFieldsEditScreen: React.FC<CustomFieldsEditScreenProps> = ({ 
-  navigation, 
-  testID 
+export const CustomFieldsEditScreen: React.FC<CustomFieldsEditScreenProps> = ({
+  navigation,
+  testID,
 }) => {
   // =============================================================================
   // LOCAL UI STATE
   // =============================================================================
-  
+
   const [showTemplates, setShowTemplates] = useState(false);
   const [newFieldMenuVisible, setNewFieldMenuVisible] = useState(false);
+
+  // State für Error-Handling (Enterprise Standard)
+  const [screenError, setScreenError] = useState<string | null>(null);
+
+  // Analytics Tracking (Enterprise Standard)
+  const [trackedAction, setTrackedAction] = useState<{
+    type: string;
+    action: string;
+    timestamp?: Date;
+  } | null>(null);
+
+  // =============================================================================
+  // ENTERPRISE LOGGING & ANALYTICS
+  // =============================================================================
+
+  const logger = LoggerFactory.createServiceLogger('CustomFieldsEditScreen');
 
   // =============================================================================
   // BUSINESS LOGIC & STATE MANAGEMENT
@@ -508,32 +535,85 @@ export const CustomFieldsEditScreen: React.FC<CustomFieldsEditScreenProps> = ({
    * @description Encapsulates all field management operations, validation, and state
    */
   const {
-    // Data
-    customFields: localFields,
-    templates: fieldTemplates,
-    
-    // State
+    customFields,
+    templates,
     isLoading,
-    isUpdating: isSaving,
+    isUpdating,
+    error,
     hasChanges,
-    fieldErrors: fieldValidationErrors,
-    error: _error,
-    
-    // Actions
-    addField,
-    addFromTemplate,
-    removeField,
     updateCustomFields,
     updateField,
+    fieldErrors,
   } = useCustomFieldsManager();
+
+  // Effect für Analytics Tracking
+  useEffect(() => {
+    if (trackedAction) {
+      logger.info('Custom fields user action tracked', LogCategory.BUSINESS, {
+        metadata: {
+          type: trackedAction.type,
+          action: trackedAction.action,
+          timestamp: trackedAction.timestamp || new Date(),
+        },
+      });
+      // Clear after logging
+      setTrackedAction(null);
+    }
+  }, [trackedAction, logger]);
+
+  // Error-Handling Effect
+  useEffect(() => {
+    if (error) {
+      setScreenError(error);
+      // Auto-clear error after 5 seconds
+      const timer = setTimeout(() => setScreenError(null), 5000);
+      return () => clearTimeout(timer);
+    }
+  }, [error]);
+
+  // Temporary implementations until hook methods are available
+  const addField = async (key: string, value: string, label?: string) => {
+    const newField = {
+      id: Date.now().toString(),
+      key,
+      value,
+      label: label || key,
+      type: 'text' as const,
+      placeholder: '',
+      required: false,
+      order: customFields.length,
+      privacy: 'public' as const,
+    };
+    await updateCustomFields([...customFields, newField]);
+  };
+
+  const addFromTemplate = async (template: any) => {
+    const newField = {
+      id: Date.now().toString(),
+      key: (template as any).key,
+      value: '',
+      label: (template as any).label,
+      type: (template as any).type || 'text',
+      placeholder: (template as any).placeholder || '',
+      required: false,
+      order: customFields.length,
+      privacy: 'public' as const,
+    };
+    await updateCustomFields([...customFields, newField]);
+  };
+
+  const removeField = async (key: string) => {
+    const filteredFields = customFields.filter(field => field.key !== key);
+    await updateCustomFields(filteredFields);
+  };
 
   // =============================================================================
   // UI INTEGRATION
   // =============================================================================
-  
+
   const theme = useTheme();
   const { t } = useTranslation();
-  
+
   // Define test IDs and field types locally or import from constants
   const testIds = {
     SCREEN: 'custom-fields-edit-screen',
@@ -557,49 +637,64 @@ export const CustomFieldsEditScreen: React.FC<CustomFieldsEditScreenProps> = ({
   // ACTION HANDLERS
   // =============================================================================
 
-  const handleAddCustomField = useCallback(async (label: string, _type: CustomFieldType) => {
-    try {
-      const key = label.toLowerCase().replace(/\s+/g, '_');
-      await addField(key, '', label);
-    } catch (error) {
-      console.error('Failed to add custom field:', error);
-    }
-  }, [addField]);
+  const handleAddCustomField = useCallback(
+    async (label: string, _type: CustomFieldType) => {
+      try {
+        const key = label.toLowerCase().replace(/\s+/g, '_');
+        await addField(key, '', label);
+      } catch (error) {
+        console.error('Failed to add custom field:', error);
+      }
+    },
+    [addField]
+  );
 
-  const handleAddFromTemplate = useCallback(async (template: any) => {
-    try {
-      await addFromTemplate(template as any);
-      setShowTemplates(false);
-    } catch (error) {
-      console.error('Failed to add field from template:', error);
-    }
-  }, [addFromTemplate]);
+  const handleAddFromTemplate = useCallback(
+    async (template: any) => {
+      try {
+        await addFromTemplate(template as any);
+        setShowTemplates(false);
+      } catch (error) {
+        console.error('Failed to add field from template:', error);
+      }
+    },
+    [addFromTemplate]
+  );
 
-  const handleRemoveField = useCallback(async (fieldKey: string) => {
-    try {
-      await removeField(fieldKey);
-    } catch (error) {
-      console.error('Failed to remove field:', error);
-    }
-  }, [removeField]);
+  const handleRemoveField = useCallback(
+    async (fieldKey: string) => {
+      try {
+        await removeField(fieldKey);
+      } catch (error) {
+        console.error('Failed to remove field:', error);
+      }
+    },
+    [removeField]
+  );
 
   const handleSave = useCallback(async () => {
     try {
-      await updateCustomFields(localFields);
+      await updateCustomFields(customFields);
     } catch (error) {
       console.error('Failed to save custom fields:', error);
     }
-  }, [updateCustomFields, localFields]);
+  }, [updateCustomFields, customFields]);
 
-  const getInputProps = useCallback((field: CustomField) => {
-    return {
-      value: field.value || '',
-      onChangeText: (text: string) => updateField(field.key, text),
-      placeholder: field.placeholder || `Enter ${field.label}`,
-      multiline: field.type === 'textarea',
-      keyboardType: field.type === 'email' ? ('email-address' as const) : ('default' as const),
-    };
-  }, [updateField]);
+  const getInputProps = useCallback(
+    (field: CustomField) => {
+      return {
+        value: field.value || '',
+        onChangeText: (text: string) => updateField(field.key, text),
+        placeholder: field.placeholder || `Enter ${field.label}`,
+        multiline: field.type === 'textarea',
+        keyboardType:
+          field.type === 'email'
+            ? ('email-address' as const)
+            : ('default' as const),
+      };
+    },
+    [updateField]
+  );
 
   // =============================================================================
   // PERFORMANCE OPTIMIZATIONS
@@ -618,122 +713,128 @@ export const CustomFieldsEditScreen: React.FC<CustomFieldsEditScreenProps> = ({
    * Memoized field prompt handler to prevent recreation on every render
    * @description Optimizes performance by avoiding function recreation
    */
-  const handleAddCustomFieldWithPrompt = useCallback((type: CustomFieldType) => {
-    Alert.prompt(
-      t('customFields.add.title', { defaultValue: 'Neues Feld hinzufügen' }),
-      t('customFields.add.message', { defaultValue: 'Geben Sie den Namen für das neue Feld ein' }),
-      [
-        { 
-          text: t('customFields.add.cancel', { defaultValue: 'Abbrechen' }), 
-          style: 'cancel' 
-        },
-        {
-          text: t('customFields.add.confirm', { defaultValue: 'Hinzufügen' }),
-          onPress: (label) => {
-            if (label?.trim()) {
-              handleAddCustomField(label.trim(), type);
-            }
-          }
-        }
-      ],
-      'plain-text',
-      '',
-      'default'
-    );
-    setNewFieldMenuVisible(false);
-  }, [handleAddCustomField, setNewFieldMenuVisible, t]);
+  const handleAddCustomFieldWithPrompt = useCallback(
+    (type: CustomFieldType) => {
+      Alert.prompt(
+        t('customFields.add.title', { defaultValue: 'Neues Feld hinzufügen' }),
+        t('customFields.add.message', {
+          defaultValue: 'Geben Sie den Namen für das neue Feld ein',
+        }),
+        [
+          {
+            text: t('customFields.add.cancel', { defaultValue: 'Abbrechen' }),
+            style: 'cancel',
+          },
+          {
+            text: t('customFields.add.confirm', { defaultValue: 'Hinzufügen' }),
+            onPress: label => {
+              if (label?.trim()) {
+                handleAddCustomField(label.trim(), type);
+              }
+            },
+          },
+        ],
+        'plain-text',
+        '',
+        'default'
+      );
+      setNewFieldMenuVisible(false);
+    },
+    [handleAddCustomField, setNewFieldMenuVisible, t]
+  );
 
   /**
    * Memoized action handler for performance optimization
    * @description Prevents unnecessary re-renders of action components
    */
-  const handleActionPress = useCallback((actionId: string) => {
-    switch (actionId) {
-      case 'addField':
-        setNewFieldMenuVisible(true);
-        break;
-      default:
-        console.warn('Unknown action ID:', actionId);
-    }
-  }, [setNewFieldMenuVisible]);
+  const handleActionPress = useCallback(
+    (actionId: string) => {
+      switch (actionId) {
+        case 'addField':
+          setNewFieldMenuVisible(true);
+          break;
+        default:
+          console.warn('Unknown action ID:', actionId);
+      }
+    },
+    [setNewFieldMenuVisible]
+  );
 
   /**
    * Memoized field renderer for performance with large lists
    * @description Optimizes rendering of field items to prevent lag
    */
-  const renderFieldItem = useCallback((field: any) => {
-    const fieldType = DEFAULT_FIELD_TYPES.find((ft) => ft.type === field.type);
-    const hasError = fieldValidationErrors[field.key]?.length > 0;
-    
-    return (
-      <View 
-        key={field.key} 
-        style={styles.fieldItem}
-        testID={`${testIds.FIELD_ITEM}-${field.key}`}
-      >
-        <View style={styles.fieldHeader}>
-          <View style={styles.fieldInfo}>
-            <Text style={styles.fieldLabel}>
-              {field.label}
-            </Text>
-            <Text style={styles.fieldType}>
-              {fieldType?.label || field.type}
-            </Text>
+  const renderFieldItem = useCallback(
+    (field: any) => {
+      const fieldType = DEFAULT_FIELD_TYPES.find(ft => ft.type === field.type);
+      const hasError = fieldErrors[field.key]?.length > 0;
+
+      return (
+        <View
+          key={field.key}
+          style={styles.fieldItem}
+          testID={`${testIds.FIELD_ITEM}-${field.key}`}
+        >
+          <View style={styles.fieldHeader}>
+            <View style={styles.fieldInfo}>
+              <Text style={styles.fieldLabel}>{field.label}</Text>
+              <Text style={styles.fieldType}>
+                {fieldType?.label || field.type}
+              </Text>
+            </View>
+            <IconButton
+              icon="delete"
+              size={20}
+              onPress={() => handleRemoveField(field.key)}
+              disabled={isUpdating}
+              style={styles.fieldDeleteButton}
+              testID={`${testIds.FIELD_REMOVE_BUTTON}-${field.key}`}
+              accessibilityLabel={t('customFields.field.remove.accessibility', {
+                defaultValue: `Feld ${field.label} löschen`,
+              })}
+              accessibilityHint={t('customFields.field.remove.hint', {
+                defaultValue: 'Doppeltippen um das Feld dauerhaft zu entfernen',
+              })}
+            />
           </View>
-          <IconButton
-            icon="delete"
-            size={20}
-            onPress={() => handleRemoveField(field.key)}
-            disabled={isSaving}
-            style={styles.fieldDeleteButton}
-            testID={`${testIds.FIELD_REMOVE_BUTTON}-${field.key}`}
-            accessibilityLabel={t('customFields.field.remove.accessibility', { 
-              defaultValue: `Feld ${field.label} löschen` 
-            })}
-            accessibilityHint={t('customFields.field.remove.hint', { 
-              defaultValue: 'Doppeltippen um das Feld dauerhaft zu entfernen' 
+
+          <TextInput
+            {...getInputProps(field)}
+            style={[styles.fieldInput, hasError && styles.fieldInputError]}
+            testID={`${testIds.FIELD_INPUT}-${field.key}`}
+            accessibilityLabel={t('customFields.field.input.accessibility', {
+              defaultValue: `Wert für ${field.label}`,
+              fieldLabel: field.label,
             })}
           />
+
+          {hasError && (
+            <View style={styles.validationContainer}>
+              {fieldErrors[field.key].map((error: string, index: number) => (
+                <HelperText
+                  key={`${field.key}-error-${index}`}
+                  type="error"
+                  style={styles.fieldErrorText}
+                  accessibilityLiveRegion="polite"
+                >
+                  {error}
+                </HelperText>
+              ))}
+            </View>
+          )}
         </View>
-        
-        <TextInput
-          {...getInputProps(field)}
-          style={[
-            styles.fieldInput,
-            hasError && styles.fieldInputError
-          ]}
-          testID={`${testIds.FIELD_INPUT}-${field.key}`}
-          accessibilityLabel={t('customFields.field.input.accessibility', { 
-            defaultValue: `Wert für ${field.label}`,
-            fieldLabel: field.label 
-          })}
-        />
-        
-        {hasError && (
-          <View style={styles.validationContainer}>
-            {fieldValidationErrors[field.key].map((error: string, index: number) => (
-              <HelperText 
-                key={index} 
-                type="error" 
-                style={styles.fieldErrorText}
-                accessibilityLiveRegion="polite"
-              >
-                {error}
-              </HelperText>
-            ))}
-          </View>
-        )}
-      </View>
-    );
-  }, [
-    fieldValidationErrors,
-    handleRemoveField,
-    isSaving,
-    styles,
-    testIds,
-    getInputProps,
-    t
-  ]);
+      );
+    },
+    [
+      fieldErrors,
+      handleRemoveField,
+      isUpdating,
+      styles,
+      testIds,
+      getInputProps,
+      t,
+    ]
+  );
 
   // =============================================================================
   // NAVIGATION CONFIGURATION
@@ -749,29 +850,38 @@ export const CustomFieldsEditScreen: React.FC<CustomFieldsEditScreenProps> = ({
         <IconButton
           icon="content-save"
           onPress={handleSave}
-          disabled={!hasChanges || isSaving}
-          iconColor={hasChanges && !isSaving ? theme.colors.primary : theme.colors.outline}
-          testID={testIds.SAVE_FAB}
-          accessibilityLabel={t('customFields.save.accessibility', { 
-            defaultValue: 'Änderungen speichern' 
-          })}
-          accessibilityHint={hasChanges 
-            ? t('customFields.save.hint.enabled', { defaultValue: 'Doppeltippen um Änderungen zu speichern' })
-            : t('customFields.save.hint.disabled', { defaultValue: 'Keine Änderungen zum Speichern vorhanden' })
+          disabled={!hasChanges || isUpdating}
+          iconColor={
+            hasChanges && !isUpdating
+              ? theme.colors.primary
+              : theme.colors.outline
           }
-          accessibilityState={{ disabled: !hasChanges || isSaving }}
+          testID={testIds.SAVE_FAB}
+          accessibilityLabel={t('customFields.save.accessibility', {
+            defaultValue: 'Änderungen speichern',
+          })}
+          accessibilityHint={
+            hasChanges
+              ? t('customFields.save.hint.enabled', {
+                  defaultValue: 'Doppeltippen um Änderungen zu speichern',
+                })
+              : t('customFields.save.hint.disabled', {
+                  defaultValue: 'Keine Änderungen zum Speichern vorhanden',
+                })
+          }
+          accessibilityState={{ disabled: !hasChanges || isUpdating }}
         />
       ),
     });
   }, [
-    navigation, 
-    handleSave, 
-    hasChanges, 
-    isSaving, 
-    theme.colors.primary, 
-    theme.colors.outline, 
+    navigation,
+    handleSave,
+    hasChanges,
+    isUpdating,
+    theme.colors.primary,
+    theme.colors.outline,
     testIds.SAVE_FAB,
-    t
+    t,
   ]);
 
   // =============================================================================
@@ -780,16 +890,15 @@ export const CustomFieldsEditScreen: React.FC<CustomFieldsEditScreenProps> = ({
 
   if (isLoading) {
     return (
-      <SafeAreaView 
+      <SafeAreaView
         style={[styles.container, styles.loadingContainer]}
-
         testID={testIds.LOADING_INDICATOR}
       >
-        <ActivityIndicator 
-          size="large" 
-          color={theme.colors.primary} 
-          accessibilityLabel={t('common.loadingAccessibility', { 
-            defaultValue: 'Inhalt wird geladen' 
+        <ActivityIndicator
+          size="large"
+          color={theme.colors.primary}
+          accessibilityLabel={t('common.loadingAccessibility', {
+            defaultValue: 'Inhalt wird geladen',
           })}
         />
         <Text style={styles.loadingText}>
@@ -804,38 +913,60 @@ export const CustomFieldsEditScreen: React.FC<CustomFieldsEditScreenProps> = ({
   // =============================================================================
 
   return (
-    <SafeAreaView 
-      style={styles.container}
-
-      testID={testID || testIds.SCREEN}
-    >
-      <LoadingOverlay 
-        visible={isSaving}
+    <SafeAreaView style={styles.container} testID={testID || testIds.SCREEN}>
+      <LoadingOverlay
+        visible={isUpdating}
         message={t('customFields.saving', { defaultValue: 'Speichert...' })}
       />
 
-      <ScrollView 
-        style={styles.scrollView} 
+      {/* Error Display */}
+      {screenError && (
+        <Banner
+          visible={true}
+          actions={[
+            {
+              label: t('common.dismiss', { defaultValue: 'Schließen' }),
+              onPress: () => setScreenError(null),
+            },
+          ]}
+          style={{ backgroundColor: theme.colors.errorContainer }}
+        >
+          {screenError}
+        </Banner>
+      )}
+
+      <ScrollView
+        style={styles.scrollView}
         contentContainerStyle={styles.scrollContent}
         testID={testIds.SCROLL_VIEW}
         showsVerticalScrollIndicator={false}
-        accessibilityLabel={t('customFields.scroll.accessibility', { 
-          defaultValue: 'Benutzerdefinierte Felder bearbeiten' 
+        accessibilityLabel={t('customFields.scroll.accessibility', {
+          defaultValue: 'Benutzerdefinierte Felder bearbeiten',
         })}
       >
         {/* Header Section */}
         <ActionCard
-          title={t('customFields.title', { defaultValue: 'Benutzerdefinierte Felder' })}
+          title={t('customFields.title', {
+            defaultValue: 'Benutzerdefinierte Felder',
+          })}
           actions={[
             {
               id: 'addField',
-              label: t('customFields.add.button', { defaultValue: 'Feld hinzufügen' }),
-              description: t('customFields.add.description', { defaultValue: 'Neues benutzerdefiniertes Feld erstellen' }),
+              label: t('customFields.add.button', {
+                defaultValue: 'Feld hinzufügen',
+              }),
+              description: t('customFields.add.description', {
+                defaultValue: 'Neues benutzerdefiniertes Feld erstellen',
+              }),
               icon: 'plus',
               testID: testIds.ADD_FIELD_BUTTON,
-              accessibilityLabel: t('customFields.add.accessibility', { defaultValue: 'Neues Feld hinzufügen' }),
-              accessibilityHint: t('customFields.add.hint', { defaultValue: 'Öffnet Menü zur Feldtyp-Auswahl' }),
-            }
+              accessibilityLabel: t('customFields.add.accessibility', {
+                defaultValue: 'Neues Feld hinzufügen',
+              }),
+              accessibilityHint: t('customFields.add.hint', {
+                defaultValue: 'Öffnet Menü zur Feldtyp-Auswahl',
+              }),
+            },
           ]}
           onActionPress={handleActionPress}
           theme={theme}
@@ -846,10 +977,13 @@ export const CustomFieldsEditScreen: React.FC<CustomFieldsEditScreenProps> = ({
         <Card style={styles.section}>
           <Card.Content style={styles.sectionContent}>
             <Text style={styles.sectionTitle}>
-              {t('customFields.current.title', { defaultValue: 'Aktuelle Felder' })} ({localFields.length})
+              {t('customFields.current.title', {
+                defaultValue: 'Aktuelle Felder',
+              })}{' '}
+              ({customFields.length})
             </Text>
-            
-            {localFields.length === 0 ? (
+
+            {customFields.length === 0 ? (
               <EmptyList
                 loading={false}
                 hasActiveFilters={false}
@@ -857,71 +991,88 @@ export const CustomFieldsEditScreen: React.FC<CustomFieldsEditScreenProps> = ({
               />
             ) : (
               <View style={styles.allTemplatesContainer}>
-                                  {localFields.map((field, index) => (
-                    <View key={field.key || index}>
-                      <View style={styles.fieldItem}>
-                        <View style={styles.fieldInfo}>
-                          <Text style={styles.fieldLabel}>{field.label}</Text>
-                          <Text style={styles.fieldType}>
-                            {DEFAULT_FIELD_TYPES.find(ft => ft.type === field.type)?.label || field.type}
-                          </Text>
-                        </View>
-                        <View style={styles.fieldInfo}>
-                          {fieldValidationErrors[field.key]?.length > 0 && (
-                            <IconButton 
-                              icon="alert-circle" 
-                              size={16} 
-                              iconColor={theme.colors.error}
-                              accessibilityLabel={t('customFields.validation.error.accessibility', { 
-                                defaultValue: 'Validierungsfehler' 
-                              })}
-                            />
-                          )}
-                        </View>
+                {customFields.map((field, index) => (
+                  <View key={field.key || index}>
+                    <View style={styles.fieldItem}>
+                      <View style={styles.fieldInfo}>
+                        <Text style={styles.fieldLabel}>{field.label}</Text>
+                        <Text style={styles.fieldType}>
+                          {DEFAULT_FIELD_TYPES.find(
+                            ft => ft.type === field.type
+                          )?.label || field.type}
+                        </Text>
                       </View>
-                      {index < localFields.length - 1 && <Divider />}
+                      <View style={styles.fieldInfo}>
+                        {fieldErrors[field.key]?.length > 0 && (
+                          <IconButton
+                            icon="alert-circle"
+                            size={16}
+                            iconColor={theme.colors.error}
+                            accessibilityLabel={t(
+                              'customFields.validation.error.accessibility',
+                              {
+                                defaultValue: 'Validierungsfehler',
+                              }
+                            )}
+                          />
+                        )}
+                      </View>
                     </View>
-                  ))}
+                    {index < customFields.length - 1 && <Divider />}
+                  </View>
+                ))}
               </View>
             )}
           </Card.Content>
         </Card>
 
         {/* Quick Templates Section */}
-        {!showTemplates && fieldTemplates.length > 0 && (
+        {!showTemplates && templates.length > 0 && (
           <Card style={styles.section} testID={testIds.TEMPLATES_SECTION}>
             <Card.Content style={styles.sectionContent}>
               <View style={styles.templatesHeader}>
                 <Text style={styles.sectionTitle}>
-                  {t('customFields.templates.title', { defaultValue: 'Vorlagen' })}
+                  {t('customFields.templates.title', {
+                    defaultValue: 'Vorlagen',
+                  })}
                 </Text>
                 <Button
                   mode="text"
                   onPress={() => setShowTemplates(true)}
                   compact
                   testID={testIds.SHOW_ALL_TEMPLATES_BUTTON}
-                  accessibilityLabel={t('customFields.templates.showAllAccessibility', { 
-                    defaultValue: 'Alle Vorlagen anzeigen' 
-                  })}
+                  accessibilityLabel={t(
+                    'customFields.templates.showAllAccessibility',
+                    {
+                      defaultValue: 'Alle Vorlagen anzeigen',
+                    }
+                  )}
                 >
-                  {t('customFields.templates.showAll', { defaultValue: 'Alle anzeigen' })}
+                  {t('customFields.templates.showAll', {
+                    defaultValue: 'Alle anzeigen',
+                  })}
                 </Button>
               </View>
-              
-              <ScrollView 
-                horizontal 
+
+              <ScrollView
+                horizontal
                 showsHorizontalScrollIndicator={false}
                 contentContainerStyle={styles.templatesContainer}
-                accessibilityLabel={t('customFields.templates.scroll.accessibility', { 
-                  defaultValue: 'Vorlagen horizontal durchblättern' 
-                })}
+                accessibilityLabel={t(
+                  'customFields.templates.scroll.accessibility',
+                  {
+                    defaultValue: 'Vorlagen horizontal durchblättern',
+                  }
+                )}
               >
                 <View style={styles.templatesContainer}>
-                  {fieldTemplates.slice(0, 4).map((template) => {
-                    const _templateExists = localFields.some(existing => existing.key === template.key);
+                  {templates.slice(0, 4).map((template, index) => {
+                    const _templateExists = customFields.some(
+                      existing => existing.key === (template as any).key
+                    );
                     return (
                       <Chip
-                        key={template.key}
+                        key={(template as any).key || `template-${index}`}
                         mode="outlined"
                         compact={true}
                         textStyle={{ fontSize: 12 }}
@@ -929,16 +1080,19 @@ export const CustomFieldsEditScreen: React.FC<CustomFieldsEditScreenProps> = ({
                           marginRight: 8,
                           marginBottom: 8,
                           borderColor: (theme.colors as any).primary,
-                          backgroundColor: (theme.colors as any).background
+                          backgroundColor: (theme.colors as any).background,
                         }}
                         onPress={() => handleAddFromTemplate(template)}
-                        testID={`${testIds.TEMPLATE_CHIP}-${template.key}`}
-                        accessibilityLabel={t('customFields.template.accessibility', {
-                          defaultValue: `Vorlage für ${template.label}`,
-                          templateLabel: template.label
-                        })}
+                        testID={`${testIds.TEMPLATE_CHIP}-${(template as any).key}`}
+                        accessibilityLabel={t(
+                          'customFields.template.accessibility',
+                          {
+                            defaultValue: `Vorlage für ${(template as any).label}`,
+                            templateLabel: (template as any).label,
+                          }
+                        )}
                       >
-                        {template.label}
+                        {(template as any).label}
                       </Chip>
                     );
                   })}
@@ -954,58 +1108,84 @@ export const CustomFieldsEditScreen: React.FC<CustomFieldsEditScreenProps> = ({
             <Card.Content style={styles.sectionContent}>
               <View style={styles.templatesHeader}>
                 <Text style={styles.sectionTitle}>
-                  {t('customFields.templates.all', { defaultValue: 'Alle Vorlagen' })}
+                  {t('customFields.templates.all', {
+                    defaultValue: 'Alle Vorlagen',
+                  })}
                 </Text>
                 <Button
                   mode="text"
                   onPress={() => setShowTemplates(false)}
                   compact
                   testID={testIds.SHOW_ALL_TEMPLATES_BUTTON}
-                  accessibilityLabel={t('customFields.templates.hideAccessibility', { 
-                    defaultValue: 'Vorlagen ausblenden' 
-                  })}
+                  accessibilityLabel={t(
+                    'customFields.templates.hideAccessibility',
+                    {
+                      defaultValue: 'Vorlagen ausblenden',
+                    }
+                  )}
                 >
-                  {t('customFields.templates.hide', { defaultValue: 'Ausblenden' })}
+                  {t('customFields.templates.hide', {
+                    defaultValue: 'Ausblenden',
+                  })}
                 </Button>
               </View>
-              
+
               <View style={styles.allTemplatesContainer}>
-                {fieldTemplates.map((template) => {
-                  const _templateExists = localFields.some(existing => existing.key === template.key);
-                  const fieldTypeLabel = DEFAULT_FIELD_TYPES.find((ft) => ft.type === template.type)?.label;
-                  
+                {templates.map((template, index) => {
+                  const _templateExists = customFields.some(
+                    existing => existing.key === (template as any).key
+                  );
+                  const fieldTypeLabel = DEFAULT_FIELD_TYPES.find(
+                    ft => ft.type === (template as any).type
+                  )?.label;
+
                   return (
                     <List.Item
-                      key={template.key}
-                      title={template.label}
-                      description={`${t('customFields.template.type', { defaultValue: 'Typ' })}: ${fieldTypeLabel || template.type}`}
-                      left={(props) => (
-                        <List.Icon 
-                          {...props} 
-                          icon="help" 
-                          color={_templateExists ? theme.colors.outline : theme.colors.primary}
+                      key={(template as any).key || `all-template-${index}`}
+                      title={(template as any).label}
+                      description={`${t('customFields.template.type', { defaultValue: 'Typ' })}: ${fieldTypeLabel || (template as any).type}`}
+                      left={props => (
+                        <List.Icon
+                          {...props}
+                          icon="help"
+                          color={
+                            _templateExists
+                              ? theme.colors.outline
+                              : theme.colors.primary
+                          }
                         />
                       )}
-                      right={(props) => (
-                        <List.Icon 
-                          {...props} 
-                          icon={_templateExists ? "check" : "plus"} 
-                          color={_templateExists ? theme.colors.primary : theme.colors.primary}
+                      right={props => (
+                        <List.Icon
+                          {...props}
+                          icon={_templateExists ? 'check' : 'plus'}
+                          color={
+                            _templateExists
+                              ? theme.colors.primary
+                              : theme.colors.primary
+                          }
                         />
                       )}
-                      onPress={() => !_templateExists && handleAddFromTemplate(template)}
+                      onPress={() =>
+                        !_templateExists && handleAddFromTemplate(template)
+                      }
                       disabled={_templateExists}
                       style={[
                         styles.templateListItem,
-                        _templateExists && styles.templateItemDisabled
+                        _templateExists && styles.templateItemDisabled,
                       ]}
-                      testID={`${testIds.TEMPLATE_LIST_ITEM}-${template.key}`}
-                      accessibilityLabel={t('customFields.template.list.accessibility', { 
-                        defaultValue: `${template.label}, ${fieldTypeLabel}, ${_templateExists ? 'bereits hinzugefügt' : 'verfügbar'}`,
-                        templateLabel: template.label,
-                        fieldType: fieldTypeLabel,
-                        status: _templateExists ? 'bereits hinzugefügt' : 'verfügbar'
-                      })}
+                      testID={`${testIds.TEMPLATE_LIST_ITEM}-${(template as any).key}`}
+                      accessibilityLabel={t(
+                        'customFields.template.list.accessibility',
+                        {
+                          defaultValue: `${(template as any).label}, ${fieldTypeLabel}, ${_templateExists ? 'bereits hinzugefügt' : 'verfügbar'}`,
+                          templateLabel: (template as any).label,
+                          fieldType: fieldTypeLabel,
+                          status: _templateExists
+                            ? 'bereits hinzugefügt'
+                            : 'verfügbar',
+                        }
+                      )}
                       accessibilityState={{ disabled: _templateExists }}
                     />
                   );
@@ -1020,9 +1200,12 @@ export const CustomFieldsEditScreen: React.FC<CustomFieldsEditScreenProps> = ({
           <Card.Content style={styles.sectionContent}>
             <View style={styles.fieldsHeader}>
               <Text style={styles.sectionTitle}>
-                {t('customFields.fields.title', { defaultValue: 'Felder bearbeiten' })} ({localFields.length})
+                {t('customFields.fields.title', {
+                  defaultValue: 'Felder bearbeiten',
+                })}{' '}
+                ({customFields.length})
               </Text>
-              
+
               <Menu
                 visible={newFieldMenuVisible}
                 onDismiss={() => setNewFieldMenuVisible(false)}
@@ -1030,37 +1213,44 @@ export const CustomFieldsEditScreen: React.FC<CustomFieldsEditScreenProps> = ({
                   <IconButton
                     icon="plus"
                     onPress={() => setNewFieldMenuVisible(true)}
-                    disabled={isSaving}
+                    disabled={isUpdating}
                     testID={testIds.ADD_FIELD_BUTTON}
-                    accessibilityLabel={t('customFields.field.add.accessibility', { 
-                      defaultValue: 'Neues Feld hinzufügen' 
-                    })}
-                    accessibilityHint={t('customFields.field.add.hint', { 
-                      defaultValue: 'Öffnet Menü zur Auswahl des Feldtyps' 
+                    accessibilityLabel={t(
+                      'customFields.field.add.accessibility',
+                      {
+                        defaultValue: 'Neues Feld hinzufügen',
+                      }
+                    )}
+                    accessibilityHint={t('customFields.field.add.hint', {
+                      defaultValue: 'Öffnet Menü zur Auswahl des Feldtyps',
                     })}
                   />
                 }
                 contentStyle={styles.newFieldMenu}
                 testID={testIds.NEW_FIELD_MENU}
               >
-                {DEFAULT_FIELD_TYPES.map((fieldType) => (
+                {DEFAULT_FIELD_TYPES.map((fieldType, index) => (
                   <Menu.Item
-                    key={fieldType.type}
-                    onPress={() => handleAddCustomFieldWithPrompt(fieldType.type)}
+                    key={fieldType.type || `field-type-${index}`}
+                    onPress={() =>
+                      handleAddCustomFieldWithPrompt(fieldType.type)
+                    }
                     title={fieldType.label}
                     leadingIcon={fieldType.icon || 'help'}
                     style={styles.menuItem}
-
-                    accessibilityLabel={t('customFields.fieldType.accessibility', { 
-                      defaultValue: `${fieldType.label} Feld hinzufügen`,
-                      fieldType: fieldType.label
-                    })}
+                    accessibilityLabel={t(
+                      'customFields.fieldType.accessibility',
+                      {
+                        defaultValue: `${fieldType.label} Feld hinzufügen`,
+                        fieldType: fieldType.label,
+                      }
+                    )}
                   />
                 ))}
               </Menu>
             </View>
 
-            {localFields.length === 0 ? (
+            {customFields.length === 0 ? (
               <EmptyList
                 loading={false}
                 hasActiveFilters={false}
@@ -1068,7 +1258,7 @@ export const CustomFieldsEditScreen: React.FC<CustomFieldsEditScreenProps> = ({
               />
             ) : (
               <View style={styles.allTemplatesContainer}>
-                {localFields.map(renderFieldItem)}
+                {customFields.map((field, index) => renderFieldItem(field))}
               </View>
             )}
           </Card.Content>
@@ -1078,41 +1268,47 @@ export const CustomFieldsEditScreen: React.FC<CustomFieldsEditScreenProps> = ({
         <Card style={styles.section} testID={testIds.TIPS_SECTION}>
           <Card.Content style={styles.sectionContent}>
             <Text style={styles.sectionTitle}>
-              {t('customFields.tips.title', { defaultValue: 'Tipps & Hinweise' })}
+              {t('customFields.tips.title', {
+                defaultValue: 'Tipps & Hinweise',
+              })}
             </Text>
-            
+
             <View style={styles.allTemplatesContainer}>
               {[
                 {
                   key: 'relevant',
-                  text: t('customFields.tips.relevant', { 
-                    defaultValue: 'Fügen Sie nur relevante und beruflich wichtige Informationen hinzu' 
+                  text: t('customFields.tips.relevant', {
+                    defaultValue:
+                      'Fügen Sie nur relevante und beruflich wichtige Informationen hinzu',
                   }),
-                  icon: 'lightbulb-outline'
+                  icon: 'lightbulb-outline',
                 },
                 {
                   key: 'professional',
-                  text: t('customFields.tips.professional', { 
-                    defaultValue: 'Verwenden Sie professionelle und klare Formulierungen' 
+                  text: t('customFields.tips.professional', {
+                    defaultValue:
+                      'Verwenden Sie professionelle und klare Formulierungen',
                   }),
-                  icon: 'account-tie'
+                  icon: 'account-tie',
                 },
                 {
                   key: 'accurate',
-                  text: t('customFields.tips.accurate', { 
-                    defaultValue: 'Halten Sie Ihre Informationen stets aktuell und korrekt' 
+                  text: t('customFields.tips.accurate', {
+                    defaultValue:
+                      'Halten Sie Ihre Informationen stets aktuell und korrekt',
                   }),
-                  icon: 'update'
+                  icon: 'update',
                 },
                 {
                   key: 'templates',
-                  text: t('customFields.tips.templates', { 
-                    defaultValue: 'Nutzen Sie Vorlagen als Inspiration für häufig verwendete Felder' 
+                  text: t('customFields.tips.templates', {
+                    defaultValue:
+                      'Nutzen Sie Vorlagen als Inspiration für häufig verwendete Felder',
                   }),
-                  icon: 'template'
+                  icon: 'template',
                 },
-              ].map((tip) => (
-                <View key={tip.key} style={styles.tipItem}>
+              ].map((tip, index) => (
+                <View key={tip.key || `tip-${index}`} style={styles.tipItem}>
                   <IconButton
                     icon={tip.icon}
                     size={16}
@@ -1143,4 +1339,4 @@ CustomFieldsEditScreen.displayName = 'CustomFieldsEditScreen';
  * Default export for convenient importing
  * @description Enables both named and default import patterns for flexibility
  */
-export default CustomFieldsEditScreen; 
+export default CustomFieldsEditScreen;

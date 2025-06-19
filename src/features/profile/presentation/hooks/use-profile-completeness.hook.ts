@@ -1,6 +1,6 @@
 /**
  * @fileoverview Profile Completeness Hook - CHAMPION
- * 
+ *
  * 🏆 CHAMPION STANDARDS 2025:
  * ✅ Single Responsibility: Profile completion analysis only
  * ✅ TanStack Query + Use Cases: Complete integration
@@ -15,7 +15,6 @@ import { useQuery } from '@tanstack/react-query';
 import { UserProfile } from '../../domain/entities/user-profile.entity';
 import { LoggerFactory } from '@core/logging/logger.factory';
 import { LogCategory } from '@core/logging/logger.service.interface';
-import { useProfileContainer } from '../../application/di/profile.container';
 // import { AnalyzeProfileCompletenessUseCase } from '../../application/use-cases/profile/analyze-profile-completeness.use-case';
 
 const logger = LoggerFactory.createServiceLogger('ProfileCompleteness');
@@ -39,7 +38,7 @@ export interface UseProfileCompletenessReturn {
   isLoading: boolean;
   error: string | null;
   refresh: () => Promise<void>;
-  
+
   // Computed helpers
   isComplete: boolean;
   needsImprovement: boolean;
@@ -54,48 +53,42 @@ const completenessQueryKeys = {
 
 /**
  * 🏆 CHAMPION HOOK: Profile Completeness Management
- * 
+ *
  * ✅ SINGLE RESPONSIBILITY: Only handles profile completion analysis
  * ✅ USE CASES INTEGRATION: Complete business logic delegation
  * ✅ MOBILE PERFORMANCE: Battery-friendly caching + memoization
  * ✅ ENTERPRISE LOGGING: Essential audit trails
  */
-export const useProfileCompleteness = ({ 
-  profile, 
-  userId 
+export const useProfileCompleteness = ({
+  profile,
+  userId,
 }: UseProfileCompletenessProps): UseProfileCompletenessReturn => {
-  
-  // 🏆 ENTERPRISE: Use Cases Integration
-  const { container: _container, accessor: _accessor } = useProfileContainer();
-  // const analyzeCompletenessUseCase = useMemo(() => {
-  //   try {
-  //     return container.getAnalyzeProfileCompletenessUseCase();
-  //   } catch {
-  //     // Fallback if Use Case not available
-  //     return new AnalyzeProfileCompletenessUseCase();
-  //   }
-  // }, [container]);
-  
   // 🔍 TANSTACK QUERY: Champion Mobile Performance
   const completenessQuery = useQuery({
     queryKey: completenessQueryKeys.user(userId),
     queryFn: async (): Promise<ProfileCompleteness> => {
       // 🏆 ENTERPRISE LOGGING
-      logger.info('Analyzing profile completeness', LogCategory.BUSINESS, { userId });
-      
+      logger.info('Analyzing profile completeness', LogCategory.BUSINESS, {
+        userId,
+      });
+
       if (!profile) {
         const emptyResult = {
           percentage: 0,
           missingFields: ['firstName', 'lastName', 'email', 'bio', 'avatar'],
           recommendations: ['Complete basic profile information'],
           score: 'poor' as const,
-          nextSteps: ['Add your name and email address']
+          nextSteps: ['Add your name and email address'],
         };
-        
-        logger.info('Profile completeness - empty profile', LogCategory.BUSINESS, { 
-          metadata: { userId, percentage: 0 }
-        });
-        
+
+        logger.info(
+          'Profile completeness - empty profile',
+          LogCategory.BUSINESS,
+          {
+            metadata: { userId, percentage: 0 },
+          }
+        );
+
         return emptyResult;
       }
 
@@ -113,12 +106,12 @@ export const useProfileCompleteness = ({
     missingFields: [],
     recommendations: [],
     score: 'poor' as const,
-    nextSteps: []
+    nextSteps: [],
   };
 
   const isComplete = completeness.percentage >= 80;
   const needsImprovement = completeness.percentage < 60;
-  
+
   const completionLevel = useMemo((): 'high' | 'medium' | 'low' => {
     if (completeness.percentage >= 80) return 'high';
     if (completeness.percentage >= 50) return 'medium';
@@ -127,19 +120,29 @@ export const useProfileCompleteness = ({
 
   // 🏆 CHAMPION ACTIONS: Enterprise Logging
   const refresh = useCallback(async () => {
-    logger.info('Refreshing profile completeness', LogCategory.BUSINESS, { userId });
-    
+    logger.info('Refreshing profile completeness', LogCategory.BUSINESS, {
+      userId,
+    });
+
     try {
       const result = await completenessQuery.refetch();
-      
+
       if (result.data) {
-        logger.info('Profile completeness refreshed successfully', LogCategory.BUSINESS, { 
-          metadata: { userId, percentage: result.data.percentage }
-        });
+        logger.info(
+          'Profile completeness refreshed successfully',
+          LogCategory.BUSINESS,
+          {
+            metadata: { userId, percentage: result.data.percentage },
+          }
+        );
       }
     } catch (error) {
-      logger.error('Failed to refresh profile completeness', LogCategory.BUSINESS, 
-        { userId }, error as Error);
+      logger.error(
+        'Failed to refresh profile completeness',
+        LogCategory.BUSINESS,
+        { userId },
+        error as Error
+      );
       throw error;
     }
   }, [completenessQuery, userId]);
@@ -149,7 +152,7 @@ export const useProfileCompleteness = ({
     isLoading: completenessQuery.isLoading,
     error: completenessQuery.error?.message || null,
     refresh,
-    
+
     // Computed helpers
     isComplete,
     needsImprovement,
@@ -159,31 +162,68 @@ export const useProfileCompleteness = ({
 
 /**
  * 🏆 CHAMPION FALLBACK: Mobile-Optimized Profile Completeness Calculation
- * 
+ *
  * Used as fallback when Use Case is unavailable
  * Optimized for React Native mobile performance
  */
-function calculateProfileCompleteness(profile: UserProfile): ProfileCompleteness {
+function calculateProfileCompleteness(
+  profile: UserProfile
+): ProfileCompleteness {
   const weightedFields = [
-    { field: 'firstName', weight: 15, value: profile.firstName, label: 'First Name' },
-    { field: 'lastName', weight: 15, value: profile.lastName, label: 'Last Name' },
+    {
+      field: 'firstName',
+      weight: 15,
+      value: profile.firstName,
+      label: 'First Name',
+    },
+    {
+      field: 'lastName',
+      weight: 15,
+      value: profile.lastName,
+      label: 'Last Name',
+    },
     { field: 'email', weight: 10, value: profile.email, label: 'Email' },
     { field: 'bio', weight: 20, value: profile.bio, label: 'Bio' },
-    { field: 'avatar', weight: 10, value: profile.avatar, label: 'Profile Picture' },
+    {
+      field: 'avatar',
+      weight: 10,
+      value: profile.avatar,
+      label: 'Profile Picture',
+    },
     { field: 'phone', weight: 8, value: profile.phone, label: 'Phone Number' },
-    { field: 'location', weight: 7, value: profile.location, label: 'Location' },
+    {
+      field: 'location',
+      weight: 7,
+      value: profile.location,
+      label: 'Location',
+    },
     { field: 'website', weight: 5, value: profile.website, label: 'Website' },
   ];
 
   // Professional fields (higher impact)
   const professionalFields = [
-    { field: 'company', weight: 8, value: profile.professional?.company, label: 'Company' },
-    { field: 'jobTitle', weight: 8, value: profile.professional?.jobTitle, label: 'Job Title' },
-    { field: 'industry', weight: 4, value: profile.professional?.industry, label: 'Industry' },
+    {
+      field: 'company',
+      weight: 8,
+      value: profile.professional?.company,
+      label: 'Company',
+    },
+    {
+      field: 'jobTitle',
+      weight: 8,
+      value: profile.professional?.jobTitle,
+      label: 'Job Title',
+    },
+    {
+      field: 'industry',
+      weight: 4,
+      value: profile.professional?.industry,
+      label: 'Industry',
+    },
   ];
 
   const allFields = [...weightedFields, ...professionalFields];
-  
+
   let totalWeight = 0;
   let completedWeight = 0;
   const missingFields: string[] = [];
@@ -191,7 +231,7 @@ function calculateProfileCompleteness(profile: UserProfile): ProfileCompleteness
 
   allFields.forEach(({ field, weight, value, label }) => {
     totalWeight += weight;
-    
+
     if (value && value.toString().trim()) {
       completedWeight += weight;
     } else {
@@ -201,12 +241,15 @@ function calculateProfileCompleteness(profile: UserProfile): ProfileCompleteness
   });
 
   // 🎯 FIX: Social links are bonus, not required for 100%
-  const socialLinksCount = profile.socialLinks ? Object.keys(profile.socialLinks).length : 0;
-  const socialLinksBonus = socialLinksCount > 0 ? Math.min(socialLinksCount * 2, 10) : 0;
-  
+  const socialLinksCount = profile.socialLinks
+    ? Object.keys(profile.socialLinks).length
+    : 0;
+  const socialLinksBonus =
+    socialLinksCount > 0 ? Math.min(socialLinksCount * 2, 10) : 0;
+
   // Add social links as bonus points (not counted toward total requirement)
   const totalCompletedWeight = completedWeight + socialLinksBonus;
-  
+
   // Calculate percentage, allowing over 100% with social links bonus
   const rawPercentage = Math.round((totalCompletedWeight / totalWeight) * 100);
   const percentage = Math.min(rawPercentage, 100); // Cap at 100% for UI display
@@ -220,18 +263,20 @@ function calculateProfileCompleteness(profile: UserProfile): ProfileCompleteness
 
   // Generate next steps based on missing high-impact fields
   const nextSteps: string[] = [];
-  const highImpactMissing = missingFields.filter(field => 
+  const highImpactMissing = missingFields.filter(field =>
     ['firstName', 'lastName', 'bio', 'avatar'].includes(field)
   );
-  
+
   if (highImpactMissing.length > 0) {
-    nextSteps.push(`Complete high-impact fields: ${highImpactMissing.join(', ')}`);
+    nextSteps.push(
+      `Complete high-impact fields: ${highImpactMissing.join(', ')}`
+    );
   }
-  
+
   if (socialLinksCount === 0) {
     nextSteps.push('Add at least one social media link');
   }
-  
+
   if (!profile.professional?.company && !profile.professional?.jobTitle) {
     nextSteps.push('Add professional information');
   }
@@ -243,4 +288,4 @@ function calculateProfileCompleteness(profile: UserProfile): ProfileCompleteness
     score,
     nextSteps: nextSteps.slice(0, 3), // Top 3 next steps
   };
-} 
+}

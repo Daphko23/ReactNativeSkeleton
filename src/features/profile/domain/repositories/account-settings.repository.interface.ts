@@ -1,6 +1,6 @@
 /**
  * @fileoverview Account Settings Repository Interface - Domain Contract
- * 
+ *
  * ✅ DOMAIN LAYER - REPOSITORY CONTRACT:
  * - Definiert Business-orientierte Data Access Interface
  * - Abstrahiert Storage-Implementation Details
@@ -83,39 +83,38 @@ export interface BulkUpdateResult {
 }
 
 /**
- * 🎯 ACCOUNT SETTINGS REPOSITORY INTERFACE
- * 
- * ✅ ENTERPRISE REPOSITORY CONTRACT:
- * - Complete CRUD Operations with Business Context
- * - Batch Operations for Performance
- * - GDPR Compliance Methods
- * - Security-focused Query Methods
- * - Analytics and Reporting Support
- * - Transaction Support for Data Consistency
+ * 🎯 ACCOUNT SETTINGS REPOSITORY INTERFACE - MOBILE FIRST
+ *
+ * ✅ MOBILE APP REPOSITORY CONTRACT:
+ * - Essential CRUD Operations for Mobile Apps
+ * - GDPR Compliance (Required by Law)
+ * - No Enterprise Analytics/Admin Features
  */
 export interface IAccountSettingsRepository {
   // ===== CORE CRUD OPERATIONS =====
-  
+
   /**
-   * Get Account Settings by User ID with selective loading
+   * Get Account Settings by User ID
    */
   getByUserId(
-    userId: string, 
+    userId: string,
     options?: AccountSettingsQueryOptions
   ): Promise<AccountSettings | null>;
 
   /**
    * Create new Account Settings for User
    */
-  create(accountSettings: Omit<AccountSettings, 'metadata'> & { 
-    metadata?: Partial<AccountSettings['metadata']> 
-  }): Promise<AccountSettings>;
+  create(
+    accountSettings: Omit<AccountSettings, 'metadata'> & {
+      metadata?: Partial<AccountSettings['metadata']>;
+    }
+  ): Promise<AccountSettings>;
 
   /**
    * Update Account Settings with partial data
    */
   update(
-    userId: string, 
+    userId: string,
     updates: AccountSettingsUpdateRequest
   ): Promise<AccountSettings>;
 
@@ -124,13 +123,13 @@ export interface IAccountSettingsRepository {
    */
   delete(userId: string): Promise<boolean>;
 
-  // ===== BUSINESS OPERATIONS =====
+  // ===== MOBILE APP BUSINESS OPERATIONS =====
 
   /**
-   * Update Social Links with Business Validation
+   * Update Social Links
    */
   updateSocialLinks(
-    userId: string, 
+    userId: string,
     socialLinks: SocialLink[]
   ): Promise<SocialLink[]>;
 
@@ -138,7 +137,7 @@ export interface IAccountSettingsRepository {
    * Update Privacy Settings with GDPR Compliance
    */
   updatePrivacySettings(
-    userId: string, 
+    userId: string,
     privacySettings: Partial<AccountSettings['privacySettings']>,
     gdprConsent: boolean
   ): Promise<AccountSettings['privacySettings']>;
@@ -147,7 +146,7 @@ export interface IAccountSettingsRepository {
    * Update Notification Preferences
    */
   updateNotificationSettings(
-    userId: string, 
+    userId: string,
     notificationSettings: Partial<AccountSettings['notificationSettings']>
   ): Promise<AccountSettings['notificationSettings']>;
 
@@ -155,56 +154,11 @@ export interface IAccountSettingsRepository {
    * Update Security Configuration
    */
   updateSecuritySettings(
-    userId: string, 
+    userId: string,
     securitySettings: Partial<AccountSettings['securitySettings']>
   ): Promise<AccountSettings['securitySettings']>;
 
-  // ===== BATCH OPERATIONS =====
-
-  /**
-   * Get Multiple Account Settings (for admin operations)
-   */
-  getMultiple(
-    userIds: string[], 
-    options?: AccountSettingsQueryOptions
-  ): Promise<AccountSettings[]>;
-
-  /**
-   * Bulk Update Account Settings
-   */
-  bulkUpdate(
-    updates: Array<{ userId: string; updates: AccountSettingsUpdateRequest }>
-  ): Promise<BulkUpdateResult>;
-
-  // ===== BUSINESS QUERIES =====
-
-  /**
-   * Find Users by Privacy Setting
-   */
-  findByPrivacySetting(
-    settingKey: keyof AccountSettings['privacySettings'],
-    value: any
-  ): Promise<string[]>; // Returns user IDs
-
-  /**
-   * Find Users with Social Platform
-   */
-  findUsersWithSocialPlatform(platform: string): Promise<Array<{
-    userId: string;
-    socialLink: SocialLink;
-  }>>;
-
-  /**
-   * Get Security Statistics (for compliance reporting)
-   */
-  getSecurityStatistics(): Promise<{
-    totalUsers: number;
-    twoFactorEnabled: number;
-    securityLevelDistribution: Record<string, number>;
-    averageSessionTimeout: number;
-  }>;
-
-  // ===== GDPR COMPLIANCE =====
+  // ===== GDPR COMPLIANCE (Required by Law) =====
 
   /**
    * Export User Data (GDPR Right to Data Portability)
@@ -212,99 +166,14 @@ export interface IAccountSettingsRepository {
   exportUserData(userId: string): Promise<AccountSettings>;
 
   /**
-   * Anonymize User Data (GDPR Right to be Forgotten - partial)
-   */
-  anonymizeUserData(userId: string): Promise<boolean>;
-
-  /**
-   * Find Users requiring Data Retention Cleanup
-   */
-  findDataRetentionCandidates(
-    cutoffDate: Date
-  ): Promise<Array<{
-    userId: string;
-    dataRetentionDate: Date;
-    lastActivity: Date;
-  }>>;
-
-  /**
    * Update GDPR Consent Status
    */
   updateGdprConsent(
-    userId: string, 
-    consentGiven: boolean, 
+    userId: string,
+    consentGiven: boolean,
     consentDate: Date
   ): Promise<boolean>;
 
-  // ===== ADVANCED OPERATIONS =====
-
-  /**
-   * Search Account Settings with Business Filters
-   */
-  search(filters: {
-    privacyLevel?: 'public' | 'friends' | 'private';
-    hasNotifications?: boolean;
-    securityLevel?: 'basic' | 'enhanced' | 'maximum';
-    socialPlatforms?: string[];
-    gdprConsent?: boolean;
-    createdAfter?: Date;
-    createdBefore?: Date;
-    lastLoginAfter?: Date;
-    lastLoginBefore?: Date;
-  }, pagination?: {
-    page: number;
-    limit: number;
-  }): Promise<{
-    items: AccountSettings[];
-    total: number;
-    page: number;
-    pages: number;
-  }>;
-
-  /**
-   * Get Account Settings Analytics
-   */
-  getAnalytics(dateRange: {
-    startDate: Date;
-    endDate: Date;
-  }): Promise<{
-    totalUsers: number;
-    newUsers: number;
-    activeUsers: number;
-    privacyDistribution: Record<string, number>;
-    platformPopularity: Record<string, number>;
-    securityAdoption: Record<string, number>;
-    gdprCompliance: {
-      consentRate: number;
-      optOutRate: number;
-      dataExportRequests: number;
-      deletionRequests: number;
-    };
-  }>;
-
-  // ===== PERFORMANCE & MAINTENANCE =====
-
-  /**
-   * Health Check for Repository
-   */
-  healthCheck(): Promise<{
-    status: 'healthy' | 'degraded' | 'unhealthy';
-    responseTime: number;
-    connectionStatus: boolean;
-    lastError?: string;
-  }>;
-
-  /**
-   * Clear Cache for User (if applicable)
-   */
-  clearCache(userId: string): Promise<boolean>;
-
-  /**
-   * Optimize Repository Performance
-   */
-  optimize(): Promise<{
-    indexesCreated: number;
-    queriesOptimized: number;
-    cacheCleared: boolean;
-  }>;
-} 
+  // ===== ENTERPRISE FEATURES MOVED TO ADMIN PANEL =====
+  // Analytics, Bulk Operations, Search, Performance Monitoring → Backend/Admin Panel
+}

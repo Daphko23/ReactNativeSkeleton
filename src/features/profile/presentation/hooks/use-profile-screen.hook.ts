@@ -1,6 +1,6 @@
 /**
  * @fileoverview Profile Screen Hook - CHAMPION
- * 
+ *
  * 🏆 CHAMPION STANDARDS 2025:
  * ✅ Single Responsibility: Profile screen orchestration only
  * ✅ TanStack Query + Use Cases: Complete integration
@@ -28,7 +28,7 @@ import { useAuth } from '@features/auth/presentation/hooks';
 import { useFeatureFlag } from './use-feature-flag.hook';
 
 // 🏆 ENTERPRISE: Use Cases Integration (Essential Only)
-import { useProfileContainer } from '../../application/di/profile.container';
+import { useProfileContainer as _useProfileContainer } from '../../application/di/profile.container'; // Mark as potentially unused
 import { ShareProfileUseCase } from '../../application/use-cases/profile/share-profile.use-case';
 import { ExportProfileUseCase } from '../../application/use-cases/profile/export-profile.use-case';
 
@@ -52,7 +52,7 @@ export interface UseProfileScreenReturn {
     hasAnyError: boolean;
     refreshAll: () => Promise<void>;
   };
-  
+
   actions: {
     // 🏆 Navigation Actions
     navigateToEdit: () => void;
@@ -61,30 +61,30 @@ export interface UseProfileScreenReturn {
     navigateToPrivacySettings: () => void;
     navigateToSkillsManagement: () => void;
     navigateToSocialLinksEdit: () => void;
-    
+
     // 🏆 Profile Actions
     shareProfile: () => Promise<void>;
     exportProfile: () => Promise<void>;
-    
+
     // 🏆 Avatar Actions
     changeAvatar: () => void;
     removeAvatar: () => Promise<void>;
-    
+
     // 🏆 Error Management
     clearErrors: () => void;
   };
-  
+
   ui: {
     // 🏆 UI Dependencies
     theme: any;
     t: (key: string, options?: any) => string;
-    
+
     // 🏆 UI State
     headerTitle: string;
     completionPercentage: number;
     showCompletionBanner: boolean;
     dismissCompletionBanner: () => void;
-    
+
     // 🏆 Loading States
     isSharing: boolean;
     isExporting: boolean;
@@ -94,7 +94,7 @@ export interface UseProfileScreenReturn {
 
 /**
  * 🏆 CHAMPION PROFILE SCREEN HOOK
- * 
+ *
  * ✅ CHAMPION PATTERNS:
  * - Single Responsibility: Profile screen orchestration only
  * - Hook Composition: Reuses existing Champion hooks
@@ -108,7 +108,7 @@ export const useProfileScreen = (navigation?: any): UseProfileScreenReturn => {
   const _queryClient = useQueryClient();
   const { user } = useAuth();
   const userId = user?.id || '';
-  
+
   // 🎯 FEATURE FLAG INTEGRATION FIX
   const { isScreenEnabled } = useFeatureFlag();
 
@@ -116,7 +116,7 @@ export const useProfileScreen = (navigation?: any): UseProfileScreenReturn => {
   const profileQuery = useProfileQuery(userId);
   const avatarQuery = useAvatar({ userId });
   const customFieldsQuery = useCustomFieldsQuery(userId);
-  
+
   // 🎯 EMAIL SYNC FIX: Ensure profile.email is synced from auth user
   const profileWithEmail = useMemo(() => {
     const profile = profileQuery.data;
@@ -126,15 +126,16 @@ export const useProfileScreen = (navigation?: any): UseProfileScreenReturn => {
     }
     return profile;
   }, [profileQuery.data, user?.email]);
-  
-  // 🎯 HOOK RULES FIX: Always call hooks, never conditionally  
-  const completion = useProfileCompleteness({ 
-    profile: profileWithEmail || null, 
-    userId 
+
+  // 🎯 HOOK RULES FIX: Always call hooks, never conditionally
+  const completion = useProfileCompleteness({
+    profile: profileWithEmail || null,
+    userId,
   });
-  
+
   // 🏆 ENTERPRISE: Use Cases Integration (Essential Only)
-  const { container: _container, accessor: _accessor } = useProfileContainer();
+  // Container entfernt - nicht mehr benötigt für vereinfachte Architektur
+  // const { container: _container, accessor: _accessor } = useProfileContainer();
   const shareProfileUseCase = useMemo(() => new ShareProfileUseCase(), []);
   const exportProfileUseCase = useMemo(() => new ExportProfileUseCase(), []);
 
@@ -146,23 +147,30 @@ export const useProfileScreen = (navigation?: any): UseProfileScreenReturn => {
   const shareProfileMutation = useMutation({
     mutationFn: async () => {
       logger.info('Sharing profile', LogCategory.BUSINESS, { userId });
-      
+
       const result = await shareProfileUseCase.execute({
         userId,
         shareType: 'url',
         includePrivateData: false,
-        expiresInHours: 24
+        expiresInHours: 24,
       });
 
       if (!result.success) {
         throw new Error(result.error);
       }
-      
-      logger.info('Profile shared successfully', LogCategory.BUSINESS, { userId });
+
+      logger.info('Profile shared successfully', LogCategory.BUSINESS, {
+        userId,
+      });
       return result.data;
     },
-    onError: (error) => {
-      logger.error('Failed to share profile', LogCategory.BUSINESS, { userId }, error as Error);
+    onError: error => {
+      logger.error(
+        'Failed to share profile',
+        LogCategory.BUSINESS,
+        { userId },
+        error as Error
+      );
     },
   });
 
@@ -170,24 +178,31 @@ export const useProfileScreen = (navigation?: any): UseProfileScreenReturn => {
   const exportProfileMutation = useMutation({
     mutationFn: async () => {
       logger.info('Exporting profile', LogCategory.BUSINESS, { userId });
-      
+
       const result = await exportProfileUseCase.execute({
         userId,
         exportFormat: 'json',
         includeMetadata: true,
         includeSensitiveData: false,
-        deliveryMethod: 'download'
+        deliveryMethod: 'download',
       });
 
       if (!result.success) {
         throw new Error(result.error);
       }
-      
-      logger.info('Profile exported successfully', LogCategory.BUSINESS, { userId });
+
+      logger.info('Profile exported successfully', LogCategory.BUSINESS, {
+        userId,
+      });
       return result.data;
     },
-    onError: (error) => {
-      logger.error('Failed to export profile', LogCategory.BUSINESS, { userId }, error as Error);
+    onError: error => {
+      logger.error(
+        'Failed to export profile',
+        LogCategory.BUSINESS,
+        { userId },
+        error as Error
+      );
     },
   });
 
@@ -195,15 +210,22 @@ export const useProfileScreen = (navigation?: any): UseProfileScreenReturn => {
   const removeAvatarMutation = useMutation({
     mutationFn: async () => {
       logger.info('Removing avatar', LogCategory.BUSINESS, { userId });
-      
+
       // Use existing avatar hook's remove functionality
       await avatarQuery.removeAvatar();
-      
-      logger.info('Avatar removed successfully', LogCategory.BUSINESS, { userId });
+
+      logger.info('Avatar removed successfully', LogCategory.BUSINESS, {
+        userId,
+      });
       return { success: true };
     },
-    onError: (error) => {
-      logger.error('Failed to remove avatar', LogCategory.BUSINESS, { userId }, error as Error);
+    onError: error => {
+      logger.error(
+        'Failed to remove avatar',
+        LogCategory.BUSINESS,
+        { userId },
+        error as Error
+      );
     },
   });
 
@@ -216,33 +238,51 @@ export const useProfileScreen = (navigation?: any): UseProfileScreenReturn => {
   const navigateToSettings = useCallback(() => {
     // 🎯 NAVIGATION FIX: Use correct screen name + Feature Flag Guard
     if (!isScreenEnabled('AccountSettings')) {
-      logger.warn('Account Settings screen is disabled by feature flag', LogCategory.BUSINESS, { userId });
+      logger.warn(
+        'Account Settings screen is disabled by feature flag',
+        LogCategory.BUSINESS,
+        { userId }
+      );
       return;
     }
-    
-    logger.info('Navigating to account settings', LogCategory.BUSINESS, { userId });
-    navigation?.navigate('AccountSettings');  // ✅ KORREKT: AccountSettings statt ProfileSettings
+
+    logger.info('Navigating to account settings', LogCategory.BUSINESS, {
+      userId,
+    });
+    navigation?.navigate('AccountSettings'); // ✅ KORREKT: AccountSettings statt ProfileSettings
   }, [userId, navigation, isScreenEnabled]);
 
   const navigateToCustomFields = useCallback(() => {
     // 🎯 FEATURE FLAG GUARD
     if (!isScreenEnabled('CustomFieldsEdit')) {
-      logger.warn('Custom Fields Edit screen is disabled by feature flag', LogCategory.BUSINESS, { userId });
+      logger.warn(
+        'Custom Fields Edit screen is disabled by feature flag',
+        LogCategory.BUSINESS,
+        { userId }
+      );
       return;
     }
-    
-    logger.info('Navigating to custom fields', LogCategory.BUSINESS, { userId });
+
+    logger.info('Navigating to custom fields', LogCategory.BUSINESS, {
+      userId,
+    });
     navigation?.navigate('CustomFieldsEdit');
   }, [userId, navigation, isScreenEnabled]);
 
   const navigateToPrivacySettings = useCallback(() => {
     // 🎯 FEATURE FLAG GUARD
     if (!isScreenEnabled('PrivacySettings')) {
-      logger.warn('Privacy Settings screen is disabled by feature flag', LogCategory.BUSINESS, { userId });
+      logger.warn(
+        'Privacy Settings screen is disabled by feature flag',
+        LogCategory.BUSINESS,
+        { userId }
+      );
       return;
     }
-    
-    logger.info('Navigating to privacy settings', LogCategory.BUSINESS, { userId });
+
+    logger.info('Navigating to privacy settings', LogCategory.BUSINESS, {
+      userId,
+    });
     navigation?.navigate('PrivacySettings');
   }, [userId, navigation, isScreenEnabled]);
 
@@ -250,13 +290,17 @@ export const useProfileScreen = (navigation?: any): UseProfileScreenReturn => {
   const navigateToSkillsManagement = useCallback(() => {
     // 🎯 FEATURE FLAG GUARD
     if (!isScreenEnabled('SkillsManagement')) {
-      logger.warn('Skills Management screen is disabled by feature flag', LogCategory.BUSINESS, { userId });
+      logger.warn(
+        'Skills Management screen is disabled by feature flag',
+        LogCategory.BUSINESS,
+        { userId }
+      );
       return;
     }
-    
-    logger.info('Navigating to skills management', LogCategory.BUSINESS, { 
+
+    logger.info('Navigating to skills management', LogCategory.BUSINESS, {
       userId,
-      metadata: { action: 'navigate_skills' }
+      metadata: { action: 'navigate_skills' },
     });
     navigation?.navigate('SkillsManagement');
   }, [userId, navigation, isScreenEnabled]);
@@ -264,13 +308,17 @@ export const useProfileScreen = (navigation?: any): UseProfileScreenReturn => {
   const navigateToSocialLinksEdit = useCallback(() => {
     // 🎯 FEATURE FLAG GUARD
     if (!isScreenEnabled('SocialLinksEdit')) {
-      logger.warn('Social Links Edit screen is disabled by feature flag', LogCategory.BUSINESS, { userId });
+      logger.warn(
+        'Social Links Edit screen is disabled by feature flag',
+        LogCategory.BUSINESS,
+        { userId }
+      );
       return;
     }
-    
-    logger.info('Navigating to social links edit', LogCategory.BUSINESS, { 
+
+    logger.info('Navigating to social links edit', LogCategory.BUSINESS, {
       userId,
-      metadata: { action: 'navigate_social_links' }
+      metadata: { action: 'navigate_social_links' },
     });
     navigation?.navigate('SocialLinksEdit');
   }, [userId, navigation, isScreenEnabled]);
@@ -285,8 +333,10 @@ export const useProfileScreen = (navigation?: any): UseProfileScreenReturn => {
   }, [exportProfileMutation]);
 
   const refreshAll = useCallback(async () => {
-    logger.info('Refreshing all profile screen data', LogCategory.BUSINESS, { userId });
-    
+    logger.info('Refreshing all profile screen data', LogCategory.BUSINESS, {
+      userId,
+    });
+
     setIsRefreshing(true);
     try {
       await Promise.all([
@@ -295,11 +345,19 @@ export const useProfileScreen = (navigation?: any): UseProfileScreenReturn => {
         customFieldsQuery.refetch(),
         completion?.refresh() || Promise.resolve(),
       ]);
-      
-      logger.info('Profile screen data refreshed successfully', LogCategory.BUSINESS, { userId });
+
+      logger.info(
+        'Profile screen data refreshed successfully',
+        LogCategory.BUSINESS,
+        { userId }
+      );
     } catch (error) {
-      logger.error('Failed to refresh profile screen data', LogCategory.BUSINESS, 
-        { userId }, error as Error);
+      logger.error(
+        'Failed to refresh profile screen data',
+        LogCategory.BUSINESS,
+        { userId },
+        error as Error
+      );
       throw error;
     } finally {
       setIsRefreshing(false);
@@ -308,12 +366,14 @@ export const useProfileScreen = (navigation?: any): UseProfileScreenReturn => {
 
   // 🏆 CHAMPION AVATAR ACTIONS
   const changeAvatar = useCallback(() => {
-    logger.info('Navigating to avatar upload', LogCategory.BUSINESS, { userId });
-    
+    logger.info('Navigating to avatar upload', LogCategory.BUSINESS, {
+      userId,
+    });
+
     // Navigate to Avatar Upload Screen with current avatar
     navigation?.navigate('AvatarUpload', {
       currentAvatar: avatarQuery.avatarUrl,
-      userId: userId
+      userId: userId,
     });
   }, [userId, avatarQuery.avatarUrl, navigation]);
 
@@ -339,20 +399,33 @@ export const useProfileScreen = (navigation?: any): UseProfileScreenReturn => {
   }, [completionPercentage, showCompletionBanner]);
 
   const dismissCompletionBanner = useCallback(() => {
-    logger.info('Dismissing completion banner', LogCategory.BUSINESS, { userId });
+    logger.info('Dismissing completion banner', LogCategory.BUSINESS, {
+      userId,
+    });
     setShowCompletionBanner(false);
   }, [userId]);
 
   // 🏆 CHAMPION COMPUTED STATE
-  const isAnyLoading = profileQuery.isLoading || avatarQuery.isLoadingAvatar || customFieldsQuery.isLoading;
-  const hasAnyError = !!(profileQuery.error || avatarQuery.error || customFieldsQuery.error);
-  const primaryError = (profileQuery.error as any)?.message || avatarQuery.error || (customFieldsQuery.error as any)?.message || null;
+  const isAnyLoading =
+    profileQuery.isLoading ||
+    avatarQuery.isLoadingAvatar ||
+    customFieldsQuery.isLoading;
+  const hasAnyError = !!(
+    profileQuery.error ||
+    avatarQuery.error ||
+    customFieldsQuery.error
+  );
+  const primaryError =
+    (profileQuery.error as any)?.message ||
+    avatarQuery.error ||
+    (customFieldsQuery.error as any)?.message ||
+    null;
 
   return {
     // 🏆 ENTERPRISE STRUCTURE: Grouped by Responsibility
     data: {
       profile: profileWithEmail,
-      avatar: { url: avatarQuery.avatarUrl },  // ✅ FIX: Korrekte Struktur für Profile Screen
+      avatar: { url: avatarQuery.avatarUrl }, // ✅ FIX: Korrekte Struktur für Profile Screen
       customFields: customFieldsQuery.data || [],
       completion,
       isProfileLoading: profileQuery.isLoading,
@@ -360,12 +433,15 @@ export const useProfileScreen = (navigation?: any): UseProfileScreenReturn => {
       isCustomFieldsLoading: customFieldsQuery.isLoading,
       isAnyLoading: isAnyLoading,
       profileError: primaryError as any,
-      avatarError: typeof avatarQuery.error === 'string' ? avatarQuery.error : (avatarQuery.error as any)?.message || null,
+      avatarError:
+        typeof avatarQuery.error === 'string'
+          ? avatarQuery.error
+          : (avatarQuery.error as any)?.message || null,
       customFieldsError: (customFieldsQuery.error as any)?.message || null,
       hasAnyError: hasAnyError,
       refreshAll,
     },
-    
+
     actions: {
       // �� Navigation Actions
       navigateToEdit,
@@ -374,30 +450,30 @@ export const useProfileScreen = (navigation?: any): UseProfileScreenReturn => {
       navigateToPrivacySettings,
       navigateToSkillsManagement,
       navigateToSocialLinksEdit,
-      
+
       // 🏆 Profile Actions
       shareProfile,
       exportProfile,
-      
+
       // 🏆 Avatar Actions
       changeAvatar,
       removeAvatar,
-      
+
       // 🏆 Error Management
       clearErrors: () => {},
     },
-    
+
     ui: {
       // 🏆 UI Dependencies
       theme,
       t,
-      
+
       // 🏆 UI State
       headerTitle,
       completionPercentage,
       showCompletionBanner: shouldShowCompletionBanner,
       dismissCompletionBanner,
-      
+
       // 🏆 Loading States
       isSharing: shareProfileMutation.isPending,
       isExporting: exportProfileMutation.isPending,

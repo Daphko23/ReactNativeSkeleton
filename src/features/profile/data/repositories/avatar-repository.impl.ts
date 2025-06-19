@@ -2,7 +2,7 @@
  * @fileoverview AVATAR-REPOSITORY-IMPL: Data Layer Repository Implementation
  * @description Avatar Repository Implementation mit DataSource Integration
  * für Clean Architecture Compliance und Enterprise-Grade Funktionalität.
- * 
+ *
  * @version 1.0.0
  * @since 2.0.0
  * @author ReactNativeSkeleton Enterprise Team
@@ -12,98 +12,109 @@ import {
   IAvatarRepository,
   AvatarUploadResult,
   AvatarDeleteResult,
-  AvatarFile
+  AvatarFile,
 } from '@features/profile/domain/interfaces/avatar-repository.interface';
 
 import {
   IAvatarDataSource,
-  AvatarUploadOptions
+  AvatarUploadOptions,
 } from '@features/profile/domain/interfaces/avatar-datasource.interface';
 
 import { LoggerFactory } from '@core/logging/logger.factory';
-import { LogCategory } from '@core/logging/logger.service.interface';
-
-const logger = LoggerFactory.createServiceLogger('AvatarRepository');
+import {
+  LogCategory,
+  ILoggerService,
+} from '@core/logging/logger.service.interface';
 
 /**
  * Avatar Repository Implementation
- * 
+ *
  * Konkrete Implementierung des Avatar Repository Interface.
  * Orchestriert DataSource Operations und implementiert Business Logic.
- * 
+ *
  * @class AvatarRepositoryImpl
  * @implements {IAvatarRepository}
  * @since 2.0.0
- * 
+ *
  * @description
  * Enterprise-Grade Avatar Repository Implementation nach Clean Architecture.
  * Verbindet Domain Layer Contracts mit Data Layer DataSources und
  * implementiert Repository Pattern für saubere Separation of Concerns.
- * 
+ *
  * @architectural_features
  * - **Repository Pattern**: Orchestriert DataSource Operations
  * - **Dependency Injection**: DataSource wird injiziert, nicht hart gekoppelt
  * - **Clean Architecture**: Implementiert Domain Layer Contracts
  * - **Error Handling**: Robuste Fehlerbehandlung mit Business Logic Context
  * - **Validation**: Business-orientierte Validation Layer
- * 
+ *
  * @enterprise_benefits
  * - **Testability**: Einfache Unit Tests durch DataSource Mocking
  * - **Maintainability**: Klare Trennung von Business Logic und Storage Details
  * - **Scalability**: Unterstützt verschiedene DataSource Implementierungen
  * - **Flexibility**: DataSource Austausch ohne Business Logic Änderungen
- * 
+ *
  * @example
  * Dependency Injection Usage:
  * ```typescript
  * const dataSource = new SupabaseAvatarDataSource();
- * const repository = new AvatarRepositoryImpl(dataSource);
+ * const logger = LoggerFactory.createServiceLogger('AvatarRepository');
+ * const repository = new AvatarRepositoryImpl(dataSource, logger);
  * const service = new AvatarService(repository);
  * ```
- * 
+ *
  * @example
  * Testing with Mock DataSource:
  * ```typescript
  * const mockDataSource = new MockAvatarDataSource();
- * const repository = new AvatarRepositoryImpl(mockDataSource);
+ * const mockLogger = createMockLogger();
+ * const repository = new AvatarRepositoryImpl(mockDataSource, mockLogger);
  * // Unit tests ohne echte Storage-Abhängigkeiten
  * ```
- * 
+ *
  * @example
  * Alternative DataSource (AWS S3):
  * ```typescript
  * const s3DataSource = new AWSS3AvatarDataSource();
- * const repository = new AvatarRepositoryImpl(s3DataSource);
+ * const logger = LoggerFactory.createServiceLogger('AvatarRepository');
+ * const repository = new AvatarRepositoryImpl(s3DataSource, logger);
  * // Gleiche Business Logic, anderer Storage Provider
  * ```
  */
 export class AvatarRepositoryImpl implements IAvatarRepository {
   /**
    * Avatar Repository Constructor
-   * 
+   *
    * @param dataSource - Injected DataSource implementation
-   * 
+   * @param logger - Injected Logger implementation
+   *
    * @example
    * ```typescript
    * const repository = new AvatarRepositoryImpl(
-   *   new SupabaseAvatarDataSource()
+   *   new SupabaseAvatarDataSource(),
+   *   LoggerFactory.createServiceLogger('AvatarRepository')
    * );
    * ```
    */
-  constructor(private readonly dataSource: IAvatarDataSource) {}
+  constructor(
+    private readonly dataSource: IAvatarDataSource,
+    private readonly logger: ILoggerService = LoggerFactory.createServiceLogger(
+      'AvatarRepository'
+    )
+  ) {}
 
   /**
    * Upload avatar for user
-   * 
+   *
    * @param userId - User identifier
    * @param file - Avatar file information
    * @param onProgress - Optional progress callback (0-100)
    * @returns Promise with upload result
-   * 
+   *
    * @description
    * Repository implementation für Avatar Upload.
    * Koordiniert DataSource Operations und fügt Business Logic hinzu.
-   * 
+   *
    * @example
    * ```typescript
    * const result = await repository.uploadAvatar(
@@ -116,7 +127,7 @@ export class AvatarRepositoryImpl implements IAvatarRepository {
    *   },
    *   (progress) => updateUploadProgress(progress)
    * );
-   * 
+   *
    * if (result.success) {
    *   await updateUserProfile({ avatarUrl: result.avatarUrl });
    * }
@@ -132,7 +143,7 @@ export class AvatarRepositoryImpl implements IAvatarRepository {
       if (!userId || userId.trim().length === 0) {
         return {
           success: false,
-          error: 'User ID is required for avatar upload'
+          error: 'User ID is required for avatar upload',
         };
       }
 
@@ -140,7 +151,7 @@ export class AvatarRepositoryImpl implements IAvatarRepository {
       if (!file || !file.uri) {
         return {
           success: false,
-          error: 'File information is required for upload'
+          error: 'File information is required for upload',
         };
       }
 
@@ -151,9 +162,9 @@ export class AvatarRepositoryImpl implements IAvatarRepository {
           uri: file.uri,
           fileName: file.fileName,
           size: file.size,
-          mime: file.mime
+          mime: file.mime,
         },
-        onProgress
+        onProgress,
       };
 
       // Delegate to DataSource for storage operations
@@ -162,51 +173,55 @@ export class AvatarRepositoryImpl implements IAvatarRepository {
       // Business Logic: Add repository-level context to results
       if (result.success) {
         const correlationId = `upload_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-        logger.info('Avatar upload successful', LogCategory.BUSINESS, {
+        this.logger.info('Avatar upload successful', LogCategory.BUSINESS, {
           userId,
           metadata: {
             correlationId,
             avatarUrl: result.avatarUrl || 'unknown',
             fileSize: file.size,
-            fileName: file.fileName
-          }
+            fileName: file.fileName,
+          },
         });
       } else {
         const correlationId = `upload_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-        logger.error('Avatar upload failed', LogCategory.BUSINESS, {
+        this.logger.error('Avatar upload failed', LogCategory.BUSINESS, {
           userId,
           metadata: {
             correlationId,
-            error: result.error
-          }
+            error: result.error,
+          },
         });
       }
 
       return result;
-
     } catch (error) {
       const correlationId = `upload_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-      logger.error('Avatar upload exception occurred', LogCategory.BUSINESS, {
-        userId,
-        metadata: { correlationId }
-      }, error as Error);
+      this.logger.error(
+        'Avatar upload exception occurred',
+        LogCategory.BUSINESS,
+        {
+          userId,
+          metadata: { correlationId },
+        },
+        error as Error
+      );
       return {
         success: false,
-        error: error instanceof Error ? error.message : 'Avatar upload failed'
+        error: error instanceof Error ? error.message : 'Avatar upload failed',
       };
     }
   }
 
   /**
    * Delete avatar for user
-   * 
+   *
    * @param userId - User identifier
    * @returns Promise with deletion result
-   * 
+   *
    * @description
    * Repository implementation für Avatar Deletion.
    * Fügt Business Logic für Benutzer-Validierung hinzu.
-   * 
+   *
    * @example
    * ```typescript
    * const result = await repository.deleteAvatar('user-123');
@@ -222,7 +237,7 @@ export class AvatarRepositoryImpl implements IAvatarRepository {
       if (!userId || userId.trim().length === 0) {
         return {
           success: false,
-          error: 'User ID is required for avatar deletion'
+          error: 'User ID is required for avatar deletion',
         };
       }
 
@@ -232,46 +247,51 @@ export class AvatarRepositoryImpl implements IAvatarRepository {
       // Business Logic: Add repository-level context to results
       if (result.success) {
         const correlationId = `delete_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-        logger.info('Avatar deletion successful', LogCategory.BUSINESS, {
+        this.logger.info('Avatar deletion successful', LogCategory.BUSINESS, {
           userId,
-          metadata: { correlationId }
+          metadata: { correlationId },
         });
       } else {
         const correlationId = `delete_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-        logger.error('Avatar deletion failed', LogCategory.BUSINESS, {
+        this.logger.error('Avatar deletion failed', LogCategory.BUSINESS, {
           userId,
           metadata: {
             correlationId,
-            error: result.error
-          }
+            error: result.error,
+          },
         });
       }
 
       return result;
-
     } catch (error) {
       const correlationId = `delete_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-      logger.error('Avatar deletion exception occurred', LogCategory.BUSINESS, {
-        userId,
-        metadata: { correlationId }
-      }, error as Error);
+      this.logger.error(
+        'Avatar deletion exception occurred',
+        LogCategory.BUSINESS,
+        {
+          userId,
+          metadata: { correlationId },
+        },
+        error as Error
+      );
       return {
         success: false,
-        error: error instanceof Error ? error.message : 'Avatar deletion failed'
+        error:
+          error instanceof Error ? error.message : 'Avatar deletion failed',
       };
     }
   }
 
   /**
    * Get avatar URL for user
-   * 
+   *
    * @param userId - User identifier
    * @returns Promise with avatar URL or null if not found
-   * 
+   *
    * @description
    * Repository implementation für Avatar URL Retrieval.
    * Fügt Business Logic für Benutzer-Validierung hinzu.
-   * 
+   *
    * @example
    * ```typescript
    * const avatarUrl = await repository.getAvatarUrl('user-123');
@@ -286,9 +306,13 @@ export class AvatarRepositoryImpl implements IAvatarRepository {
     try {
       // Business Logic: Validate user ID
       if (!userId || userId.trim().length === 0) {
-        logger.warn('Invalid user ID provided for avatar URL retrieval', LogCategory.BUSINESS, {
-          metadata: { providedUserId: userId }
-        });
+        this.logger.warn(
+          'Invalid user ID provided for avatar URL retrieval',
+          LogCategory.BUSINESS,
+          {
+            metadata: { providedUserId: userId },
+          }
+        );
         return null;
       }
 
@@ -298,42 +322,46 @@ export class AvatarRepositoryImpl implements IAvatarRepository {
       // Business Logic: Add repository-level logging
       if (avatarUrl) {
         const correlationId = `getUrl_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-        logger.info('Avatar found for user', LogCategory.BUSINESS, {
+        this.logger.info('Avatar found for user', LogCategory.BUSINESS, {
           userId,
           metadata: {
             correlationId,
-            avatarUrl
-          }
+            avatarUrl,
+          },
         });
       } else {
         const correlationId = `getUrl_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-        logger.info('No avatar found for user', LogCategory.BUSINESS, {
+        this.logger.info('No avatar found for user', LogCategory.BUSINESS, {
           userId,
-          metadata: { correlationId }
+          metadata: { correlationId },
         });
       }
 
       return avatarUrl;
-
     } catch (error) {
       const correlationId = `getUrl_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-      logger.error('Error getting avatar URL', LogCategory.BUSINESS, {
-        userId,
-        metadata: { correlationId }
-      }, error as Error);
+      this.logger.error(
+        'Error getting avatar URL',
+        LogCategory.BUSINESS,
+        {
+          userId,
+          metadata: { correlationId },
+        },
+        error as Error
+      );
       return null;
     }
   }
 
   /**
    * Check if avatar storage is healthy
-   * 
+   *
    * @returns Promise with health status
-   * 
+   *
    * @description
    * Repository implementation für Storage Health Check.
    * Vereinfacht DataSource Health Result für Business Logic.
-   * 
+   *
    * @example
    * ```typescript
    * const isHealthy = await repository.isStorageHealthy();
@@ -354,47 +382,59 @@ export class AvatarRepositoryImpl implements IAvatarRepository {
 
       if (isHealthy) {
         const correlationId = `health_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-        logger.info('Avatar storage health check passed', LogCategory.BUSINESS, {
-          userId: 'system',
-          metadata: {
-            correlationId,
-            healthy: true
+        this.logger.info(
+          'Avatar storage health check passed',
+          LogCategory.BUSINESS,
+          {
+            userId: 'system',
+            metadata: {
+              correlationId,
+              healthy: true,
+            },
           }
-        });
+        );
       } else {
         const correlationId = `health_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-        logger.warn('Avatar storage health check failed', LogCategory.BUSINESS, {
-          userId: 'system',
-          metadata: {
-            correlationId,
-            healthy: false,
-            error: healthResult.error
+        this.logger.warn(
+          'Avatar storage health check failed',
+          LogCategory.BUSINESS,
+          {
+            userId: 'system',
+            metadata: {
+              correlationId,
+              healthy: false,
+              error: healthResult.error,
+            },
           }
-        });
+        );
       }
 
       return isHealthy;
-
     } catch (error) {
       const correlationId = `health_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-      logger.error('Avatar storage health check exception', LogCategory.BUSINESS, {
-        userId: 'system',
-        metadata: { correlationId }
-      }, error as Error);
+      this.logger.error(
+        'Avatar storage health check exception',
+        LogCategory.BUSINESS,
+        {
+          userId: 'system',
+          metadata: { correlationId },
+        },
+        error as Error
+      );
       return false;
     }
   }
 
   /**
    * Validate avatar file before upload
-   * 
+   *
    * @param file - File to validate
    * @returns Validation result with errors if any
-   * 
+   *
    * @description
    * Repository implementation für File Validation.
    * Fügt Business Logic Validierung zu DataSource Validation hinzu.
-   * 
+   *
    * @example
    * ```typescript
    * const validation = repository.validateFile(selectedFile);
@@ -436,7 +476,7 @@ export class AvatarRepositoryImpl implements IAvatarRepository {
         name: file.fileName || 'avatar.jpg',
         size: file.size,
         type: file.mime,
-        uri: file.uri
+        uri: file.uri,
       });
 
       // Combine repository and DataSource validation results
@@ -445,39 +485,51 @@ export class AvatarRepositoryImpl implements IAvatarRepository {
       const isValid = errors.length === 0;
 
       if (isValid) {
-        logger.info('Avatar file validation passed', LogCategory.BUSINESS, {
-          metadata: { 
-            fileName: file.fileName,
-            fileSize: file.size,
-            mimeType: file.mime
+        this.logger.info(
+          'Avatar file validation passed',
+          LogCategory.BUSINESS,
+          {
+            metadata: {
+              fileName: file.fileName,
+              fileSize: file.size,
+              mimeType: file.mime,
+            },
           }
-        });
+        );
       } else {
-        logger.warn('Avatar file validation failed', LogCategory.BUSINESS, {
-          metadata: { 
-            fileName: file.fileName,
-            fileSize: file.size,
-            mimeType: file.mime,
-            errors
+        this.logger.warn(
+          'Avatar file validation failed',
+          LogCategory.BUSINESS,
+          {
+            metadata: {
+              fileName: file.fileName,
+              fileSize: file.size,
+              mimeType: file.mime,
+              errors,
+            },
           }
-        });
+        );
       }
 
       return {
         valid: isValid,
-        errors
+        errors,
       };
-
     } catch (error) {
-      logger.error('Avatar file validation exception', LogCategory.BUSINESS, {
-        metadata: { 
-          fileName: file?.fileName,
-          fileSize: file?.size
-        }
-      }, error as Error);
+      this.logger.error(
+        'Avatar file validation exception',
+        LogCategory.BUSINESS,
+        {
+          metadata: {
+            fileName: file?.fileName,
+            fileSize: file?.size,
+          },
+        },
+        error as Error
+      );
       return {
         valid: false,
-        errors: ['File validation failed due to internal error']
+        errors: ['File validation failed due to internal error'],
       };
     }
   }

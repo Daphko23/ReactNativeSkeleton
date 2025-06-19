@@ -8,36 +8,32 @@
 export { ValidateProfileDataUseCase } from './application/use-cases/validation/validate-profile-data.usecase';
 export { CalculateProfileCompletionUseCase } from './application/use-cases/completion/calculate-profile-completion.usecase';
 export { UpdatePrivacySettingsUseCase } from './application/use-cases/security/update-privacy-settings.usecase';
+export { UpdateProfileUseCase } from './application/use-cases/profile/update-profile.use-case';
 
 // ✅ VALIDATION SCHEMAS
 export { ProfileValidator } from './application/validation/profile.schemas';
 
 // ✅ DI CONTAINER
-export { 
-  ProfileContainer, 
-  initializeProfileContainer,
-  getProfileContainer,
+export {
+  ProfileDIContainer,
+  createProfileContainer,
   useProfileContainer,
-  type ProfileContainerConfig,
-  type IProfileServiceRegistry,
-  type ServiceHealthStatus
+  type ProfileContainerDependencies,
 } from './application/di/profile.container';
 
 // === PRESENTATION LAYER ===
 // ✅ TANSTACK QUERY HOOKS (Server State)
-export { 
-  useProfileQuery, 
+export {
+  useProfileQuery,
   useUpdateProfileMutation,
-  useDeleteProfileMutation 
+  useDeleteProfileMutation,
 } from './presentation/hooks/use-profile-query.hook';
 
-export { 
-  useAvatar 
-} from './presentation/hooks/use-avatar.hook';
+export { useAvatar } from './presentation/hooks/use-avatar.hook';
 
-export { 
+export {
   useCustomFieldsQuery,
-  useUpdateCustomFieldsMutation 
+  useUpdateCustomFieldsMutation,
 } from './presentation/hooks/use-custom-fields-query.hook';
 
 // ✅ CLIENT STATE STORE (UI State)
@@ -81,8 +77,9 @@ export const ProfileFeature = {
   // Feature metadata
   name: 'Profile',
   version: '3.0.0',
-  description: 'Enterprise user profile management mit Clean Architecture + TanStack Query + Client State Store',
-  
+  description:
+    'Enterprise user profile management mit Clean Architecture + TanStack Query + Client State Store',
+
   // 🎯 NEW ARCHITECTURE
   architecture: {
     pattern: 'Clean Architecture',
@@ -90,9 +87,9 @@ export const ProfileFeature = {
     clientState: 'Zustand Store',
     businessLogic: 'Use Cases',
     validation: 'Zod Schemas',
-    di: 'Simple Service Registry'
+    di: 'Simple Service Registry',
   },
-  
+
   // Feature capabilities
   capabilities: {
     // Core functionality
@@ -101,27 +98,30 @@ export const ProfileFeature = {
     avatarManagement: true,
     avatarUpload: true,
     privacyControls: true,
-    
+
     // Advanced features
     profileHistory: true,
     dataExport: true,
     customFields: true,
     realTimeSync: true,
-    
+
     // 🎯 NEW 2025 FEATURES
     tanstackQuery: true,
     clientStateStore: true,
     businessLogicUseCases: true,
     zodValidation: true,
     reactNativePerformance: true,
-    
+
     // Integrations
     authIntegration: true,
     i18nSupport: true,
     storageIntegration: true,
-    
+
     // Extensibility
     customValidation: true,
     themeSupport: true,
   },
 };
+
+// Application Layer
+export { ProfileValidationService } from './application/services/profile-validation.service';

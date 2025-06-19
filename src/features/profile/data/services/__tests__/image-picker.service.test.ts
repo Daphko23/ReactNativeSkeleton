@@ -4,7 +4,7 @@
  * Native API Integration, Permission Handling, Platform-spezifischen Flows,
  * Error Handling und Performance Testing. Implementiert Enterprise Testing
  * Standards mit Mock-Integration für React Native Dependencies.
- * 
+ *
  * @version 1.0.0
  * @since 2024-01-15
  * @author ReactNativeSkeleton Enterprise Team
@@ -30,7 +30,7 @@ jest.mock('react-native', () => ({
   Platform: {
     OS: 'android',
     Version: 30,
-    select: jest.fn((platforms) => platforms.android || platforms.default),
+    select: jest.fn(platforms => platforms.android || platforms.default),
   },
   PermissionsAndroid: {
     PERMISSIONS: {
@@ -42,33 +42,40 @@ jest.mock('react-native', () => ({
       DENIED: 'denied',
       NEVER_ASK_AGAIN: 'never_ask_again',
     },
-    check: jest.fn(),
-    request: jest.fn(),
+    check: jest.fn().mockResolvedValue(true),
+    request: jest.fn().mockResolvedValue('granted'),
   },
 }));
 
 import { ImagePickerService } from '../image-picker.service';
-import { 
-  ImagePickerOptions, 
-  AVATAR_CONSTANTS 
+import {
+  ImagePickerOptions,
+  AVATAR_CONSTANTS,
 } from '../../../domain/interfaces/avatar.interface';
 
 // Import mocked modules after mocking
 import ImagePicker from 'react-native-image-crop-picker';
 import { launchImageLibrary } from 'react-native-image-picker';
-import { Platform, PermissionsAndroid } from 'react-native';
+import {
+  Platform,
+  PermissionsAndroid as _PermissionsAndroid,
+} from 'react-native';
 
 // Type the mocked modules
 const mockImagePicker = ImagePicker as jest.Mocked<typeof ImagePicker>;
-const mockLaunchImageLibrary = launchImageLibrary as jest.MockedFunction<typeof launchImageLibrary>;
+const mockLaunchImageLibrary = launchImageLibrary as jest.MockedFunction<
+  typeof launchImageLibrary
+>;
 const mockPlatform = Platform as jest.Mocked<typeof Platform>;
-const mockPermissionsAndroid = PermissionsAndroid as jest.Mocked<typeof PermissionsAndroid>;
+let mockPermissionsAndroid: any;
 
 describe('ImagePickerService', () => {
   let service: ImagePickerService;
 
   // Helper function to create mock image picker options
-  const createImagePickerOptions = (overrides: Partial<ImagePickerOptions> = {}): ImagePickerOptions => ({
+  const createImagePickerOptions = (
+    overrides: Partial<ImagePickerOptions> = {}
+  ): ImagePickerOptions => ({
     width: AVATAR_CONSTANTS.DIMENSIONS.width,
     height: AVATAR_CONSTANTS.DIMENSIONS.height,
     cropping: true,
@@ -94,20 +101,35 @@ describe('ImagePickerService', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     service = new ImagePickerService();
-    
+
     // Reset Platform.OS to Android for consistent testing
     mockPlatform.OS = 'android';
     mockPlatform.Version = 30;
-    
-    // Set default mock implementations for granted permissions
-    mockPermissionsAndroid.check.mockResolvedValue(true);
-    mockPermissionsAndroid.request.mockResolvedValue(mockPermissionsAndroid.RESULTS.GRANTED);
-    
+
+    // Directly ensure PermissionsAndroid exists and is properly mocked
+    const ReactNative = require('react-native');
+    const permissionsAndroidMock = {
+      PERMISSIONS: {
+        CAMERA: 'android.permission.CAMERA',
+        READ_EXTERNAL_STORAGE: 'android.permission.READ_EXTERNAL_STORAGE',
+      },
+      RESULTS: {
+        GRANTED: 'granted',
+        DENIED: 'denied',
+        NEVER_ASK_AGAIN: 'never_ask_again',
+      },
+      check: jest.fn().mockResolvedValue(true),
+      request: jest.fn().mockResolvedValue('granted'),
+    };
+
+    ReactNative.PermissionsAndroid = permissionsAndroidMock;
+    mockPermissionsAndroid = permissionsAndroidMock;
+
     // Mock successful image picker operations
     mockImagePicker.openCamera.mockResolvedValue(createCropPickerImage());
     mockImagePicker.openPicker.mockResolvedValue(createCropPickerImage());
     mockImagePicker.clean.mockResolvedValue(undefined);
-    
+
     // Mock react-native-image-picker for fallback scenarios
     mockLaunchImageLibrary.mockImplementation((options, callback) => {
       if (callback) {
@@ -122,8 +144,8 @@ describe('ImagePickerService', () => {
               type: 'image/jpeg',
               fileSize: 1024 * 1024,
               fileName: 'fallback-image.jpg',
-            }
-          ]
+            },
+          ],
         });
       }
       return Promise.resolve({
@@ -137,8 +159,8 @@ describe('ImagePickerService', () => {
             type: 'image/jpeg',
             fileSize: 1024 * 1024,
             fileName: 'fallback-image.jpg',
-          }
-        ]
+          },
+        ],
       });
     });
   });
@@ -147,13 +169,17 @@ describe('ImagePickerService', () => {
     test('should open camera successfully on Android', async () => {
       // Configure mocks for successful camera operation
       mockPermissionsAndroid.check.mockResolvedValue(true);
-      const expectedImage = createCropPickerImage({ path: '/camera/image.jpg' });
+      const expectedImage = createCropPickerImage({
+        path: '/camera/image.jpg',
+      });
       mockImagePicker.openCamera.mockResolvedValue(expectedImage);
 
       const options = createImagePickerOptions();
       const result = await service.openCamera(options);
 
-      expect(mockPermissionsAndroid.check).toHaveBeenCalledWith(mockPermissionsAndroid.PERMISSIONS.CAMERA);
+      expect(mockPermissionsAndroid.check).toHaveBeenCalledWith(
+        mockPermissionsAndroid.PERMISSIONS.CAMERA
+      );
       expect(mockImagePicker.openCamera).toHaveBeenCalledWith({
         width: options.width,
         height: options.height,
@@ -185,7 +211,7 @@ describe('ImagePickerService', () => {
 
     test('should open camera successfully on iOS', async () => {
       mockPlatform.OS = 'ios';
-      
+
       const options = createImagePickerOptions();
       const expectedImage = createCropPickerImage();
       mockImagePicker.openCamera.mockResolvedValue(expectedImage);
@@ -198,48 +224,65 @@ describe('ImagePickerService', () => {
       expect(result).toBeDefined();
     });
 
-      test('should request camera permission when not granted', async () => {
-    // Mock permission not granted initially, then granted after request
-    mockPermissionsAndroid.check.mockResolvedValue(false); // checkCameraPermission() returns boolean
-    mockPermissionsAndroid.request.mockResolvedValue(mockPermissionsAndroid.RESULTS.GRANTED);
-    
-    const options = createImagePickerOptions();
-    const result = await service.openCamera(options);
-
-    expect(mockPermissionsAndroid.check).toHaveBeenCalledWith(mockPermissionsAndroid.PERMISSIONS.CAMERA);
-    expect(mockPermissionsAndroid.request).toHaveBeenCalledWith(
-      mockPermissionsAndroid.PERMISSIONS.CAMERA,
-      expect.objectContaining({
-        title: 'Kamera-Berechtigung',
-        message: 'Diese App benötigt Zugriff auf Ihre Kamera, um Fotos aufzunehmen.',
-      })
-    );
-    expect(result).toBeDefined();
-  });
-
-    test('should handle camera cancellation', async () => {
-      mockImagePicker.openCamera.mockRejectedValue({ code: 'E_PICKER_CANCELLED' });
+    test('should request camera permission when not granted', async () => {
+      // Mock permission not granted initially, then granted after request
+      mockPermissionsAndroid.check.mockResolvedValue(false); // checkCameraPermission() returns boolean
+      mockPermissionsAndroid.request.mockResolvedValue(
+        mockPermissionsAndroid.RESULTS.GRANTED
+      );
 
       const options = createImagePickerOptions();
+      const result = await service.openCamera(options);
 
-      await expect(service.openCamera(options)).rejects.toThrow('User cancelled image selection');
+      expect(mockPermissionsAndroid.check).toHaveBeenCalledWith(
+        mockPermissionsAndroid.PERMISSIONS.CAMERA
+      );
+      expect(mockPermissionsAndroid.request).toHaveBeenCalledWith(
+        mockPermissionsAndroid.PERMISSIONS.CAMERA,
+        expect.objectContaining({
+          title: 'Kamera-Berechtigung',
+          message:
+            'Diese App benötigt Zugriff auf Ihre Kamera, um Fotos aufzunehmen.',
+        })
+      );
+      expect(result).toBeDefined();
     });
 
-      test('should handle camera permission error', async () => {
-    mockPermissionsAndroid.check.mockResolvedValue(false);
-    mockPermissionsAndroid.request.mockResolvedValue(mockPermissionsAndroid.RESULTS.DENIED);
-
-    const options = createImagePickerOptions();
-
-    await expect(service.openCamera(options)).rejects.toThrow('Camera permission denied');
-  });
-
-    test('should handle unknown camera errors', async () => {
-      mockImagePicker.openCamera.mockRejectedValue(new Error('Unknown camera error'));
+    test('should handle camera cancellation', async () => {
+      mockImagePicker.openCamera.mockRejectedValue({
+        code: 'E_PICKER_CANCELLED',
+      });
 
       const options = createImagePickerOptions();
 
-      await expect(service.openCamera(options)).rejects.toThrow('Camera error: Unknown camera error');
+      await expect(service.openCamera(options)).rejects.toThrow(
+        'User cancelled image selection'
+      );
+    });
+
+    test('should handle camera permission error', async () => {
+      mockPermissionsAndroid.check.mockResolvedValue(false);
+      mockPermissionsAndroid.request.mockResolvedValue(
+        mockPermissionsAndroid.RESULTS.DENIED
+      );
+
+      const options = createImagePickerOptions();
+
+      await expect(service.openCamera(options)).rejects.toThrow(
+        'Camera permission denied'
+      );
+    });
+
+    test('should handle unknown camera errors', async () => {
+      mockImagePicker.openCamera.mockRejectedValue(
+        new Error('Unknown camera error')
+      );
+
+      const options = createImagePickerOptions();
+
+      await expect(service.openCamera(options)).rejects.toThrow(
+        'Camera error: Unknown camera error'
+      );
     });
 
     test('should handle camera errors without message', async () => {
@@ -247,27 +290,33 @@ describe('ImagePickerService', () => {
 
       const options = createImagePickerOptions();
 
-      await expect(service.openCamera(options)).rejects.toThrow('Camera error: Unknown error');
+      await expect(service.openCamera(options)).rejects.toThrow(
+        'Camera error: Unknown error'
+      );
     });
   });
 
   describe('Gallery Operations', () => {
     test('should open gallery successfully on Android', async () => {
       mockPermissionsAndroid.check.mockResolvedValue(true);
-      const expectedImage = createCropPickerImage({ path: '/gallery/image.jpg' });
+      const expectedImage = createCropPickerImage({
+        path: '/gallery/image.jpg',
+      });
       mockImagePicker.openPicker.mockResolvedValue(expectedImage);
 
       const options = createImagePickerOptions();
       const result = await service.openGallery(options);
 
-      expect(mockPermissionsAndroid.check).toHaveBeenCalledWith(mockPermissionsAndroid.PERMISSIONS.READ_EXTERNAL_STORAGE);
+      expect(mockPermissionsAndroid.check).toHaveBeenCalledWith(
+        mockPermissionsAndroid.PERMISSIONS.READ_EXTERNAL_STORAGE
+      );
       expect(mockImagePicker.openPicker).toHaveBeenCalled();
       expect(result.path).toBe('/gallery/image.jpg');
     });
 
     test('should open gallery successfully on iOS', async () => {
       mockPlatform.OS = 'ios';
-      
+
       const options = createImagePickerOptions();
       const expectedImage = createCropPickerImage();
       mockImagePicker.openPicker.mockResolvedValue(expectedImage);
@@ -282,10 +331,12 @@ describe('ImagePickerService', () => {
 
     test('should handle iOS fallback to react-native-image-picker', async () => {
       mockPlatform.OS = 'ios';
-      
+
       // First call to openPicker fails, triggering fallback
-      mockImagePicker.openPicker.mockRejectedValue(new Error('iOS picker failed'));
-      
+      mockImagePicker.openPicker.mockRejectedValue(
+        new Error('iOS picker failed')
+      );
+
       const options = createImagePickerOptions();
       const result = await service.openGallery(options);
 
@@ -295,8 +346,10 @@ describe('ImagePickerService', () => {
 
     test('should handle gallery permission request', async () => {
       mockPermissionsAndroid.check.mockResolvedValue(false);
-      mockPermissionsAndroid.request.mockResolvedValue(mockPermissionsAndroid.RESULTS.GRANTED);
-      
+      mockPermissionsAndroid.request.mockResolvedValue(
+        mockPermissionsAndroid.RESULTS.GRANTED
+      );
+
       const options = createImagePickerOptions();
       const result = await service.openGallery(options);
 
@@ -305,38 +358,53 @@ describe('ImagePickerService', () => {
     });
 
     test('should handle gallery cancellation', async () => {
-      mockImagePicker.openPicker.mockRejectedValue({ code: 'E_PICKER_CANCELLED' });
+      mockImagePicker.openPicker.mockRejectedValue({
+        code: 'E_PICKER_CANCELLED',
+      });
 
       const options = createImagePickerOptions();
 
-      await expect(service.openGallery(options)).rejects.toThrow('User cancelled image selection');
+      await expect(service.openGallery(options)).rejects.toThrow(
+        'User cancelled image selection'
+      );
     });
 
     test('should handle gallery permission error', async () => {
       mockPermissionsAndroid.check.mockResolvedValue(false);
-      mockPermissionsAndroid.request.mockResolvedValue(mockPermissionsAndroid.RESULTS.DENIED);
-
-      const options = createImagePickerOptions();
-
-      await expect(service.openGallery(options)).rejects.toThrow('Storage permission denied');
-    });
-
-    test('should handle gallery timeout', async () => {
-      // Mock a timeout scenario
-      mockImagePicker.openPicker.mockImplementation(() => 
-        new Promise((_, reject) => 
-          setTimeout(() => reject(new Error('Image picker timeout - please try again')), 100)
-        )
+      mockPermissionsAndroid.request.mockResolvedValue(
+        mockPermissionsAndroid.RESULTS.DENIED
       );
 
       const options = createImagePickerOptions();
 
-      await expect(service.openGallery(options)).rejects.toThrow('Image picker timeout - please try again');
+      await expect(service.openGallery(options)).rejects.toThrow(
+        'Storage permission denied'
+      );
+    });
+
+    test('should handle gallery timeout', async () => {
+      // Mock a timeout scenario
+      mockImagePicker.openPicker.mockImplementation(
+        () =>
+          new Promise((_, reject) =>
+            setTimeout(
+              () =>
+                reject(new Error('Image picker timeout - please try again')),
+              100
+            )
+          )
+      );
+
+      const options = createImagePickerOptions();
+
+      await expect(service.openGallery(options)).rejects.toThrow(
+        'Image picker timeout - please try again'
+      );
     });
 
     test('should skip permission check on Android 13+', async () => {
       mockPlatform.Version = 33; // Android 13
-      
+
       const options = createImagePickerOptions();
       await service.openGallery(options);
 
@@ -351,7 +419,9 @@ describe('ImagePickerService', () => {
 
       const hasPermission = await service.checkCameraPermission();
 
-      expect(mockPermissionsAndroid.check).toHaveBeenCalledWith(mockPermissionsAndroid.PERMISSIONS.CAMERA);
+      expect(mockPermissionsAndroid.check).toHaveBeenCalledWith(
+        mockPermissionsAndroid.PERMISSIONS.CAMERA
+      );
       expect(hasPermission).toBe(true);
     });
 
@@ -364,7 +434,9 @@ describe('ImagePickerService', () => {
     });
 
     test('should handle camera permission check error', async () => {
-      mockPermissionsAndroid.check.mockRejectedValue(new Error('Permission check failed'));
+      mockPermissionsAndroid.check.mockRejectedValue(
+        new Error('Permission check failed')
+      );
 
       const hasPermission = await service.checkCameraPermission();
 
@@ -372,7 +444,9 @@ describe('ImagePickerService', () => {
     });
 
     test('should request camera permission correctly on Android', async () => {
-      mockPermissionsAndroid.request.mockResolvedValue(mockPermissionsAndroid.RESULTS.GRANTED);
+      mockPermissionsAndroid.request.mockResolvedValue(
+        mockPermissionsAndroid.RESULTS.GRANTED
+      );
 
       const granted = await service.requestCameraPermission();
 
@@ -380,7 +454,8 @@ describe('ImagePickerService', () => {
         mockPermissionsAndroid.PERMISSIONS.CAMERA,
         expect.objectContaining({
           title: 'Kamera-Berechtigung',
-          message: 'Diese App benötigt Zugriff auf Ihre Kamera, um Fotos aufzunehmen.',
+          message:
+            'Diese App benötigt Zugriff auf Ihre Kamera, um Fotos aufzunehmen.',
         })
       );
       expect(granted).toBe(true);
@@ -399,7 +474,9 @@ describe('ImagePickerService', () => {
 
       const hasPermission = await service.checkStoragePermission();
 
-      expect(mockPermissionsAndroid.check).toHaveBeenCalledWith(mockPermissionsAndroid.PERMISSIONS.READ_EXTERNAL_STORAGE);
+      expect(mockPermissionsAndroid.check).toHaveBeenCalledWith(
+        mockPermissionsAndroid.PERMISSIONS.READ_EXTERNAL_STORAGE
+      );
       expect(hasPermission).toBe(true);
     });
 
@@ -454,7 +531,9 @@ describe('ImagePickerService', () => {
     });
 
     test('should generate filename when not provided', async () => {
-      const imageWithoutFilename = createCropPickerImage({ filename: undefined });
+      const imageWithoutFilename = createCropPickerImage({
+        filename: undefined,
+      });
       mockImagePicker.openCamera.mockResolvedValue(imageWithoutFilename);
 
       const options = createImagePickerOptions();
@@ -503,10 +582,10 @@ describe('ImagePickerService', () => {
     });
 
     test('should handle very large image dimensions', async () => {
-      const largeImage = createCropPickerImage({ 
-        width: 10000, 
+      const largeImage = createCropPickerImage({
+        width: 10000,
         height: 10000,
-        size: 1024 * 1024 // Keep size valid
+        size: 1024 * 1024, // Keep size valid
       });
       mockImagePicker.openCamera.mockResolvedValue(largeImage);
 
@@ -518,8 +597,8 @@ describe('ImagePickerService', () => {
     });
 
     test('should handle images with special characters in filename', async () => {
-      const specialImage = createCropPickerImage({ 
-        filename: 'test-image-äöü-123.jpg' 
+      const specialImage = createCropPickerImage({
+        filename: 'test-image-äöü-123.jpg',
       });
       mockImagePicker.openCamera.mockResolvedValue(specialImage);
 
@@ -535,7 +614,9 @@ describe('ImagePickerService', () => {
       const options = createImagePickerOptions();
       const startTime = Date.now();
 
-      const promises = Array(5).fill(null).map(() => service.openCamera(options));
+      const promises = Array(5)
+        .fill(null)
+        .map(() => service.openCamera(options));
       await Promise.all(promises);
 
       const endTime = Date.now();
@@ -588,7 +669,7 @@ describe('ImagePickerService', () => {
       // Test iOS configuration - iOS uses simple mode first
       mockPlatform.OS = 'ios';
       mockImagePicker.openPicker.mockClear();
-      
+
       const iosOptions = createImagePickerOptions();
       await service.openGallery(iosOptions);
 
